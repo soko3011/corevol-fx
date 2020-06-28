@@ -1,0 +1,22 @@
+.jexcel > thead > tr > td {
+    font-family: Arial;
+    font-size: 0.65rem;
+    background-color: #3c4b63;
+    color: white;
+  }
+  .jexcel > tbody > tr > td {
+    font-family: Arial;
+    font-size: 0.75rem;
+    padding: 0px;
+    line-height: 1.6em;
+  }
+  .jexcel > thead > tr > td.selected {
+    color: black;
+    background-color: #8f9494;
+  }
+  
+  .table th,
+  .table td {
+  padding: 0.25rem;
+  vertical-align: top;
+  }

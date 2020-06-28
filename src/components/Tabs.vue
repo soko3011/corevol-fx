@@ -4,9 +4,11 @@
       v-model="active_tab"
       grow
       dark
-      background-color="red lighten-2"
+      color="blue lighten-4"
+      background-color="blue-grey darken-3"
       show-arrows
     >
+      <v-tabs-slider color="teal accent-3"></v-tabs-slider>
       <v-tab><CcyPairModal v-on:ccyPairSelection="emitToParentModal"/></v-tab>
 
       <v-tab

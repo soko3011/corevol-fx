@@ -1,7 +1,9 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Home from "../views/Home.vue";
+
 import Dvi from "@/views/DviView";
+const TheContainer = () => import("@/container/TheContainer");
+const Pricer = () => import("@/views/PricerView");
 
 Vue.use(Router);
 export default new Router({
@@ -16,21 +18,28 @@ function configRoutes() {
     {
       path: "/",
       name: "Home",
-      component: Home
-    },
-    {
-      path: "/dvi/:ccyPair",
-      name: "Dvi",
-      component: Dvi
-    },
-    {
-      path: "/about",
-      name: "About",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () =>
-        import(/* webpackChunkName: "about" */ "../views/About.vue")
+      component: TheContainer,
+      children: [
+        {
+          path: "/dvi/:ccyPair",
+          name: "Dvi",
+          component: Dvi
+        },
+        {
+          path: "pricer/:viewName",
+          name: "Pricer",
+          component: Pricer
+        },
+        {
+          path: "/about",
+          name: "About",
+          // route level code-splitting
+          // this generates a separate chunk (about.[hash].js) for this route
+          // which is lazy-loaded when the route is visited.
+          component: () =>
+            import(/* webpackChunkName: "about" */ "../views/About.vue")
+        }
+      ]
     }
   ];
 }

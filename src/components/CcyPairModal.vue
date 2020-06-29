@@ -5,7 +5,7 @@
         <v-icon v-bind="attrs" v-on="on">mdi-plus-circle-outline</v-icon>
       </template>
 
-      <v-card class="mx-auto" max-width="200">
+      <v-card flush class="mx-auto" max-width="200">
         <v-list>
           <v-list-item-group mandatory color="indigo">
             <v-list-item
@@ -17,6 +17,7 @@
             >
               <v-list-item-content>
                 <v-list-item-title>{{ item }}</v-list-item-title>
+                <v-divider class="mt-2" light></v-divider>
               </v-list-item-content>
             </v-list-item>
           </v-list-item-group>

@@ -3,8 +3,12 @@
     <v-row>
       <v-col>
         <v-btn-toggle>
-          <v-btn v-on:click="addRow()" size="sm" color="info">ADD RANGE</v-btn>
-          <v-btn v-on:click="delRow()" size="sm" color="dark">DEL RANGE</v-btn>
+          <v-btn x-small dark v-on:click="addRow()" size="sm" color="blue"
+            >ADD RANGE</v-btn
+          >
+          <v-btn x-small v-on:click="delRow()" size="sm" color="dark"
+            >DEL RANGE</v-btn
+          >
         </v-btn-toggle>
       </v-col>
     </v-row>

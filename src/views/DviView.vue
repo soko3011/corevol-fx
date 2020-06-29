@@ -1,39 +1,46 @@
 <template>
-  <v-app>
+  <div>
     <Tabs
-      :propData="{ inputList: activeDvis, ccyPair: this.$route.params.ccyPair }"
+      :propData="{
+        inputList: activeDvis,
+        ccyPair: this.$route.params.ccyPair
+      }"
       v-on:tabSelection="ReloadDvi"
       v-on:modalSelection="ReloadDvi"
       v-on:deleteTab="RemoveTab"
     />
 
-    <v-container v-if="dataReturned" class="cont" fluid>
-      <div class="d-flex align-start justify-start mb-2">
-        <div>
-          <surfaceTable />
-          <div class="d-flex align-center justify-start mb-2">
-            <dviInputTable />
-            <v-btn size="sm" variant="outline-dark" @click="ResetVols()"
+    <div
+      v-if="dataReturned"
+      class="d-flex flex-nowrap align-start justify-start mt-5 cont "
+    >
+      <div>
+        <surfaceTable />
+        <div class="d-flex align-center justify-start mt-2 ">
+          <dviInputTable />
+          <div class="d-flex flex-column">
+            <p class="mx-auto ma-0">{{ this.$route.params.ccyPair }}</p>
+            <v-btn x-small outlined color="blue" @click="ResetVols()"
               >IPV_ATM</v-btn
             >
 
-            <v-btn size="sm" variant="outline-dark" @click="ResetVols1()"
+            <v-btn x-small outlined color="red" @click="ResetVols1()"
               >IPV_SURFACE</v-btn
             >
           </div>
-          <div class="d-flex align-center justify-start mb-2">
-            <dviSmileInputTable />
-          </div>
-          <div class="d-flex align-center justify-start mb-2">
-            <userRange />
-          </div>
         </div>
-        <dviTable />
-        <DviCalendar v-bind:calData="this.$store.getters.forCalGetter" />
-        <DviCalendar v-bind:calData="this.$store.getters.domCalGetter" />
+        <div class="d-flex align-center justify-start mb-2">
+          <dviSmileInputTable />
+        </div>
+        <div class="d-flex align-center justify-start mb-2">
+          <userRange />
+        </div>
       </div>
-    </v-container>
-  </v-app>
+      <dviTable />
+      <DviCalendar v-bind:calData="this.$store.getters.forCalGetter" />
+      <DviCalendar v-bind:calData="this.$store.getters.domCalGetter" />
+    </div>
+  </div>
 </template>
 
 <script>
@@ -188,6 +195,7 @@ export default {
 .cont {
   display: flex;
   overflow-x: scroll;
+
   padding-left: 0px;
   padding-right: 0px;
 }

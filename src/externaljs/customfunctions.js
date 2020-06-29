@@ -29,7 +29,7 @@ export function JexcelTableByList(data, config) {
   var newdata = [];
 
   for (var r = 0; r < data.length; r++) {
-    vals = [];
+    var vals = [];
     vals.push(data[r]);
     newdata.push(vals);
   }
@@ -64,7 +64,7 @@ export function JexcelTableHeadersOnlyUserRows(data, config, rowNum) {
 
   if (data.length < rowNum) {
     for (r = 0; r < rowNum - data.length; r++) {
-      var vals = [];
+      vals = [];
       for (cc = 0; cc < keys.length; cc++) {
         vals.push("");
       }

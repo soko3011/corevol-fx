@@ -7,7 +7,17 @@
     dark
   >
     <v-list dense>
-      <v-list-item link>
+      <v-list-item
+        @click="
+          () =>
+            $router
+              .push({
+                name: 'Pricer',
+                params: { viewName: this.$store.state.lastPricerTab }
+              })
+              .catch(() => {})
+        "
+      >
         <v-list-item-action>
           <v-icon color="blue">mdi-home</v-icon>
         </v-list-item-action>
@@ -15,7 +25,17 @@
           <v-list-item-title>Home</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item link>
+      <v-list-item
+        @click="
+          () =>
+            $router
+              .push({
+                name: 'Dvi',
+                params: { ccyName: this.$store.state.activecross }
+              })
+              .catch(() => {})
+        "
+      >
         <v-list-item-action>
           <v-icon>mdi-email</v-icon>
         </v-list-item-action>
@@ -33,6 +53,7 @@ export default {
   data: () => ({
     drawer: null
   }),
+  components: {},
   props: {
     showsidebar: { type: Boolean }
   },
@@ -41,6 +62,7 @@ export default {
       this.drawer = this.showsidebar;
     }
   },
+  methods: {},
   computed: {
     nav() {
       return [

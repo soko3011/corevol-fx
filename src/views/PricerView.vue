@@ -1,9 +1,35 @@
 <template>
   <div>
-    <TreeView
-      :inputData="{ list: this.activePricers, listName: 'Active Pricers' }"
-    />
     <v-container v-if="dataReturned" class="cont" :fluid="true">
+      <v-card class="mr-3">
+        <v-toolbar height="40px" color="blue-grey" dark>
+          <PopUpInput
+            :icon="'mdi-plus-circle-outline'"
+            :label="'add name and hit enter'"
+            :color="'blue lighten-3'"
+            v-on:selection="UserAddPricer"
+          />
+          <v-toolbar-title class="ma-4">Add / Remove</v-toolbar-title>
+          <PopUpModal
+            :inputData="this.activePricers"
+            :icon="'mdi-minus-circle-outline'"
+            :color="'red'"
+            v-on:selection="RemoveTab"
+          />
+        </v-toolbar>
+
+        <TreeView
+          :inputData="{ list: this.activePricers, listName: 'Active Pricers' }"
+          v-on:selection="ReloadPricer"
+        />
+        <v-divider />
+        <h4 class="mt-5 font-weight-medium text-center">
+          Current Pricer:
+        </h4>
+        <h3 class="font-weight-medium text-center text-uppercase blue--text">
+          {{ pricerTitle }}
+        </h3>
+      </v-card>
       <transition name="fade">
         <OptionPricer v-on:childToParent="setPricerTitle" />
       </transition>
@@ -15,19 +41,22 @@
 import OptionPricer from "@/pricerComponents/OptionPricer.vue";
 import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
+import PopUpModal from "@/components/PopUpModal.vue";
+import PopUpInput from "@/components/PopUpInput.vue";
 
 export default {
   name: "PricerView",
 
   components: {
     OptionPricer,
-    TreeView
+    TreeView,
+    PopUpModal,
+    PopUpInput
   },
 
   data() {
     return {
       activePricers: [],
-      tabIndex: 0,
       dataReturned: false,
       modalToggle: false,
       pricerTitle: "",
@@ -49,16 +78,17 @@ export default {
   },
 
   destroyed: function() {
-    this.$store.dispatch("setPricerTab", this.activePricers[this.tabIndex]);
+    this.$store.dispatch("setPricerTab", this.pricerTitle);
   },
   computed: {},
 
   methods: {
-    ActivePricerIndex(view) {
-      return this.activePricers.indexOf(view);
-    },
-    ViewNameFromIndex(index) {
-      return this.activePricers[index];
+    UserAddPricer(value) {
+      if (this.activePricers.indexOf(value) === -1) {
+        this.AddNewPricer(value);
+      } else {
+        alert("Pricer already exist: Choose another name");
+      }
     },
     AddNewPricer(value) {
       var index = this.activePricers.indexOf(value);
@@ -68,7 +98,7 @@ export default {
       }
 
       this.modalToggle = false;
-      this.RefreshPricerData(value);
+      this.ReloadPricer(value);
     },
     RefreshPricerData(view) {
       this.dataReturned = false;
@@ -104,16 +134,21 @@ export default {
       this.modalToggle = true;
     },
 
-    RemoveTab() {
-      const view = this.$route.params.viewName;
+    RemoveTab(view) {
       const index = this.activePricers.indexOf(view);
-      const redirectTo =
-        index !== 0
-          ? this.activePricers[index - 1]
-          : this.activePricers[index + 1];
-
       PricerApi.RemovePricerFromUse({ name: view });
-      this.ReloadPricer(redirectTo);
+
+      if ((view = this.$route.params.viewName)) {
+        let redirectTo =
+          index !== 0
+            ? this.activePricers[index - 1]
+            : this.activePricers[index + 1];
+
+        if (this.activePricers.length === 1) {
+          redirectTo = "NewPricer";
+        }
+        this.ReloadPricer(redirectTo);
+      }
     }
   },
   mounted: function() {}

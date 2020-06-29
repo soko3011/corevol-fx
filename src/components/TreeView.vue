@@ -1,12 +1,14 @@
 <template>
   <v-treeview
     v-model="tree"
-    :open="open"
+    open-all
     :items="listItems"
     activatable
     item-key="name"
     open-on-click
+    @update:active="emitToParentSelection"
   >
+    <div></div>
     <template v-slot:prepend="{ item, open }">
       <v-icon v-if="!item.file">
         {{ open ? "mdi-folder-open" : "mdi-folder" }}
@@ -29,7 +31,7 @@ export default {
       this.inputData.list.forEach(element => {
         const child = {
           name: element,
-          file: "html"
+          file: "txt"
         };
 
         children.push(child);
@@ -41,7 +43,6 @@ export default {
     }
   },
   data: () => ({
-    open: ["public"],
     files: {
       html: "mdi-language-html5",
       js: "mdi-nodejs",
@@ -52,25 +53,12 @@ export default {
       txt: "mdi-file-document-outline",
       xls: "mdi-file-excel"
     },
-    tree: [],
-    items: [
-      {
-        name: "ActivePricers",
-        children: [
-          {
-            name: "favicon.ico",
-            file: "png"
-          },
-          {
-            name: "index.html",
-            file: "html"
-          }
-        ]
-      }
-    ]
+    tree: []
   }),
-  mounted() {
-    console.log(this.listItems);
+  methods: {
+    emitToParentSelection(value) {
+      this.$emit("selection", value[0]);
+    }
   }
 };
 </script>

@@ -282,7 +282,10 @@ export default {
         this.col != 0
       ) {
         event.preventDefault();
-        this.$router.push("DviView/" + this.KeyVal("Cross"));
+        this.$router.push({
+          name: "Dvi",
+          params: { ccyPair: this.KeyVal("Cross") }
+        });
       }
     },
     setOptObj() {
@@ -319,7 +322,10 @@ export default {
             this.$store.dispatch("loadDviWithPayload", {
               cross: this.KeyVal("Cross")
             });
-            this.$router.push("DviView/" + this.KeyVal("Cross"));
+            this.$router.push({
+              name: "Dvi",
+              params: { ccyPair: this.KeyVal("Cross") }
+            });
           } else {
             PricerApi.GetSingleSpot({ cross: this.KeyVal("Cross") }).then(
               response => {

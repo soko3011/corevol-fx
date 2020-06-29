@@ -9,7 +9,12 @@
       show-arrows
     >
       <v-tabs-slider color="teal accent-3"></v-tabs-slider>
-      <v-tab><CcyPairModal v-on:ccyPairSelection="emitToParentModal"/></v-tab>
+      <v-tab
+        ><PopUpModal
+          :inputData="this.$store.state.crossList"
+          :icon="'mdi-plus-circle-outline'"
+          v-on:selection="emitToParentModal"
+      /></v-tab>
 
       <v-tab
         v-for="(item, index) in propData.inputList"
@@ -28,7 +33,7 @@
 </template>
 
 <script>
-import CcyPairModal from "@/components/CcyPairModal.vue";
+import PopUpModal from "@/components/PopUpModal.vue";
 export default {
   name: "Tabs",
   data() {
@@ -37,7 +42,7 @@ export default {
     };
   },
   components: {
-    CcyPairModal
+    PopUpModal
   },
   props: {
     propData: { type: Object }

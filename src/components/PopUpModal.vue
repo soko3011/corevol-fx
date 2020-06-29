@@ -2,7 +2,7 @@
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="200">
       <template v-slot:activator="{ on, attrs }">
-        <v-icon v-bind="attrs" v-on="on">mdi-plus-circle-outline</v-icon>
+        <v-icon :color="color" v-bind="attrs" v-on="on">{{ icon }}</v-icon>
       </template>
 
       <v-card flush class="mx-auto" max-width="200">
@@ -11,7 +11,7 @@
             <v-list-item
               class="text-center"
               dense
-              v-for="(item, index) in this.$store.state.crossList"
+              v-for="(item, index) in inputData"
               :key="index"
               @click="emitToParent(item)"
             >
@@ -38,9 +38,14 @@ export default {
   data: () => ({
     dialog: false
   }),
+  props: {
+    inputData: { type: Array },
+    icon: { type: String },
+    color: { type: String }
+  },
   methods: {
     emitToParent(item) {
-      this.$emit("ccyPairSelection", item);
+      this.$emit("selection", item);
     }
   }
 };

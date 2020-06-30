@@ -1,12 +1,13 @@
 <template>
   <v-navigation-drawer
-    expand-on-hover
+    :mini-variant="minify"
     color="blue-grey darken-3"
-    v-model="drawer"
     app
     dark
+    permanent
+    width="200"
   >
-    <v-list class="mt-15" dense>
+    <v-list dense>
       <v-list-item
         @click="
           () =>
@@ -44,6 +45,22 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
+
+    <template v-slot:append>
+      <v-list-item justify-end>
+        <v-list-item-action>
+          <v-icon
+            @click="minify = !minify"
+            color="green lighten-3"
+            class="mt-4"
+          >
+            {{
+              minify ? "mdi-chevron-double-left" : "mdi-chevron-double-right"
+            }}</v-icon
+          >
+        </v-list-item-action>
+      </v-list-item>
+    </template>
   </v-navigation-drawer>
 </template>
 
@@ -51,7 +68,7 @@
 export default {
   name: "TheSidebar",
   data: () => ({
-    drawer: null
+    minify: true
   }),
   components: {},
   props: {

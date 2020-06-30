@@ -6,6 +6,7 @@
     activatable
     item-key="name"
     open-on-click
+    rounded
     @update:active="emitToParentSelection"
   >
     <div></div>

@@ -52,7 +52,7 @@
     </v-toolbar>
 
     <v-container v-if="dataReturned" class="cont" :fluid="true">
-      <v-card v-if="showSideControl" class="mr-3">
+      <v-card v-if="showSideControl" min-width="225" class="mr-3">
         <TreeView
           :inputData="{ list: this.activePricers, listName: 'Active Pricers' }"
           v-on:selection="ReloadPricer"

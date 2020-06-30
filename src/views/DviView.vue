@@ -1,45 +1,90 @@
 <template>
   <div>
-    <Tabs
-      :propData="{
-        inputList: activeDvis,
-        ccyPair: this.$route.params.ccyPair
-      }"
-      v-on:tabSelection="ReloadDvi"
-      v-on:modalSelection="ReloadDvi"
-      v-on:deleteTab="RemoveTab"
-    />
-
-    <div
-      v-if="dataReturned"
-      class="d-flex flex-nowrap align-start justify-start mt-5 cont "
-    >
+    <v-toolbar color="blue-grey darken-3" min-width="250" collapse dense>
+      <v-app-bar-nav-icon
+        color="blue lighten-3"
+        @click="showSideControl = !showSideControl"
+      ></v-app-bar-nav-icon>
+      <v-spacer></v-spacer>
+      <h4
+        class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+      >
+        {{ this.$route.params.ccyPair }}
+      </h4>
+      <v-spacer></v-spacer>
       <div>
-        <surfaceTable />
-        <div class="d-flex align-center justify-start mt-2 ">
-          <dviInputTable />
-          <div class="d-flex flex-column">
-            <p class="mx-auto ma-0">{{ this.$route.params.ccyPair }}</p>
-            <v-btn x-small outlined color="blue" @click="ResetVols()"
-              >IPV_ATM</v-btn
-            >
+        <v-menu min-width="300" close-on-click offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon color="orange">mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <v-list-item-title>Add Dvi</v-list-item-title>
+              <v-btn color="grey lighten-1">
+                <PopUpModal
+                  :inputData="this.$store.state.crossList"
+                  :icon="'mdi-plus-box'"
+                  :color="'blue'"
+                  :title="'ADD DVI'"
+                  v-on:selection="ReloadDvi"
+                />
+              </v-btn>
+            </v-list-item>
+            <v-divider />
 
-            <v-btn x-small outlined color="red" @click="ResetVols1()"
-              >IPV_SURFACE</v-btn
-            >
+            <v-list-item>
+              <v-list-item-title>Remove Dvi</v-list-item-title>
+              <v-btn color="grey lighten-1">
+                <PopUpModal
+                  :inputData="this.activeDvis"
+                  :icon="'mdi-minus-box'"
+                  :color="'red'"
+                  :title="'REMOVE DVI'"
+                  v-on:selection="RemoveTab"
+                />
+              </v-btn>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
+    </v-toolbar>
+    <v-container v-if="dataReturned" class="cont" :fluid="true">
+      <v-card v-if="showSideControl" min-width="225" class="mr-3">
+        <TreeView
+          :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
+          v-on:selection="ReloadDvi"
+        />
+      </v-card>
+
+      <div class="d-flex flex-nowrap align-start justify-start">
+        <div>
+          <surfaceTable />
+          <div class="d-flex align-center justify-start mt-2 ">
+            <dviInputTable />
+            <div class="d-flex flex-column">
+              <v-btn x-small outlined color="blue" @click="ResetVols()"
+                >IPV_ATM</v-btn
+              >
+
+              <v-btn x-small outlined color="red" @click="ResetVols1()"
+                >IPV_SURFACE</v-btn
+              >
+            </div>
+          </div>
+          <div class="d-flex align-center justify-start mb-2">
+            <dviSmileInputTable />
+          </div>
+          <div class="d-flex align-center justify-start mb-2">
+            <userRange />
           </div>
         </div>
-        <div class="d-flex align-center justify-start mb-2">
-          <dviSmileInputTable />
-        </div>
-        <div class="d-flex align-center justify-start mb-2">
-          <userRange />
-        </div>
+        <dviTable />
+        <DviCalendar v-bind:calData="this.$store.getters.forCalGetter" />
+        <DviCalendar v-bind:calData="this.$store.getters.domCalGetter" />
       </div>
-      <dviTable />
-      <DviCalendar v-bind:calData="this.$store.getters.forCalGetter" />
-      <DviCalendar v-bind:calData="this.$store.getters.domCalGetter" />
-    </div>
+    </v-container>
   </div>
 </template>
 
@@ -51,8 +96,9 @@ import dviSmileInputTable from "@/dviComponents/DviSmileInputTable.vue";
 import DviCalendar from "@/dviComponents/DviCalendar.vue";
 import userRange from "@/dviComponents/DviUserRange.vue";
 import DviApi from "@/apis/DviApi";
+import TreeView from "@/components/TreeView.vue";
+import PopUpModal from "@/components/PopUpModal.vue";
 
-import Tabs from "@/components/Tabs.vue";
 //import VolApi from "@/apis/FxVolApi";
 
 export default {
@@ -64,8 +110,8 @@ export default {
     dviSmileInputTable,
     DviCalendar,
     userRange,
-
-    Tabs
+    TreeView,
+    PopUpModal
   },
   created: function() {
     var ccyPair = this.$route.params.ccyPair;
@@ -90,7 +136,8 @@ export default {
       activeDvis: [],
       showmodal: false,
       ccyPair: this.$route.params.ccyPair,
-      dataReturned: false
+      dataReturned: false,
+      showSideControl: true
     };
   },
   computed: {},

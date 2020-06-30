@@ -17,6 +17,7 @@ function configRoutes() {
   return [
     {
       path: "/",
+      redirect: "/dvi/:ccyPair",
       name: "Home",
       component: TheContainer,
       children: [

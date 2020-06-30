@@ -2,10 +2,10 @@
   <v-app class="blue-grey lighten-5">
     <TheSidebar :showsidebar="drawer" />
 
-    <v-app-bar dense app color="white" light>
+    <!-- <v-app-bar dense app color="white" light>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title></v-toolbar-title>
-    </v-app-bar>
+    </v-app-bar> -->
 
     <v-main>
       <v-container fluid>

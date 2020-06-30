@@ -1,40 +1,58 @@
 <template>
   <div>
+    <v-toolbar color="blue-grey darken-3" min-width="250" collapse dense>
+      <v-app-bar-nav-icon
+        color="blue lighten-3"
+        @click="showSideControl = !showSideControl"
+      ></v-app-bar-nav-icon>
+      <v-spacer></v-spacer>
+      <h4
+        class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+      >
+        {{ pricerTitle }}
+      </h4>
+      <v-spacer></v-spacer>
+      <div>
+        <v-menu min-width="300" close-on-click offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon color="orange">mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <v-list-item-title>Add Pricer</v-list-item-title>
+              <v-btn color="grey lighten-1">
+                <PopUpInput
+                  :icon="'mdi-plus-box'"
+                  :label="'add name and hit enter'"
+                  :color="'blue'"
+                  :title="'ADD NEW PRICER'"
+                  v-on:selection="UserAddPricer"
+                />
+              </v-btn>
+            </v-list-item>
+            <v-divider />
+
+            <v-list-item>
+              <v-list-item-title>Remove Pricer</v-list-item-title>
+              <v-btn color="grey lighten-1">
+                <PopUpModal
+                  :inputData="this.activePricers"
+                  :icon="'mdi-minus-box'"
+                  :color="'red'"
+                  :title="'REMOVE VIEW'"
+                  v-on:selection="RemoveTab"
+                />
+              </v-btn>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
+    </v-toolbar>
+
     <v-container v-if="dataReturned" class="cont" :fluid="true">
       <v-card v-if="showSideControl" class="mr-3">
-        <v-divider />
-        <div class="d-flex justify-space-around my-5">
-          <div class="d-flex flex-column">
-            <PopUpInput
-              :icon="'mdi-plus-box'"
-              :label="'add name and hit enter'"
-              :color="'blue darken-3'"
-              :title="'ADD NEW PRICER'"
-              v-on:selection="UserAddPricer"
-            />
-
-            <PopUpModal
-              :inputData="this.activePricers"
-              :icon="'mdi-minus-box'"
-              :color="'red darken-3'"
-              :title="'REMOVE VIEW'"
-              v-on:selection="RemoveTab"
-            />
-          </div>
-          <div>
-            <h4
-              class="font-weight-medium text-center text-uppercase black--text"
-            >
-              Current Pricer
-            </h4>
-            <h3
-              class="font-weight-medium text-center text-uppercase blue-grey--text"
-            >
-              {{ pricerTitle }}
-            </h3>
-          </div>
-        </div>
-        <v-divider />
         <TreeView
           :inputData="{ list: this.activePricers, listName: 'Active Pricers' }"
           v-on:selection="ReloadPricer"
@@ -74,7 +92,7 @@ export default {
       modalToggle: false,
       pricerTitle: "",
       viewName: this.$route.params.viewName,
-      showSideControl: false
+      showSideControl: true
     };
   },
   created: function() {

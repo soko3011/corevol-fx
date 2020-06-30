@@ -6,25 +6,7 @@
     app
     dark
   >
-    <v-list dense>
-      <v-list-item
-        @click="
-          () =>
-            $router
-              .push({
-                name: 'Pricer',
-                params: { viewName: this.$store.state.lastPricerTab }
-              })
-              .catch(() => {})
-        "
-      >
-        <v-list-item-action>
-          <v-icon color="blue">mdi-calculator</v-icon>
-        </v-list-item-action>
-        <v-list-item-content>
-          <v-list-item-title>Pricer</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+    <v-list class="mt-15" dense>
       <v-list-item
         @click="
           () =>
@@ -37,10 +19,28 @@
         "
       >
         <v-list-item-action>
-          <v-icon color="blue">mdi-apps</v-icon>
+          <v-icon color="blue lighten-3">mdi-apps</v-icon>
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title>Dvi</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
+        @click="
+          () =>
+            $router
+              .push({
+                name: 'Pricer',
+                params: { viewName: this.$store.state.lastPricerTab }
+              })
+              .catch(() => {})
+        "
+      >
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-calculator</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Pricer</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
     </v-list>

@@ -13,6 +13,7 @@
         ><PopUpModal
           :inputData="this.$store.state.crossList"
           :icon="'mdi-plus-circle-outline'"
+          :title="'SELECT CCY'"
           v-on:selection="emitToParentModal"
       /></v-tab>
 

@@ -19,10 +19,10 @@
         "
       >
         <v-list-item-action>
-          <v-icon color="blue">mdi-home</v-icon>
+          <v-icon color="blue">mdi-calculator</v-icon>
         </v-list-item-action>
         <v-list-item-content>
-          <v-list-item-title>Home</v-list-item-title>
+          <v-list-item-title>Pricer</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item
@@ -31,16 +31,16 @@
             $router
               .push({
                 name: 'Dvi',
-                params: { ccyName: this.$store.state.activecross }
+                params: { ccyPair: this.$store.state.activecross }
               })
               .catch(() => {})
         "
       >
         <v-list-item-action>
-          <v-icon>mdi-email</v-icon>
+          <v-icon color="blue">mdi-apps</v-icon>
         </v-list-item-action>
         <v-list-item-content>
-          <v-list-item-title>Contact</v-list-item-title>
+          <v-list-item-title>Dvi</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
     </v-list>

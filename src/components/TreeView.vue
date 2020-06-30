@@ -10,10 +10,10 @@
   >
     <div></div>
     <template v-slot:prepend="{ item, open }">
-      <v-icon v-if="!item.file">
+      <v-icon color="black" v-if="!item.file">
         {{ open ? "mdi-folder-open" : "mdi-folder" }}
       </v-icon>
-      <v-icon v-else>
+      <v-icon color="blue-grey" v-else>
         {{ files[item.file] }}
       </v-icon>
     </template>

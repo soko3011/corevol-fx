@@ -1,38 +1,51 @@
 <template>
   <div>
     <v-container v-if="dataReturned" class="cont" :fluid="true">
-      <v-card class="mr-3">
-        <v-toolbar height="40px" color="blue-grey" dark>
-          <PopUpInput
-            :icon="'mdi-plus-circle-outline'"
-            :label="'add name and hit enter'"
-            :color="'blue lighten-3'"
-            v-on:selection="UserAddPricer"
-          />
-          <v-toolbar-title class="ma-4">Add / Remove</v-toolbar-title>
-          <PopUpModal
-            :inputData="this.activePricers"
-            :icon="'mdi-minus-circle-outline'"
-            :color="'red'"
-            v-on:selection="RemoveTab"
-          />
-        </v-toolbar>
+      <v-card v-if="showSideControl" class="mr-3">
+        <v-divider />
+        <div class="d-flex justify-space-around my-5">
+          <div class="d-flex flex-column">
+            <PopUpInput
+              :icon="'mdi-plus-box'"
+              :label="'add name and hit enter'"
+              :color="'blue darken-3'"
+              :title="'ADD NEW PRICER'"
+              v-on:selection="UserAddPricer"
+            />
 
+            <PopUpModal
+              :inputData="this.activePricers"
+              :icon="'mdi-minus-box'"
+              :color="'red darken-3'"
+              :title="'REMOVE VIEW'"
+              v-on:selection="RemoveTab"
+            />
+          </div>
+          <div>
+            <h4
+              class="font-weight-medium text-center text-uppercase black--text"
+            >
+              Current Pricer
+            </h4>
+            <h3
+              class="font-weight-medium text-center text-uppercase blue-grey--text"
+            >
+              {{ pricerTitle }}
+            </h3>
+          </div>
+        </div>
+        <v-divider />
         <TreeView
           :inputData="{ list: this.activePricers, listName: 'Active Pricers' }"
           v-on:selection="ReloadPricer"
         />
-        <v-divider />
-        <h4 class="mt-5 font-weight-medium text-center">
-          Current Pricer:
-        </h4>
-        <h3 class="font-weight-medium text-center text-uppercase blue--text">
-          {{ pricerTitle }}
-        </h3>
       </v-card>
-      <transition name="fade">
-        <OptionPricer v-on:childToParent="setPricerTitle" />
-      </transition>
+
+      <div>
+        <transition name="fade">
+          <OptionPricer v-on:childToParent="setPricerTitle" />
+        </transition>
+      </div>
     </v-container>
   </div>
 </template>
@@ -60,10 +73,13 @@ export default {
       dataReturned: false,
       modalToggle: false,
       pricerTitle: "",
-      viewName: this.$route.params.viewName
+      viewName: this.$route.params.viewName,
+      showSideControl: false
     };
   },
   created: function() {
+    document.addEventListener("keydown", this.EventListeners);
+
     var view = this.$route.params.viewName;
 
     PricerApi.GetListOfActivePricers().then(response => {
@@ -78,14 +94,21 @@ export default {
   },
 
   destroyed: function() {
+    document.removeEventListener("keydown", this.EventListeners);
     this.$store.dispatch("setPricerTab", this.pricerTitle);
   },
   computed: {},
 
   methods: {
+    EventListeners(event) {
+      if (event.code == "KeyL" && event.ctrlKey) {
+        event.preventDefault();
+        this.showSideControl = !this.showSideControl;
+      }
+    },
     UserAddPricer(value) {
       if (this.activePricers.indexOf(value) === -1) {
-        this.AddNewPricer(value);
+        this.AddNewPricer(value.toUpperCase());
       } else {
         alert("Pricer already exist: Choose another name");
       }

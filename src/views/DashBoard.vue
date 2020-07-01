@@ -58,10 +58,9 @@ export default {
       .then(response => {
         this.surfs = JSON.parse(response.data.dashBoardSurfs);
         this.dataReturned = true;
-        console.log(this.surfs);
       })
       .catch(error => {
-        console.log(error.name);
+        alert(error.name);
       });
   },
   methods: {

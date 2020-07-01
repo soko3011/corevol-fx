@@ -1,5 +1,21 @@
 <template>
   <div>
+    <div>
+      <v-snackbar
+        v-model="snackbar"
+        multi-line
+        right
+        centered
+        timeout="-1"
+        class="pr-10"
+      >
+        <template v-slot:action="{ attrs }">
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </div>
     <v-toolbar
       color="blue-grey darken-3"
       min-width="300"
@@ -28,7 +44,10 @@
     <v-container v-if="dataReturned" class="cont" :fluid="true">
       <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
         <TreeView
-          :inputData="{ list: this.activePricers, listName: 'Active Pricers' }"
+          :inputData="{
+            list: this.activePricers,
+            listName: 'Active Pricers'
+          }"
           v-on:selection="ReloadPricer"
         />
         <div>
@@ -103,7 +122,8 @@ export default {
       modalToggle: false,
       pricerTitle: "",
       viewName: this.$route.params.viewName,
-      showSideControl: true
+      showSideControl: true,
+      snackbar: false
     };
   },
   created: function() {
@@ -132,7 +152,7 @@ export default {
     EventListeners(event) {
       if (event.code == "KeyL" && event.ctrlKey) {
         event.preventDefault();
-        this.showSideControl = !this.showSideControl;
+        this.snackbar = !this.snackbar;
       }
     },
     UserAddPricer(value) {

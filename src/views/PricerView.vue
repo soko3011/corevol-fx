@@ -1,10 +1,21 @@
 <template>
   <div>
-    <v-toolbar color="blue-grey darken-3" min-width="250" collapse dense>
-      <v-app-bar-nav-icon
-        color="blue lighten-3"
-        @click="showSideControl = !showSideControl"
-      ></v-app-bar-nav-icon>
+    <v-toolbar
+      color="blue-grey darken-3"
+      min-width="300"
+      dense
+      collapse
+      src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
+    >
+      <v-btn icon>
+        <v-icon
+          @click="showSideControl = !showSideControl"
+          color="blue lighten-3"
+        >
+          {{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon
+        >
+      </v-btn>
+
       <v-spacer></v-spacer>
       <h4
         class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
@@ -12,51 +23,51 @@
         {{ pricerTitle }}
       </h4>
       <v-spacer></v-spacer>
-      <div>
-        <v-menu min-width="300" close-on-click offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon color="orange">mdi-dots-vertical</v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item>
-              <v-list-item-title>Add Pricer</v-list-item-title>
-              <v-btn color="grey lighten-1">
+    </v-toolbar>
+
+    <v-container v-if="dataReturned" class="cont" :fluid="true">
+      <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
+        <TreeView
+          :inputData="{ list: this.activePricers, listName: 'Active Pricers' }"
+          v-on:selection="ReloadPricer"
+        />
+        <div>
+          <v-menu min-width="250" close-on-click offset-y>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn small color="pink" dark fab v-bind="attrs" v-on="on">
+                <v-icon>mdi-expand-all</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>Add Pricer</v-list-item-title>
+
                 <PopUpInput
                   :icon="'mdi-plus-box'"
                   :label="'add name and hit enter'"
                   :color="'blue'"
                   :title="'ADD NEW PRICER'"
+                  :large="true"
                   v-on:selection="UserAddPricer"
                 />
-              </v-btn>
-            </v-list-item>
-            <v-divider />
+              </v-list-item>
+              <v-divider />
 
-            <v-list-item>
-              <v-list-item-title>Remove Pricer</v-list-item-title>
-              <v-btn color="grey lighten-1">
+              <v-list-item>
+                <v-list-item-title>Remove Pricer</v-list-item-title>
+
                 <PopUpModal
                   :inputData="this.activePricers"
                   :icon="'mdi-minus-box'"
-                  :color="'red'"
+                  :color="'blue-grey'"
+                  :large="true"
                   :title="'REMOVE VIEW'"
                   v-on:selection="RemoveTab"
                 />
-              </v-btn>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </div>
-    </v-toolbar>
-
-    <v-container v-if="dataReturned" class="cont" :fluid="true">
-      <v-card v-if="showSideControl" min-width="225" class="mr-3">
-        <TreeView
-          :inputData="{ list: this.activePricers, listName: 'Active Pricers' }"
-          v-on:selection="ReloadPricer"
-        />
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
       </v-card>
 
       <div>

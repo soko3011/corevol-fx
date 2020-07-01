@@ -1,10 +1,20 @@
 <template>
   <div>
-    <v-toolbar color="blue-grey darken-3" min-width="250" collapse dense>
-      <v-app-bar-nav-icon
-        color="blue lighten-3"
-        @click="showSideControl = !showSideControl"
-      ></v-app-bar-nav-icon>
+    <v-toolbar
+      color="blue-grey darken-3"
+      min-width="300"
+      collapse
+      dense
+      src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
+    >
+      <v-btn icon>
+        <v-icon
+          @click="showSideControl = !showSideControl"
+          color="blue lighten-3"
+        >
+          {{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon
+        >
+      </v-btn>
       <v-spacer></v-spacer>
       <h4
         class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
@@ -12,50 +22,50 @@
         {{ this.$route.params.ccyPair }}
       </h4>
       <v-spacer></v-spacer>
-      <div>
-        <v-menu min-width="300" close-on-click offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon color="orange">mdi-dots-vertical</v-icon>
-            </v-btn>
-          </template>
-          <v-list>
-            <v-list-item>
-              <v-list-item-title>Add Dvi</v-list-item-title>
-              <v-btn color="grey lighten-1">
-                <PopUpModal
-                  :inputData="this.$store.state.crossList"
-                  :icon="'mdi-plus-box'"
-                  :color="'blue'"
-                  :title="'ADD DVI'"
-                  v-on:selection="ReloadDvi"
-                />
-              </v-btn>
-            </v-list-item>
-            <v-divider />
-
-            <v-list-item>
-              <v-list-item-title>Remove Dvi</v-list-item-title>
-              <v-btn color="grey lighten-1">
-                <PopUpModal
-                  :inputData="this.activeDvis"
-                  :icon="'mdi-minus-box'"
-                  :color="'red'"
-                  :title="'REMOVE DVI'"
-                  v-on:selection="RemoveTab"
-                />
-              </v-btn>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </div>
     </v-toolbar>
     <v-container v-if="dataReturned" class="cont" :fluid="true">
-      <v-card v-if="showSideControl" min-width="225" class="mr-3">
+      <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
         <TreeView
           :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
           v-on:selection="ReloadDvi"
         />
+        <div>
+          <v-menu min-width="250" close-on-click offset-y>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn small color="pink" dark fab v-bind="attrs" v-on="on">
+                <v-icon>mdi-expand-all</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item>
+                <v-list-item-title>Add Dvi</v-list-item-title>
+
+                <PopUpModal
+                  :inputData="this.$store.state.crossList"
+                  :icon="'mdi-plus-box'"
+                  :color="'blue'"
+                  :large="true"
+                  :title="'ADD DVI'"
+                  v-on:selection="ReloadDvi"
+                />
+              </v-list-item>
+              <v-divider />
+
+              <v-list-item>
+                <v-list-item-title>Remove Dvi</v-list-item-title>
+
+                <PopUpModal
+                  :inputData="this.activeDvis"
+                  :icon="'mdi-minus-box'"
+                  :color="'blue-grey'"
+                  :large="true"
+                  :title="'REMOVE DVI'"
+                  v-on:selection="RemoveTab"
+                />
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
       </v-card>
 
       <div class="d-flex flex-nowrap align-start justify-start">

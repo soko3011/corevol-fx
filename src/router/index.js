@@ -4,6 +4,10 @@ import Router from "vue-router";
 import Dvi from "@/views/DviView";
 const TheContainer = () => import("@/container/TheContainer");
 const Pricer = () => import("@/views/PricerView");
+const DashBoard = () => import("@/views/DashBoard");
+const Charts = () => import("@/views/Charts");
+const FxRates = () => import("@/views/FxRates");
+const DayWgtSetup = () => import("@/views/DayWgtSetup");
 
 Vue.use(Router);
 export default new Router({
@@ -17,7 +21,7 @@ function configRoutes() {
   return [
     {
       path: "/",
-      redirect: "/dvi/:ccyPair",
+      redirect: "/dvi/EURUSD",
       name: "Home",
       component: TheContainer,
       children: [
@@ -30,6 +34,26 @@ function configRoutes() {
           path: "pricer/:viewName",
           name: "Pricer",
           component: Pricer
+        },
+        {
+          path: "dashboard",
+          name: "DashBoard",
+          component: DashBoard
+        },
+        {
+          path: "charts",
+          name: "Charts",
+          component: Charts
+        },
+        {
+          path: "fxrates",
+          name: "FxRates",
+          component: FxRates
+        },
+        {
+          path: "dayWgtSetup",
+          name: "DayWgtSetup",
+          component: DayWgtSetup
         },
         {
           path: "/about",

@@ -1,11 +1,15 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="dialog" persistent max-width="300">
+    <v-dialog v-model="dialog" max-width="300">
       <template v-slot:activator="{ on, attrs }">
-        <v-icon :color="color" v-bind="attrs" v-on="on">{{ icon }}</v-icon>
+        <v-btn icon>
+          <v-icon :large="large" :color="color" v-bind="attrs" v-on="on">{{
+            icon
+          }}</v-icon>
+        </v-btn>
       </template>
 
-      <v-card flush class="mx-auto" max-width="300">
+      <v-card class="mx-auto" max-width="300">
         <v-toolbar height="40px" color="blue-grey" dark>
           <v-spacer />
           <v-toolbar-title class="ma-4">{{ title }}</v-toolbar-title>
@@ -46,12 +50,14 @@ export default {
   props: {
     inputData: { type: Array },
     icon: { type: String },
+    large: { type: Boolean },
     color: { type: String },
     title: { type: String }
   },
   methods: {
     emitToParent(item) {
       this.$emit("selection", item);
+      this.dialog = false;
     }
   }
 };

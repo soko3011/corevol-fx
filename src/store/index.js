@@ -175,6 +175,7 @@ const actions = {
 
 const getters = {
   surfGetter(state) {
+    console.log(JSON.parse(state.dviRawData.surf));
     return JSON.parse(state.dviRawData.surf);
   },
   dviGetter(state) {

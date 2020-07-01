@@ -2,7 +2,9 @@
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="400">
       <template v-slot:activator="{ on, attrs }">
-        <v-icon :color="color" v-bind="attrs" v-on="on">{{ icon }}</v-icon>
+        <v-icon :large="large" :color="color" v-bind="attrs" v-on="on">{{
+          icon
+        }}</v-icon>
       </template>
 
       <v-card flush class="mx-auto" max-width="400">
@@ -32,7 +34,8 @@ export default {
     label: { type: String },
     icon: { type: String },
     color: { type: String },
-    title: { type: String }
+    title: { type: String },
+    large: { type: Boolean }
   },
   methods: {
     emitToParent(item) {

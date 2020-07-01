@@ -9,6 +9,16 @@
   >
     <v-list dense>
       <v-list-item
+        @click="() => $router.push({ name: 'DashBoard' }).catch(() => {})"
+      >
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-speedometer</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>DashBoard</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
         @click="
           () =>
             $router
@@ -44,18 +54,48 @@
           <v-list-item-title>Pricer</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item
+        @click="() => $router.push({ name: 'Charts' }).catch(() => {})"
+      >
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-chart-line</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Charts</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
+        @click="() => $router.push({ name: 'FxRates' }).catch(() => {})"
+      >
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-currency-usd</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Fx Rates</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
+        @click="() => $router.push({ name: 'DayWgtSetup' }).catch(() => {})"
+      >
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-calendar-clock</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Day Wgt Setup</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
     </v-list>
 
     <template v-slot:append>
-      <v-list-item justify-end>
+      <v-list-item justify-end class="float-right">
         <v-list-item-action>
           <v-icon
             @click="minify = !minify"
             color="green lighten-3"
-            class="mt-4"
+            class="mt-4 "
           >
             {{
-              minify ? "mdi-chevron-double-left" : "mdi-chevron-double-right"
+              minify ? "mdi-chevron-double-right" : "mdi-chevron-double-left"
             }}</v-icon
           >
         </v-list-item-action>

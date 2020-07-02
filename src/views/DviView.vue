@@ -23,7 +23,13 @@
       </h4>
       <v-spacer></v-spacer>
     </v-toolbar>
-    <v-container v-if="dataReturned" class="cont" :fluid="true">
+
+    <v-container
+      v-if="dataReturned"
+      :fluid="true"
+      class="cont"
+      v-bind:style="{ height: `${mainWindowHeight}px` }"
+    >
       <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
         <TreeView
           :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
@@ -153,7 +159,11 @@ export default {
       fling: false
     };
   },
-  computed: {},
+  computed: {
+    mainWindowHeight() {
+      return window.innerHeight - 150;
+    }
+  },
   methods: {
     ResetVols1() {
       this.$store.dispatch("returnDviWithIpvMatch", {

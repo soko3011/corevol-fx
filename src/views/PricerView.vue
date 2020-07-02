@@ -10,7 +10,23 @@
       floating
       class="ma-0"
     >
-      <DashBoard :ccyPair="currentCcyPair" />
+      <v-card flat min-height="400" color="blue-grey lighten-5">
+        <DashBoard :ccyPair="currentCcyPair" />
+        <v-btn
+          v-if="drawer"
+          fab
+          small
+          absolute="true"
+          right="true"
+          color="pink"
+          dark
+          bottom
+          transition="scale-transition"
+          @click="drawer = !drawer"
+        >
+          <v-icon>mdi-chevron-double-left</v-icon>
+        </v-btn>
+      </v-card>
     </v-navigation-drawer>
 
     <main class="pa-0">
@@ -89,12 +105,14 @@
           </div>
         </v-card>
 
-        <div>
+        <div v-bind:style="{ height: `${mainWindowHeight}px` }">
           <transition name="fade">
             <section id="pricer">
               <v-btn
+                transition="fade-transition"
+                v-if="!drawer"
                 fab
-                x-small
+                small
                 color="pink"
                 dark
                 top
@@ -103,7 +121,7 @@
                 class="mt-10"
                 @click="drawer = !drawer"
               >
-                <v-icon>mdi-finance</v-icon>
+                <v-icon>mdi-chevron-double-right</v-icon>
               </v-btn>
               <OptionPricer
                 v-on:childToParent="setPricerTitle"
@@ -144,7 +162,7 @@ export default {
       pricerTitle: "",
       viewName: this.$route.params.viewName,
       showSideControl: false,
-      drawer: false,
+      drawer: true,
       currentCcyPair: this.$store.state.activecross
     };
   },
@@ -168,9 +186,16 @@ export default {
     document.removeEventListener("keydown", this.EventListeners);
     this.$store.dispatch("setPricerTab", this.pricerTitle);
   },
-  computed: {},
+  computed: {
+    mainWindowHeight() {
+      return window.innerHeight - 150;
+    }
+  },
 
   methods: {
+    test() {
+      console.log(window.innerHeight);
+    },
     EventListeners(event) {
       if (event.code == "KeyL" && event.ctrlKey) {
         event.preventDefault();
@@ -200,7 +225,6 @@ export default {
         .dispatch("ChangePricer", view)
         .then(data => {
           if (data === 200) {
-       
             this.dataReturned = true;
           }
         })
@@ -222,7 +246,6 @@ export default {
     },
     setCurrentCcyPair(value) {
       this.currentCcyPair = value;
-   
     },
 
     GotoPricerSettings() {

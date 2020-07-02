@@ -30,41 +30,41 @@
           v-on:selection="ReloadDvi"
         />
         <div>
-          <v-menu min-width="250" close-on-click offset-y>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn small color="pink" dark fab v-bind="attrs" v-on="on">
-                <v-icon>mdi-expand-all</v-icon>
+          <v-speed-dial
+            absolute
+            top
+            right
+            direction="bottom"
+            :transition="transition"
+          >
+            <template v-slot:activator>
+              <v-btn v-model="fab" small color="blue lighten-2" dark fab>
+                <v-icon v-if="fab">mdi-close</v-icon>
+                <v-icon v-else>mdi-expand-all</v-icon>
               </v-btn>
             </template>
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>Add Dvi</v-list-item-title>
+            <v-btn dark small icon>
+              <PopUpModal
+                :inputData="this.$store.state.crossList"
+                :icon="'mdi-plus-circle'"
+                :color="'blue'"
+                :large="true"
+                :title="'ADD DVI'"
+                v-on:selection="ReloadDvi"
+              />
+            </v-btn>
 
-                <PopUpModal
-                  :inputData="this.$store.state.crossList"
-                  :icon="'mdi-plus-box'"
-                  :color="'blue'"
-                  :large="true"
-                  :title="'ADD DVI'"
-                  v-on:selection="ReloadDvi"
-                />
-              </v-list-item>
-              <v-divider />
-
-              <v-list-item>
-                <v-list-item-title>Remove Dvi</v-list-item-title>
-
-                <PopUpModal
-                  :inputData="this.activeDvis"
-                  :icon="'mdi-minus-box'"
-                  :color="'blue-grey'"
-                  :large="true"
-                  :title="'REMOVE DVI'"
-                  v-on:selection="RemoveTab"
-                />
-              </v-list-item>
-            </v-list>
-          </v-menu>
+            <v-btn dark small icon>
+              <PopUpModal
+                :inputData="this.activeDvis"
+                :icon="'mdi-delete'"
+                :color="'blue-grey'"
+                :large="true"
+                :title="'REMOVE DVI'"
+                v-on:selection="RemoveTab"
+              />
+            </v-btn>
+          </v-speed-dial>
         </div>
       </v-card>
 
@@ -147,7 +147,10 @@ export default {
       showmodal: false,
       ccyPair: this.$route.params.ccyPair,
       dataReturned: false,
-      showSideControl: true
+      showSideControl: true,
+      transition: "slide-y-reverse-transition",
+      fab: false,
+      fling: false
     };
   },
   computed: {},
@@ -212,7 +215,6 @@ export default {
       const redirectTo =
         index !== 0 ? this.activeDvis[index - 1] : this.activeDvis[index + 1];
 
-      console.log(`remove:${ccyPair},index:${index},redirectto:${redirectTo}`);
       DviApi.RemoveDviFromUse({ name: ccyPair });
       this.ReloadDvi(redirectTo);
     },

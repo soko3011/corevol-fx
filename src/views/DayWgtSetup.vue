@@ -187,7 +187,6 @@ export default {
       });
     },
     GetSelectedEventList() {
-      console.log("fuckyo");
       var eventNames = [];
       this.selectedEvents.forEach(event => {
         eventNames.push(event[1]);

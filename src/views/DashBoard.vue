@@ -50,6 +50,9 @@ export default {
     surfs: [],
     dataReturned: false
   }),
+  props: {
+    ccyPair: { type: String, default: null }
+  },
   components: {
     DashBoardSurf
   },
@@ -57,6 +60,12 @@ export default {
     DviApi.GetDashBoardSurfs()
       .then(response => {
         this.surfs = JSON.parse(response.data.dashBoardSurfs);
+        if (this.ccyPair !== null) {
+          this.surfs = Object.fromEntries(
+            Object.entries(this.surfs).filter(([key]) => key === this.ccyPair)
+          );
+        }
+
         this.dataReturned = true;
       })
       .catch(error => {
@@ -75,7 +84,7 @@ export default {
       var surf = [{}];
       if (this.surfs[cross] !== undefined) {
         surf = JSON.parse(this.surfs[cross][0]);
-        console.log(Object.keys(this.surfs));
+
         surf = surf.map(row => {
           const {
             DK_EFF, // eslint-disable-line no-unused-vars
@@ -91,7 +100,7 @@ export default {
           };
         });
       }
-      console.log(surf);
+
       return surf;
     },
     GetHeader(cross) {
@@ -157,6 +166,20 @@ export default {
       today.setHours(today.getHours() + hh);
       today.setMinutes(today.getMinutes() + mm);
       return today;
+    }
+  },
+  watch: {
+    ccyPair() {
+      DviApi.GetDashBoardSurfs()
+        .then(response => {
+          const surfs = JSON.parse(response.data.dashBoardSurfs);
+          this.surfs = Object.fromEntries(
+            Object.entries(surfs).filter(([key]) => key === this.ccyPair)
+          );
+        })
+        .catch(error => {
+          alert(error.name);
+        });
     }
   }
 };

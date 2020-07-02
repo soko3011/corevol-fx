@@ -50,10 +50,15 @@ export default {
     }
   },
   mounted: function() {
-    console.log(this.apidata);
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
+  },
+  watch: {
+    apidata() {
+      this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
+      this.FormatTable(this.apidata, this.jExcelObj);
+    }
   }
 };
 </script>

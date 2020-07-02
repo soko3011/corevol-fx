@@ -1,5 +1,5 @@
 <template>
-  <div ref="spreadsheet"></div>
+  <div ref="jexcelPricer"></div>
 </template>
 
 <script>
@@ -22,8 +22,10 @@ export default {
     document.removeEventListener("keydown", this.EventListeners);
     this.$store.dispatch("setLastCellPosition", this.cellPosContainer);
   },
+
   data() {
     return {
+      currentCcyPair: null,
       cellPosContainer: [],
       userFormat: {
         backgroundColor: "White",
@@ -82,7 +84,6 @@ export default {
         onchange: this.updateOption
       };
     },
-
     apidata() {
       return this.$store.state.rawPricerData;
     },
@@ -157,7 +158,7 @@ export default {
     },
     BindTableTopage(options) {
       var parentNode = this.$refs["parentDiv"];
-      console.log(parentNode);
+
       if (parentNode.childElementCount > 0) {
         parentNode.removeChild(parentNode.childNodes[0]);
       }
@@ -346,6 +347,7 @@ export default {
       this.row = y1;
       this.col = x1;
       this.userFormat.rowArray = [y1, y2];
+      this.currentCcyPair = this.KeyVal("Cross");
     },
     ResetCellPosition(oldVal, newVal) {
       this.RecordCellPosition(oldVal);
@@ -713,7 +715,7 @@ export default {
     }
   },
   mounted() {
-    const jExcelObj = jexcel(this.$refs["spreadsheet"], this.jExcelOptions);
+    const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.jExcelOptions);
     Object.assign(this, { jExcelObj });
     jExcelObj.hideIndex();
 
@@ -723,8 +725,10 @@ export default {
     this.FormatComplete();
   },
   watch: {
-    apidata() {
-      //this.RefreshTable();
+    currentCcyPair() {
+      if (this.currentCcyPair !== "") {
+        this.$emit("currentCcyPair", this.currentCcyPair);
+      }
     }
   }
 };

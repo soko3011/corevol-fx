@@ -1,100 +1,119 @@
 <template>
   <div>
-    <div>
-      <v-snackbar
-        v-model="snackbar"
-        multi-line
-        right
-        centered
-        timeout="-1"
-        class="pr-10"
-      >
-        <template v-slot:action="{ attrs }">
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">
-            Close
-          </v-btn>
-        </template>
-      </v-snackbar>
-    </div>
-    <v-toolbar
-      color="blue-grey darken-3"
-      min-width="300"
-      dense
-      collapse
-      src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
+    <v-navigation-drawer
+      color="blue-grey lighten-5"
+      app
+      right
+      height="100%"
+      width="500"
+      v-model="drawer"
+      floating
+      class="ma-0"
     >
-      <v-btn icon>
-        <v-icon
-          @click="showSideControl = !showSideControl"
-          color="blue lighten-3"
-        >
-          {{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon
-        >
-      </v-btn>
+      <DashBoard :ccyPair="currentCcyPair" />
+    </v-navigation-drawer>
 
-      <v-spacer></v-spacer>
-      <h4
-        class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+    <main class="pa-0">
+      <v-toolbar
+        color="blue-grey darken-3"
+        min-width="300"
+        dense
+        collapse
+        src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
       >
-        {{ pricerTitle }}
-      </h4>
-      <v-spacer></v-spacer>
-    </v-toolbar>
+        <v-btn icon>
+          <v-icon
+            @click="showSideControl = !showSideControl"
+            color="pink lighten-2"
+          >
+            {{
+              showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
+            }}</v-icon
+          >
+        </v-btn>
 
-    <v-container v-if="dataReturned" class="cont" :fluid="true">
-      <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
-        <TreeView
-          :inputData="{
-            list: this.activePricers,
-            listName: 'Active Pricers'
-          }"
-          v-on:selection="ReloadPricer"
-        />
+        <v-spacer></v-spacer>
+        <h4
+          class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+        >
+          {{ pricerTitle }}
+        </h4>
+        <v-spacer></v-spacer>
+      </v-toolbar>
+
+      <v-container v-if="dataReturned" class="cont" fluid>
+        <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
+          <TreeView
+            :inputData="{
+              list: this.activePricers,
+              listName: 'Active Pricers'
+            }"
+            v-on:selection="ReloadPricer"
+          />
+          <div>
+            <v-menu min-width="250" close-on-click offset-y>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn small color="pink" dark fab v-bind="attrs" v-on="on">
+                  <v-icon>mdi-expand-all</v-icon>
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item>
+                  <v-list-item-title>Add Pricer</v-list-item-title>
+
+                  <PopUpInput
+                    :icon="'mdi-plus-box'"
+                    :label="'add name and hit enter'"
+                    :color="'blue'"
+                    :title="'ADD NEW PRICER'"
+                    :large="true"
+                    v-on:selection="UserAddPricer"
+                  />
+                </v-list-item>
+                <v-divider />
+
+                <v-list-item>
+                  <v-list-item-title>Remove Pricer</v-list-item-title>
+
+                  <PopUpModal
+                    :inputData="this.activePricers"
+                    :icon="'mdi-minus-box'"
+                    :color="'blue-grey'"
+                    :large="true"
+                    :title="'REMOVE VIEW'"
+                    v-on:selection="RemoveTab"
+                  />
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+        </v-card>
+
         <div>
-          <v-menu min-width="250" close-on-click offset-y>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn small color="pink" dark fab v-bind="attrs" v-on="on">
-                <v-icon>mdi-expand-all</v-icon>
+          <transition name="fade">
+            <section id="pricer">
+              <v-btn
+                fab
+                x-small
+                color="pink"
+                dark
+                top
+                right
+                absolute
+                class="mt-10"
+                @click="drawer = !drawer"
+              >
+                <v-icon>mdi-finance</v-icon>
               </v-btn>
-            </template>
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>Add Pricer</v-list-item-title>
-
-                <PopUpInput
-                  :icon="'mdi-plus-box'"
-                  :label="'add name and hit enter'"
-                  :color="'blue'"
-                  :title="'ADD NEW PRICER'"
-                  :large="true"
-                  v-on:selection="UserAddPricer"
-                />
-              </v-list-item>
-              <v-divider />
-
-              <v-list-item>
-                <v-list-item-title>Remove Pricer</v-list-item-title>
-
-                <PopUpModal
-                  :inputData="this.activePricers"
-                  :icon="'mdi-minus-box'"
-                  :color="'blue-grey'"
-                  :large="true"
-                  :title="'REMOVE VIEW'"
-                  v-on:selection="RemoveTab"
-                />
-              </v-list-item>
-            </v-list>
-          </v-menu>
+              <OptionPricer
+                v-on:childToParent="setPricerTitle"
+                v-on:currentCcyPair="setCurrentCcyPair"
+              />
+            </section>
+          </transition>
         </div>
-      </v-card>
-
-      <div>
-        <transition name="fade">
-          <OptionPricer v-on:childToParent="setPricerTitle" />
-        </transition>
-      </div>
-    </v-container>
+      </v-container>
+    </main>
   </div>
 </template>
 
@@ -104,6 +123,7 @@ import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import PopUpInput from "@/components/PopUpInput.vue";
+import DashBoard from "@/views/DashBoard.vue";
 
 export default {
   name: "PricerView",
@@ -112,7 +132,8 @@ export default {
     OptionPricer,
     TreeView,
     PopUpModal,
-    PopUpInput
+    PopUpInput,
+    DashBoard
   },
 
   data() {
@@ -122,8 +143,9 @@ export default {
       modalToggle: false,
       pricerTitle: "",
       viewName: this.$route.params.viewName,
-      showSideControl: true,
-      snackbar: false
+      showSideControl: false,
+      drawer: false,
+      currentCcyPair: this.$store.state.activecross
     };
   },
   created: function() {
@@ -152,7 +174,7 @@ export default {
     EventListeners(event) {
       if (event.code == "KeyL" && event.ctrlKey) {
         event.preventDefault();
-        this.snackbar = !this.snackbar;
+        this.drawer = !this.drawer;
       }
     },
     UserAddPricer(value) {
@@ -178,7 +200,7 @@ export default {
         .dispatch("ChangePricer", view)
         .then(data => {
           if (data === 200) {
-            console.log(data);
+       
             this.dataReturned = true;
           }
         })
@@ -197,6 +219,10 @@ export default {
     },
     setPricerTitle(value) {
       this.pricerTitle = value;
+    },
+    setCurrentCcyPair(value) {
+      this.currentCcyPair = value;
+   
     },
 
     GotoPricerSettings() {
@@ -234,20 +260,10 @@ span {
 .cont {
   display: flex;
   overflow-x: scroll;
+
   padding-left: 0px;
   padding-right: 0px;
-}
-
-.nav-tabs .nav-link.active,
-.nav-tabs .nav-item.show .nav-link {
-  background-color: rgb(48, 60, 83);
-  color: white;
-}
-
-.nav-tabs .nav-link {
-  /* background-color: lightgray; */
-  color: rgb(48, 60, 83);
-  border-color: #d8dbe0 #d8dbe0 #c4c9d0;
+  padding-bottom: 0px;
 }
 
 .fade-enter-active,

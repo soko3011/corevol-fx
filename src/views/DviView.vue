@@ -35,12 +35,13 @@
           :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
           v-on:selection="ReloadDvi"
         />
-        <div>
+        <div style="margin-bottom: 70px"></div>
+        <v-card>
           <v-speed-dial
             absolute
-            top
-            right
-            direction="bottom"
+            bottom
+            left
+            direction="right"
             :transition="transition"
           >
             <template v-slot:activator>
@@ -71,7 +72,7 @@
               />
             </v-btn>
           </v-speed-dial>
-        </div>
+        </v-card>
       </v-card>
 
       <div class="d-flex flex-nowrap align-start justify-start">

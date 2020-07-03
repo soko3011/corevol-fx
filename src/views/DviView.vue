@@ -80,14 +80,30 @@
           <surfaceTable />
           <div class="d-flex align-center justify-start mt-2 ">
             <dviInputTable />
-            <div class="d-flex flex-column">
-              <v-btn x-small outlined color="blue" @click="ResetVols()"
-                >IPV_ATM</v-btn
-              >
-
-              <v-btn x-small outlined color="red" @click="ResetVols1()"
-                >IPV_SURFACE</v-btn
-              >
+            <div class="mb-10">
+              <v-speed-dial v-model="fabIpv" top left direction="right">
+                <template v-slot:activator>
+                  <v-btn v-model="fab" color="blue lighten-2" dark fab>
+                    <v-icon v-if="fab">mdi-close</v-icon>
+                    <v-icon v-else>mdi-axis-y-arrow</v-icon>
+                  </v-btn>
+                </template>
+                <v-btn
+                  fab
+                  dark
+                  small
+                  color="green accent-3"
+                  @click.stop="ResetVols()"
+                >
+                  <v-icon>mdi-alpha-a-circle-outline</v-icon>
+                </v-btn>
+                <v-btn fab dark small color="indigo" @click.stop="ResetVols1()">
+                  <v-icon>mdi-alpha-s-circle-outline</v-icon>
+                </v-btn>
+                <v-btn fab dark small color="red">
+                  <v-icon>mdi-alpha-m-circle-outline</v-icon>
+                </v-btn>
+              </v-speed-dial>
             </div>
           </div>
           <div class="d-flex align-center justify-start mb-2">
@@ -157,6 +173,7 @@ export default {
       showSideControl: true,
       transition: "slide-y-reverse-transition",
       fab: false,
+      fabIpv: false,
       fling: false
     };
   },

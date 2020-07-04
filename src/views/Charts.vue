@@ -21,6 +21,6 @@ export default {
   overflow-x: scroll;
   padding-left: 0px;
   padding-right: 0px;
-  height: 1100px;
+  height: 950px;
 }
 </style>

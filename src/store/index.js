@@ -122,8 +122,15 @@ const actions = {
     });
   },
   returnDviWithIpvMatch({ commit }, payload) {
-    DviApi.MatchSurfaceToIpvInputs(payload).then(response => {
-      commit("SET_DVI_DATA", response.data.dviReturn.value);
+    return new Promise((resolve, reject) => {
+      DviApi.MatchSurfaceToIpvInputs(payload)
+        .then(response => {
+          commit("SET_DVI_DATA", response.data.dviReturn.value);
+          resolve(response.status);
+        })
+        .catch(err => {
+          reject(err.status);
+        });
     });
   },
   getIpvVolData({ commit }) {

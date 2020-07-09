@@ -23,6 +23,7 @@
           bottom
           transition="scale-transition"
           @click="drawer = !drawer"
+          elevation="12"
         >
           <v-icon>mdi-chevron-double-left</v-icon>
         </v-btn>
@@ -40,7 +41,7 @@
         <v-btn icon>
           <v-icon
             @click="showSideControl = !showSideControl"
-            color="pink lighten-2"
+            color="blue lighten-2"
           >
             {{
               showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
@@ -118,8 +119,9 @@
                 top
                 right
                 absolute
-                class="mt-10"
+                class="mt-10 mr-5"
                 @click="drawer = !drawer"
+                elevation="12"
               >
                 <v-icon>mdi-chevron-double-right</v-icon>
               </v-btn>

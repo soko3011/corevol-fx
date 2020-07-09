@@ -37,42 +37,36 @@
         />
         <div style="margin-bottom: 70px"></div>
         <v-card>
-          <v-speed-dial
-            absolute
-            bottom
-            left
-            direction="right"
-            :transition="transition"
-          >
-            <template v-slot:activator>
-              <v-btn v-model="fab" small color="blue lighten-2" dark fab>
-                <v-icon v-if="fab">mdi-close</v-icon>
-                <v-icon v-else>mdi-expand-all</v-icon>
-              </v-btn>
-            </template>
-            <v-btn dark small icon>
-              <PopUpModal
-                :inputData="this.$store.state.crossList"
-                :icon="'mdi-plus-circle'"
-                :color="'blue'"
-                :large="true"
-                :title="'ADD DVI'"
-                v-on:selection="ReloadDvi"
-              />
-            </v-btn>
-
-            <v-btn dark small icon>
-              <PopUpModal
-                :inputData="this.activeDvis"
-                :icon="'mdi-delete'"
-                :color="'blue-grey'"
-                :large="true"
-                :title="'REMOVE DVI'"
-                v-on:selection="RemoveTab"
-              />
-            </v-btn>
-          </v-speed-dial>
+          <v-btn absolute small fab top left color="pink" elevation="12">
+            <PopUpModal
+              :inputData="this.$store.state.crossList"
+              :icon="'mdi-expand-all'"
+              :color="'white'"
+              :large="false"
+              :title="'ADD DVI'"
+              v-on:selection="ReloadDvi"
+            />
+          </v-btn>
         </v-card>
+        <v-btn
+          class="mb-10"
+          absolute
+          small=""
+          fab
+          bottom
+          right
+          color="blue-grey"
+          elevation="12"
+        >
+          <PopUpModal
+            :inputData="this.activeDvis"
+            :icon="'mdi-delete'"
+            :color="'white'"
+            :large="false"
+            :title="'REMOVE DVI'"
+            v-on:selection="RemoveTab"
+          />
+        </v-btn>
       </v-card>
 
       <div class="d-flex flex-nowrap align-start justify-start">
@@ -83,7 +77,14 @@
             <div class="mb-10">
               <v-speed-dial v-model="fabIpv" top left direction="right">
                 <template v-slot:activator>
-                  <v-btn v-model="fab" color="blue lighten-2" dark fab>
+                  <v-btn
+                    small
+                    v-model="fab"
+                    color="blue lighten-2"
+                    dark
+                    fab
+                    elevation="12"
+                  >
                     <v-icon v-if="fab">mdi-close</v-icon>
                     <v-icon v-else>mdi-axis-y-arrow</v-icon>
                   </v-btn>
@@ -93,11 +94,17 @@
                   dark
                   small
                   color="green accent-3"
-                  @click.stop="ResetVols()"
+                  @click.stop="SetIpv('atm')"
                 >
                   <v-icon>mdi-alpha-a-circle-outline</v-icon>
                 </v-btn>
-                <v-btn fab dark small color="indigo" @click.stop="ResetVols1()">
+                <v-btn
+                  fab
+                  dark
+                  small
+                  color="indigo"
+                  @click.stop="SetIpv('smile')"
+                >
                   <v-icon>mdi-alpha-s-circle-outline</v-icon>
                 </v-btn>
                 <v-btn fab dark small color="red">
@@ -183,38 +190,22 @@ export default {
     }
   },
   methods: {
-    ResetVols1() {
-      this.$store.dispatch("returnDviWithIpvMatch", {
-        name: this.$store.getters.activeCrossGetter
-      });
+    SetIpv(args) {
+      this.$store
+        .dispatch("returnDviWithIpvMatch", {
+          name: this.$store.getters.activeCrossGetter,
+          args: args
+        })
+        .then(data => {
+          if (data === 200) {
+            alert(`Ipv ${args} updated successfully`);
+          }
+        })
+        .catch(error => {
+          alert(`There is an issue with: ${name} and Ipv ${args}. \n${error}`);
+        });
     },
-    ResetVols() {
-      var surf = this.$store.getters.surfGetter;
-      var dviInputs = this.$store.getters.dviInputGetter;
 
-      function vol(row) {
-        var index = surf.findIndex(
-          item => item.Term === dviInputs[row].Expiry.toUpperCase()
-        );
-
-        if (index > -1) {
-          return surf[index].IPV_ATM;
-        } else {
-          return dviInputs[row].Vols;
-        }
-      }
-
-      var iData = {
-        cross: this.$store.getters.activeCrossGetter,
-        mat1: dviInputs[0].Expiry,
-        mat2: dviInputs[1].Expiry,
-        vol1: vol(0),
-        vol2: vol(1),
-        dk: dviInputs[0].DK
-      };
-
-      this.$store.dispatch("setIdataObject", iData);
-    },
     RefreshDviData(ccyPair) {
       this.dataReturned = false;
       this.$store

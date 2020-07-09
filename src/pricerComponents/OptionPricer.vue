@@ -348,6 +348,9 @@ export default {
       this.col = x1;
       this.userFormat.rowArray = [y1, y2];
       this.currentCcyPair = this.KeyVal("Cross");
+      if (this.col === 0) {
+        this.SelectCell(this.row, 1);
+      }
     },
     ResetCellPosition(oldVal, newVal) {
       this.RecordCellPosition(oldVal);

@@ -21,9 +21,8 @@
               class="mb-2"
               v-bind="attrs"
               v-on="on"
-              @click="editedItem = Object.assign({}, defaultItem)"
-              >Add CcyPair</v-btn
-            >
+              @click="newItem()"
+            >Add CcyPair</v-btn>
           </template>
           <v-card>
             <v-card-title>
@@ -34,10 +33,7 @@
               <v-container>
                 <v-row>
                   <v-col cols="12" sm="6" md="2" v-for="key in keys" :key="key">
-                    <v-text-field
-                      v-model="editedItem[key]"
-                      :label="key"
-                    ></v-text-field>
+                    <v-text-field v-model="editedItem[key]" :label="key"></v-text-field>
                   </v-col>
                 </v-row>
               </v-container>
@@ -46,21 +42,15 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="save(editedItem)"
-                >Save</v-btn
-              >
+              <v-btn color="blue darken-1" text @click="save(editedItem)">Save</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
       </v-toolbar>
     </template>
     <template v-slot:item.actions="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)">
-        mdi-pencil
-      </v-icon>
-      <v-icon small @click="deleteItem(item)">
-        mdi-delete
-      </v-icon>
+      <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+      <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
     </template>
     <template v-slot:no-data>
       <v-btn color="primary" @click="initialize">Reset</v-btn>
@@ -83,7 +73,10 @@ export default {
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "New Item" : "Edit Item";
+      return this.editedIndex === -1 ? "NEW CCYPAIR" : "EDIT CCYPAIR";
+    },
+    editedItemKey(key) {
+      return this.editedItem[key];
     }
   },
 
@@ -116,6 +109,10 @@ export default {
         console.log(this.defaultItem);
       });
     },
+    newItem() {
+      this.defaultItem.Cross = "";
+      this.editedItem = Object.assign({}, this.defaultItem);
+    },
 
     editItem(item) {
       this.editedIndex = this.data.indexOf(item);
@@ -143,7 +140,6 @@ export default {
 
       if (index > -1) {
         Object.assign(this.data[index], this.editedItem);
-        console.log("here");
         this.$emit("existingCcyPairSaved", this.editedItem);
       } else {
         this.data.push(this.editedItem);

@@ -9,5 +9,8 @@ export default {
   },
   AmendCcyPairData(body) {
     return Api.post("AmendCcyPairData", body);
+  },
+  AddNewCcyPair(body) {
+    return Api.post("AddNewCcyPair", body);
   }
 };

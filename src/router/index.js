@@ -8,7 +8,7 @@ const DashBoard = () => import("@/views/DashBoard");
 const Charts = () => import("@/views/Charts");
 const FxRates = () => import("@/views/FxRates");
 const DayWgtSetup = () => import("@/views/DayWgtSetup");
-const Setup = () => import("@/views/Setup");
+const Settings = () => import("@/views/Settings");
 
 Vue.use(Router);
 export default new Router({
@@ -57,9 +57,9 @@ function configRoutes() {
           component: DayWgtSetup
         },
         {
-          path: "setup",
-          name: "Setup",
-          component: Setup
+          path: "settings",
+          name: "Settings",
+          component: Settings
         },
         {
           path: "/about",

@@ -7,10 +7,16 @@ export default {
   GetCrossSetup() {
     return Api.get("CrossSetup");
   },
-  AmendCcyPairData(body) {
-    return Api.post("AmendCcyPairData", body);
+  UpdateDviDets(body) {
+    return Api.post("UpdateDviDets", body);
+  },
+  UpdateCrossDets(body) {
+    return Api.post("UpdateCrossDets", body);
   },
   AddNewCcyPair(body) {
     return Api.post("AddNewCcyPair", body);
+  },
+  DeleteCcyPairData(body) {
+    return Api.post("DeleteCcyPairData", body);
   }
 };

@@ -129,6 +129,7 @@ export default {
     save(item) {
       if (this.editedIndex > -1) {
         Object.assign(this.data[this.editedIndex], this.editedItem);
+        this.$emit("updateCross", this.editedItem);
       } else {
         this.data.push(this.editedItem);
         this.$emit("newCcyPairSaved", item);

@@ -106,7 +106,6 @@ export default {
         this.headers = headersNew;
         Object.assign(this.editedItem, editedItem);
         Object.assign(this.defaultItem, this.data[0]);
-        console.log(this.defaultItem);
       });
     },
     newItem() {
@@ -122,8 +121,9 @@ export default {
 
     deleteItem(item) {
       const index = this.data.indexOf(item);
-      confirm("Are you sure you want to delete this item?") &&
+      confirm(`Are you sure you want to delete ${item.Cross}?`) &&
         this.data.splice(index, 1);
+      this.$emit("deleteCcyPair", item);
     },
 
     close() {
@@ -140,10 +140,10 @@ export default {
 
       if (index > -1) {
         Object.assign(this.data[index], this.editedItem);
-        this.$emit("existingCcyPairSaved", this.editedItem);
+        this.$emit("updateDvi", this.editedItem);
       } else {
         this.data.push(this.editedItem);
-        this.$emit("newCcyPairSaved", item);
+        this.$emit("addNewCrossDvi", item);
       }
 
       this.close();

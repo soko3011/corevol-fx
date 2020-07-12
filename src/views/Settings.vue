@@ -1,7 +1,15 @@
 <template>
   <div>
-    <DviSetup v-on:newCcyPairSaved="newCcyPairAdded" v-on:existingCcyPairSaved="UpdateDb" />
-    <CrossSetup :newCcyPairAdded="newCcyPairName" v-on:newCcyPairSaved="newCcyPairSavedToDb" />
+    <DviSetup
+      v-on:addNewCrossDvi="addNewCrossDvi"
+      v-on:updateDvi="UpdateDviDB"
+      v-on:deleteCcyPair="deleteCcyPair"
+    />
+    <CrossSetup
+      :newCcyPairAdded="newCcyPairName"
+      v-on:updateCross="UpdateCrossDB"
+      v-on:newCcyPairSaved="AddNewCcyPairToDB"
+    />
   </div>
 </template>
 
@@ -21,18 +29,36 @@ export default {
     CrossSetup
   },
   methods: {
-    newCcyPairAdded(item) {
+    deleteCcyPair(item) {
+      SettingsApi.DeleteCcyPairData({ name: item.Cross })
+        .then(response => {
+          alert(`${item.Cross} deleted succesfully. Status ${response.status}`);
+          this.$forceUpdate();
+        })
+        .catch(err => {
+          alert(`Delete unsucessful. Error: ${err}`);
+        });
+    },
+    addNewCrossDvi(item) {
       this.newCcyPairName = item.Cross;
       this.dviSetupDets = item;
     },
-    newCcyPairSavedToDb(item) {
-      console.log(this.dviSetupDets);
-      console.log(item);
-
+    AddNewCcyPairToDB(item) {
       SettingsApi.AddNewCcyPair({
         DviInputsUI: this.dviSetupDets,
         CrossDetsUI: item
       })
+        .then(response => {
+          console.log(response);
+          this.$store.dispatch("refreshCrossList", response.data.crossList);
+          alert(`${item.Cross} updated succesfully. Status ${response.status}`);
+        })
+        .catch(err => {
+          alert(`Update unsucessful. Error: ${err}`);
+        });
+    },
+    UpdateDviDB(item) {
+      SettingsApi.UpdateDviDets(item)
         .then(response => {
           alert(`${item.Cross} updated succesfully. Status ${response.status}`);
         })
@@ -40,8 +66,8 @@ export default {
           alert(`Update unsucessful. Error: ${err.status}`);
         });
     },
-    UpdateDb(item) {
-      SettingsApi.AmendCcyPairData(item)
+    UpdateCrossDB(item) {
+      SettingsApi.UpdateCrossDets(item)
         .then(response => {
           alert(`${item.Cross} updated succesfully. Status ${response.status}`);
         })

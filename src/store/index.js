@@ -54,12 +54,14 @@ const mutations = {
   },
   SET_INIT(state, response) {
     state.crossList = JSON.parse(response.crossList).sort();
-
     state.activecross = JSON.parse(response.starterFXCross);
     state.lastPricerTab = state.activecross;
   },
   SET_ACTIVE_CROSS(state, activecross) {
     state.activecross = activecross;
+  },
+  REFRESH_CROSSLIST(state, data) {
+    state.crossList = JSON.parse(data).sort();
   },
   SET_PRICER_LAYOUT(state, data) {
     state.pricerLayoutName = data.name;
@@ -146,6 +148,9 @@ const actions = {
   },
   setActivecross({ commit }, payload) {
     commit("SET_ACTIVE_CROSS", payload);
+  },
+  refreshCrossList({ commit }, payload) {
+    commit("REFRESH_CROSSLIST", payload);
   },
   setPricerLayout({ commit }, payload) {
     commit("SET_PRICER_LAYOUT", payload);

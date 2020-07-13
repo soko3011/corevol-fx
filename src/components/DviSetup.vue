@@ -68,7 +68,8 @@ export default {
     data: [],
     editedIndex: -1,
     editedItem: {},
-    defaultItem: {}
+    defaultItem: {},
+    addNewMode: false
   }),
 
   computed: {
@@ -109,6 +110,7 @@ export default {
       });
     },
     newItem() {
+      this.addNewMode = true;
       this.defaultItem.Cross = "";
       this.editedItem = Object.assign({}, this.defaultItem);
     },

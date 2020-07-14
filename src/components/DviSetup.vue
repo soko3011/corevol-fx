@@ -9,24 +9,15 @@
     hide-default-footer
   >
     <template v-slot:top>
-      <v-toolbar flat color="white">
-        <v-toolbar-title>DviSetup</v-toolbar-title>
-        <v-divider class="mx-4" inset vertical></v-divider>
+      <v-toolbar class="mb-3" dark color="blue-grey darken-2">
+        <v-toolbar-title>Dvi Settings</v-toolbar-title>
+
         <v-spacer></v-spacer>
+
         <v-dialog v-model="dialog" max-width="1000px">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="primary"
-              dark
-              class="mb-2"
-              v-bind="attrs"
-              v-on="on"
-              @click="newItem()"
-            >Add CcyPair</v-btn>
-          </template>
           <v-card>
             <v-card-title>
-              <span class="headline">{{ formTitle }}</span>
+              <span class="title">{{ formTitle }}</span>
             </v-card-title>
 
             <v-card-text>
@@ -60,30 +51,33 @@
 
 <script>
 import SettingsApi from "@/apis/SettingsApi.js";
+
 export default {
+  name: "DviSetup",
+  components: {},
   data: () => ({
     dialog: false,
     keys: [],
     headers: [],
     data: [],
-    editedIndex: -1,
-    editedItem: {},
-    defaultItem: {},
-    addNewMode: false
+    editedItem: {}
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "NEW CCYPAIR" : "EDIT CCYPAIR";
-    },
-    editedItemKey(key) {
-      return this.editedItem[key];
+      return `EDIT ${this.editedItem.Cross}`;
     }
+  },
+  props: {
+    refreshComponent: { type: Boolean, default: false }
   },
 
   watch: {
     dialog(val) {
       val || this.close();
+    },
+    refreshComponent() {
+      this.initialize();
     }
   },
 
@@ -93,60 +87,71 @@ export default {
 
   methods: {
     initialize() {
-      SettingsApi.GetDviSetup().then(response => {
-        this.data = JSON.parse(response.data.dviSetup);
-        let headersNew = [];
-        let editedItem = {};
-        this.keys = Object.keys(this.data[0]);
-        this.keys.forEach(function(val) {
-          headersNew.push({ text: val, value: val });
-          editedItem[val] = 0;
+      SettingsApi.GetDviSetup()
+        .then(response => {
+          this.data = JSON.parse(response.data.dviSetup);
+          let headersNew = [];
+          this.keys = Object.keys(this.data[0]);
+          this.keys.forEach(function(val) {
+            headersNew.push({ text: val, value: val });
+          });
+
+          headersNew.push({
+            text: "Actions",
+            value: "actions",
+            sortable: false
+          });
+          this.headers = headersNew;
+        })
+        .catch(err => {
+          alert(err);
         });
-
-        headersNew.push({ text: "Actions", value: "actions", sortable: false });
-        this.headers = headersNew;
-        Object.assign(this.editedItem, editedItem);
-        Object.assign(this.defaultItem, this.data[0]);
-      });
     },
-    newItem() {
-      this.addNewMode = true;
-      this.defaultItem.Cross = "";
-      this.editedItem = Object.assign({}, this.defaultItem);
-    },
-
     editItem(item) {
-      this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
 
     deleteItem(item) {
-      const index = this.data.indexOf(item);
       confirm(`Are you sure you want to delete ${item.Cross}?`) &&
-        this.data.splice(index, 1);
-      this.$emit("deleteCcyPair", item);
+        SettingsApi.DeleteCcyPairData({ name: item.Cross })
+          .then(response => {
+            alert(
+              `${item.Cross} deleted succesfully. Status ${response.status}`
+            );
+            this.initialize();
+            this.$emit("ccyPairDeleted", true);
+          })
+          .catch(err => {
+            alert(`Delete unsucessful. Error: ${err}`);
+          });
     },
 
     close() {
       this.dialog = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
+      this.$nextTick(() => {});
     },
 
     save(item) {
-      const ccyPairList = this.data.map(x => x.Cross);
-      const index = ccyPairList.indexOf(item.Cross);
+      SettingsApi.UpdateDviDets(item)
+        .then(response => {
+          alert(`${item.Cross} updated succesfully. Status ${response.status}`);
+          this.initialize();
+        })
+        .catch(err => {
+          alert(`Update unsucessful. Error: ${err}`);
+        });
 
-      if (index > -1) {
-        Object.assign(this.data[index], this.editedItem);
-        this.$emit("updateDvi", this.editedItem);
-      } else {
-        this.data.push(this.editedItem);
-        this.$emit("addNewCrossDvi", item);
-      }
+      // const ccyPairList = this.data.map(x => x.Cross);
+      // const index = ccyPairList.indexOf(item.Cross);
+
+      // if (index > -1) {
+      //   Object.assign(this.data[index], this.editedItem);
+      //   this.$emit("updateDvi", this.editedItem);
+      // } else {
+      //   this.data.push(this.editedItem);
+      //   this.$emit("addNewCrossDvi", item);
+      // }
 
       this.close();
     }

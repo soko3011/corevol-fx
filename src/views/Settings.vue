@@ -1,79 +1,139 @@
 <template>
   <div>
-    <DviSetup
-      v-on:addNewCrossDvi="addNewCrossDvi"
-      v-on:updateDvi="UpdateDviDB"
-      v-on:deleteCcyPair="deleteCcyPair"
-    />
-    <CrossSetup
-      :newCcyPairAdded="newCcyPairName"
-      v-on:updateCross="UpdateCrossDB"
-      v-on:newCcyPairSaved="AddNewCcyPairToDB"
-    />
+    <div class="d-flex align-center justify-start mt-2">
+      <div class="mr-5">
+        <v-card>
+          <v-btn absolute small fab top right color="pink" elevation="12">
+            <PopUpModal
+              :inputData="this.$store.state.crossList"
+              :icon="'mdi-expand-all'"
+              :color="'white'"
+              :large="false"
+              :title="'MIRROR CROSS'"
+              v-on:selection="OpenDialog"
+            />
+          </v-btn>
+        </v-card>
+        <DviSetup
+          v-on:ccyPairDeleted="refreshChildren = !refreshChildren"
+          :refreshComponent="refreshChildren"
+        />
+      </div>
+      <div class="mr-5">
+        <CrossSetup :refreshComponent="refreshChildren" />
+      </div>
+    </div>
+    <div class="mt-5">
+      <CcySetup />
+    </div>
+    <v-dialog v-model="dialog" max-width="1000px">
+      <v-card>
+        <v-card-title>
+          <span class="title">{{ formTitle }}</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="6" md="2" v-for="key in dviKeys" :key="key">
+                <v-text-field v-model="dviEdited[key]" :label="key"></v-text-field>
+              </v-col>
+            </v-row>
+            <v-divider class="mt-5 mb-10" />
+            <v-row>
+              <v-col cols="12" sm="6" md="2" v-for="key in crossKeys" :key="key">
+                <v-text-field v-model="crossEdited[key]" :label="key"></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
+          <v-btn color="blue darken-1" text @click="save(dviEdited,crossEdited)">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
 import DviSetup from "@/components/DviSetup.vue";
 import CrossSetup from "@/components/CrossSetup.vue";
+import CcySetup from "@/components/CcySetup.vue";
 import SettingsApi from "@/apis/SettingsApi";
+import PopUpModal from "@/components/PopUpModal.vue";
+
 export default {
   name: "Setup",
   data: () => ({
-    newCcyPairName: null,
-    dviSetupDets: null
+    refreshChildren: false,
+    dialog: false,
+    dviKeys: [],
+    crossKeys: [],
+    dviEdited: {},
+    crossEdited: {},
+    mirroredCross: ""
   }),
 
   components: {
     DviSetup,
-    CrossSetup
+    CrossSetup,
+    CcySetup,
+    PopUpModal
+  },
+
+  computed: {
+    formTitle() {
+      return `Mirror ${this.mirroredCross}`;
+    }
   },
   methods: {
-    deleteCcyPair(item) {
-      SettingsApi.DeleteCcyPairData({ name: item.Cross })
+    OpenDialog(cross) {
+      SettingsApi.MirrorCrossDets({ name: cross })
         .then(response => {
-          alert(`${item.Cross} deleted succesfully. Status ${response.status}`);
-          this.$forceUpdate();
+          const dvidata = JSON.parse(response.data.dviSetup);
+          const crossdata = JSON.parse(response.data.crossSetup);
+          delete crossdata.Cross;
+          this.dviKeys = Object.keys(dvidata);
+          this.crossKeys = Object.keys(crossdata);
+          this.dviEdited = dvidata;
+          this.mirroredCross = this.dviEdited.Cross;
+          this.dviEdited.Cross = "";
+          this.crossEdited = crossdata;
+
+          this.dialog = true;
         })
         .catch(err => {
-          alert(`Delete unsucessful. Error: ${err}`);
+          alert(`Error: ${err}`);
         });
     },
-    addNewCrossDvi(item) {
-      this.newCcyPairName = item.Cross;
-      this.dviSetupDets = item;
+
+    close() {
+      this.dialog = false;
+      this.$nextTick(() => {});
     },
-    AddNewCcyPairToDB(item) {
+
+    save(dvidata, crossdata) {
+      crossdata.Cross = dvidata.Cross;
+
       SettingsApi.AddNewCcyPair({
-        DviInputsUI: this.dviSetupDets,
-        CrossDetsUI: item
+        DviInputsUI: dvidata,
+        CrossDetsUI: crossdata
       })
         .then(response => {
-          console.log(response);
           this.$store.dispatch("refreshCrossList", response.data.crossList);
-          alert(`${item.Cross} updated succesfully. Status ${response.status}`);
+          alert(
+            `${dvidata.Cross} updated succesfully. Status ${response.status}`
+          );
+          this.refreshChildren = !this.refreshChildren;
         })
         .catch(err => {
           alert(`Update unsucessful. Error: ${err}`);
         });
-    },
-    UpdateDviDB(item) {
-      SettingsApi.UpdateDviDets(item)
-        .then(response => {
-          alert(`${item.Cross} updated succesfully. Status ${response.status}`);
-        })
-        .catch(err => {
-          alert(`Update unsucessful. Error: ${err.status}`);
-        });
-    },
-    UpdateCrossDB(item) {
-      SettingsApi.UpdateCrossDets(item)
-        .then(response => {
-          alert(`${item.Cross} updated succesfully. Status ${response.status}`);
-        })
-        .catch(err => {
-          alert(`Update unsucessful. Error: ${err.status}`);
-        });
+
+      this.close();
     }
   }
 };

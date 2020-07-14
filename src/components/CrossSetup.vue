@@ -9,14 +9,14 @@
     hide-default-footer
   >
     <template v-slot:top>
-      <v-toolbar flat color="white">
-        <v-toolbar-title>CrossSetup</v-toolbar-title>
-        <v-divider class="mx-4" inset vertical></v-divider>
+      <v-toolbar class="mb-3" dark color="blue-grey darken-2">
+        <v-toolbar-title>Cross Settings</v-toolbar-title>
+
         <v-spacer></v-spacer>
-        <v-dialog v-model="dialog" persistent max-width="1000px">
+        <v-dialog v-model="dialog" max-width="1000px">
           <v-card>
             <v-card-title>
-              <span class="headline">{{ formTitle }}</span>
+              <span class="title">{{ formTitle }}</span>
             </v-card-title>
 
             <v-card-text>
@@ -31,7 +31,7 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn v-if="editMode" color="blue darken-1" text @click="close">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
               <v-btn color="blue darken-1" text @click="save(editedItem)">Save</v-btn>
             </v-card-actions>
           </v-card>
@@ -55,18 +55,15 @@ export default {
     keys: [],
     headers: [],
     data: [],
-    editedIndex: -1,
-    editedItem: {},
-    defaultItem: {},
-    editMode: true
+    editedItem: {}
   }),
   props: {
-    newCcyPairAdded: { type: String }
+    refreshComponent: { type: Boolean, default: false }
   },
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "New Item" : "Edit Item";
+      return `EDIT ${this.editedItem.Cross}`;
     }
   },
 
@@ -74,11 +71,8 @@ export default {
     dialog(val) {
       val || this.close();
     },
-    newCcyPairAdded() {
-      this.editedItem = Object.assign({}, this.defaultItem);
-      Object.assign(this.editedItem, { Cross: this.newCcyPairAdded });
-      this.editMode = false;
-      this.dialog = true;
+    refreshComponent() {
+      this.initialize();
     }
   },
 
@@ -88,54 +82,52 @@ export default {
 
   methods: {
     initialize() {
-      SettingsApi.GetCrossSetup().then(response => {
-        this.data = JSON.parse(response.data.crossSetup);
-        let headersNew = [];
-        let editedItem = {};
-        this.keys = Object.keys(this.data[0]);
-        this.keys.forEach(function(val) {
-          headersNew.push({ text: val, value: val });
-          editedItem[val] = 0;
+      SettingsApi.GetCrossSetup()
+        .then(response => {
+          this.data = JSON.parse(response.data.crossSetup);
+          let headersNew = [];
+          this.keys = Object.keys(this.data[0]);
+          this.keys.forEach(function(val) {
+            headersNew.push({ text: val, value: val });
+          });
+
+          headersNew.push({
+            text: "Actions",
+            value: "actions",
+            sortable: false
+          });
+          this.headers = headersNew;
+        })
+        .catch(err => {
+          alert(err);
         });
-
-        headersNew.push({ text: "Actions", value: "actions", sortable: false });
-        this.headers = headersNew;
-        Object.assign(this.editedItem, editedItem);
-        Object.assign(this.defaultItem, this.data[0]);
-        console.log(this.defaultItem);
-      });
     },
-
     editItem(item) {
-      this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
 
-    deleteItem(item) {
-      const index = this.data.indexOf(item);
-      confirm("Are you sure you want to delete this item?") &&
-        this.data.splice(index, 1);
-    },
-
     close() {
       this.dialog = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
+      this.$nextTick(() => {});
     },
 
     save(item) {
-      if (this.editedIndex > -1) {
-        Object.assign(this.data[this.editedIndex], this.editedItem);
-        this.$emit("updateCross", this.editedItem);
-      } else {
-        this.data.push(this.editedItem);
-        this.$emit("newCcyPairSaved", item);
-      }
+      SettingsApi.UpdateCrossDets(item)
+        .then(response => {
+          alert(`${item.Cross} updated succesfully. Status ${response.status}`);
+          this.initialize();
+        })
+        .catch(err => {
+          alert(`Update unsucessful. Error: ${err}`);
+        });
+
       this.close();
     }
   }
 };
 </script>
+
+
+
+

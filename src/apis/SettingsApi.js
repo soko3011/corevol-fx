@@ -31,5 +31,8 @@ export default {
   },
   MirrorCrossDets(body) {
     return Api.post("MirrorCrossDets", body);
+  },
+  GetMultsAndSpreads(body) {
+    return Api.post("GetMultsAndSpreads", body);
   }
 };

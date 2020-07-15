@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MarketData />
+    <MarketData class="ma-5" />
     <div class="d-flex flex-wrap">
       <div class="ma-5">
         <v-card>

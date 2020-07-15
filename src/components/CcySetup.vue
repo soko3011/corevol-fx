@@ -16,7 +16,7 @@
       :headers="headers"
       :items="data"
       sort-by="Ccy"
-      class="elevation-10"
+      class="elevation-10 custom-transform-class"
       dense
       disable-pagination
       hide-default-footer
@@ -172,6 +172,9 @@ export default {
 };
 </script>
 
-
+<style lang="sass">
+.custom-transform-class
+  text-transform: uppercase
+</style>
 
 

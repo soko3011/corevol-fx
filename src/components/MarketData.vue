@@ -4,7 +4,7 @@
       :headers="headers"
       :items="data"
       sort-by="Cross"
-      class="elevation-10"
+      class="elevation-10 custom-transform-class"
       dense
       disable-pagination
       hide-default-footer
@@ -17,7 +17,7 @@
         </v-toolbar>
       </template>
       <template v-slot:item.actions="{ item }">
-        <div class="ml-4">
+        <div class="ml-2">
           <v-icon small class="mr-10" @click="viewSwaps(item)">mdi-eye</v-icon>
           <v-icon small class="mr-10" @click="viewDepos(item)">mdi-eye</v-icon>
           <v-icon small class="mr-10" @click="viewRateTiles(item)">mdi-eye</v-icon>
@@ -27,9 +27,14 @@
         <v-btn color="primary" @click="initialize">Reset</v-btn>
       </template>
     </v-data-table>
-    <v-dialog v-model="showSwaps" max-width="500px">
+    <v-dialog v-model="showMarketTable" :max-width="marketTableWidth">
       <v-card>
-        <SwapsTable :crossName="selectedCross" :title="'SWAPS'" :incomingData="swapsData" />
+        <MarketDataTable
+          v-if="showMarketTable"
+          :crossName="selectedCross"
+          :title="marketTableTitle"
+          :incomingData="marketData"
+        />
       </v-card>
     </v-dialog>
   </div>
@@ -37,20 +42,23 @@
 
 <script>
 import MarketDataApi from "@/apis/MarketDataApi.js";
-import SwapsTable from "@/components/SwapsTable.vue";
+import MarketDataTable from "@/components/MarketDataTable.vue";
 export default {
+  name: "marketData",
   data: () => ({
     dialog: false,
     keys: [],
     headers: [],
     data: [],
     editedItem: {},
-    showSwaps: false,
-    swapsData: [],
+    showMarketTable: false,
+    marketData: [],
+    marketTableTitle: "",
+    marketTableWidth: "",
     selectedCross: ""
   }),
   components: {
-    SwapsTable
+    MarketDataTable
   },
   props: {
     refreshComponent: { type: Boolean, default: false }
@@ -65,9 +73,6 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
-    },
-    refreshComponent() {
-      this.initialize();
     }
   },
 
@@ -80,6 +85,8 @@ export default {
       MarketDataApi.GetSpotRates()
         .then(response => {
           this.data = JSON.parse(response.data.spotRates);
+          this.data.sort((a, b) => (a.cross > b.cross ? 1 : -1));
+          console.log(this.data);
           let headersNew = [];
           this.keys = Object.keys(this.data[0]);
           this.keys.forEach(function(val) {
@@ -87,7 +94,7 @@ export default {
           });
 
           headersNew.push({
-            text: "Swaps-----Depos-----RateTiles",
+            text: "Swaps--BaseRates--RateTiles",
             value: "actions",
             sortable: false
           });
@@ -101,9 +108,39 @@ export default {
     viewSwaps(item) {
       MarketDataApi.GetSwaps({ name: item.cross })
         .then(response => {
-          this.swapsData = JSON.parse(response.data.swaps);
+          this.marketData = JSON.parse(response.data.swaps);
           this.selectedCross = item.cross;
-          this.showSwaps = true;
+          this.marketTableTitle = "SWAPS";
+          this.marketTableWidth = "300px";
+          this.showMarketTable = true;
+        })
+        .catch(err => {
+          alert(err);
+        });
+    },
+    viewDepos(item) {
+      MarketDataApi.GetBaseRates({ name: item.cross })
+        .then(response => {
+          this.marketData = JSON.parse(response.data.depos);
+          this.selectedCross = item.cross;
+          this.marketTableTitle = `BASERATE (${JSON.parse(
+            response.data.depoCcy
+          )})`;
+          this.marketTableWidth = "300px";
+          this.showMarketTable = true;
+        })
+        .catch(err => {
+          alert(err);
+        });
+    },
+    viewRateTiles(item) {
+      MarketDataApi.GetRateTiles({ name: item.cross })
+        .then(response => {
+          this.marketData = JSON.parse(response.data.rateTile);
+          this.selectedCross = item.cross;
+          this.marketTableTitle = "RATETILE";
+          this.marketTableWidth = "1000px";
+          this.showMarketTable = true;
         })
         .catch(err => {
           alert(err);
@@ -124,4 +161,7 @@ export default {
 
 
 
-
+<style lang="sass">
+.custom-transform-class
+  text-transform: uppercase
+</style>

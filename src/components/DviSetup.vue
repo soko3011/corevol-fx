@@ -1,66 +1,85 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="data"
-    sort-by="Cross"
-    class="elevation-10"
-    dense
-    disable-pagination
-    hide-default-footer
-  >
-    <template v-slot:top>
-      <v-toolbar class="mb-3" dark color="blue-grey darken-2">
-        <v-toolbar-title>Dvi Settings</v-toolbar-title>
+  <div>
+    <v-data-table
+      :headers="headers"
+      :items="data"
+      sort-by="Cross"
+      class="elevation-10 custom-transform-class"
+      dense
+      disable-pagination
+      hide-default-footer
+    >
+      <template v-slot:top>
+        <v-toolbar class="mb-3" dark color="blue-grey darken-2">
+          <v-toolbar-title>Dvi Settings</v-toolbar-title>
 
-        <v-spacer></v-spacer>
+          <v-spacer></v-spacer>
 
-        <v-dialog v-model="dialog" max-width="1000px">
-          <v-card>
-            <v-card-title>
-              <span class="title">{{ formTitle }}</span>
-            </v-card-title>
+          <v-dialog v-model="dialog" max-width="1000px">
+            <v-card>
+              <v-card-title>
+                <span class="title">{{ formTitle }}</span>
+              </v-card-title>
 
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12" sm="6" md="2" v-for="key in keys" :key="key">
-                    <v-text-field v-model="editedItem[key]" :label="key"></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" sm="6" md="2" v-for="key in keys" :key="key">
+                      <v-text-field v-model="editedItem[key]" :label="key"></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="save(editedItem)">Save</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-toolbar>
-    </template>
-    <template v-slot:item.actions="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-      <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
-    </template>
-    <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize">Reset</v-btn>
-    </template>
-  </v-data-table>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
+                <v-btn color="blue darken-1" text @click="save(editedItem)">Save</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-toolbar>
+      </template>
+      <template v-slot:item.actions="{ item }">
+        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+        <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
+        <v-icon small @click="viewMultsAndSpreads(item)">mdi-database</v-icon>
+      </template>
+      <template v-slot:no-data>
+        <v-btn color="primary" @click="initialize">Reset</v-btn>
+      </template>
+    </v-data-table>
+    <v-dialog v-model="showMarketTable" :max-width="marketTableWidth">
+      <v-card>
+        <MarketDataTable
+          v-if="showMarketTable"
+          :crossName="selectedCross"
+          :title="marketTableTitle"
+          :incomingData="marketData"
+        />
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
 import SettingsApi from "@/apis/SettingsApi.js";
+import MarketDataTable from "@/components/MarketDataTable.vue";
 
 export default {
   name: "DviSetup",
-  components: {},
+  components: { MarketDataTable },
   data: () => ({
     dialog: false,
     keys: [],
     headers: [],
     data: [],
-    editedItem: {}
+    editedItem: {},
+    showMarketTable: false,
+    marketData: [],
+    marketTableTitle: "",
+    marketTableWidth: "",
+    selectedCross: ""
   }),
 
   computed: {
@@ -126,6 +145,20 @@ export default {
             alert(`Delete unsucessful. Error: ${err}`);
           });
     },
+    viewMultsAndSpreads(item) {
+      const cross = item.Cross;
+      SettingsApi.GetMultsAndSpreads({ name: cross })
+        .then(response => {
+          this.marketData = JSON.parse(response.data.multsAndSpreads);
+          this.selectedCross = cross;
+          this.marketTableTitle = "MULTIPLERS AND SPREADS";
+          this.marketTableWidth = "1000px";
+          this.showMarketTable = true;
+        })
+        .catch(err => {
+          alert(err);
+        });
+    },
 
     close() {
       this.dialog = false;
@@ -142,19 +175,13 @@ export default {
           alert(`Update unsucessful. Error: ${err}`);
         });
 
-      // const ccyPairList = this.data.map(x => x.Cross);
-      // const index = ccyPairList.indexOf(item.Cross);
-
-      // if (index > -1) {
-      //   Object.assign(this.data[index], this.editedItem);
-      //   this.$emit("updateDvi", this.editedItem);
-      // } else {
-      //   this.data.push(this.editedItem);
-      //   this.$emit("addNewCrossDvi", item);
-      // }
-
       this.close();
     }
   }
 };
 </script>
+
+<style lang="sass">
+.custom-transform-class
+  text-transform: uppercase
+</style>

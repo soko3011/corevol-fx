@@ -3,13 +3,14 @@
     <v-data-table
       :headers="headers"
       :items="data"
-      class="elevation-10"
+      c
+      class="elevation-10 custom-transform-class"
       dense
       disable-pagination
       hide-default-footer
     >
       <template v-slot:top>
-        <v-toolbar class="mb-3" dark color="blue-grey darken-2">
+        <v-toolbar class="mb-3" dark color="blue lighten-2" dense>
           <v-toolbar-title>{{tableTitle}}</v-toolbar-title>
 
           <v-spacer></v-spacer>
@@ -121,3 +122,7 @@ export default {
 
 
 
+<style lang="sass">
+.custom-transform-class
+  text-transform: uppercase
+</style>

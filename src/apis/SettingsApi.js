@@ -10,6 +10,7 @@ export default {
   GetCcySetup() {
     return Api.get("CcySetup");
   },
+
   UpdateDviDets(body) {
     return Api.post("UpdateDviDets", body);
   },

@@ -1,7 +1,8 @@
 <template>
   <div>
-    <div class="d-flex align-center justify-start mt-2">
-      <div class="mr-5">
+    <MarketData />
+    <div class="d-flex flex-wrap">
+      <div class="ma-5">
         <v-card>
           <v-btn absolute small fab top right color="pink" elevation="12">
             <PopUpModal
@@ -19,13 +20,14 @@
           :refreshComponent="refreshChildren"
         />
       </div>
-      <div class="mr-5">
+      <div class="ma-5">
         <CrossSetup :refreshComponent="refreshChildren" />
       </div>
+      <div class="ma-5">
+        <CcySetup />
+      </div>
     </div>
-    <div class="mt-5">
-      <CcySetup />
-    </div>
+
     <v-dialog v-model="dialog" max-width="1000px">
       <v-card>
         <v-card-title>
@@ -62,6 +64,7 @@
 import DviSetup from "@/components/DviSetup.vue";
 import CrossSetup from "@/components/CrossSetup.vue";
 import CcySetup from "@/components/CcySetup.vue";
+import MarketData from "@/components/MarketData.vue";
 import SettingsApi from "@/apis/SettingsApi";
 import PopUpModal from "@/components/PopUpModal.vue";
 
@@ -81,6 +84,7 @@ export default {
     DviSetup,
     CrossSetup,
     CcySetup,
+    MarketData,
     PopUpModal
   },
 

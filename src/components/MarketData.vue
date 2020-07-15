@@ -29,7 +29,7 @@
     </v-data-table>
     <v-dialog v-model="showSwaps" max-width="500px">
       <v-card>
-        <SwapsTable :crossName="selectedCross" />
+        <SwapsTable :crossName="selectedCross" :title="'SWAPS'" :incomingData="swapsData" />
       </v-card>
     </v-dialog>
   </div>
@@ -46,6 +46,7 @@ export default {
     data: [],
     editedItem: {},
     showSwaps: false,
+    swapsData: [],
     selectedCross: ""
   }),
   components: {
@@ -98,9 +99,15 @@ export default {
         });
     },
     viewSwaps(item) {
-      this.selectedCross = item.cross;
-      console.log(this.selectedCross);
-      this.showSwaps = true;
+      MarketDataApi.GetSwaps({ name: item.cross })
+        .then(response => {
+          this.swapsData = JSON.parse(response.data.swaps);
+          this.selectedCross = item.cross;
+          this.showSwaps = true;
+        })
+        .catch(err => {
+          alert(err);
+        });
     },
 
     close() {

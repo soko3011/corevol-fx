@@ -10,7 +10,7 @@
     >
       <template v-slot:top>
         <v-toolbar class="mb-3" dark color="blue-grey darken-2">
-          <v-toolbar-title>{{crossName}} SWAPS</v-toolbar-title>
+          <v-toolbar-title>{{tableTitle}}</v-toolbar-title>
 
           <v-spacer></v-spacer>
           <v-dialog v-model="dialog" max-width="1000px">
@@ -49,29 +49,27 @@
 </template>
 
 <script>
-import MarketDataApi from "@/apis/MarketDataApi.js";
-
 export default {
   data: () => ({
     dialog: false,
     keys: [],
     headers: [],
     data: [],
-    editedItem: {},
-    addNew: false
+    editedItem: {}
   }),
   components: {},
   props: {
-    refreshComponent: { type: Boolean, default: false },
-    crossName: { type: String }
+    crossName: { type: String },
+    title: { type: String },
+    incomingData: { type: Array }
   },
 
   computed: {
     formTitle() {
       return `EDIT ${this.editedItem.Term}`;
     },
-    ccyList() {
-      return this.data.map(x => x.Ccy);
+    tableTitle() {
+      return `${this.crossName} ${this.title}`;
     }
   },
 
@@ -79,39 +77,29 @@ export default {
     dialog(val) {
       val || this.close();
     },
-    refreshComponent() {
-      this.initialize();
-    },
     crossName() {
       this.initialize();
     }
   },
-
   created() {
     this.initialize();
   },
 
   methods: {
     initialize() {
-      MarketDataApi.GetSwaps({ name: this.crossName })
-        .then(response => {
-          this.data = JSON.parse(response.data.swaps);
-          let headersNew = [];
-          this.keys = Object.keys(this.data[0]);
-          this.keys.forEach(function(val) {
-            headersNew.push({ text: val, value: val });
-          });
+      this.data = this.incomingData;
+      let headersNew = [];
+      this.keys = Object.keys(this.data[0]);
+      this.keys.forEach(function(val) {
+        headersNew.push({ text: val, value: val });
+      });
 
-          headersNew.push({
-            text: "Actions",
-            value: "actions",
-            sortable: false
-          });
-          this.headers = headersNew;
-        })
-        .catch(err => {
-          alert(err);
-        });
+      headersNew.push({
+        text: "Actions",
+        value: "actions",
+        sortable: false
+      });
+      this.headers = headersNew;
     },
     editItem(item) {
       this.editedItem = Object.assign({}, item);

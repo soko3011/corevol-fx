@@ -22,7 +22,7 @@
       hide-default-footer
     >
       <template v-slot:top>
-        <v-toolbar class="mb-3" dark color="blue-grey darken-2">
+        <v-toolbar dense class="mb-3" dark color="blue-grey darken-2">
           <v-toolbar-title>Ccy Settings</v-toolbar-title>
 
           <v-spacer></v-spacer>
@@ -59,6 +59,14 @@
         <v-btn color="primary" @click="initialize">Reset</v-btn>
       </template>
     </v-data-table>
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
+        {{snackbarMessage}}
+        <template v-slot:action="{ attrs }">
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
+        </template>
+      </v-snackbar>
+    </div>
   </div>
 </template>
 
@@ -72,7 +80,9 @@ export default {
     headers: [],
     data: [],
     editedItem: {},
-    addNew: false
+    addNew: false,
+    snackbar: false,
+    snackbarMessage: ""
   }),
   components: {
     PopUpModal
@@ -111,19 +121,21 @@ export default {
           let headersNew = [];
           this.keys = Object.keys(this.data[0]);
           this.keys.forEach(function(val) {
-            headersNew.push({ text: val, value: val });
+            headersNew.push({ text: val, value: val, align: "center" });
           });
 
           headersNew.push({
             text: "Actions",
             value: "actions",
+            align: "center",
             sortable: false
           });
           this.headers = headersNew;
           console.log(this.headers);
         })
         .catch(err => {
-          alert(err);
+          this.snackbarMessage = ` Error: ${err}`;
+          this.snackbar = true;
         });
     },
     editItem(item) {
@@ -143,11 +155,14 @@ export default {
       confirm(`Are you sure you want to delete ${item.Ccy}?`) &&
         SettingsApi.DeleteCcyData({ name: item.Ccy })
           .then(response => {
-            alert(`${item.Ccy} deleted succesfully. Status ${response.status}`);
+            this.snackbarMessage = `${item.Ccy} deleted succesfully. Status ${response.status}`;
+            this.snackbar = true;
+
             this.initialize();
           })
           .catch(err => {
-            alert(`Delete unsucessful. Error: ${err}`);
+            this.snackbarMessage = ` Delete Unsuccessful.Error: ${err}`;
+            this.snackbar = true;
           });
     },
 
@@ -159,11 +174,14 @@ export default {
     save(item) {
       SettingsApi.UpdateCcyDets(item)
         .then(response => {
-          alert(`${item.Ccy} updated succesfully. Status ${response.status}`);
+          this.snackbarMessage = `${item.Ccy} updated succesfully. Status ${response.status}`;
+          this.snackbar = true;
+
           this.initialize();
         })
         .catch(err => {
-          alert(`Update unsucessful. Error: ${err}`);
+          this.snackbarMessage = `Update unsucessful. Error: ${err}`;
+          this.snackbar = true;
         });
 
       this.close();

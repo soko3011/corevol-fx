@@ -1,32 +1,38 @@
 <template>
   <div>
-    <MarketData class="ma-5" />
-    <div class="d-flex flex-wrap">
-      <div class="ma-5">
-        <v-card>
-          <v-btn absolute small fab top right color="pink" elevation="12">
-            <PopUpModal
-              :inputData="this.$store.state.crossList"
-              :icon="'mdi-expand-all'"
-              :color="'white'"
-              :large="false"
-              :title="'MIRROR CROSS'"
-              v-on:selection="OpenDialog"
-            />
-          </v-btn>
-        </v-card>
-        <DviSetup
-          v-on:ccyPairDeleted="refreshChildren = !refreshChildren"
-          :refreshComponent="refreshChildren"
-        />
-      </div>
-      <div class="ma-5">
+    <v-row>
+      <v-col cols="12" sm="12" lg="8">
+        <div>
+          <v-card>
+            <v-btn absolute small fab top right color="pink" elevation="12">
+              <PopUpModal
+                :inputData="this.$store.state.crossList"
+                :icon="'mdi-expand-all'"
+                :color="'white'"
+                :large="false"
+                :title="'MIRROR CROSS'"
+                v-on:selection="OpenDialog"
+              />
+            </v-btn>
+          </v-card>
+          <DviSetup
+            v-on:ccyPairDeleted="refreshChildren = !refreshChildren"
+            :refreshComponent="refreshChildren"
+          />
+        </div>
+      </v-col>
+      <v-col cols="12" sm="12" lg="4">
+        <MarketData :refreshComponent="refreshChildren" />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12" sm="12" lg="7">
         <CrossSetup :refreshComponent="refreshChildren" />
-      </div>
-      <div class="ma-5">
+      </v-col>
+      <v-col cols="12" sm="12" lg="5">
         <CcySetup />
-      </div>
-    </div>
+      </v-col>
+    </v-row>
 
     <v-dialog v-model="dialog" max-width="1000px">
       <v-card>

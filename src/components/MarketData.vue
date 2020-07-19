@@ -1,5 +1,20 @@
 <template>
   <div>
+    <v-card>
+      <v-btn
+        absolute
+        small
+        fab
+        top
+        right
+        color="pink"
+        elevation="12"
+        dark
+        @click="interfaceToggle= !interfaceToggle "
+      >
+        <v-icon>mdi-information-variant</v-icon>
+      </v-btn>
+    </v-card>
     <v-data-table
       :headers="headers"
       :items="data"
@@ -10,18 +25,24 @@
       hide-default-footer
     >
       <template v-slot:top>
-        <v-toolbar class="mb-3" dark color="blue-grey darken-2">
+        <v-toolbar dense class="mb-3" dark color="blue-grey darken-2">
           <v-toolbar-title>Market Data</v-toolbar-title>
-
           <v-spacer></v-spacer>
+          <div class="green--text text--lighten-3">
+            <v-toolbar-title
+              class="font-weight-light subtitle-2"
+            >Spot:{{spotIface}} | Swap:{{swapIface}}</v-toolbar-title>
+          </div>
         </v-toolbar>
       </template>
-      <template v-slot:item.actions="{ item }">
-        <div class="ml-2">
-          <v-icon small class="mr-10" @click="viewSwaps(item)">mdi-eye</v-icon>
-          <v-icon small class="mr-10" @click="viewDepos(item)">mdi-eye</v-icon>
-          <v-icon small class="mr-10" @click="viewRateTiles(item)">mdi-eye</v-icon>
-        </div>
+      <template v-slot:item.swaps="{ item }">
+        <v-icon small @click="viewSwaps(item)">mdi-eye</v-icon>
+      </template>
+      <template v-slot:item.baserates="{ item }">
+        <v-icon small @click="viewDepos(item)">mdi-eye</v-icon>
+      </template>
+      <template v-slot:item.ratetiles="{ item }">
+        <v-icon small @click="viewRateTiles(item)">mdi-eye</v-icon>
       </template>
       <template v-slot:no-data>
         <v-btn color="primary" @click="initialize">Reset</v-btn>
@@ -37,16 +58,52 @@
         />
       </v-card>
     </v-dialog>
+    <v-dialog persistent v-model="interfaceToggle" max-width="600px">
+      <v-card>
+        <v-container fluid>
+          <v-select
+            v-model="spotIface"
+            :items="ifaces"
+            label="Spot Interface"
+            @change="changeIface($event,'spot')"
+          ></v-select>
+          <v-select
+            v-model="swapIface"
+            :items="ifaces"
+            label="Swaps Interface"
+            @change="changeIface($event,'swap')"
+          ></v-select>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
+            <v-btn color="blue darken-1" text @click="save()">Save</v-btn>
+          </v-card-actions>
+        </v-container>
+      </v-card>
+    </v-dialog>
+
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
+        Interfaces Updated => Spot: {{spotIface}} | Swap :{{swapIface}}
+        <template
+          v-slot:action="{ attrs }"
+        >
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
+        </template>
+      </v-snackbar>
+    </div>
   </div>
 </template>
 
 <script>
 import MarketDataApi from "@/apis/MarketDataApi.js";
 import MarketDataTable from "@/components/MarketDataTable.vue";
+
 export default {
   name: "marketData",
   data: () => ({
     dialog: false,
+    interfaceToggle: false,
     keys: [],
     headers: [],
     data: [],
@@ -55,7 +112,11 @@ export default {
     marketData: [],
     marketTableTitle: "",
     marketTableWidth: "",
-    selectedCross: ""
+    selectedCross: "",
+    ifaces: ["BarChart", "MongoDB", "Excel"],
+    spotIface: "MongoDB",
+    swapIface: "MongoDB",
+    snackbar: false
   }),
   components: {
     MarketDataTable
@@ -73,6 +134,9 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
+    },
+    refreshComponent() {
+      this.initialize();
     }
   },
 
@@ -90,16 +154,38 @@ export default {
           let headersNew = [];
           this.keys = Object.keys(this.data[0]);
           this.keys.forEach(function(val) {
-            headersNew.push({ text: val, value: val });
+            headersNew.push({ text: val, value: val, align: "center" });
           });
 
           headersNew.push({
-            text: "Swaps--BaseRates--RateTiles",
-            value: "actions",
+            text: "Swaps",
+            value: "swaps",
+            sortable: false,
+            align: "center"
+          });
+          headersNew.push({
+            text: "BaseRates",
+            value: "baserates",
+            align: "center",
+            sortable: false
+          });
+          headersNew.push({
+            text: "RateTiles",
+            value: "ratetiles",
+            align: "center",
             sortable: false
           });
 
           this.headers = headersNew;
+        })
+        .catch(err => {
+          alert(err);
+        });
+
+      MarketDataApi.CurrentInterfaces()
+        .then(response => {
+          this.spotIface = JSON.parse(response.data.spot);
+          this.swapIface = JSON.parse(response.data.swap);
         })
         .catch(err => {
           alert(err);
@@ -148,11 +234,33 @@ export default {
     },
 
     close() {
-      this.dialog = false;
+      this.interfaceToggle = false;
       this.$nextTick(() => {});
+    },
+    changeIface(event, iface) {
+      if (iface === "spot") {
+        this.spotIface = event;
+      }
+      if (iface === "swap") {
+        this.swapIface = event;
+      }
     },
 
     save() {
+      MarketDataApi.ChangeInterface({
+        spot: this.spotIface,
+        swap: this.swapIface
+      })
+        .then(response => {
+          this.spotIface = JSON.parse(response.data.spot);
+          this.swapIface = JSON.parse(response.data.swap);
+          this.snackbar = true;
+        })
+        .catch(err => {
+          alert(err);
+        });
+
+      this.initialize();
       this.close();
     }
   }

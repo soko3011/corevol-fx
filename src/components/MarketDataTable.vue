@@ -3,7 +3,6 @@
     <v-data-table
       :headers="headers"
       :items="data"
-      c
       class="elevation-10 custom-transform-class"
       dense
       disable-pagination
@@ -92,13 +91,13 @@ export default {
       let headersNew = [];
       this.keys = Object.keys(this.data[0]);
       this.keys.forEach(function(val) {
-        headersNew.push({ text: val, value: val });
+        headersNew.push({ text: val, value: val, align: "center" });
       });
 
       headersNew.push({
         text: "Actions",
         value: "actions",
-        sortable: false
+        align: "center"
       });
       this.headers = headersNew;
     },

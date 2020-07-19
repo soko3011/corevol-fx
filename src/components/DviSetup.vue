@@ -10,7 +10,7 @@
       hide-default-footer
     >
       <template v-slot:top>
-        <v-toolbar class="mb-3" dark color="blue-grey darken-2">
+        <v-toolbar dense class="mb-3" dark color="blue-grey darken-2">
           <v-toolbar-title>Dvi Settings</v-toolbar-title>
 
           <v-spacer></v-spacer>
@@ -40,11 +40,14 @@
           </v-dialog>
         </v-toolbar>
       </template>
+      <template v-slot:item.mults="{ item }">
+        <v-icon small @click="viewMultsAndSpreads(item)">mdi-eye</v-icon>
+      </template>
       <template v-slot:item.actions="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
-        <v-icon small @click="viewMultsAndSpreads(item)">mdi-database</v-icon>
       </template>
+
       <template v-slot:no-data>
         <v-btn color="primary" @click="initialize">Reset</v-btn>
       </template>
@@ -59,6 +62,14 @@
         />
       </v-card>
     </v-dialog>
+    <div class="text-center ma-2">
+      <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
+        {{snackbarMessage}}
+        <template v-slot:action="{ attrs }">
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
+        </template>
+      </v-snackbar>
+    </div>
   </div>
 </template>
 
@@ -79,7 +90,9 @@ export default {
     marketData: [],
     marketTableTitle: "",
     marketTableWidth: "",
-    selectedCross: ""
+    selectedCross: "",
+    snackbar: false,
+    snackbarMessage: ""
   }),
 
   computed: {
@@ -112,18 +125,25 @@ export default {
           let headersNew = [];
           this.keys = Object.keys(this.data[0]);
           this.keys.forEach(function(val) {
-            headersNew.push({ text: val, value: val });
+            headersNew.push({ text: val, value: val, align: "center" });
+          });
+          headersNew.push({
+            text: "Mults",
+            value: "mults",
+            align: "center"
           });
 
           headersNew.push({
             text: "Actions",
             value: "actions",
-            sortable: false
+            align: "center"
           });
+
           this.headers = headersNew;
         })
         .catch(err => {
-          alert(err);
+          this.snackbarMessage = ` Error: ${err}`;
+          this.snackbar = true;
         });
     },
     editItem(item) {
@@ -135,14 +155,15 @@ export default {
       confirm(`Are you sure you want to delete ${item.Cross}?`) &&
         SettingsApi.DeleteCcyPairData({ name: item.Cross })
           .then(response => {
-            alert(
-              `${item.Cross} deleted succesfully. Status ${response.status}`
-            );
+            this.snackbarMessage = `${item.Cross} deleted succesfully. Status ${response.status}`;
+            this.snackbar = true;
+
             this.initialize();
             this.$emit("ccyPairDeleted", true);
           })
           .catch(err => {
-            alert(`Delete unsucessful. Error: ${err}`);
+            this.snackbarMessage = `Delete unsucessful. Error: ${err}`;
+            this.snackbar = true;
           });
     },
     viewMultsAndSpreads(item) {
@@ -156,7 +177,8 @@ export default {
           this.showMarketTable = true;
         })
         .catch(err => {
-          alert(err);
+          this.snackbarMessage = ` Error: ${err}`;
+          this.snackbar = true;
         });
     },
 
@@ -168,11 +190,14 @@ export default {
     save(item) {
       SettingsApi.UpdateDviDets(item)
         .then(response => {
-          alert(`${item.Cross} updated succesfully. Status ${response.status}`);
+          this.snackbarMessage = `${item.Cross} updated succesfully. Status ${response.status}`;
+          this.snackbar = true;
+
           this.initialize();
         })
         .catch(err => {
-          alert(`Update unsucessful. Error: ${err}`);
+          this.snackbarMessage = `Update unsucessful. Error: ${err}`;
+          this.snackbar = true;
         });
 
       this.close();

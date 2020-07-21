@@ -4,8 +4,8 @@ export default {
   GetSpotRates() {
     return Api.get("SpotRates");
   },
-  CurrentInterfaces() {
-    return Api.get("CurrentInterfaces");
+  CurrentInterfaces(body) {
+    return Api.post("CurrentInterfaces", body);
   },
 
   GetSwaps(body) {

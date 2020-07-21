@@ -19,7 +19,8 @@ const state = {
   lastPricerTab: "",
   lastPricerCellCoords: [],
   ipvVolData: [],
-  rawPricerData: []
+  rawPricerData: [],
+  currentUser: ""
 };
 
 const mutations = {
@@ -47,15 +48,18 @@ const mutations = {
     state.dviInput = data;
   },
   SET_PRICER(state, data) {
+    console.log(data);
     state.rawPricerData = data;
   },
   SET_SURF(state, data) {
     state.dviRawData.surf = data.surf;
   },
   SET_INIT(state, response) {
+    console.log("im set init");
     state.crossList = JSON.parse(response.crossList).sort();
     state.activecross = JSON.parse(response.starterFXCross);
     state.lastPricerTab = state.activecross;
+    state.currentUser = "soko";
   },
   SET_ACTIVE_CROSS(state, activecross) {
     state.activecross = activecross;
@@ -78,6 +82,10 @@ const mutations = {
   },
   GET_IPV_VOLS(state, data) {
     state.ipvVolData = data;
+  },
+  SET_CURRENT_USER(state, data) {
+    state.currentUser = data;
+    console.log(`setting current user:${state.currentUser}`);
   }
 };
 
@@ -173,7 +181,10 @@ const actions = {
   },
   ChangePricer({ commit }, pricerName) {
     return new Promise((resolve, reject) => {
-      PricerApi.setPricer({ name: pricerName })
+      PricerApi.setPricer({
+        User: state.currentUser,
+        PricerData: { PricerTitle: pricerName }
+      })
         .then(response => {
           commit("SET_PRICER", response.data);
           resolve(response.status);
@@ -182,6 +193,9 @@ const actions = {
           reject(err.status);
         });
     });
+  },
+  changeCurrentUser({ commit }, payload) {
+    commit("SET_CURRENT_USER", payload);
   }
 };
 

@@ -113,9 +113,9 @@ export default {
     marketTableTitle: "",
     marketTableWidth: "",
     selectedCross: "",
-    ifaces: ["BarChart", "MongoDB", "Excel"],
-    spotIface: "MongoDB",
-    swapIface: "MongoDB",
+    ifaces: ["Barchart", "MongoDB", "Excel"],
+    spotIface: "",
+    swapIface: "",
     snackbar: false
   }),
   components: {
@@ -150,7 +150,7 @@ export default {
         .then(response => {
           this.data = JSON.parse(response.data.spotRates);
           this.data.sort((a, b) => (a.cross > b.cross ? 1 : -1));
-          console.log(this.data);
+
           let headersNew = [];
           this.keys = Object.keys(this.data[0]);
           this.keys.forEach(function(val) {
@@ -182,7 +182,7 @@ export default {
           alert(err);
         });
 
-      MarketDataApi.CurrentInterfaces()
+      MarketDataApi.CurrentInterfaces({ user: this.$store.state.currentUser })
         .then(response => {
           this.spotIface = JSON.parse(response.data.spot);
           this.swapIface = JSON.parse(response.data.swap);
@@ -244,10 +244,13 @@ export default {
       if (iface === "swap") {
         this.swapIface = event;
       }
+
+      // alert(`${this.spotIface}  ${this.swapIface}`);
     },
 
     save() {
       MarketDataApi.ChangeInterface({
+        user: this.$store.state.currentUser,
         spot: this.spotIface,
         swap: this.swapIface
       })
@@ -255,12 +258,12 @@ export default {
           this.spotIface = JSON.parse(response.data.spot);
           this.swapIface = JSON.parse(response.data.swap);
           this.snackbar = true;
+          this.initialize();
         })
         .catch(err => {
           alert(err);
         });
 
-      this.initialize();
       this.close();
     }
   }

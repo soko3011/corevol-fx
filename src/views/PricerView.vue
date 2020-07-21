@@ -1,6 +1,7 @@
 <template>
   <div>
-    <v-navigation-drawer
+    <v-text-field v-model="user" label="CurrentUser" @change="setUser"></v-text-field>
+    <!-- <v-navigation-drawer
       color="blue-grey lighten-5"
       app
       right
@@ -28,7 +29,7 @@
           <v-icon>mdi-chevron-double-left</v-icon>
         </v-btn>
       </v-card>
-    </v-navigation-drawer>
+    </v-navigation-drawer>-->
 
     <main class="pa-0">
       <v-toolbar
@@ -39,22 +40,17 @@
         src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
       >
         <v-btn icon>
-          <v-icon
-            @click="showSideControl = !showSideControl"
-            color="blue lighten-2"
-          >
+          <v-icon @click="showSideControl = !showSideControl" color="blue lighten-2">
             {{
-              showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
-            }}</v-icon
-          >
+            showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
+            }}
+          </v-icon>
         </v-btn>
 
         <v-spacer></v-spacer>
         <h4
           class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-        >
-          {{ pricerTitle }}
-        </h4>
+        >{{ pricerTitle }}</h4>
         <v-spacer></v-spacer>
       </v-toolbar>
 
@@ -143,7 +139,7 @@ import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import PopUpInput from "@/components/PopUpInput.vue";
-import DashBoard from "@/views/DashBoard.vue";
+//import DashBoard from "@/views/DashBoard.vue";
 
 export default {
   name: "PricerView",
@@ -152,8 +148,8 @@ export default {
     OptionPricer,
     TreeView,
     PopUpModal,
-    PopUpInput,
-    DashBoard
+    PopUpInput
+    //DashBoard
   },
 
   data() {
@@ -165,7 +161,8 @@ export default {
       viewName: this.$route.params.viewName,
       showSideControl: false,
       drawer: true,
-      currentCcyPair: this.$store.state.activecross
+      currentCcyPair: this.$store.state.activecross,
+      user: this.$store.state.currentUser
     };
   },
   created: function() {
@@ -173,7 +170,9 @@ export default {
 
     var view = this.$route.params.viewName;
 
-    PricerApi.GetListOfActivePricers().then(response => {
+    PricerApi.GetListOfActivePricers({
+      User: this.$store.state.currentUser
+    }).then(response => {
       this.activePricers = JSON.parse(response.data.activePricers);
 
       if (this.activePricers.indexOf(view) === -1) {
@@ -195,6 +194,10 @@ export default {
   },
 
   methods: {
+    setUser(user) {
+      console.log(user);
+      this.$store.dispatch("changeCurrentUser", user);
+    },
     test() {
       console.log(window.innerHeight);
     },
@@ -259,7 +262,10 @@ export default {
 
     RemoveTab(view) {
       const index = this.activePricers.indexOf(view);
-      PricerApi.RemovePricerFromUse({ name: view });
+      PricerApi.RemovePricerFromUse({
+        User: this.$store.state.currentUser,
+        PricerData: { PricerTitle: view }
+      });
 
       if ((view = this.$route.params.viewName)) {
         let redirectTo =

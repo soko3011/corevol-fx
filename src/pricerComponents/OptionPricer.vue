@@ -97,7 +97,7 @@ export default {
       return JSON.parse(this.apidata.storedPricerData);
     },
     pricerName() {
-      return this.apidata.pricerName;
+      return JSON.parse(this.apidata.storedPricerData).PricerTitle;
     },
     jExcelOptions() {
       return customFunctions.JexcelTableByList(this.pricerKeys, this.config);
@@ -136,23 +136,33 @@ export default {
       this.optContainer = [];
     },
     RestorePricerData(storedData) {
+      console.log("here");
       this.ClearGrid();
       if (storedData !== null) {
-        var data = JSON.parse(storedData.ActivePricerGridDataJSON);
-        for (var row of data) {
-          var key = row[0];
-          var gridRow = this.pricerKeys.indexOf(key);
-          if (gridRow !== -1) {
-            this.jExcelObj.ignoreEvents = true;
-            this.jExcelObj.setRowData(gridRow, row);
-            this.jExcelObj.ignoreEvents = false;
+        const data = JSON.parse(storedData.ActivePricerGridDataJSON);
+
+        if (data !== null) {
+          for (var row of data) {
+            var key = row[0];
+            var gridRow = this.pricerKeys.indexOf(key);
+            if (gridRow !== -1) {
+              this.jExcelObj.ignoreEvents = true;
+              this.jExcelObj.setRowData(gridRow, row);
+              this.jExcelObj.ignoreEvents = false;
+            }
           }
         }
-        for (var item of JSON.parse(storedData.ActiveOptionsContainerJSON)) {
-          this.optContainer.push(item);
+        const optData = JSON.parse(storedData.ActiveOptionsContainerJSON);
+        if (optData !== null) {
+          for (var item of optData) {
+            this.optContainer.push(item);
+          }
         }
-        for (item of JSON.parse(storedData.UserOverwrittenInputsJSON)) {
-          this.redObj.push(item);
+        const redData = JSON.parse(storedData.UserOverwrittenInputsJSON);
+        if (redData !== null) {
+          for (item of redData) {
+            this.redObj.push(item);
+          }
         }
       }
     },
@@ -505,11 +515,14 @@ export default {
     },
     ReturnCurrent() {
       var StoredActivePricerData = {
-        PricerId: this.pricerName,
+        User: this.$store.state.currentUser,
         PricerData: {
+          PricerTitle: this.pricerName,
           ActivePricerGridDataJSON: JSON.stringify(this.jExcelObj.getData()),
           UserOverwrittenInputsJSON: JSON.stringify(this.redObj),
-          ActiveOptionsContainerJSON: JSON.stringify(this.optContainer)
+          ActiveOptionsContainerJSON: JSON.stringify(this.optContainer),
+          PricerLayoutName: JSON.parse(this.apidata.storedPricerData)
+            .PricerLayoutName
         }
       };
       PricerApi.ReturnCurrentOpts(StoredActivePricerData);

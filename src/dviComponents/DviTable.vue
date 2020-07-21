@@ -10,7 +10,6 @@ import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unus
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
-import styles from "@/assets/css/main.css";
 
 export default {
   name: "dviTable",
@@ -38,7 +37,7 @@ export default {
     }
   },
   methods: {
-    OnChange(instance, cell, x, y, value) {
+    OnChange(instance, cell, x, y) {
       // eslint-disable-line no-unused-vars
       var eventWgt = this.jExcelObj.getValueFromCoords(x, y);
       var dayCount = this.jExcelObj.getValueFromCoords(0, y);
@@ -47,6 +46,7 @@ export default {
       this.FormatTable(this.apidata, this.jExcelObj);
     },
     setIdata(eventWgt, dayCount) {
+      this.iData.User = this.$store.state.currentUser;
       this.iData.cross = this.$store.getters.activeCrossGetter;
       this.iData.userEventWgt = eventWgt;
       this.iData.userEventDayCount = dayCount;

@@ -7,100 +7,101 @@
 </template>
 
 <script>
-import jexcelStyle from 'jexcel/dist/jexcel.css' // eslint-disable-line no-unused-vars
-import jexcel from 'jexcel' // eslint-disable-line no-unused-vars
-import setData from 'jexcel' // eslint-disable-line no-unused-vars
-import * as customFunctions from '@/externaljs/customfunctions.js' // eslint-disable-line no-unused-vars
+import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
+import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
+import setData from "jexcel"; // eslint-disable-line no-unused-vars
+import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
 
 export default {
-  name: 'dviSmileInputTable',
-  created () {},
-  data () {
+  name: "dviSmileInputTable",
+  created() {},
+  data() {
     return {
       colWidthsSurf: [100, 100, 100, 87, 87],
       iData: {}
-    }
+    };
   },
   computed: {
-    config () {
+    config() {
       return {
         columnSorting: false,
         colWidths: this.colWidthsSurf,
         onchange: this.OnChange,
         allowInsertRow: false
-      }
+      };
     },
-    apidata () {
-      return this.$store.getters.dviSmileInputGetter
+    apidata() {
+      return this.$store.getters.dviSmileInputGetter;
     },
-    jExcelOptions () {
-      return customFunctions.JexcelTableSettings(this.apidata, this.config)
+    jExcelOptions() {
+      return customFunctions.JexcelTableSettings(this.apidata, this.config);
     }
   },
   methods: {
-    OnChange (instance, cell, x, y, value) {
+    OnChange() {
       // eslint-disable-line no-unused-vars
-      this.setIdata()
-      this.FormatTable(this.apidata, this.jExcelObj)
-      this.FormatTable(this.apidata, this.jExcelObj)
+      this.setIdata();
+      this.FormatTable(this.apidata, this.jExcelObj);
+      this.FormatTable(this.apidata, this.jExcelObj);
     },
-    RefreshTable () {
-      this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata))
-      this.FormatTable(this.apidata, this.jExcelObj)
+    RefreshTable() {
+      this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
+      this.FormatTable(this.apidata, this.jExcelObj);
     },
-    setIdata () {
-      this.iData.cross = this.$store.getters.activeCrossGetter
-      this.iData.rr1 = this.jExcelObj.getValueFromCoords(1, 0)
-      this.iData.rr2 = this.jExcelObj.getValueFromCoords(1, 1)
-      this.iData.fly1 = this.jExcelObj.getValueFromCoords(2, 0)
-      this.iData.fly2 = this.jExcelObj.getValueFromCoords(2, 1)
-      this.iData.wgtbar = this.jExcelObj.getValueFromCoords(3, 0)
-      this.iData.rrcorr = this.jExcelObj.getValueFromCoords(4, 0)
-      this.$store.dispatch('setIdataObject', this.iData)
+    setIdata() {
+      this.iData.User = this.$store.state.currentUser;
+      this.iData.cross = this.$store.getters.activeCrossGetter;
+      this.iData.rr1 = this.jExcelObj.getValueFromCoords(1, 0);
+      this.iData.rr2 = this.jExcelObj.getValueFromCoords(1, 1);
+      this.iData.fly1 = this.jExcelObj.getValueFromCoords(2, 0);
+      this.iData.fly2 = this.jExcelObj.getValueFromCoords(2, 1);
+      this.iData.wgtbar = this.jExcelObj.getValueFromCoords(3, 0);
+      this.iData.rrcorr = this.jExcelObj.getValueFromCoords(4, 0);
+      this.$store.dispatch("setIdataObject", this.iData);
     },
 
-    FormatTable (data, table) {
-      table.hideIndex()
+    FormatTable(data, table) {
+      table.hideIndex();
       for (var i = 0; i < data.length; i++) {
-        var row = i + 1
-        var col0Name = 'A' + row
-        var col1Name = 'B' + row
-        var col2Name = 'C' + row
-        var col5Name = 'D' + row
-        var col6Name = 'E' + row
+        var row = i + 1;
+        var col0Name = "A" + row;
+        var col1Name = "B" + row;
+        var col2Name = "C" + row;
+        var col5Name = "D" + row;
+        var col6Name = "E" + row;
 
-        table.setStyle(col0Name, 'color', '#000080')
-        table.setStyle(col0Name, 'font-weight', 'bold')
+        table.setStyle(col0Name, "color", "#000080");
+        table.setStyle(col0Name, "font-weight", "bold");
 
-        table.setStyle(col1Name, 'background-color', '#64FAC0')
-        table.setStyle(col1Name, 'font-weight', 'bold')
+        table.setStyle(col1Name, "background-color", "#64FAC0");
+        table.setStyle(col1Name, "font-weight", "bold");
 
-        table.setStyle(col2Name, 'background-color', '#64FAC0')
-        table.setStyle(col2Name, 'font-weight', 'bold')
-        table.setStyle(col2Name, 'color', '#000080')
+        table.setStyle(col2Name, "background-color", "#64FAC0");
+        table.setStyle(col2Name, "font-weight", "bold");
+        table.setStyle(col2Name, "color", "#000080");
 
-        table.setStyle(col5Name, 'background-color', '#64FAC0')
-        table.setStyle(col5Name, 'font-weight', 'bold')
+        table.setStyle(col5Name, "background-color", "#64FAC0");
+        table.setStyle(col5Name, "font-weight", "bold");
 
-        table.setStyle(col6Name, 'background-color', '#64FAC0')
-        table.setStyle(col6Name, 'font-weight', 'bold')
+        table.setStyle(col6Name, "background-color", "#64FAC0");
+        table.setStyle(col6Name, "font-weight", "bold");
 
-        table.setStyle('D2', 'background-color', '#bfbfbf')
-        table.setStyle('E2', 'background-color', '#bfbfbf')
+        table.setStyle("D2", "background-color", "#bfbfbf");
+        table.setStyle("E2", "background-color", "#bfbfbf");
       }
     }
   },
-  mounted: function () {
-    const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions)
-    this.FormatTable(this.apidata, jExcelObj)
-    Object.assign(this, { jExcelObj }) // tucks all methods under jExcelObj object in component instance
+  mounted: function() {
+    const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
+    this.FormatTable(this.apidata, jExcelObj);
+    Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
   },
   watch: {
-    apidata () {
-      this.RefreshTable()
+    apidata() {
+      this.RefreshTable();
     }
   }
-}
+};
 </script>
 
 <style >

@@ -1,40 +1,40 @@
-import Api from './Api'
+import Api from "./Api";
 
 export default {
-  getInitialize () {
-    return Api.get('Initialize')
+  getInitialize() {
+    return Api.get("Initialize");
   },
-  getDviData (body) {
-    return Api.post('DviReturn', body)
+  getDviData(body) {
+    return Api.post("DviReturn", body);
   },
-  changeDviCcyPair (body) {
-    return Api.post('ChangeDviCcyPair', body)
+  changeDviCcyPair(body) {
+    return Api.post("ChangeDviCcyPair", body);
   },
-  UpdateMultsAndSpreads (body) {
-    return Api.post('UpdateMultsAndSpreads', body)
+  UpdateMultsAndSpreads(body) {
+    return Api.post("UpdateMultsAndSpreads", body);
   },
-  DelRangeFromList (body) {
-    return Api.post('DelRangeFromList', body)
+  DelRangeFromList(body) {
+    return Api.post("DelRangeFromList", body);
   },
-  MatchSurfaceToIpvInputs (body) {
-    return Api.post('MatchSurfaceToIpvInputs', body)
+  MatchSurfaceToIpvInputs(body) {
+    return Api.post("MatchSurfaceToIpvInputs", body);
   },
-  GetListOfActiveDvis () {
-    return Api.get('GetListOfActiveDvis')
+  GetListOfActiveDvis(body) {
+    return Api.post("GetListOfActiveDvis", body);
   },
-  RemoveDviFromUse (body) {
-    return Api.post('RemoveDviFromUse', body)
+  RemoveDviFromUse(body) {
+    return Api.post("RemoveDviFromUse", body);
   },
-  GetDashBoardSurfs () {
-    return Api.get('GetDashBoardSurfs')
+  GetDashBoardSurfs() {
+    return Api.get("GetDashBoardSurfs");
   },
-  GetIpvSurfaces () {
-    return Api.get('GetIpvSurfaces')
+  GetIpvSurfaces() {
+    return Api.get("GetIpvSurfaces");
   },
-  GetSingleDashBoardSurf (body) {
-    return Api.post('GetSingleDashBoardSurf', body)
+  GetSingleDashBoardSurf(body) {
+    return Api.post("GetSingleDashBoardSurf", body);
   },
-  CheckSessionDviCount () {
-    return Api.get('CheckSessionDviCount')
+  CheckSessionDviCount() {
+    return Api.get("CheckSessionDviCount");
   }
-}
+};

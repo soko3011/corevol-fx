@@ -138,6 +138,7 @@ export default {
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
     },
     setIdata() {
+      this.iData.User = this.$store.state.currentUser;
       this.iData.cross = this.$store.getters.activeCrossGetter;
       this.iData.UserEventRangeUI = {
         AutoID: this.row,

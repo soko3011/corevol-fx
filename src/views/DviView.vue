@@ -11,16 +11,12 @@
         <v-icon
           @click="showSideControl = !showSideControl"
           color="blue lighten-3"
-        >
-          {{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon
-        >
+        >{{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
       <h4
         class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-      >
-        {{ this.$route.params.ccyPair }}
-      </h4>
+      >{{ this.$route.params.ccyPair }}</h4>
       <v-spacer></v-spacer>
     </v-toolbar>
 
@@ -48,16 +44,7 @@
             />
           </v-btn>
         </v-card>
-        <v-btn
-          class="mb-10"
-          absolute
-          small=""
-          fab
-          bottom
-          right
-          color="blue-grey"
-          elevation="12"
-        >
+        <v-btn class="mb-10" absolute small fab bottom right color="blue-grey" elevation="12">
           <PopUpModal
             :inputData="this.activeDvis"
             :icon="'mdi-delete'"
@@ -72,39 +59,20 @@
       <div class="d-flex flex-nowrap align-start justify-start">
         <div>
           <surfaceTable />
-          <div class="d-flex align-center justify-start mt-2 ">
+          <div class="d-flex align-center justify-start mt-2">
             <dviInputTable />
             <div class="mb-10">
               <v-speed-dial v-model="fabIpv" top left direction="right">
                 <template v-slot:activator>
-                  <v-btn
-                    small
-                    v-model="fab"
-                    color="blue lighten-2"
-                    dark
-                    fab
-                    elevation="12"
-                  >
+                  <v-btn small v-model="fab" color="blue lighten-2" dark fab elevation="12">
                     <v-icon v-if="fab">mdi-close</v-icon>
                     <v-icon v-else>mdi-axis-y-arrow</v-icon>
                   </v-btn>
                 </template>
-                <v-btn
-                  fab
-                  dark
-                  small
-                  color="green accent-3"
-                  @click.stop="SetIpv('atm')"
-                >
+                <v-btn fab dark small color="green accent-3" @click.stop="SetIpv('atm')">
                   <v-icon>mdi-alpha-a-circle-outline</v-icon>
                 </v-btn>
-                <v-btn
-                  fab
-                  dark
-                  small
-                  color="indigo"
-                  @click.stop="SetIpv('smile')"
-                >
+                <v-btn fab dark small color="indigo" @click.stop="SetIpv('smile')">
                   <v-icon>mdi-alpha-s-circle-outline</v-icon>
                 </v-btn>
                 <v-btn fab dark small color="red">
@@ -156,15 +124,17 @@ export default {
   created: function() {
     var ccyPair = this.$route.params.ccyPair;
 
-    DviApi.GetListOfActiveDvis().then(response => {
-      this.activeDvis = JSON.parse(response.data.listOfActiveDvis);
+    DviApi.GetListOfActiveDvis({ User: this.$store.state.currentUser }).then(
+      response => {
+        this.activeDvis = JSON.parse(response.data.listOfActiveDvis);
 
-      if (this.activeDvis.indexOf(ccyPair) === -1) {
-        this.AddNewDvi(ccyPair);
-      } else {
-        this.RefreshDviData(ccyPair);
+        if (this.activeDvis.indexOf(ccyPair) === -1) {
+          this.AddNewDvi(ccyPair);
+        } else {
+          this.RefreshDviData(ccyPair);
+        }
       }
-    });
+    );
     // document.addEventListener("keydown", this.KeyPressToPricer);
   },
   destroyed: function() {
@@ -209,7 +179,10 @@ export default {
     RefreshDviData(ccyPair) {
       this.dataReturned = false;
       this.$store
-        .dispatch("ChangeDviCcyPair", { cross: this.$route.params.ccyPair })
+        .dispatch("ChangeDviCcyPair", {
+          cross: this.$route.params.ccyPair,
+          User: this.$store.state.currentUser
+        })
         .then(data => {
           if (data === 200) {
             this.dataReturned = true;
@@ -230,11 +203,21 @@ export default {
     },
     RemoveTab() {
       const ccyPair = this.$route.params.ccyPair;
+      if (this.activeDvis.length === 1) {
+        alert(
+          `Must have at least one Dvi. Add a new one before deleting ${ccyPair}`
+        );
+        return;
+      }
+
       const index = this.activeDvis.indexOf(ccyPair);
       const redirectTo =
         index !== 0 ? this.activeDvis[index - 1] : this.activeDvis[index + 1];
 
-      DviApi.RemoveDviFromUse({ name: ccyPair });
+      DviApi.RemoveDviFromUse({
+        name: ccyPair,
+        User: this.$store.state.currentUser
+      });
       this.ReloadDvi(redirectTo);
     },
 

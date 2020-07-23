@@ -84,6 +84,14 @@
           <v-list-item-title>Settings</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item @click="logout">
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-exit-to-app</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Log Out</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
     </v-list>
 
     <template v-slot:append>
@@ -110,69 +118,19 @@ export default {
   props: {
     showsidebar: { type: Boolean }
   },
+  methods: {
+    logout() {
+      this.$store.dispatch("logOutUser").then(() => {
+        this.$router.push({ name: "UserLogin" }).catch(() => {});
+      });
+    }
+  },
   watch: {
     showsidebar() {
       this.drawer = this.showsidebar;
     }
   },
-  methods: {},
-  computed: {
-    nav() {
-      return [
-        {
-          _name: "CSidebarNav",
-          _children: [
-            {
-              _name: "CSidebarNavItem",
-              name: "Dashboard",
-              to: "/dashboard",
-              icon: "cil-speedometer"
-            },
-            {
-              _name: "CSidebarNavTitle",
-              _children: ["Pricing Tools"]
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "D.V.I.",
-              to: "/volEngine/DviView/" + this.$store.state.activecross,
-              icon: "cil-puzzle"
-            },
 
-            {
-              _name: "CSidebarNavItem",
-              name: "Option Pricer",
-              to: "/volEngine/PricerView/" + this.$store.state.lastPricerTab,
-              icon: "cil-calculator"
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "ControlPanel",
-              to: "/volEngine/ControlPanel",
-              icon: "cil-cursor"
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "Charts",
-              to: "/volEngine/FxCharts",
-              icon: "cil-chart-pie"
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "FxRates",
-              to: "/volEngine/FxRates",
-              icon: "cil-star"
-            },
-            {
-              _name: "CSidebarNavItem",
-              name: "Day Weight Setup",
-              to: "/volEngine/DayWgtSetup",
-              icon: "cil-pencil"
-            }
-          ]
-        }
-      ];
-    }
-  }
+  computed: {}
 };
 </script>

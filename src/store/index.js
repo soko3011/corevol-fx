@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import DviApi from "@/apis/DviApi";
 import PricerApi from "@/apis/PricerApi";
+import LoginApi from "@/apis/LoginApi";
 
 Vue.use(Vuex);
 
@@ -20,20 +21,15 @@ const state = {
   lastPricerCellCoords: [],
   ipvVolData: [],
   rawPricerData: [],
-  currentUser: ""
+  currentUser: "",
+  snackbars: [],
+  isUserAuthed: false,
+  isAdmin: false
 };
 
 const mutations = {
-  toggleSidebarDesktop(state) {
-    const sidebarOpened = [true, "responsive"].includes(state.sidebarShow);
-    state.sidebarShow = sidebarOpened ? false : "responsive";
-  },
-  toggleSidebarMobile(state) {
-    const sidebarClosed = [false, "responsive"].includes(state.sidebarShow);
-    state.sidebarShow = sidebarClosed ? true : "responsive";
-  },
-  set(state, [variable, value]) {
-    state[variable] = value;
+  SET_SNACKBAR(state, snackbar) {
+    state.snackbars = state.snackbars.concat(snackbar);
   },
   SET_DVI_DATA(state, dviRawData) {
     state.dviRawData = dviRawData;
@@ -55,11 +51,9 @@ const mutations = {
     state.dviRawData.surf = data.surf;
   },
   SET_INIT(state, response) {
-    console.log("im set init");
     state.crossList = JSON.parse(response.crossList).sort();
     state.activecross = JSON.parse(response.starterFXCross);
     state.lastPricerTab = state.activecross;
-    state.currentUser = "soko";
   },
   SET_ACTIVE_CROSS(state, activecross) {
     state.activecross = activecross;
@@ -83,18 +77,90 @@ const mutations = {
   GET_IPV_VOLS(state, data) {
     state.ipvVolData = data;
   },
-  SET_CURRENT_USER(state, data) {
-    state.currentUser = data;
-    console.log(`setting current user:${state.currentUser}`);
+  SET_CURRENT_USER(state, user) {
+    state.currentUser = user.Username;
+    state.isAdmin = user.IsAdmin;
+    window.localStorage.currentUser = JSON.stringify(user.Username);
+  },
+  SET_ISAUTHED(state, authed) {
+    state.isUserAuthed = authed;
   }
 };
 
 const actions = {
+  async checkLoginStatus({ commit }) {
+    try {
+      let response = await LoginApi.CheckLoginStatus({
+        Username: JSON.parse(window.localStorage.currentUser)
+      });
+      let user = JSON.parse(response.data.userProfile);
+      commit("SET_ISAUTHED", user.IsAuthed);
+      console.log(`Starting app: user is authed: ${state.isUserAuthed}`);
+      if (user.IsAuthed === true) {
+        commit("SET_CURRENT_USER", user);
+      }
+      return user;
+    } catch {
+      return { error: "There was an error.  Please try again." };
+    }
+  },
+
+  async logOutUser({ dispatch, commit }) {
+    try {
+      let response = await LoginApi.LogOutUser({
+        Username: JSON.parse(window.localStorage.currentUser)
+      });
+      let user = JSON.parse(response.data.userProfile);
+      commit("SET_ISAUTHED", user.IsAuthed);
+      dispatch("setSnackbar", {
+        text: `${user.Username} is signed out`
+      });
+
+      return user;
+    } catch {
+      return { error: "There was an error.  Please try again." };
+    }
+  },
+
+  async login({ commit }, loginInfo) {
+    try {
+      let response = await LoginApi.LoginUser(loginInfo);
+      let user = JSON.parse(response.data.userProfile);
+      commit("SET_ISAUTHED", user.IsAuthed);
+
+      if (user.IsAuthed === true) {
+        commit("SET_CURRENT_USER", user);
+      }
+      return user;
+    } catch {
+      return { error: "There was an error.  Please try again." };
+    }
+  },
+  async register({ commit }, registrationInfo) {
+    try {
+      console.log(registrationInfo);
+      let response = await LoginApi.RegisterUser(registrationInfo);
+      let user = JSON.parse(response.data.isUserAuthed);
+
+      commit("SET_CURRENT_USER", user.Username);
+
+      return user;
+    } catch {
+      return { error: "There was an error.  Please try again." };
+    }
+  },
+
+  setSnackbar({ commit }, snackbar) {
+    snackbar.showing = true;
+    snackbar.color = snackbar.color || "dark";
+    commit("SET_SNACKBAR", snackbar);
+  },
   initApp({ commit }) {
     return new Promise((resolve, reject) => {
       DviApi.getInitialize()
         .then(response => {
           commit("SET_INIT", response.data);
+
           resolve(response.status);
         })
         .catch(error => {

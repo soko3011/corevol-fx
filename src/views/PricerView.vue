@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-text-field v-model="user" label="CurrentUser" @change="setUser"></v-text-field>
     <!-- <v-navigation-drawer
       color="blue-grey lighten-5"
       app
@@ -161,8 +160,7 @@ export default {
       viewName: this.$route.params.viewName,
       showSideControl: false,
       drawer: true,
-      currentCcyPair: this.$store.state.activecross,
-      user: this.$store.state.currentUser
+      currentCcyPair: this.$store.state.activecross
     };
   },
   created: function() {

@@ -45,7 +45,7 @@
       </template>
       <template v-slot:item.actions="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-        <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
+        <v-icon v-if="isAdmin" small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
       </template>
 
       <template v-slot:no-data>
@@ -62,14 +62,6 @@
         />
       </v-card>
     </v-dialog>
-    <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
-        {{snackbarMessage}}
-        <template v-slot:action="{ attrs }">
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
-        </template>
-      </v-snackbar>
-    </div>
   </div>
 </template>
 
@@ -91,8 +83,7 @@ export default {
     marketTableTitle: "",
     marketTableWidth: "",
     selectedCross: "",
-    snackbar: false,
-    snackbarMessage: ""
+    isAdmin: false
   }),
 
   computed: {
@@ -119,6 +110,7 @@ export default {
 
   methods: {
     initialize() {
+      this.isAdmin = this.$store.state.isAdmin;
       SettingsApi.GetDviSetup()
         .then(response => {
           this.data = JSON.parse(response.data.dviSetup);
@@ -155,15 +147,17 @@ export default {
       confirm(`Are you sure you want to delete ${item.Cross}?`) &&
         SettingsApi.DeleteCcyPairData({ name: item.Cross })
           .then(response => {
-            this.snackbarMessage = `${item.Cross} deleted succesfully. Status ${response.status}`;
-            this.snackbar = true;
+            this.$store.dispatch("setSnackbar", {
+              text: `${item.Cross} deleted succesfully. Status ${response.status}`
+            });
 
             this.initialize();
             this.$emit("ccyPairDeleted", true);
           })
           .catch(err => {
-            this.snackbarMessage = `Delete unsucessful. Error: ${err}`;
-            this.snackbar = true;
+            this.$store.dispatch("setSnackbar", {
+              text: `Delete unsucessful. Error: ${err}`
+            });
           });
     },
     viewMultsAndSpreads(item) {
@@ -188,16 +182,22 @@ export default {
     },
 
     save(item) {
+      this.$store.dispatch("setSnackbar", {
+        text: `Processing ${item.Cross} DVI update ...`,
+        timeout: 2500
+      });
       SettingsApi.UpdateDviDets(item)
         .then(response => {
-          this.snackbarMessage = `${item.Cross} updated succesfully. Status ${response.status}`;
-          this.snackbar = true;
+          this.$store.dispatch("setSnackbar", {
+            text: `${item.Cross} updated succesfully. Status ${response.status}`
+          });
 
           this.initialize();
         })
         .catch(err => {
-          this.snackbarMessage = `Update unsucessful. Error: ${err}`;
-          this.snackbar = true;
+          this.$store.dispatch("setSnackbar", {
+            text: `Update unsucessful. Error: ${err}`
+          });
         });
 
       this.close();

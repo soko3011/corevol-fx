@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+import store from "@/store/index.js";
 
 import Dvi from "@/views/DviView";
 const TheContainer = () => import("@/container/TheContainer");
@@ -9,22 +10,27 @@ const Charts = () => import("@/views/Charts");
 const FxRates = () => import("@/views/FxRates");
 const DayWgtSetup = () => import("@/views/DayWgtSetup");
 const Settings = () => import("@/views/Settings");
+const UserLogin = () => import("@/views/UserLogin");
+const UserRegistration = () => import("@/views/UserRegistration");
 
 Vue.use(Router);
-export default new Router({
-  mode: "hash", // https://router.vuejs.org/api/#mode
-  linkActiveClass: "active",
-  scrollBehavior: () => ({ y: 0 }),
-  routes: configRoutes()
-});
+// export default new Router({
+//   mode: "hash", // https://router.vuejs.org/api/#mode
+//   linkActiveClass: "active",
+//   scrollBehavior: () => ({ y: 0 }),
+//   routes: configRoutes()
+// });
 
-function configRoutes() {
-  return [
+let router = new Router({
+  routes: [
     {
       path: "/",
-      redirect: "/dvi/EURUSD",
+      redirect: "/settings",
       name: "Home",
       component: TheContainer,
+      meta: {
+        requiresAuth: true
+      },
       children: [
         {
           path: "/dvi/:ccyPair",
@@ -60,17 +66,64 @@ function configRoutes() {
           path: "settings",
           name: "Settings",
           component: Settings
-        },
-        {
-          path: "/about",
-          name: "About",
-          // route level code-splitting
-          // this generates a separate chunk (about.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
-          component: () =>
-            import(/* webpackChunkName: "about" */ "../views/About.vue")
         }
       ]
+    },
+    {
+      path: "/userLogin",
+      name: "UserLogin",
+      component: UserLogin,
+      meta: {
+        requiresGuest: true
+      }
+    },
+    {
+      path: "/userRegistration",
+      name: "UserRegistration",
+      component: UserRegistration,
+      meta: {
+        requiresGuest: true
+      }
     }
-  ];
-}
+  ]
+});
+
+router.beforeEach((to, from, next) => {
+  store.dispatch("checkLoginStatus").then(() => {
+    console.log(`router is authed: ${store.state.isUserAuthed}`);
+    // Check for requiresAuth guard
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      // Check if NO logged user
+      if (!store.state.isUserAuthed) {
+        // Go to login
+        next({
+          path: "/userLogin",
+          query: {
+            redirect: to.fullPath
+          }
+        });
+      } else {
+        // Proceed to route
+        next();
+      }
+    } else if (to.matched.some(record => record.meta.requiresGuest)) {
+      // Check if logged user
+      if (store.state.isUserAuthed) {
+        next({
+          path: "/settings",
+          query: {
+            redirect: to.fullPath
+          }
+        });
+      } else {
+        // Proceed to route
+        next();
+      }
+    } else {
+      // Proceed to route
+      next();
+    }
+  });
+});
+
+export default router;

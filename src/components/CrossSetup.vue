@@ -40,7 +40,7 @@
         </v-toolbar>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+        <v-icon v-if="isAdmin" small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
       </template>
       <template v-slot:no-data>
         <v-btn color="primary" @click="initialize">Reset</v-btn>
@@ -67,7 +67,8 @@ export default {
     data: [],
     editedItem: {},
     snackbar: false,
-    snackbarMessage: ""
+    snackbarMessage: "",
+    isAdmin: false
   }),
   props: {
     refreshComponent: { type: Boolean, default: false }
@@ -94,6 +95,7 @@ export default {
 
   methods: {
     initialize() {
+      this.isAdmin = this.$store.state.isAdmin;
       SettingsApi.GetCrossSetup()
         .then(response => {
           this.data = JSON.parse(response.data.crossSetup);

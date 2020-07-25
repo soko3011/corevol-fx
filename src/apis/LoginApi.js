@@ -7,6 +7,7 @@ export default {
   RegisterUser(body) {
     return Api.post("RegisterUser", body);
   },
+
   CheckLoginStatus(body) {
     return Api.post("CheckLoginStatus", body);
   },

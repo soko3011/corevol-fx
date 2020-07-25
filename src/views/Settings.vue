@@ -4,7 +4,7 @@
       <v-col cols="12" sm="12" lg="8">
         <div>
           <v-card>
-            <v-btn absolute small fab top right color="pink" elevation="12">
+            <v-btn :disabled="!isAdmin" absolute small fab top right color="pink" elevation="12">
               <PopUpModal
                 :inputData="this.$store.state.crossList"
                 :icon="'mdi-expand-all'"
@@ -83,7 +83,8 @@ export default {
     crossKeys: [],
     dviEdited: {},
     crossEdited: {},
-    mirroredCross: ""
+    mirroredCross: "",
+    isAdmin: false
   }),
 
   components: {
@@ -98,6 +99,9 @@ export default {
     formTitle() {
       return `Mirror ${this.mirroredCross}`;
     }
+  },
+  created() {
+    this.isAdmin = this.$store.state.isAdmin;
   },
   methods: {
     OpenDialog(cross) {

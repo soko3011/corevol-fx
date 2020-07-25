@@ -1,8 +1,9 @@
 <template>
-  <v-container>
-    <h1>Login</h1>
-    <UserAuthForm :submitForm="loginUser" buttonText="Login" />
-  </v-container>
+  <v-row align="center" justify="center">
+    <v-col cols="12" sm="8" md="4">
+      <UserAuthForm :submitForm="loginUser" buttonText="Login" title="Login" />
+    </v-col>
+  </v-row>
 </template>
 
 <script>

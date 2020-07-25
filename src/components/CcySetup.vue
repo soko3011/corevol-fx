@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-card>
-      <v-btn absolute small fab top right color="pink" elevation="12">
+      <v-btn :disabled="!isAdmin" absolute small fab top right color="pink" elevation="12">
         <PopUpModal
           :inputData="ccyList"
           :icon="'mdi-expand-all'"
@@ -52,8 +52,8 @@
         </v-toolbar>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-        <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
+        <v-icon :disabled="!isAdmin" small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+        <v-icon :disabled="!isAdmin" small @click="deleteItem(item)">mdi-delete</v-icon>
       </template>
       <template v-slot:no-data>
         <v-btn color="primary" @click="initialize">Reset</v-btn>
@@ -82,7 +82,8 @@ export default {
     editedItem: {},
     addNew: false,
     snackbar: false,
-    snackbarMessage: ""
+    snackbarMessage: "",
+    isAdmin: false
   }),
   components: {
     PopUpModal
@@ -110,6 +111,8 @@ export default {
   },
 
   created() {
+    this.isAdmin = this.$store.state.isAdmin;
+    SettingsApi.GetCrossSetup();
     this.initialize();
   },
 

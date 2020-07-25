@@ -1,8 +1,14 @@
 <template>
-  <v-container>
-    <h1>Register</h1>
-    <UserAuthForm :submitForm="registerUser" buttonText="Register" hasName="true" />
-  </v-container>
+  <v-row align="center" justify="center">
+    <v-col cols="12" sm="8" md="4">
+      <UserAuthForm
+        :submitForm="registerUser"
+        buttonText="Register"
+        hasName="true"
+        title="Register"
+      />
+    </v-col>
+  </v-row>
 </template>
 
 <script>

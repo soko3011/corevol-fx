@@ -138,12 +138,14 @@ const actions = {
   },
   async register({ commit }, registrationInfo) {
     try {
-      console.log(registrationInfo);
       let response = await LoginApi.RegisterUser(registrationInfo);
-      let user = JSON.parse(response.data.isUserAuthed);
+      let user = JSON.parse(response.data.userProfile);
 
-      commit("SET_CURRENT_USER", user.Username);
+      commit("SET_ISAUTHED", user.IsAuthed);
 
+      if (user.IsAuthed === true) {
+        commit("SET_CURRENT_USER", user);
+      }
       return user;
     } catch {
       return { error: "There was an error.  Please try again." };

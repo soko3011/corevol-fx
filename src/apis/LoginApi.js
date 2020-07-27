@@ -5,7 +5,7 @@ export default {
     return Api.post("LoginUser", body);
   },
   RegisterUser(body) {
-    return Api.post("RegisterUser", body);
+    return Api.post("Register", body);
   },
 
   CheckLoginStatus(body) {

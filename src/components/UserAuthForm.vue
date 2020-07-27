@@ -16,10 +16,16 @@
           :rules="[required('name')]"
           v-if="hasName"
         />
+        <v-text-field
+          v-model="userInfo.lastname"
+          label="Last Name"
+          :rules="[required('lastname')]"
+          v-if="hasName"
+        />
 
         <v-text-field
-          v-model="userInfo.username"
-          label="Username"
+          v-model="userInfo.email"
+          label="email"
           :rules="[required('email'), emailFormat()]"
         />
 
@@ -31,6 +37,16 @@
           @click:append="showPassword = !showPassword"
           counter="true"
           :rules="[required('password'), minLength('password', 8)]"
+        />
+        <v-text-field
+          v-model="userInfo.confirmPassword"
+          label="Confirm Password"
+          :type="showPassword ? 'text' : 'password'"
+          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+          @click:append="showPassword = !showPassword"
+          counter="true"
+          v-if="hasName"
+          :rules="[required('confirmPassword'), minLength('confirmPassword', 8)]"
         />
       </v-form>
     </v-card-text>
@@ -51,13 +67,16 @@ export default {
       valid: false,
       showPassword: false,
       userInfo: {
-        username: "",
-        password: ""
+        name: "",
+        lastname: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
       },
-      ...validations
+      ...validations,
     };
   },
-  props: ["submitForm", "buttonText", "hasName", "title"]
+  props: ["submitForm", "buttonText", "hasName", "title"],
 };
 </script>
 

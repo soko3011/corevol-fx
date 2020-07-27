@@ -78,9 +78,9 @@ const mutations = {
     state.ipvVolData = data;
   },
   SET_CURRENT_USER(state, user) {
-    state.currentUser = user.Username;
+    state.currentUser = user.UserName;
     state.isAdmin = user.IsAdmin;
-    window.localStorage.currentUser = JSON.stringify(user.Username);
+    window.localStorage.currentUser = JSON.stringify(user.UserName);
   },
   SET_ISAUTHED(state, authed) {
     state.isUserAuthed = authed;
@@ -91,7 +91,7 @@ const actions = {
   async checkLoginStatus({ commit }) {
     try {
       let response = await LoginApi.CheckLoginStatus({
-        Username: JSON.parse(window.localStorage.currentUser)
+        UserName: JSON.parse(window.localStorage.currentUser)
       });
       let user = JSON.parse(response.data.userProfile);
       commit("SET_ISAUTHED", user.IsAuthed);
@@ -139,16 +139,23 @@ const actions = {
   async register({ commit }, registrationInfo) {
     try {
       let response = await LoginApi.RegisterUser(registrationInfo);
-      let user = JSON.parse(response.data.userProfile);
 
-      commit("SET_ISAUTHED", user.IsAuthed);
-
-      if (user.IsAuthed === true) {
-        commit("SET_CURRENT_USER", user);
+      if (response.data.modelError !== "") {
+        return { error: JSON.parse(response.data.modelError) };
       }
-      return user;
-    } catch {
-      return { error: "There was an error.  Please try again." };
+      if (response.data.badRequest !== "") {
+        return { error: JSON.parse(response.data.badRequest) };
+      } else {
+        let user = JSON.parse(response.data.userProfile);
+        commit("SET_ISAUTHED", user.IsAuthed);
+
+        if (user.IsAuthed === true) {
+          commit("SET_CURRENT_USER", user);
+        }
+        return user;
+      }
+    } catch (err) {
+      return { error: `There was an error. ${err}.` };
     }
   },
 

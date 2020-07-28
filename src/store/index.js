@@ -93,7 +93,7 @@ const mutations = {
 const actions = {
   async checkLoginStatus({ commit }) {
     try {
-      let response = await LoginApi.checkLoginStatus({
+      let response = await LoginApi.CheckLoginStatus({
         Email: JSON.parse(window.localStorage.currentUser)
       });
 
@@ -105,7 +105,8 @@ const actions = {
         commit("SET_CURRENT_USER", user);
       }
       return user;
-    } catch {
+    } catch (e) {
+      alert(e);
       return { error: "There was an error.  Please try again." };
     }
   },

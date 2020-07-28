@@ -12,6 +12,7 @@ const DayWgtSetup = () => import("@/views/DayWgtSetup");
 const Settings = () => import("@/views/Settings");
 const UserLogin = () => import("@/views/UserLogin");
 const UserRegistration = () => import("@/views/UserRegistration");
+const ManageUsers = () => import("@/views/ManageUsers");
 
 Vue.use(Router);
 // export default new Router({
@@ -66,6 +67,11 @@ let router = new Router({
           path: "settings",
           name: "Settings",
           component: Settings
+        },
+        {
+          path: "manageUsers",
+          name: "ManageUsers",
+          component: ManageUsers
         }
       ]
     },
@@ -108,6 +114,7 @@ router.beforeEach((to, from, next) => {
       }
     } else if (to.matched.some(record => record.meta.requiresGuest)) {
       // Check if logged user
+      console.log(`router is guested: ${store.state.isUserAuthed}`);
       if (store.state.isUserAuthed) {
         next({
           path: "/settings",

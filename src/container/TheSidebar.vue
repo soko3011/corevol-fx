@@ -95,6 +95,22 @@
     </v-list>
 
     <template v-slot:append>
+      <v-list-item @click="() => $router.push({ name: 'Settings' }).catch(() => {})">
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-cog</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Settings</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item @click="logout">
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-exit-to-app</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Log Out</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-list-item justify-end class="float-right">
         <v-list-item-action>
           <v-icon @click="minify = !minify" color="green lighten-3" class="mt-4">

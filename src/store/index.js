@@ -309,7 +309,10 @@ const getters = {
     return state.pricerLayoutName;
   },
   activeCrossGetter(state) {
-    return state.activecross;
+    console.log(state.activecross);
+    if (state.activecross !== null) {
+      return state.activecross;
+    } else return "EURUSD";
   },
   dviInputGetter(state) {
     //return JSON.parse(state.dviRawData.dviInput);

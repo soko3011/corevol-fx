@@ -13,5 +13,14 @@ export default {
   },
   LogOutUser(body) {
     return Api.post("LogOutUser", body);
+  },
+  GetAllUsers() {
+    return Api.get("GetAllUsers");
+  },
+  UpdateUser(body) {
+    return Api.post("UpdateUser", body);
+  },
+  DeleteUser(body) {
+    return Api.post("DeleteUser", body);
   }
 };

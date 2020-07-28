@@ -4,7 +4,7 @@
       <v-col cols="12" sm="12" lg="8">
         <div>
           <v-card>
-            <v-btn :disabled="!isAdmin" absolute small fab top right color="pink" elevation="12">
+            <v-btn absolute small fab top right color="pink" elevation="12">
               <PopUpModal
                 :inputData="this.$store.state.crossList"
                 :icon="'mdi-expand-all'"
@@ -83,8 +83,7 @@ export default {
     crossKeys: [],
     dviEdited: {},
     crossEdited: {},
-    mirroredCross: "",
-    isAdmin: false
+    mirroredCross: ""
   }),
 
   components: {
@@ -100,9 +99,7 @@ export default {
       return `Mirror ${this.mirroredCross}`;
     }
   },
-  created() {
-    this.isAdmin = this.$store.state.isAdmin;
-  },
+  created() {},
   methods: {
     OpenDialog(cross) {
       SettingsApi.MirrorCrossDets({ name: cross })
@@ -120,7 +117,12 @@ export default {
           this.dialog = true;
         })
         .catch(err => {
-          alert(`Error: ${err}`);
+          if (err.toString().includes("403") === true) {
+            err = "Admin Rights Required";
+          }
+          this.$store.dispatch("setSnackbar", {
+            text: ` ${err}`
+          });
         });
     },
 
@@ -144,7 +146,12 @@ export default {
           this.refreshChildren = !this.refreshChildren;
         })
         .catch(err => {
-          alert(`Update unsucessful. Error: ${err}`);
+          if (err.toString().includes("403") === true) {
+            err = "Admin Rights Required";
+          }
+          this.$store.dispatch("setSnackbar", {
+            text: `Update unsucessful.  ${err}`
+          });
         });
 
       this.close();

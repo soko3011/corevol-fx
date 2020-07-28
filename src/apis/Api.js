@@ -1,8 +1,18 @@
-import axios from 'axios'
+/* eslint-disable  no-unused-vars */
+import axios from "axios";
+import store from "@/store/index.js";
 
-const Api = axios.create({
-  baseURL: 'https://localhost:5001/api/'
-  // baseURL: "https://fxvolengine.azurewebsites.net/api"
-})
+const baseURL = "https://localhost:5001/api/";
 
-export default Api
+let Api = axios.create({
+  baseURL
+});
+
+const authentication = Api.interceptors.request.use(config => {
+  // We are importing store before it is populated.
+  // We intercept the request and use the current apiKey
+  config.headers = { Authorization: `Bearer ${store.state.token}` };
+  return config;
+});
+
+export default Api;

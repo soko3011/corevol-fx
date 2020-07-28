@@ -24,7 +24,8 @@ const state = {
   currentUser: "",
   snackbars: [],
   isUserAuthed: false,
-  isAdmin: false
+  isAdmin: false,
+  token: ""
 };
 
 const mutations = {
@@ -82,19 +83,23 @@ const mutations = {
     state.isAdmin = user.IsAdmin;
     window.localStorage.currentUser = JSON.stringify(user.UserName);
   },
-  SET_ISAUTHED(state, authed) {
-    state.isUserAuthed = authed;
+  SET_ISAUTHED(state, user) {
+    console.log(user);
+    state.isUserAuthed = user.IsAuthed;
+    state.token = user.TokenString;
   }
 };
 
 const actions = {
   async checkLoginStatus({ commit }) {
     try {
-      let response = await LoginApi.CheckLoginStatus({
-        UserName: JSON.parse(window.localStorage.currentUser)
+      let response = await LoginApi.checkLoginStatus({
+        Email: JSON.parse(window.localStorage.currentUser)
       });
+
       let user = JSON.parse(response.data.userProfile);
-      commit("SET_ISAUTHED", user.IsAuthed);
+
+      commit("SET_ISAUTHED", user);
       console.log(`Starting app: user is authed: ${state.isUserAuthed}`);
       if (user.IsAuthed === true) {
         commit("SET_CURRENT_USER", user);
@@ -108,12 +113,12 @@ const actions = {
   async logOutUser({ dispatch, commit }) {
     try {
       let response = await LoginApi.LogOutUser({
-        Username: JSON.parse(window.localStorage.currentUser)
+        Email: JSON.parse(window.localStorage.currentUser)
       });
       let user = JSON.parse(response.data.userProfile);
       commit("SET_ISAUTHED", user.IsAuthed);
       dispatch("setSnackbar", {
-        text: `${user.Username} is signed out`
+        text: `${user.Email} is signed out`
       });
 
       return user;
@@ -125,29 +130,43 @@ const actions = {
   async login({ commit }, loginInfo) {
     try {
       let response = await LoginApi.LoginUser(loginInfo);
-      let user = JSON.parse(response.data.userProfile);
-      commit("SET_ISAUTHED", user.IsAuthed);
+      let serverData = JSON.parse(response.data.serverData);
+      console.log(serverData);
 
-      if (user.IsAuthed === true) {
-        commit("SET_CURRENT_USER", user);
+      if (serverData.ModelError !== null) {
+        return { error: serverData.ModelError };
       }
-      return user;
-    } catch {
-      return { error: "There was an error.  Please try again." };
+      if (serverData.BadRequest !== null) {
+        return { error: serverData.BadRequest };
+      } else {
+        let user = serverData.UserProfile;
+
+        commit("SET_ISAUTHED", user);
+
+        if (user.IsAuthed === true) {
+          commit("SET_CURRENT_USER", user);
+        }
+        return user;
+      }
+    } catch (err) {
+      return { error: `There was an error. ${err}.` };
     }
   },
   async register({ commit }, registrationInfo) {
     try {
       let response = await LoginApi.RegisterUser(registrationInfo);
+      let serverData = JSON.parse(response.data.serverData);
+      console.log(serverData);
 
-      if (response.data.modelError !== "") {
-        return { error: JSON.parse(response.data.modelError) };
+      if (serverData.ModelError !== null) {
+        return { error: serverData.ModelError };
       }
-      if (response.data.badRequest !== "") {
-        return { error: JSON.parse(response.data.badRequest) };
+      if (serverData.BadRequest !== null) {
+        return { error: serverData.BadRequest };
       } else {
-        let user = JSON.parse(response.data.userProfile);
-        commit("SET_ISAUTHED", user.IsAuthed);
+        let user = serverData.UserProfile;
+        console.log(user);
+        commit("SET_ISAUTHED", user);
 
         if (user.IsAuthed === true) {
           commit("SET_CURRENT_USER", user);

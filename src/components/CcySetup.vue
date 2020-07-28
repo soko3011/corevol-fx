@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-card>
-      <v-btn :disabled="!isAdmin" absolute small fab top right color="pink" elevation="12">
+      <v-btn absolute small fab top right color="pink" elevation="12">
         <PopUpModal
           :inputData="ccyList"
           :icon="'mdi-expand-all'"
@@ -52,8 +52,8 @@
         </v-toolbar>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon :disabled="!isAdmin" small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-        <v-icon :disabled="!isAdmin" small @click="deleteItem(item)">mdi-delete</v-icon>
+        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+        <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
       </template>
       <template v-slot:no-data>
         <v-btn color="primary" @click="initialize">Reset</v-btn>
@@ -82,8 +82,7 @@ export default {
     editedItem: {},
     addNew: false,
     snackbar: false,
-    snackbarMessage: "",
-    isAdmin: false
+    snackbarMessage: ""
   }),
   components: {
     PopUpModal
@@ -111,7 +110,6 @@ export default {
   },
 
   created() {
-    this.isAdmin = this.$store.state.isAdmin;
     SettingsApi.GetCrossSetup();
     this.initialize();
   },
@@ -164,7 +162,10 @@ export default {
             this.initialize();
           })
           .catch(err => {
-            this.snackbarMessage = ` Delete Unsuccessful.Error: ${err}`;
+            if (err.toString().includes("403") === true) {
+              err = "Admin Rights Required";
+            }
+            this.snackbarMessage = ` Delete Unsuccessful. ${err}`;
             this.snackbar = true;
           });
     },
@@ -183,7 +184,10 @@ export default {
           this.initialize();
         })
         .catch(err => {
-          this.snackbarMessage = `Update unsucessful. Error: ${err}`;
+          if (err.toString().includes("403") === true) {
+            err = "Admin Rights Required";
+          }
+          this.snackbarMessage = `Update unsucessful. ${err}`;
           this.snackbar = true;
         });
 

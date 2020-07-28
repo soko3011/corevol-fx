@@ -40,7 +40,7 @@
         </v-toolbar>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon :disabled="!isAdmin" small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
       </template>
       <template v-slot:no-data>
         <v-btn color="primary" @click="initialize">Reset</v-btn>
@@ -67,8 +67,7 @@ export default {
     data: [],
     editedItem: {},
     snackbar: false,
-    snackbarMessage: "",
-    isAdmin: false
+    snackbarMessage: ""
   }),
   props: {
     refreshComponent: { type: Boolean, default: false }
@@ -95,7 +94,6 @@ export default {
 
   methods: {
     initialize() {
-      this.isAdmin = this.$store.state.isAdmin;
       SettingsApi.GetCrossSetup()
         .then(response => {
           this.data = JSON.parse(response.data.crossSetup);
@@ -136,7 +134,10 @@ export default {
           this.initialize();
         })
         .catch(err => {
-          this.snackbarMessage = `Update unsucessful. Error: ${err}`;
+          if (err.toString().includes("403") === true) {
+            err = "Admin Rights Required";
+          }
+          this.snackbarMessage = `Update unsucessful.  ${err}`;
           this.snackbar = true;
         });
 

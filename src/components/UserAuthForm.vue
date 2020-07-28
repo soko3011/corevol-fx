@@ -11,21 +11,8 @@
     <v-card-text>
       <v-form v-model="valid">
         <v-text-field
-          v-model="userInfo.name"
-          label="Name"
-          :rules="[required('name')]"
-          v-if="hasName"
-        />
-        <v-text-field
-          v-model="userInfo.lastname"
-          label="Last Name"
-          :rules="[required('lastname')]"
-          v-if="hasName"
-        />
-
-        <v-text-field
           v-model="userInfo.email"
-          label="email"
+          label="Email"
           :rules="[required('email'), emailFormat()]"
         />
 
@@ -67,16 +54,14 @@ export default {
       valid: false,
       showPassword: false,
       userInfo: {
-        name: "",
-        lastname: "",
         email: "",
         password: "",
-        confirmPassword: "",
+        confirmPassword: ""
       },
-      ...validations,
+      ...validations
     };
   },
-  props: ["submitForm", "buttonText", "hasName", "title"],
+  props: ["submitForm", "buttonText", "hasName", "title"]
 };
 </script>
 

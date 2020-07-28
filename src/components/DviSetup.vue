@@ -45,7 +45,7 @@
       </template>
       <template v-slot:item.actions="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-        <v-icon :disabled="!isAdmin" small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
+        <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
       </template>
 
       <template v-slot:no-data>
@@ -82,8 +82,7 @@ export default {
     marketData: [],
     marketTableTitle: "",
     marketTableWidth: "",
-    selectedCross: "",
-    isAdmin: false
+    selectedCross: ""
   }),
 
   computed: {
@@ -110,7 +109,6 @@ export default {
 
   methods: {
     initialize() {
-      this.isAdmin = this.$store.state.isAdmin;
       SettingsApi.GetDviSetup()
         .then(response => {
           this.data = JSON.parse(response.data.dviSetup);
@@ -155,8 +153,11 @@ export default {
             this.$emit("ccyPairDeleted", true);
           })
           .catch(err => {
+            if (err.toString().includes("403") === true) {
+              err = "Admin Rights Required";
+            }
             this.$store.dispatch("setSnackbar", {
-              text: `Delete unsucessful. Error: ${err}`
+              text: `Delete unsucessful.  ${err}`
             });
           });
     },
@@ -195,8 +196,11 @@ export default {
           this.initialize();
         })
         .catch(err => {
+          if (err.toString().includes("403") === true) {
+            err = "Admin Rights Required";
+          }
           this.$store.dispatch("setSnackbar", {
-            text: `Update unsucessful. Error: ${err}`
+            text: `Update unsucessful.  ${err}`
           });
         });
 

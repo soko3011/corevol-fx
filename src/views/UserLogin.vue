@@ -16,14 +16,13 @@ export default {
   methods: {
     async loginUser(loginInfo) {
       let user = await this.$store.dispatch("login", loginInfo);
-      console.log(user);
-      if (user.error || user.IsAuthed === false) {
+      if (user.error) {
         this.$store.dispatch("setSnackbar", {
-          text: "There is an error. Please try again or register"
+          text: user.error
         });
       } else {
         this.$store.dispatch("setSnackbar", {
-          text: "Thank you for signing in, " + user.Username
+          text: "Welcome back " + user.UserName
         });
         this.$store
           .dispatch("initApp")

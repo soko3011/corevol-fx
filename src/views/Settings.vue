@@ -139,7 +139,7 @@ export default {
         CrossDetsUI: crossdata
       })
         .then(response => {
-          this.$store.dispatch("refreshCrossList", response.data.crossList);
+          this.$store.dispatch("RefreshCrossList");
           alert(
             `${dvidata.Cross} updated succesfully. Status ${response.status}`
           );

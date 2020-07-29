@@ -137,20 +137,10 @@ export default {
   },
   computed: {
     activeCross() {
-      let cross = this.$store.state.activeCross;
-      console.log(cross);
-      if (cross === undefined) {
-        cross = "EURUSD";
-      }
-      return cross;
+      return this.$store.getters.activeCrossGetter;
     },
     pricerTab() {
-      let tab = this.$store.state.lastPricerTab;
-
-      if (tab === undefined || tab === "") {
-        tab = "New Pricer";
-      }
-      return tab;
+      return this.$store.getters.lastPricerTabGetter;
     }
   },
   watch: {

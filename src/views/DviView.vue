@@ -201,7 +201,7 @@ export default {
       this.$store.dispatch("setActivecross", ccyPair);
       this.RefreshDviData(ccyPair);
     },
-    RemoveTab() {
+    RemoveTab(item) {
       const ccyPair = this.$route.params.ccyPair;
       if (this.activeDvis.length === 1) {
         alert(
@@ -210,15 +210,28 @@ export default {
         return;
       }
 
-      const index = this.activeDvis.indexOf(ccyPair);
-      const redirectTo =
-        index !== 0 ? this.activeDvis[index - 1] : this.activeDvis[index + 1];
-
       DviApi.RemoveDviFromUse({
-        name: ccyPair,
+        name: item,
         User: this.$store.state.currentUser
-      });
-      this.ReloadDvi(redirectTo);
+      })
+        .then(response => {
+          this.activeDvis = JSON.parse(response.data.listOfActiveDvis);
+          console.log(this.activeDvis);
+        })
+        .catch(err => {
+          alert(err);
+        });
+
+      const index = this.activeDvis.indexOf(item);
+
+      if (this.activeDvis[index] !== ccyPair) {
+        return;
+      } else {
+        const redirectTo =
+          index !== 0 ? this.activeDvis[index - 1] : this.activeDvis[index + 1];
+
+        this.ReloadDvi(redirectTo);
+      }
     },
 
     KeyPressToPricer(event) {

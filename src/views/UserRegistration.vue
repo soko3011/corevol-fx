@@ -26,16 +26,10 @@ export default {
         });
       } else {
         this.$store.dispatch("setSnackbar", {
-          text: "Welcome to our app, " + user.UserName
+          text: "Welcome " + user.UserName
         });
-        this.$store
-          .dispatch("initApp")
-          .then(() => {
-            this.$router.push("/settings");
-          })
-          .catch(error => {
-            alert(error);
-          });
+
+        this.$router.push("/settings");
       }
     }
   }

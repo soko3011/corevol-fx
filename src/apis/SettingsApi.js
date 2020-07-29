@@ -10,7 +10,6 @@ export default {
   GetCcySetup() {
     return Api.get("CcySetup");
   },
-
   UpdateDviDets(body) {
     return Api.post("UpdateDviDets", body);
   },
@@ -34,5 +33,8 @@ export default {
   },
   GetMultsAndSpreads(body) {
     return Api.post("GetMultsAndSpreads", body);
+  },
+  GetCrossList() {
+    return Api.get("GetCrossList");
   }
 };

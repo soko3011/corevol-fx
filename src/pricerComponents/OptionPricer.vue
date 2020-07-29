@@ -36,7 +36,7 @@ export default {
       colsW: [],
       row: [],
       col: [],
-      crossListData: this.$store.state.crossList,
+
       obj: null,
       redObj: [],
       optData: {},
@@ -84,6 +84,10 @@ export default {
         onchange: this.updateOption
       };
     },
+    crossListData() {
+      return this.$store.state.crossList;
+    },
+
     apidata() {
       return this.$store.state.rawPricerData;
     },

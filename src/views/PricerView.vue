@@ -160,7 +160,7 @@ export default {
       viewName: this.$route.params.viewName,
       showSideControl: false,
       drawer: true,
-      currentCcyPair: this.$store.state.activecross
+      currentCcyPair: this.$store.getters.activeCrossGetter
     };
   },
   created: function() {
@@ -188,6 +188,9 @@ export default {
   computed: {
     mainWindowHeight() {
       return window.innerHeight - 150;
+    },
+    crossList() {
+      return this.$store.state.crossList;
     }
   },
 
@@ -197,7 +200,8 @@ export default {
       this.$store.dispatch("changeCurrentUser", user);
     },
     test() {
-      console.log(window.innerHeight);
+      console.log(this.$store.state.crossList.length);
+      this.$store.dispatch("RefreshCrossList");
     },
     EventListeners(event) {
       if (event.code == "KeyL" && event.ctrlKey) {
@@ -257,28 +261,49 @@ export default {
     ToggleCrossList() {
       this.modalToggle = true;
     },
+    RemoveTab(item) {
+      const viewName = this.$route.params.viewName;
+      if (this.activePricers.length === 1) {
+        alert(
+          `Must have at least one Pricer. Add a new one before deleting ${viewName}`
+        );
+        return;
+      }
 
-    RemoveTab(view) {
-      const index = this.activePricers.indexOf(view);
       PricerApi.RemovePricerFromUse({
         User: this.$store.state.currentUser,
-        PricerData: { PricerTitle: view }
-      });
+        PricerData: { PricerTitle: item }
+      })
+        .then(response => {
+          console.log(JSON.parse(response.data.listOfActivePricers));
+          this.activePricers = JSON.parse(response.data.listOfActivePricers);
+        })
+        .catch(err => {
+          alert(err);
+        });
 
-      if ((view = this.$route.params.viewName)) {
-        let redirectTo =
+      const index = this.activePricers.indexOf(item);
+
+      if (this.activePricers[index] !== viewName) {
+        return;
+      } else {
+        const redirectTo =
           index !== 0
             ? this.activePricers[index - 1]
             : this.activePricers[index + 1];
 
-        if (this.activePricers.length === 1) {
-          redirectTo = "NewPricer";
-        }
         this.ReloadPricer(redirectTo);
       }
     }
   },
-  mounted: function() {}
+  mounted: function() {},
+  watch: {
+    crossList() {
+      if (this.crossList.length === 0) {
+        this.$store.dispatch("RefreshCrossList");
+      }
+    }
+  }
 };
 </script>
 

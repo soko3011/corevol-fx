@@ -27,7 +27,9 @@ export default {
   name: "App",
 
   components: {},
-  created() {},
+  created() {
+    this.$store.dispatch("RefreshCrossList");
+  },
   computed: {
     ...mapState({
       snackbars: state => state.snackbars

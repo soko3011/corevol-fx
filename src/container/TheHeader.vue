@@ -1,10 +1,5 @@
 <template>
-  <v-app-bar
-    :clipped-left="$vuetify.breakpoint.lgAndUp"
-    app
-    color="blue darken-3"
-    dark
-  >
+  <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
     <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     <v-toolbar-title style="width: 300px" class="ml-0 pl-4">
       <span class="hidden-sm-and-down">Google Contacts</span>
@@ -26,11 +21,8 @@
     </v-btn>
     <v-btn icon large>
       <v-avatar size="32px" item>
-        <v-img
-          src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
-          alt="Vuetify"
-        ></v-img
-      ></v-avatar>
+        <v-img src="https://cdn.vuetifyjs.com/images/logos/logo.svg" alt="Vuetify"></v-img>
+      </v-avatar>
     </v-btn>
   </v-app-bar>
 </template>
@@ -40,7 +32,7 @@ export default {
   name: "TheHeader",
   computed: {
     dvilink() {
-      return "/volEngine/DviView/" + this.$store.state.activecross;
+      return "/volEngine/DviView/" + this.$store.getters.activeCrossGetter;
     }
   },
   components: {}

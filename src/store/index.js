@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import DviApi from "@/apis/DviApi";
 import PricerApi from "@/apis/PricerApi";
 import LoginApi from "@/apis/LoginApi";
+import SettingsApi from "../apis/SettingsApi";
 
 Vue.use(Vuex);
 
@@ -13,6 +14,7 @@ const state = {
   dviInput: [],
   dviSmileInput: [],
   activecross: "",
+  userPrefCross: "",
   pricerLayoutName: "",
   activePricerLayout: [],
   crossList: [],
@@ -51,17 +53,13 @@ const mutations = {
   SET_SURF(state, data) {
     state.dviRawData.surf = data.surf;
   },
-  SET_INIT(state, response) {
-    state.crossList = JSON.parse(response.crossList).sort();
-    state.activecross = JSON.parse(response.starterFXCross);
-    state.lastPricerTab = state.activecross;
-  },
   SET_ACTIVE_CROSS(state, activecross) {
     state.activecross = activecross;
   },
-  REFRESH_CROSSLIST(state, data) {
-    state.crossList = JSON.parse(data).sort();
+  SET_USER_PREF_CROSS(state, user) {
+    state.userPrefCross = user.StarterFxCross;
   },
+
   SET_PRICER_LAYOUT(state, data) {
     state.pricerLayoutName = data.name;
     state.activePricerLayout = data.layout;
@@ -87,6 +85,10 @@ const mutations = {
     console.log(user);
     state.isUserAuthed = user.IsAuthed;
     state.token = user.TokenString;
+  },
+  SET_CROSSLIST(state, data) {
+    state.crossList = JSON.parse(data).sort();
+    console.log(state.crossList);
   }
 };
 
@@ -104,6 +106,7 @@ const actions = {
       if (user.IsAuthed === true) {
         commit("SET_CURRENT_USER", user);
       }
+      commit("SET_USER_PREF_CROSS", user);
       return user;
     } catch (e) {
       alert(e);
@@ -197,6 +200,16 @@ const actions = {
         });
     });
   },
+  RefreshCrossList({ commit }) {
+    SettingsApi.GetCrossList()
+      .then(response => {
+        console.log(response.data.crossList);
+        commit("SET_CROSSLIST", response.data.crossList);
+      })
+      .catch(err => {
+        alert(err);
+      });
+  },
   ChangeDviCcyPair({ commit }, payload) {
     return new Promise((resolve, reject) => {
       DviApi.changeDviCcyPair(payload)
@@ -252,9 +265,7 @@ const actions = {
   setActivecross({ commit }, payload) {
     commit("SET_ACTIVE_CROSS", payload);
   },
-  refreshCrossList({ commit }, payload) {
-    commit("REFRESH_CROSSLIST", payload);
-  },
+
   setPricerLayout({ commit }, payload) {
     commit("SET_PRICER_LAYOUT", payload);
   },
@@ -296,31 +307,29 @@ const actions = {
 
 const getters = {
   surfGetter(state) {
-    console.log(JSON.parse(state.dviRawData.surf));
     return JSON.parse(state.dviRawData.surf);
   },
   dviGetter(state) {
     return JSON.parse(state.dviRawData.show);
   },
-  crossListGetter(state) {
-    return Object.values(state.crossList);
-  },
-  pricerLayoutGetter(state) {
-    return state.pricerLayoutName;
-  },
+
   activeCrossGetter(state) {
-    console.log(state.activecross);
-    if (state.activecross !== null) {
-      return state.activecross;
-    } else return "EURUSD";
+    if (
+      state.activecross === null ||
+      !state.activecross === undefined ||
+      state.activecross === ""
+    ) {
+      return state.userPrefCross;
+    } else return state.activecross;
   },
-  dviInputGetter(state) {
-    //return JSON.parse(state.dviRawData.dviInput);
-    return state.dviInput;
-  },
-  dviSmileInputGetter(state) {
-    //return JSON.parse(state.dviRawData.smileInput);
-    return state.dviSmileInput;
+  lastPricerTabGetter(state) {
+    if (
+      state.lastPricerTab === null ||
+      !state.lastPricerTab === undefined ||
+      state.lastPricerTab === ""
+    ) {
+      return state.userPrefCross;
+    } else return state.lastPricerTab;
   },
   forCalGetter(state) {
     return JSON.parse(state.dviRawData.forCal);

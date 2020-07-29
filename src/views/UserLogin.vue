@@ -24,14 +24,8 @@ export default {
         this.$store.dispatch("setSnackbar", {
           text: "Welcome back " + user.UserName
         });
-        this.$store
-          .dispatch("initApp")
-          .then(() => {
-            this.$router.push("/settings");
-          })
-          .catch(error => {
-            alert(error);
-          });
+
+        this.$router.push("/settings");
       }
     }
   }

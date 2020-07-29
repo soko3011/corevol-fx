@@ -31,7 +31,7 @@ export default {
       };
     },
     apidata() {
-      return this.$store.getters.dviSmileInputGetter;
+      return this.$store.state.dviSmileInput;
     },
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);

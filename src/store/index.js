@@ -82,13 +82,14 @@ const mutations = {
     window.localStorage.currentUser = JSON.stringify(user.UserName);
   },
   SET_ISAUTHED(state, user) {
-    console.log(user);
     state.isUserAuthed = user.IsAuthed;
     state.token = user.TokenString;
   },
   SET_CROSSLIST(state, data) {
     state.crossList = JSON.parse(data).sort();
-    console.log(state.crossList);
+  },
+  SET_IPV_VOLS(state, data) {
+    state.dviRawData.surf = JSON.stringify(data);
   }
 };
 
@@ -105,8 +106,9 @@ const actions = {
       console.log(`Starting app: user is authed: ${state.isUserAuthed}`);
       if (user.IsAuthed === true) {
         commit("SET_CURRENT_USER", user);
+        commit("SET_USER_PREF_CROSS", user);
       }
-      commit("SET_USER_PREF_CROSS", user);
+
       return user;
     } catch (e) {
       alert(e);
@@ -187,19 +189,7 @@ const actions = {
     snackbar.color = snackbar.color || "dark";
     commit("SET_SNACKBAR", snackbar);
   },
-  initApp({ commit }) {
-    return new Promise((resolve, reject) => {
-      DviApi.getInitialize()
-        .then(response => {
-          commit("SET_INIT", response.data);
 
-          resolve(response.status);
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
-  },
   RefreshCrossList({ commit }) {
     SettingsApi.GetCrossList()
       .then(response => {
@@ -239,18 +229,18 @@ const actions = {
       commit("SET_DVI_DATA", response.data);
     });
   },
-  returnDviWithIpvMatch({ commit }, payload) {
-    return new Promise((resolve, reject) => {
-      DviApi.MatchSurfaceToIpvInputs(payload)
-        .then(response => {
-          commit("SET_DVI_DATA", response.data.dviReturn.value);
-          resolve(response.status);
-        })
-        .catch(err => {
-          reject(err.status);
-        });
-    });
+  async returnDviWithIpvMatch({ commit }, payload) {
+    try {
+      let response = await DviApi.MatchSurfaceToIpvInputs(payload);
+      console.log(response.data);
+      commit("SET_DVI_DATA", response.data.dviReturn.value);
+
+      return response.status;
+    } catch (err) {
+      return { error: ` ${err}.` };
+    }
   },
+
   getIpvVolData({ commit }) {
     DviApi.GetIpvSurfaces().then(response => {
       var data = JSON.parse(response.data.dashBoardSurfs);
@@ -264,6 +254,9 @@ const actions = {
   },
   setActivecross({ commit }, payload) {
     commit("SET_ACTIVE_CROSS", payload);
+  },
+  AddIpvVol({ commit }, payload) {
+    commit("SET_IPV_VOLS", payload);
   },
 
   setPricerLayout({ commit }, payload) {

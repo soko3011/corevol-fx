@@ -2,12 +2,7 @@
   <v-container fluid>
     <div class="d-flex flex-wrap">
       <div>
-        <v-toolbar
-          class="mb-0 mr-2"
-          dark
-          height="30"
-          src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
-        >
+        <v-toolbar class="mb-0 mr-2" dark height="30" color="blue-grey darken-0">
           <v-spacer></v-spacer>
           <v-toolbar-title class="text-subtitle-2">Select Ccy</v-toolbar-title>
           <v-spacer></v-spacer>
@@ -25,41 +20,23 @@
         <div style="margin-top:20px;" ref="spreadsheet"></div>
       </div>
       <div>
-        <v-toolbar
-          class="mb-0 mr-2"
-          dark
-          height="30"
-          src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
-        >
+        <v-toolbar class="mb-0 mr-2" dark height="30" color="blue-grey darken-0">
           <v-spacer></v-spacer>
-          <v-toolbar-title class="text-subtitle-2"
-            >Generate List</v-toolbar-title
-          >
+          <v-toolbar-title class="text-subtitle-2">Generate List</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon>
-            <v-icon color="yellow" v-on:click="GetSelectedEventList"
-              >mdi-lightning-bolt</v-icon
-            >
+            <v-icon color="yellow" v-on:click="GetSelectedEventList">mdi-lightning-bolt</v-icon>
           </v-btn>
         </v-toolbar>
         <div style="margin-top:20px;" ref="spreadsheet1"></div>
       </div>
       <div>
-        <v-toolbar
-          class="mb-0 mr-2"
-          dark
-          height="30"
-          src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
-        >
+        <v-toolbar color="blue-grey darken-0" class="mb-0 mr-2" dark height="30">
           <v-spacer></v-spacer>
-          <v-toolbar-title class="text-subtitle-2"
-            >Save Setup To Databaset</v-toolbar-title
-          >
+          <v-toolbar-title class="text-subtitle-2">Save Setup To Databaset</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon>
-            <v-icon color="blue-grey" v-on:click="SaveEventsToDB"
-              >mdi-content-save</v-icon
-            >
+            <v-icon color="blue-grey" v-on:click="SaveEventsToDB">mdi-content-save</v-icon>
           </v-btn>
         </v-toolbar>
         <div style="margin-top:20px;" ref="spreadsheet2"></div>

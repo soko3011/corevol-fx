@@ -36,5 +36,8 @@ export default {
   },
   CheckSessionDviCount() {
     return Api.get("CheckSessionDviCount");
+  },
+  CheckAndLoadIpv(body) {
+    return Api.post("CheckAndLoadIpv", body);
   }
 };

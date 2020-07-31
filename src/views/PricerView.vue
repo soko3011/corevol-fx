@@ -31,13 +31,7 @@
     </v-navigation-drawer>-->
 
     <main class="pa-0">
-      <v-toolbar
-        color="blue-grey darken-3"
-        min-width="300"
-        dense
-        collapse
-        src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
-      >
+      <v-toolbar color="blue-grey darken-0" min-width="300" dense collapse>
         <v-btn icon>
           <v-icon @click="showSideControl = !showSideControl" color="blue lighten-2">
             {{
@@ -63,41 +57,29 @@
             v-on:selection="ReloadPricer"
           />
           <div>
-            <v-menu min-width="250" close-on-click offset-y>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn small color="pink" dark fab v-bind="attrs" v-on="on">
-                  <v-icon>mdi-expand-all</v-icon>
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item>
-                  <v-list-item-title>Add Pricer</v-list-item-title>
-
-                  <PopUpInput
-                    :icon="'mdi-plus-box'"
-                    :label="'add name and hit enter'"
-                    :color="'blue'"
-                    :title="'ADD NEW PRICER'"
-                    :large="true"
-                    v-on:selection="UserAddPricer"
-                  />
-                </v-list-item>
-                <v-divider />
-
-                <v-list-item>
-                  <v-list-item-title>Remove Pricer</v-list-item-title>
-
-                  <PopUpModal
-                    :inputData="this.activePricers"
-                    :icon="'mdi-minus-box'"
-                    :color="'blue-grey'"
-                    :large="true"
-                    :title="'REMOVE VIEW'"
-                    v-on:selection="RemoveTab"
-                  />
-                </v-list-item>
-              </v-list>
-            </v-menu>
+            <div style="margin-bottom: 70px"></div>
+            <v-card>
+              <v-btn absolute small fab top left color="pink" elevation="12">
+                <PopUpInput
+                  :icon="'mdi-expand-all'"
+                  :label="'add name and hit enter'"
+                  :color="'white'"
+                  :title="'ADD NEW PRICER'"
+                  :large="false"
+                  v-on:selection="UserAddPricer"
+                />
+              </v-btn>
+            </v-card>
+            <v-btn class="mb-10" absolute small fab bottom right color="blue-grey" elevation="12">
+              <PopUpModal
+                :inputData="this.activePricers"
+                :icon="'mdi-delete'"
+                :color="'white'"
+                :large="false"
+                :title="'REMOVE VIEW'"
+                v-on:selection="RemoveTab"
+              />
+            </v-btn>
           </div>
         </v-card>
 
@@ -195,6 +177,9 @@ export default {
   },
 
   methods: {
+    focusInput() {
+      this.$refs.addPricer.focus();
+    },
     setUser(user) {
       console.log(user);
       this.$store.dispatch("changeCurrentUser", user);

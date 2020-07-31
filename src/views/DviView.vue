@@ -1,12 +1,6 @@
 <template>
   <div>
-    <v-toolbar
-      color="blue-grey darken-3"
-      min-width="300"
-      collapse
-      dense
-      src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
-    >
+    <v-toolbar color="blue-grey darken-0" min-width="300" collapse dense>
       <v-btn icon>
         <v-icon
           @click="showSideControl = !showSideControl"
@@ -66,7 +60,7 @@
                 <template v-slot:activator>
                   <v-btn small v-model="fab" color="blue lighten-2" dark fab elevation="12">
                     <v-icon v-if="fab">mdi-close</v-icon>
-                    <v-icon v-else>mdi-axis-y-arrow</v-icon>
+                    <v-icon v-else @click="GetIpvVols()">mdi-axis-y-arrow</v-icon>
                   </v-btn>
                 </template>
                 <v-btn fab dark small color="green accent-3" @click.stop="SetIpv('atm')">
@@ -160,20 +154,63 @@ export default {
     }
   },
   methods: {
-    SetIpv(args) {
-      this.$store
-        .dispatch("returnDviWithIpvMatch", {
-          name: this.$store.getters.activeCrossGetter,
-          args: args
-        })
-        .then(data => {
-          if (data === 200) {
-            alert(`Ipv ${args} updated successfully`);
+    GetIpvVols() {
+      DviApi.CheckAndLoadIpv({ name: this.$route.params.ccyPair })
+        .then(response => {
+          const ipv = JSON.parse(response.data.ipv);
+          const surf = JSON.parse(response.data.dviSurf);
+          console.log(surf);
+          console.log(ipv);
+
+          if (ipv.length === 0) {
+            this.$store.dispatch("setSnackbar", {
+              text: `There is no IPV source for ${this.$route.params.ccyPair}`
+            });
           }
+          // let surf = this.$store.getters.surfGetter;
+          // let updatedSurf = [];
+
+          // surf.map(row => {
+          //   var ipvVol = data.filter(function(item) {
+          //     if (item.Term === "ON") {
+          //       item.Term = "1D";
+          //     }
+          //     if (item.Term === "12M") {
+          //       item.Term = "1Y";
+          //     }
+
+          //     return item.Term === row.Term;
+          //   });
+          //   if (ipvVol.length > 0) {
+          //     row.IPV_ATM = parseFloat(ipvVol[0].ATM).toFixed(2);
+          //   }
+
+          //   updatedSurf.push(row);
+          // });
+
+          this.$store.dispatch("AddIpvVol", surf);
         })
-        .catch(error => {
-          alert(`There is an issue with: ${name} and Ipv ${args}. \n${error}`);
+        .catch(err => {
+          alert(err);
         });
+    },
+    async SetIpv(args) {
+      let user = await this.$store.dispatch("returnDviWithIpvMatch", {
+        name: this.$store.getters.activeCrossGetter,
+        args: args,
+        user: this.$store.state.currentUser
+      });
+      if (user.error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `There is an issue with: ${
+            this.$route.params.ccyPair
+          } and IPV ${args.toUpperCase()}. \n${user.error}`
+        });
+      } else {
+        this.$store.dispatch("setSnackbar", {
+          text: `IPV ${args.toUpperCase()} MATCHED`
+        });
+      }
     },
 
     RefreshDviData(ccyPair) {

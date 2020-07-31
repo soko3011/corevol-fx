@@ -9,32 +9,22 @@
           rounded
           color="grey lighten-3"
         >
-          <v-toolbar
-            class="mb-0 mr-2"
-            dark
-            height="30"
-            src="https://source.unsplash.com/sKuVjm0xyLY/640x426"
-          >
+          <v-toolbar class="mb-0 mr-2" dark height="30" color="blue-grey darken-0">
             <v-spacer></v-spacer>
-            <v-toolbar-title class="text-subtitle-2">{{
+            <v-toolbar-title class="text-subtitle-2">
+              {{
               GetHeader(item)
-            }}</v-toolbar-title>
+              }}
+            </v-toolbar-title>
 
             <v-spacer></v-spacer>
             <v-btn icon>
-              <v-icon color="blue lighten-4" @click="gotoDvi(item)"
-                >mdi-circle-edit-outline</v-icon
-              >
+              <v-icon color="blue lighten-4" @click="gotoDvi(item)">mdi-circle-edit-outline</v-icon>
             </v-btn>
           </v-toolbar>
 
           <DashBoardSurf :apidata="SingleSurf(item)" class="ma-0" />
-          <v-system-bar
-            class="mt-n2 mr-2"
-            height="5"
-            :color="GetWarningColor(item)"
-          >
-          </v-system-bar>
+          <v-system-bar class="mt-n2 mr-2" height="5" :color="GetWarningColor(item)"></v-system-bar>
           <h6 class="float-right mr-2">{{ GetFooter(item) }}</h6>
         </div>
       </div>

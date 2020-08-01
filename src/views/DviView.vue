@@ -60,9 +60,12 @@
                 <template v-slot:activator>
                   <v-btn small v-model="fab" color="blue lighten-2" dark fab elevation="12">
                     <v-icon v-if="fab">mdi-close</v-icon>
-                    <v-icon v-else @click="GetIpvVols()">mdi-axis-y-arrow</v-icon>
+                    <v-icon v-else>mdi-axis-y-arrow</v-icon>
                   </v-btn>
                 </template>
+                <v-btn fab dark small color="blue accent-3" @click.stop="GetIpvVols()">
+                  <v-icon>mdi-alpha-u-circle-outline</v-icon>
+                </v-btn>
                 <v-btn fab dark small color="green accent-3" @click.stop="SetIpv('atm')">
                   <v-icon>mdi-alpha-a-circle-outline</v-icon>
                 </v-btn>
@@ -70,7 +73,7 @@
                   <v-icon>mdi-alpha-s-circle-outline</v-icon>
                 </v-btn>
                 <v-btn fab dark small color="red">
-                  <v-icon>mdi-alpha-m-circle-outline</v-icon>
+                  <v-icon @click.stop="MatchIpvMults()">mdi-alpha-m-circle-outline</v-icon>
                 </v-btn>
               </v-speed-dial>
             </div>
@@ -80,6 +83,9 @@
           </div>
           <div class="d-flex align-center justify-start mb-2">
             <userRange />
+          </div>
+          <div>
+            <DashBoardSurf v-if="ipvSurf.length>0" :apidata="ipvSurf" class="ma-0" />
           </div>
         </div>
         <dviTable />
@@ -100,6 +106,7 @@ import userRange from "@/dviComponents/DviUserRange.vue";
 import DviApi from "@/apis/DviApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
+import DashBoardSurf from "@/components/DashBoardSurf.vue";
 
 //import VolApi from "@/apis/FxVolApi";
 
@@ -113,7 +120,8 @@ export default {
     DviCalendar,
     userRange,
     TreeView,
-    PopUpModal
+    PopUpModal,
+    DashBoardSurf
   },
   created: function() {
     var ccyPair = this.$route.params.ccyPair;
@@ -129,10 +137,10 @@ export default {
         }
       }
     );
-    // document.addEventListener("keydown", this.KeyPressToPricer);
+    document.addEventListener("keydown", this.KeyPressToPricer);
   },
   destroyed: function() {
-    // document.removeEventListener("keydown", this.KeyPressToPricer);
+    document.removeEventListener("keydown", this.KeyPressToPricer);
   },
 
   data() {
@@ -145,12 +153,16 @@ export default {
       transition: "slide-y-reverse-transition",
       fab: false,
       fabIpv: false,
-      fling: false
+      fling: false,
+      ipvSurf: []
     };
   },
   computed: {
     mainWindowHeight() {
       return window.innerHeight - 150;
+    },
+    pricerTab() {
+      return this.$store.getters.lastPricerTabGetter;
     }
   },
   methods: {
@@ -159,6 +171,7 @@ export default {
         .then(response => {
           const ipv = JSON.parse(response.data.ipv);
           const surf = JSON.parse(response.data.dviSurf);
+          this.ipvSurf = ipv;
           console.log(surf);
           console.log(ipv);
 
@@ -166,37 +179,23 @@ export default {
             this.$store.dispatch("setSnackbar", {
               text: `There is no IPV source for ${this.$route.params.ccyPair}`
             });
+          } else {
+            this.$store.dispatch("setSnackbar", {
+              text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`
+            });
+
+            this.$store.dispatch("AddIpvVol", surf);
           }
-          // let surf = this.$store.getters.surfGetter;
-          // let updatedSurf = [];
-
-          // surf.map(row => {
-          //   var ipvVol = data.filter(function(item) {
-          //     if (item.Term === "ON") {
-          //       item.Term = "1D";
-          //     }
-          //     if (item.Term === "12M") {
-          //       item.Term = "1Y";
-          //     }
-
-          //     return item.Term === row.Term;
-          //   });
-          //   if (ipvVol.length > 0) {
-          //     row.IPV_ATM = parseFloat(ipvVol[0].ATM).toFixed(2);
-          //   }
-
-          //   updatedSurf.push(row);
-          // });
-
-          this.$store.dispatch("AddIpvVol", surf);
         })
         .catch(err => {
-          alert(err);
+          this.$store.dispatch("setSnackbar", {
+            text: `${this.$route.params.ccyPair} ERROR: ${err}`
+          });
         });
     },
     async SetIpv(args) {
       let user = await this.$store.dispatch("returnDviWithIpvMatch", {
-        name: this.$store.getters.activeCrossGetter,
+        name: this.$route.params.ccyPair,
         args: args,
         user: this.$store.state.currentUser
       });
@@ -211,6 +210,30 @@ export default {
           text: `IPV ${args.toUpperCase()} MATCHED`
         });
       }
+    },
+    MatchIpvMults() {
+      DviApi.MatchIpvMults({ name: this.$route.params.ccyPair })
+        .then(response => {
+          console.log(response.data);
+          const surf = JSON.parse(response.data.dviSurf);
+
+          if (surf.length === 0) {
+            this.$store.dispatch("setSnackbar", {
+              text: `There is no IPV source for ${this.$route.params.ccyPair}`
+            });
+          } else {
+            this.$store.dispatch("setSnackbar", {
+              text: `${this.$route.params.ccyPair} IPV MULTS UPDATED`
+            });
+
+            this.$store.dispatch("AddIpvVol", surf);
+          }
+        })
+        .catch(err => {
+          this.$store.dispatch("setSnackbar", {
+            text: `${this.$route.params.ccyPair} ERROR: ${err}`
+          });
+        });
     },
 
     RefreshDviData(ccyPair) {
@@ -275,7 +298,12 @@ export default {
       if (event.code === "Space") {
         event.preventDefault();
 
-        this.$router.push("PricerView");
+        this.$router
+          .push({
+            name: "Pricer",
+            params: { viewName: this.pricerTab }
+          })
+          .catch(() => {});
       }
     },
 

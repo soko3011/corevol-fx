@@ -39,5 +39,8 @@ export default {
   },
   CheckAndLoadIpv(body) {
     return Api.post("CheckAndLoadIpv", body);
+  },
+  MatchIpvMults(body) {
+    return Api.post("MatchIpvMults", body);
   }
 };

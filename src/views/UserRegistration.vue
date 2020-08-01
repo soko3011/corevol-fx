@@ -1,14 +1,17 @@
 <template>
-  <v-row align="center" justify="center">
-    <v-col cols="12" sm="8" md="4">
-      <UserAuthForm
-        :submitForm="registerUser"
-        buttonText="Register"
-        hasName="true"
-        title="Register"
-      />
-    </v-col>
-  </v-row>
+  <v-app class="grey darken-4">
+    <v-row align="center" justify="center">
+      <v-col cols="12" sm="8" md="4">
+        <v-toolbar class="mb-10" prominent flat color="grey darken-4" src="@/logo/corevollogo.png"></v-toolbar>
+        <UserAuthForm
+          :submitForm="registerUser"
+          buttonText="Register"
+          hasName="true"
+          title="Register"
+        />
+      </v-col>
+    </v-row>
+  </v-app>
 </template>
 
 <script>

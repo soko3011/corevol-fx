@@ -140,7 +140,6 @@ export default {
       this.optContainer = [];
     },
     RestorePricerData(storedData) {
-      console.log("here");
       this.ClearGrid();
       if (storedData !== null) {
         const data = JSON.parse(storedData.ActivePricerGridDataJSON);

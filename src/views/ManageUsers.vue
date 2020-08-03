@@ -112,7 +112,6 @@ export default {
     },
 
     save(item) {
-      console.log(item);
       LoginApi.UpdateUser(item)
         .then(response => {
           this.$store.dispatch("setSnackbar", {
@@ -136,7 +135,7 @@ export default {
 
 <style lang="sass">
 .custom-transform-class
-    text-transform: uppercase
+  text-transform: uppercase
 </style>
 
 

@@ -1,11 +1,5 @@
 <template>
   <v-card flat color="grey darken-4" dark class="elevation-00">
-    <v-toolbar color="dark" dark flat class="mb-5">
-      <v-spacer></v-spacer>
-      <v-toolbar-title>{{title}}</v-toolbar-title>
-      <v-spacer></v-spacer>
-    </v-toolbar>
-
     <v-card-text>
       <v-form v-model="valid">
         <v-text-field

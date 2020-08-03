@@ -132,7 +132,6 @@ export default {
             sortable: false
           });
           this.headers = headersNew;
-          console.log(this.headers);
         })
         .catch(err => {
           this.snackbarMessage = ` Error: ${err}`;

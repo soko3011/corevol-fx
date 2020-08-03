@@ -2,8 +2,7 @@
   <v-app class="grey darken-4">
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
-        <v-toolbar class="mb-10" prominent flat color="grey darken-4" src="@/logo/corevollogo.png"></v-toolbar>
-
+        <v-toolbar class="mb-10" prominent flat color="grey darken-4" src="@/logo/corevollogo.png" />
         <UserAuthForm :submitForm="loginUser" buttonText="Log in" title="Log in" />
         <div class="text-center mt-6 white--text">
           <p font-weight-light>Register</p>

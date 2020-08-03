@@ -84,8 +84,9 @@
           <div class="d-flex align-center justify-start mb-2">
             <userRange />
           </div>
-          <div>
-            <DashBoardSurf v-if="ipvSurf.length>0" :apidata="ipvSurf" class="ma-0" />
+          <div v-if="this.$store.getters.ipvSurfGetter!==null">
+            <v-switch class="ml-3" v-model="ipvSwitch" inset :label="`IPV VOLS`"></v-switch>
+            <IpvSurf v-if="ipvSwitch ===true" class="ma-0" />
           </div>
         </div>
         <dviTable />
@@ -106,7 +107,7 @@ import userRange from "@/dviComponents/DviUserRange.vue";
 import DviApi from "@/apis/DviApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
-import DashBoardSurf from "@/components/DashBoardSurf.vue";
+import IpvSurf from "@/components/IpvSurf.vue";
 
 //import VolApi from "@/apis/FxVolApi";
 
@@ -121,7 +122,7 @@ export default {
     userRange,
     TreeView,
     PopUpModal,
-    DashBoardSurf
+    IpvSurf
   },
   created: function() {
     var ccyPair = this.$route.params.ccyPair;
@@ -154,7 +155,7 @@ export default {
       fab: false,
       fabIpv: false,
       fling: false,
-      ipvSurf: []
+      ipvSwitch: true
     };
   },
   computed: {
@@ -171,9 +172,6 @@ export default {
         .then(response => {
           const ipv = JSON.parse(response.data.ipv);
           const surf = JSON.parse(response.data.dviSurf);
-          this.ipvSurf = ipv;
-          console.log(surf);
-          console.log(ipv);
 
           if (ipv.length === 0) {
             this.$store.dispatch("setSnackbar", {
@@ -184,7 +182,10 @@ export default {
               text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`
             });
 
-            this.$store.dispatch("AddIpvVol", surf);
+            this.$store.dispatch("AddIpvVol", {
+              surface: surf,
+              ipvSurface: ipv
+            });
           }
         })
         .catch(err => {
@@ -214,7 +215,6 @@ export default {
     MatchIpvMults() {
       DviApi.MatchIpvMults({ name: this.$route.params.ccyPair })
         .then(response => {
-          console.log(response.data);
           const surf = JSON.parse(response.data.dviSurf);
 
           if (surf.length === 0) {
@@ -226,7 +226,7 @@ export default {
               text: `${this.$route.params.ccyPair} IPV MULTS UPDATED`
             });
 
-            this.$store.dispatch("AddIpvVol", surf);
+            this.$store.dispatch("AddIpvVol", { surface: surf });
           }
         })
         .catch(err => {
@@ -276,7 +276,6 @@ export default {
       })
         .then(response => {
           this.activeDvis = JSON.parse(response.data.listOfActiveDvis);
-          console.log(this.activeDvis);
         })
         .catch(err => {
           alert(err);

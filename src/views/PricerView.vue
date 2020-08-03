@@ -181,11 +181,9 @@ export default {
       this.$refs.addPricer.focus();
     },
     setUser(user) {
-      console.log(user);
       this.$store.dispatch("changeCurrentUser", user);
     },
     test() {
-      console.log(this.$store.state.crossList.length);
       this.$store.dispatch("RefreshCrossList");
     },
     EventListeners(event) {
@@ -260,7 +258,6 @@ export default {
         PricerData: { PricerTitle: item }
       })
         .then(response => {
-          console.log(JSON.parse(response.data.listOfActivePricers));
           this.activePricers = JSON.parse(response.data.listOfActivePricers);
         })
         .catch(err => {

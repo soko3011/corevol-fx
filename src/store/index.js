@@ -36,6 +36,7 @@ const mutations = {
   },
   SET_DVI_DATA(state, dviRawData) {
     state.dviRawData = dviRawData;
+    console.log(state.dviRawData);
     state.dviInput = JSON.parse(dviRawData.dviInput);
     state.dviSmileInput = JSON.parse(dviRawData.smileInput);
   },
@@ -47,7 +48,6 @@ const mutations = {
     state.dviInput = data;
   },
   SET_PRICER(state, data) {
-    console.log(data);
     state.rawPricerData = data;
   },
   SET_SURF(state, data) {
@@ -89,7 +89,8 @@ const mutations = {
     state.crossList = JSON.parse(data).sort();
   },
   SET_IPV_VOLS(state, data) {
-    state.dviRawData.surf = JSON.stringify(data);
+    state.dviRawData.surf = JSON.stringify(data.surface);
+    state.dviRawData.ipvString = JSON.stringify(data.ipvSurface);
   }
 };
 
@@ -137,7 +138,6 @@ const actions = {
     try {
       let response = await LoginApi.LoginUser(loginInfo);
       let serverData = JSON.parse(response.data.serverData);
-      console.log(serverData);
 
       if (serverData.ModelError !== null) {
         return { error: serverData.ModelError };
@@ -162,7 +162,6 @@ const actions = {
     try {
       let response = await LoginApi.RegisterUser(registrationInfo);
       let serverData = JSON.parse(response.data.serverData);
-      console.log(serverData);
 
       if (serverData.ModelError !== null) {
         return { error: serverData.ModelError };
@@ -171,7 +170,7 @@ const actions = {
         return { error: serverData.BadRequest };
       } else {
         let user = serverData.UserProfile;
-        console.log(user);
+
         commit("SET_ISAUTHED", user);
 
         if (user.IsAuthed === true) {
@@ -232,7 +231,7 @@ const actions = {
   async returnDviWithIpvMatch({ commit }, payload) {
     try {
       let response = await DviApi.MatchSurfaceToIpvInputs(payload);
-      console.log(response.data);
+
       commit("SET_DVI_DATA", response.data.dviReturn.value);
 
       return response.status;
@@ -301,6 +300,12 @@ const actions = {
 const getters = {
   surfGetter(state) {
     return JSON.parse(state.dviRawData.surf);
+  },
+  ipvSurfGetter(state) {
+    let ipv = JSON.parse(state.dviRawData.ipvString);
+    if (ipv !== "null") {
+      return ipv;
+    } else return [];
   },
   dviGetter(state) {
     return JSON.parse(state.dviRawData.show);

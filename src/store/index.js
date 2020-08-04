@@ -36,7 +36,7 @@ const mutations = {
   },
   SET_DVI_DATA(state, dviRawData) {
     state.dviRawData = dviRawData;
-    console.log(state.dviRawData);
+
     state.dviInput = JSON.parse(dviRawData.dviInput);
     state.dviSmileInput = JSON.parse(dviRawData.smileInput);
   },
@@ -104,7 +104,7 @@ const actions = {
       let user = JSON.parse(response.data.userProfile);
 
       commit("SET_ISAUTHED", user);
-      console.log(`Starting app: user is authed: ${state.isUserAuthed}`);
+
       if (user.IsAuthed === true) {
         commit("SET_CURRENT_USER", user);
         commit("SET_USER_PREF_CROSS", user);
@@ -192,7 +192,6 @@ const actions = {
   RefreshCrossList({ commit }) {
     SettingsApi.GetCrossList()
       .then(response => {
-        console.log(response.data.crossList);
         commit("SET_CROSSLIST", response.data.crossList);
       })
       .catch(err => {

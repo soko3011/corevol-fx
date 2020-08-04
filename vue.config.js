@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: "/FxEngineUICore",
+  publicPath: "/vuetify-ui",
   outputDir: "docs",
   transpileDependencies: ["vuetify"]
 };

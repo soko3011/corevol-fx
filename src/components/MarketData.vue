@@ -146,7 +146,7 @@ export default {
 
   methods: {
     initialize() {
-      MarketDataApi.GetSpotRates()
+      MarketDataApi.GetSpotRates({ userName: this.$store.state.currentUser })
         .then(response => {
           this.data = JSON.parse(response.data.spotRates);
           this.data.sort((a, b) => (a.cross > b.cross ? 1 : -1));
@@ -182,7 +182,9 @@ export default {
           alert(err);
         });
 
-      MarketDataApi.CurrentInterfaces({ user: this.$store.state.currentUser })
+      MarketDataApi.CurrentInterfaces({
+        UserName: this.$store.state.currentUser
+      })
         .then(response => {
           this.spotIface = JSON.parse(response.data.spot);
           this.swapIface = JSON.parse(response.data.swap);
@@ -192,10 +194,14 @@ export default {
         });
     },
     viewSwaps(item) {
-      MarketDataApi.GetSwaps({ name: item.cross })
+      console.log(item);
+      MarketDataApi.GetSwaps({
+        UserName: this.$store.state.currentUser,
+        Cross: item.Cross
+      })
         .then(response => {
           this.marketData = JSON.parse(response.data.swaps);
-          this.selectedCross = item.cross;
+          this.selectedCross = item.Cross;
           this.marketTableTitle = "SWAPS";
           this.marketTableWidth = "300px";
           this.showMarketTable = true;
@@ -205,10 +211,13 @@ export default {
         });
     },
     viewDepos(item) {
-      MarketDataApi.GetBaseRates({ name: item.cross })
+      MarketDataApi.GetBaseRates({
+        UserName: this.$store.state.currentUser,
+        Cross: item.Cross
+      })
         .then(response => {
           this.marketData = JSON.parse(response.data.depos);
-          this.selectedCross = item.cross;
+          this.selectedCross = item.Cross;
           this.marketTableTitle = `BASERATE (${JSON.parse(
             response.data.depoCcy
           )})`;
@@ -220,10 +229,13 @@ export default {
         });
     },
     viewRateTiles(item) {
-      MarketDataApi.GetRateTiles({ name: item.cross })
+      MarketDataApi.GetRateTiles({
+        UserName: this.$store.state.currentUser,
+        Cross: item.Cross
+      })
         .then(response => {
           this.marketData = JSON.parse(response.data.rateTile);
-          this.selectedCross = item.cross;
+          this.selectedCross = item.Cross;
           this.marketTableTitle = "RATETILE";
           this.marketTableWidth = "1000px";
           this.showMarketTable = true;
@@ -250,9 +262,9 @@ export default {
 
     save() {
       MarketDataApi.ChangeInterface({
-        user: this.$store.state.currentUser,
-        spot: this.spotIface,
-        swap: this.swapIface
+        UserName: this.$store.state.currentUser,
+        SpotApi: this.spotIface,
+        SwapApi: this.swapIface
       })
         .then(response => {
           this.spotIface = JSON.parse(response.data.spot);

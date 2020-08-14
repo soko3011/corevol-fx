@@ -518,7 +518,7 @@ export default {
     },
     ReturnCurrent() {
       var StoredActivePricerData = {
-        User: this.$store.state.currentUser,
+        userName: this.$store.state.currentUser,
         PricerData: {
           PricerTitle: this.pricerName,
           ActivePricerGridDataJSON: JSON.stringify(this.jExcelObj.getData()),

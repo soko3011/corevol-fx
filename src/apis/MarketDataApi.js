@@ -1,13 +1,12 @@
 import Api from "./Api";
 
 export default {
-  GetSpotRates() {
-    return Api.get("SpotRates");
+  GetSpotRates(body) {
+    return Api.post("SpotRates", body);
   },
   CurrentInterfaces(body) {
     return Api.post("CurrentInterfaces", body);
   },
-
   GetSwaps(body) {
     return Api.post("GetSwaps", body);
   },

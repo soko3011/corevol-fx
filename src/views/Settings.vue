@@ -102,7 +102,7 @@ export default {
   created() {},
   methods: {
     OpenDialog(cross) {
-      SettingsApi.MirrorCrossDets({ name: cross })
+      SettingsApi.MirrorCrossDets({ Cross: cross })
         .then(response => {
           const dvidata = JSON.parse(response.data.dviSetup);
           const crossdata = JSON.parse(response.data.crossSetup);

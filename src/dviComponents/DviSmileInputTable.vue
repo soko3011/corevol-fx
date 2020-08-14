@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
@@ -16,23 +17,21 @@ export default {
   name: "dviSmileInputTable",
   created() {},
   data() {
-    return {
-      colWidthsSurf: [100, 100, 100, 87, 87],
-      iData: {}
-    };
+    return {};
   },
   computed: {
+    ...mapState({
+      apidata: state => state.dvi.smileInput
+    }),
     config() {
       return {
         columnSorting: false,
-        colWidths: this.colWidthsSurf,
+        colWidths: [100, 100, 100, 87, 87],
         onchange: this.OnChange,
         allowInsertRow: false
       };
     },
-    apidata() {
-      return this.$store.state.dviSmileInput;
-    },
+
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
     }
@@ -49,15 +48,19 @@ export default {
       this.FormatTable(this.apidata, this.jExcelObj);
     },
     setIdata() {
-      this.iData.User = this.$store.state.currentUser;
-      this.iData.cross = this.$store.getters.activeCrossGetter;
-      this.iData.rr1 = this.jExcelObj.getValueFromCoords(1, 0);
-      this.iData.rr2 = this.jExcelObj.getValueFromCoords(1, 1);
-      this.iData.fly1 = this.jExcelObj.getValueFromCoords(2, 0);
-      this.iData.fly2 = this.jExcelObj.getValueFromCoords(2, 1);
-      this.iData.wgtbar = this.jExcelObj.getValueFromCoords(3, 0);
-      this.iData.rrcorr = this.jExcelObj.getValueFromCoords(4, 0);
-      this.$store.dispatch("setIdataObject", this.iData);
+      var iData = {
+        // User: this.$store.state.currentUser,
+        // Cross: this.$store.getters.activeCrossGetter,
+        Rr1: this.jExcelObj.getValueFromCoords(1, 0),
+        Rr2: this.jExcelObj.getValueFromCoords(1, 1),
+        Fly1: this.jExcelObj.getValueFromCoords(2, 0),
+        Fly2: this.jExcelObj.getValueFromCoords(2, 1),
+        Wgtbar: this.jExcelObj.getValueFromCoords(3, 0),
+        Rrcorr: this.jExcelObj.getValueFromCoords(4, 0),
+        Cross: this.$route.params.ccyPair,
+        UserName: this.$store.state.currentUser
+      };
+      this.$store.dispatch("dviRecalcSmile", iData);
     },
 
     FormatTable(data, table) {

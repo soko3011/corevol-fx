@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
@@ -15,24 +16,24 @@ export default {
   created() {},
   data() {
     return {
-      colWidthsSurf: [50, 50, 100, 55, 55, 55, 55, 55],
       row: [],
       col: []
     };
   },
   computed: {
+    ...mapState({
+      apidata: state => state.dvi.surf
+    }),
     config() {
       return {
         columnSorting: false,
-        colWidths: this.colWidthsSurf,
+        colWidths: [50, 50, 100, 55, 55, 55, 55, 55],
         onchange: this.OnChange,
         allowInsertRow: false,
         onselection: this.selectionActive
       };
     },
-    apidata() {
-      return this.$store.getters.surfGetter;
-    },
+
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
     }
@@ -45,9 +46,11 @@ export default {
     setIdata(colNum) {
       var header = this.jExcelObj.getHeader(colNum);
 
-      var iData = {};
-      iData.Cross = this.$store.getters.activeCrossGetter;
-      iData.Term = this.jExcelObj.getValueFromCoords(1, this.row);
+      var iData = {
+        Cross: this.$store.getters.activeCrossGetter,
+        Term: this.jExcelObj.getValueFromCoords(1, this.row),
+        UserName: this.$store.state.currentUser
+      };
 
       if (header === "RR_MULT") {
         Object.assign(iData, {
@@ -55,7 +58,7 @@ export default {
         });
       }
 
-      if (header === "S_FLY_MULT") {
+      if (header === "SFLY_MULT") {
         Object.assign(iData, {
           FlyMultSmile: this.jExcelObj.getValueFromCoords(colNum, this.row)
         });
@@ -88,16 +91,16 @@ export default {
         var row = i + 1;
         const col1Name = "B" + row;
         const col4Name = "E" + row;
-        const col11Name = "K" + row;
-        const col12Name = "L" + row;
+        const col13Name = "M" + row;
+        const col14Name = "N" + row;
         table.setStyle(col4Name, "background-color", "#D2DEE9");
         table.setStyle(col4Name, "font-weight", "bold");
         table.setStyle(col1Name, "color", "#000080");
         table.setStyle(col1Name, "font-weight", "bold");
-        table.setStyle(col11Name, "background-color", "#EDFAFD");
-        table.setStyle(col12Name, "background-color", "#EDFAFD");
-        table.setStyle(col11Name, "font-weight", "bold");
-        table.setStyle(col12Name, "font-weight", "bold");
+        table.setStyle(col13Name, "background-color", "#EDFAFD");
+        table.setStyle(col14Name, "background-color", "#EDFAFD");
+        table.setStyle(col13Name, "font-weight", "bold");
+        table.setStyle(col14Name, "font-weight", "bold");
 
         if (row > 9) {
           table.setStyle(col4Name, "background-color", "#EDFAFD");

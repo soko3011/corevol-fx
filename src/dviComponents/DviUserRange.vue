@@ -17,6 +17,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
@@ -29,8 +30,6 @@ export default {
   name: "dviUserRange",
   data() {
     return {
-      colWidthsSurf: [50, 100, 100, 100, 100, 100],
-      iData: {},
       row: [],
       col: []
     };
@@ -42,17 +41,18 @@ export default {
     document.removeEventListener("keydown", this.EventListeners);
   },
   computed: {
+    ...mapState({
+      apidata: state => state.dvi.userWgtRanges
+    }),
     config() {
       return {
         columnSorting: false,
-        colWidths: this.colWidthsSurf,
+        colWidths: [50, 100, 100, 100, 100, 100],
         onchange: this.OnChange,
         onselection: this.selectionActive
       };
     },
-    apidata() {
-      return this.$store.getters.userRangeGetter;
-    },
+
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
     }
@@ -138,24 +138,26 @@ export default {
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
     },
     setIdata() {
-      this.iData.User = this.$store.state.currentUser;
-      this.iData.cross = this.$store.getters.activeCrossGetter;
-      this.iData.UserEventRangeUI = {
-        AutoID: this.row,
-        RangeName: this.jExcelObj.getValueFromCoords(1, this.row),
-        StartDate: this.jExcelObj.getValueFromCoords(2, this.row),
-        EndDate: this.jExcelObj.getValueFromCoords(3, this.row),
-        KeepExistingWgt: this.jExcelObj.getValueFromCoords(4, this.row),
-        DayWgt: this.jExcelObj.getValueFromCoords(5, this.row)
+      var iData = {
+        User: this.$store.state.currentUser,
+        cross: this.$store.getters.activeCrossGetter,
+        UserEventRangeUI: {
+          AutoID: this.row,
+          RangeName: this.jExcelObj.getValueFromCoords(1, this.row),
+          StartDate: this.jExcelObj.getValueFromCoords(2, this.row),
+          EndDate: this.jExcelObj.getValueFromCoords(3, this.row),
+          KeepExistingWgt: this.jExcelObj.getValueFromCoords(4, this.row),
+          DayWgt: this.jExcelObj.getValueFromCoords(5, this.row)
+        }
       };
 
       if (
-        this.iData.UserEventRangeUI.StartDate != "" &&
-        this.iData.UserEventRangeUI.EndDate != "" &&
-        this.iData.UserEventRangeUI.DayWgt != "" &&
-        this.iData.UserEventRangeUI.KeepExistingWgt != ""
+        iData.UserEventRangeUI.StartDate != "" &&
+        iData.UserEventRangeUI.EndDate != "" &&
+        iData.UserEventRangeUI.DayWgt != "" &&
+        iData.UserEventRangeUI.KeepExistingWgt != ""
       ) {
-        this.$store.dispatch("loadDviWithPayload", this.iData);
+        this.$store.dispatch("loadDviWithPayload", iData);
       }
     },
 

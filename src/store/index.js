@@ -8,17 +8,26 @@ import SettingsApi from "../apis/SettingsApi";
 Vue.use(Vuex);
 
 const state = {
-  sidebarShow: "responsive",
-  sidebarMinimize: true,
-  dviRawData: null,
-  dviInput: [],
-  dviSmileInput: [],
+  dvi: {
+    main: [],
+    surf: [],
+    volInput: [],
+    smileInput: [],
+    forCal: [],
+    domCal: [],
+    userWgtRanges: [],
+    ipvSurf: []
+  },
+  dvisInUse: [],
+
+  ipvSurfData: [],
+
   activecross: "",
   userPrefCross: "",
   pricerLayoutName: "",
   activePricerLayout: [],
   crossList: [],
-  iData: {},
+
   lastPricerTab: "",
   lastPricerCellCoords: [],
   ipvVolData: [],
@@ -34,12 +43,33 @@ const mutations = {
   SET_SNACKBAR(state, snackbar) {
     state.snackbars = state.snackbars.concat(snackbar);
   },
-  SET_DVI_DATA(state, dviRawData) {
-    state.dviRawData = dviRawData;
-
-    state.dviInput = JSON.parse(dviRawData.dviInput);
+  SET_DVI_INIT(state, data) {
+    //state.dvi = [];
+    state.dvi.main = JSON.parse(data.main);
+    state.dvi.surf = JSON.parse(data.surf);
+    state.dvi.volInput = JSON.parse(data.volInput);
+    state.dvi.smileInput = JSON.parse(data.smileInput);
+    state.dvi.forCal = JSON.parse(data.forCal);
+    state.dvi.domCal = JSON.parse(data.domCal);
+    state.dvi.userWgtRanges = JSON.parse(data.userWgtRanges);
+    state.dvisInUse = JSON.parse(data.dvisInUse);
+    console.log(state.dvi);
+  },
+  SET_DVI_AFTER_VOL_UPDATE(state, data) {
+    state.dvi.main = JSON.parse(data.main);
+    state.dvi.surf = JSON.parse(data.surf);
+    state.dvi.volInput = JSON.parse(data.volInput);
+    console.log(state.dvi.volInput);
+  },
+  SET_DVI_DATA_SMILE(state, dviRawData) {
+    state.dviSurfData = JSON.parse(dviRawData.surf);
     state.dviSmileInput = JSON.parse(dviRawData.smileInput);
   },
+  SET_IPV_DATA(state, rawData) {
+    state.dviSurfData = JSON.parse(rawData.dviSurf);
+    state.ipvSurfData = JSON.parse(rawData.ipv);
+  },
+
   SET_DVI_INPUT(state, data) {
     state.dviInput = data.inputs;
     state.dviSmileInput = data.smileInputs;
@@ -87,11 +117,11 @@ const mutations = {
   },
   SET_CROSSLIST(state, data) {
     state.crossList = JSON.parse(data).sort();
-  },
-  SET_IPV_VOLS(state, data) {
-    state.dviRawData.surf = JSON.stringify(data.surface);
-    state.dviRawData.ipvString = JSON.stringify(data.ipvSurface);
   }
+  // SET_IPV_VOLS(state, data) {
+  //   state.dviRawData.surf = JSON.stringify(data.surface);
+  //   state.dviRawData.ipvString = JSON.stringify(data.ipvSurface);
+  // }
 };
 
 const actions = {
@@ -198,34 +228,37 @@ const actions = {
         alert(err);
       });
   },
-  ChangeDviCcyPair({ commit }, payload) {
-    return new Promise((resolve, reject) => {
-      DviApi.changeDviCcyPair(payload)
-        .then(response => {
-          commit("SET_DVI_DATA", response.data);
-          resolve(response.status);
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
+  async initializeDviUI({ commit, dispatch }, payload) {
+    try {
+      let response = await DviApi.initializeDviUI(payload);
+      commit("SET_DVI_INIT", response.data);
+      return true;
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `${err} `
+      });
+    }
   },
-  RefreshDvi({ commit }, payload) {
-    return new Promise((resolve, reject) => {
-      DviApi.getDviData(payload)
-        .then(response => {
-          commit("SET_DVI_DATA", response.data);
-          resolve(response.status);
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
+  async returnDviAfterVolUpdate({ commit, dispatch }, payload) {
+    try {
+      let response = await DviApi.returnDviAfterVolUpdate(payload);
+      commit("SET_DVI_AFTER_VOL_UPDATE", response.data);
+      return true;
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `${err} `
+      });
+    }
   },
-  loadDviWithPayload({ commit }, payload) {
-    DviApi.getDviData(payload).then(response => {
-      commit("SET_DVI_DATA", response.data);
-    });
+  async dviRecalcSmile({ commit }, payload) {
+    try {
+      let response = await DviApi.ReturnDviSmile(payload);
+      commit("SET_DVI_DATA_SMILE", response.data);
+      let message = response.status;
+      return message;
+    } catch (err) {
+      return { message: `There was an error. ${err}.` };
+    }
   },
   async returnDviWithIpvMatch({ commit }, payload) {
     try {
@@ -234,6 +267,18 @@ const actions = {
       commit("SET_DVI_DATA", response.data.dviReturn.value);
 
       return response.status;
+    } catch (err) {
+      return { error: ` ${err}.` };
+    }
+  },
+  async checkAndLoadIpv({ commit }, payload) {
+    try {
+      let response = await DviApi.CheckAndLoadIpv(payload);
+      commit("SET_IPV_DATA", response.data);
+      let ipv = JSON.parse(response.data.ipv);
+      var notNull = ipv.length > 0 ? true : false;
+
+      return notNull;
     } catch (err) {
       return { error: ` ${err}.` };
     }
@@ -272,10 +317,7 @@ const actions = {
   setLastCellPosition({ commit }, payload) {
     commit("SET_LAST_PRICER_CELL_POS", payload);
   },
-  setIdataObject({ dispatch, commit }, payload) {
-    commit("SET_IDATA", payload);
-    dispatch("loadDviWithPayload", this.state.iData);
-  },
+
   ChangePricer({ commit }, pricerName) {
     return new Promise((resolve, reject) => {
       PricerApi.setPricer({
@@ -297,19 +339,13 @@ const actions = {
 };
 
 const getters = {
-  surfGetter(state) {
-    return JSON.parse(state.dviRawData.surf);
-  },
   ipvSurfGetter(state) {
-    let ipv = JSON.parse(state.dviRawData.ipvString);
-    if (ipv !== "null") {
+    let ipv = state.ipvSurfData;
+    console.log(ipv.length);
+    if (ipv.length !== 0) {
       return ipv;
     } else return [];
   },
-  dviGetter(state) {
-    return JSON.parse(state.dviRawData.show);
-  },
-
   activeCrossGetter(state) {
     if (
       state.activecross === null ||
@@ -327,15 +363,6 @@ const getters = {
     ) {
       return state.userPrefCross;
     } else return state.lastPricerTab;
-  },
-  forCalGetter(state) {
-    return JSON.parse(state.dviRawData.forCal);
-  },
-  domCalGetter(state) {
-    return JSON.parse(state.dviRawData.domCal);
-  },
-  userRangeGetter(state) {
-    return JSON.parse(state.dviRawData.userRange);
   }
 };
 

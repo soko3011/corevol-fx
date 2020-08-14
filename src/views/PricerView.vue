@@ -151,7 +151,7 @@ export default {
     var view = this.$route.params.viewName;
 
     PricerApi.GetListOfActivePricers({
-      User: this.$store.state.currentUser
+      userName: this.$store.state.currentUser
     }).then(response => {
       this.activePricers = JSON.parse(response.data.activePricers);
 
@@ -254,7 +254,7 @@ export default {
       }
 
       PricerApi.RemovePricerFromUse({
-        User: this.$store.state.currentUser,
+        userName: this.$store.state.currentUser,
         PricerData: { PricerTitle: item }
       })
         .then(response => {

@@ -143,7 +143,7 @@ export default {
 
     deleteItem(item) {
       confirm(`Are you sure you want to delete ${item.Cross}?`) &&
-        SettingsApi.DeleteCcyPairData({ name: item.Cross })
+        SettingsApi.DeleteCcyPairData({ Cross: item.Cross })
           .then(response => {
             this.$store.dispatch("setSnackbar", {
               text: `${item.Cross} deleted succesfully. Status ${response.status}`
@@ -163,7 +163,10 @@ export default {
     },
     viewMultsAndSpreads(item) {
       const cross = item.Cross;
-      SettingsApi.GetMultsAndSpreads({ name: cross })
+      SettingsApi.GetMultsAndSpreads({
+        UserName: this.$store.state.currentUser,
+        Cross: item.Cross
+      })
         .then(response => {
           this.marketData = JSON.parse(response.data.multsAndSpreads);
           this.selectedCross = cross;
@@ -187,7 +190,10 @@ export default {
         text: `Processing ${item.Cross} DVI update ...`,
         timeout: 2500
       });
-      SettingsApi.UpdateDviDets(item)
+      SettingsApi.UpdateDviDets({
+        DviInputsUI: item,
+        UserName: this.$store.state.currentUser
+      })
         .then(response => {
           this.$store.dispatch("setSnackbar", {
             text: `${item.Cross} updated succesfully. Status ${response.status}`

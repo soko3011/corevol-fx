@@ -153,7 +153,7 @@ export default {
 
     deleteItem(item) {
       confirm(`Are you sure you want to delete ${item.Ccy}?`) &&
-        SettingsApi.DeleteCcyData({ name: item.Ccy })
+        SettingsApi.DeleteCcyData({ Ccy: item.Ccy })
           .then(response => {
             this.snackbarMessage = `${item.Ccy} deleted succesfully. Status ${response.status}`;
             this.snackbar = true;

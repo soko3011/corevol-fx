@@ -4,8 +4,11 @@ export default {
   getInitialize() {
     return Api.get("Initialize");
   },
-  getDviData(body) {
-    return Api.post("DviReturn", body);
+  returnDviAfterVolUpdate(body) {
+    return Api.post("ReturnDviAfterVolUpdate", body);
+  },
+  initializeDviUI(body) {
+    return Api.post("InitializeDviUI", body);
   },
   changeDviCcyPair(body) {
     return Api.post("ChangeDviCcyPair", body);
@@ -42,5 +45,8 @@ export default {
   },
   MatchIpvMults(body) {
     return Api.post("MatchIpvMults", body);
+  },
+  ReturnDviSmile(body) {
+    return Api.post("ReturnDviSmile", body);
   }
 };

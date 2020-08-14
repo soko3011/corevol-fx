@@ -1,10 +1,13 @@
 <template lang="html">
+
   <div class="wrapper-jexcel">
+
   <div id="spreadsheet" ref="spreadsheet"></div>
   </div>
 </template>
 
 <script>
+import { mapState } from "vuex";
 import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
@@ -14,22 +17,19 @@ export default {
   name: "dviInputTable",
   created() {},
   data() {
-    return {
-      colWidthsSurf: [100, 100, 100],
-      iData: {}
-    };
+    return {};
   },
   computed: {
+    ...mapState({
+      apidata: state => state.dvi.volInput
+    }),
     config() {
       return {
         columnSorting: false,
-        colWidths: this.colWidthsSurf,
+        colWidths: [100, 100, 100],
         onchange: this.OnChange,
         allowInsertRow: false
       };
-    },
-    apidata() {
-      return this.$store.state.dviInput;
     },
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
@@ -43,18 +43,21 @@ export default {
       this.FormatTable(this.apidata, this.jExcelObj);
     },
     RefreshTable() {
+      console.log("fire");
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
       this.FormatTable(this.apidata, this.jExcelObj);
     },
-    setIdata() {
-      this.iData.User = this.$store.state.currentUser;
-      this.iData.cross = this.$store.getters.activeCrossGetter;
-      this.iData.mat1 = this.jExcelObj.getValueFromCoords(0, 0);
-      this.iData.mat2 = this.jExcelObj.getValueFromCoords(0, 1);
-      this.iData.vol1 = this.jExcelObj.getValueFromCoords(1, 0);
-      this.iData.vol2 = this.jExcelObj.getValueFromCoords(1, 1);
-      this.iData.dk = this.jExcelObj.getValueFromCoords(2, 0);
-      this.$store.dispatch("setIdataObject", this.iData);
+    async setIdata() {
+      var iData = {
+        UserName: this.$store.state.currentUser,
+        Cross: this.$store.getters.activeCrossGetter,
+        Mat1: this.jExcelObj.getValueFromCoords(0, 0),
+        Mat2: this.jExcelObj.getValueFromCoords(0, 1),
+        Vol1: this.jExcelObj.getValueFromCoords(1, 0),
+        Vol2: this.jExcelObj.getValueFromCoords(1, 1),
+        Dk: this.jExcelObj.getValueFromCoords(2, 0)
+      };
+      await this.$store.dispatch("returnDviAfterVolUpdate", iData);
     },
 
     FormatTable(data, table) {

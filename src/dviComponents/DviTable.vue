@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
@@ -15,22 +16,19 @@ export default {
   name: "dviTable",
   created() {},
   data() {
-    return {
-      colWidthsSurf: [50, 120, 75, 60, 60, 60, 60, 60, 60, 60, 60, 60],
-      iData: {}
-    };
+    return {};
   },
   computed: {
+    ...mapState({
+      apidata: state => state.dvi.main
+    }),
     config() {
       return {
         columnSorting: false,
-        colWidths: this.colWidthsSurf,
+        colWidths: [50, 120, 75, 60, 60, 60, 60, 60, 60, 60, 60, 60],
         onchange: this.OnChange,
         allowInsertRow: false
       };
-    },
-    apidata() {
-      return this.$store.getters.dviGetter;
     },
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
@@ -46,11 +44,13 @@ export default {
       this.FormatTable(this.apidata, this.jExcelObj);
     },
     setIdata(eventWgt, dayCount) {
-      this.iData.User = this.$store.state.currentUser;
-      this.iData.cross = this.$store.getters.activeCrossGetter;
-      this.iData.userEventWgt = eventWgt;
-      this.iData.userEventDayCount = dayCount;
-      this.$store.dispatch("setIdataObject", this.iData);
+      var iData = {
+        Cross: this.$route.params.ccyPair,
+        UserName: this.$store.state.currentUser,
+        UserEventWgt: eventWgt,
+        UserEventDayCount: dayCount
+      };
+      this.$store.dispatch("dviRecalc", iData);
     },
     RefreshTable() {
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));

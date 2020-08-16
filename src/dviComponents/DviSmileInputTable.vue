@@ -49,8 +49,6 @@ export default {
     },
     setIdata() {
       var iData = {
-        // User: this.$store.state.currentUser,
-        // Cross: this.$store.getters.activeCrossGetter,
         Rr1: this.jExcelObj.getValueFromCoords(1, 0),
         Rr2: this.jExcelObj.getValueFromCoords(1, 1),
         Fly1: this.jExcelObj.getValueFromCoords(2, 0),
@@ -60,7 +58,7 @@ export default {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser
       };
-      this.$store.dispatch("dviRecalcSmile", iData);
+      this.$store.dispatch("returnDviAfterSmileUpdate", iData);
     },
 
     FormatTable(data, table) {

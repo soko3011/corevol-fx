@@ -46,7 +46,7 @@ export default {
   MatchIpvMults(body) {
     return Api.post("MatchIpvMults", body);
   },
-  ReturnDviSmile(body) {
-    return Api.post("ReturnDviSmile", body);
+  returnDviAfterSmileUpdate(body) {
+    return Api.post("ReturnDviAfterSmileUpdate", body);
   }
 };

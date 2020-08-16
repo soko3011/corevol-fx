@@ -61,10 +61,11 @@ const mutations = {
     state.dvi.volInput = JSON.parse(data.volInput);
     console.log(state.dvi.volInput);
   },
-  SET_DVI_DATA_SMILE(state, dviRawData) {
-    state.dviSurfData = JSON.parse(dviRawData.surf);
-    state.dviSmileInput = JSON.parse(dviRawData.smileInput);
+  SET_DVI_AFTER_SMILE_UPDATE(state, data) {
+    state.dvi.surf = JSON.parse(data.surf);
+    state.dvi.smileInput = JSON.parse(data.smileInput);
   },
+
   SET_IPV_DATA(state, rawData) {
     state.dviSurfData = JSON.parse(rawData.dviSurf);
     state.ipvSurfData = JSON.parse(rawData.ipv);
@@ -250,16 +251,18 @@ const actions = {
       });
     }
   },
-  async dviRecalcSmile({ commit }, payload) {
+  async returnDviAfterSmileUpdate({ commit, dispatch }, payload) {
     try {
-      let response = await DviApi.ReturnDviSmile(payload);
-      commit("SET_DVI_DATA_SMILE", response.data);
-      let message = response.status;
-      return message;
+      let response = await DviApi.returnDviAfterSmileUpdate(payload);
+      commit("SET_DVI_AFTER_SMILE_UPDATE", response.data);
+      return true;
     } catch (err) {
-      return { message: `There was an error. ${err}.` };
+      dispatch("setSnackbar", {
+        text: `${err} `
+      });
     }
   },
+
   async returnDviWithIpvMatch({ commit }, payload) {
     try {
       let response = await DviApi.MatchSurfaceToIpvInputs(payload);

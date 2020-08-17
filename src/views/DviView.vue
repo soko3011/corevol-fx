@@ -66,10 +66,10 @@
                 <v-btn fab dark small color="blue accent-3" @click.stop="GetIpvVols()">
                   <v-icon>mdi-alpha-u-circle-outline</v-icon>
                 </v-btn>
-                <v-btn fab dark small color="green accent-3" @click.stop="SetIpv('atm')">
+                <v-btn fab dark small color="green accent-3" @click.stop="MatchIpvAtm()">
                   <v-icon>mdi-alpha-a-circle-outline</v-icon>
                 </v-btn>
-                <v-btn fab dark small color="indigo" @click.stop="SetIpv('smile')">
+                <v-btn fab dark small color="indigo" @click.stop="MatchIpvSmile()">
                   <v-icon>mdi-alpha-s-circle-outline</v-icon>
                 </v-btn>
                 <v-btn fab dark small color="red">
@@ -84,7 +84,7 @@
           <div class="d-flex align-center justify-start mb-2">
             <userRange />
           </div>
-          <div v-if="this.$store.getters.ipvSurfGetter.length>0">
+          <div v-if="ipvHasData">
             <v-switch class="ml-3" v-model="ipvSwitch" inset :label="`IPV VOLS`"></v-switch>
             <IpvSurf v-if="ipvSwitch ===true" class="ma-0" />
           </div>
@@ -165,8 +165,12 @@ export default {
     ...mapState({
       forCal: state => state.dvi.forCal,
       domCal: state => state.dvi.domCal,
-      dvisInUse: state => state.dvisInUse
-    })
+      dvisInUse: state => state.dvisInUse,
+      ipvSurf: state => state.dvi.ipvSurf
+    }),
+    ipvHasData() {
+      return this.ipvSurf.length > 0 ? true : false;
+    }
   },
   methods: {
     async GetIpvVols() {
@@ -190,28 +194,72 @@ export default {
         }
       }
     },
-    // GetIpvVols() {
-    //   DviApi.CheckAndLoadIpv({
+
+    async MatchIpvAtm() {
+      let response = await this.$store.dispatch("returnMatchIpvAtm", {
+        Cross: this.$route.params.ccyPair,
+        UserName: this.$store.state.currentUser
+      });
+      if (response.error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`
+        });
+      } else {
+        this.$store.dispatch("setSnackbar", {
+          text: `IPV ATM ${this.$route.params.ccyPair} MATCHED`
+        });
+      }
+    },
+    async MatchIpvSmile() {
+      let response = await this.$store.dispatch("returnMatchIpvSmile", {
+        Cross: this.$route.params.ccyPair,
+        UserName: this.$store.state.currentUser
+      });
+      if (response.error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV SMILE \n${response.error}`
+        });
+      } else {
+        this.$store.dispatch("setSnackbar", {
+          text: `IPV SMILE FOR ${this.$route.params.ccyPair} MATCHED`
+        });
+      }
+    },
+    async MatchIpvMults() {
+      let response = await this.$store.dispatch("returnMatchIpvMults", {
+        Cross: this.$route.params.ccyPair,
+        UserName: this.$store.state.currentUser
+      });
+      if (response.error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV MULTS \n${response.error}`
+        });
+      } else {
+        this.$store.dispatch("setSnackbar", {
+          text: `IPV MUTLS FOR ${this.$route.params.ccyPair} MATCHED`
+        });
+      }
+    },
+    // MatchIpvMults() {
+
+    //   DviApi.returnMatchIpvMults({
     //     Cross: this.$route.params.ccyPair,
     //     UserName: this.$store.state.currentUser
     //   })
     //     .then(response => {
-    //       const ipv = JSON.parse(response.data.ipv);
+    //       console.log(response.data);
     //       const surf = JSON.parse(response.data.dviSurf);
 
-    //       if (ipv.length === 0) {
+    //       if (surf.length === 0) {
     //         this.$store.dispatch("setSnackbar", {
     //           text: `There is no IPV source for ${this.$route.params.ccyPair}`
     //         });
     //       } else {
     //         this.$store.dispatch("setSnackbar", {
-    //           text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`
+    //           text: `${this.$route.params.ccyPair} IPV MULTS UPDATED`
     //         });
 
-    //         this.$store.dispatch("AddIpvVol", {
-    //           surface: surf,
-    //           ipvSurface: ipv
-    //         });
+    //         this.$store.dispatch("AddIpvVol", { surface: surf });
     //       }
     //     })
     //     .catch(err => {
@@ -220,52 +268,6 @@ export default {
     //       });
     //     });
     // },
-    async SetIpv(args) {
-      let user = await this.$store.dispatch("returnDviWithIpvMatch", {
-        Cross: this.$route.params.ccyPair,
-        IpvArgs: args,
-        UserName: this.$store.state.currentUser
-      });
-      if (user.error) {
-        this.$store.dispatch("setSnackbar", {
-          text: `There is an issue with: ${
-            this.$route.params.ccyPair
-          } and IPV ${args.toUpperCase()}. \n${user.error}`
-        });
-      } else {
-        this.$store.dispatch("setSnackbar", {
-          text: `IPV ${args.toUpperCase()} MATCHED`
-        });
-      }
-    },
-    MatchIpvMults() {
-      console.log("here");
-      DviApi.MatchIpvMults({
-        Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
-      })
-        .then(response => {
-          console.log(response.data);
-          const surf = JSON.parse(response.data.dviSurf);
-
-          if (surf.length === 0) {
-            this.$store.dispatch("setSnackbar", {
-              text: `There is no IPV source for ${this.$route.params.ccyPair}`
-            });
-          } else {
-            this.$store.dispatch("setSnackbar", {
-              text: `${this.$route.params.ccyPair} IPV MULTS UPDATED`
-            });
-
-            this.$store.dispatch("AddIpvVol", { surface: surf });
-          }
-        })
-        .catch(err => {
-          this.$store.dispatch("setSnackbar", {
-            text: `${this.$route.params.ccyPair} ERROR: ${err}`
-          });
-        });
-    },
     async RefreshDviData(ccyPair) {
       let message = await this.$store.dispatch("dviRecalc", {
         Cross: this.$route.params.ccyPair,
@@ -337,7 +339,7 @@ export default {
     },
 
     KeyPressToPricer(event) {
-      if (event.code === "Space") {
+      if (event.code == "KeyP" && event.ctrlKey) {
         event.preventDefault();
 
         this.$router

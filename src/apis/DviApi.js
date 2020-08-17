@@ -4,6 +4,12 @@ export default {
   getInitialize() {
     return Api.get("Initialize");
   },
+  returnDviAfterUserWgtUpdate(body) {
+    return Api.post("ReturnDviAfterUserWgtUpdate", body);
+  },
+  returnDviAfterUserWgtRangeUpdate(body) {
+    return Api.post("ReturnDviAfterUserWgtRangeUpdate", body);
+  },
   returnDviAfterVolUpdate(body) {
     return Api.post("ReturnDviAfterVolUpdate", body);
   },
@@ -19,8 +25,11 @@ export default {
   DelRangeFromList(body) {
     return Api.post("DelRangeFromList", body);
   },
-  MatchSurfaceToIpvInputs(body) {
-    return Api.post("MatchSurfaceToIpvInputs", body);
+  returnMatchIpvSmile(body) {
+    return Api.post("ReturnMatchIpvSmile", body);
+  },
+  returnMatchIpvAtm(body) {
+    return Api.post("ReturnMatchIpvAtm", body);
   },
   GetListOfActiveDvis(body) {
     return Api.post("GetListOfActiveDvis", body);
@@ -43,8 +52,8 @@ export default {
   CheckAndLoadIpv(body) {
     return Api.post("CheckAndLoadIpv", body);
   },
-  MatchIpvMults(body) {
-    return Api.post("MatchIpvMults", body);
+  returnMatchIpvMults(body) {
+    return Api.post("ReturnMatchIpvMults", body);
   },
   returnDviAfterSmileUpdate(body) {
     return Api.post("ReturnDviAfterSmileUpdate", body);

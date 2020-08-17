@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
@@ -16,9 +17,10 @@ export default {
   },
 
   computed: {
-    apidata() {
-      return this.$store.getters.ipvSurfGetter;
-    },
+    ...mapState({
+      apidata: state => state.dvi.ipvSurf
+    }),
+
     config() {
       return {
         columnSorting: false,

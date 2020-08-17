@@ -20,8 +20,6 @@ const state = {
   },
   dvisInUse: [],
 
-  ipvSurfData: [],
-
   activecross: "",
   userPrefCross: "",
   pricerLayoutName: "",
@@ -44,7 +42,6 @@ const mutations = {
     state.snackbars = state.snackbars.concat(snackbar);
   },
   SET_DVI_INIT(state, data) {
-    //state.dvi = [];
     state.dvi.main = JSON.parse(data.main);
     state.dvi.surf = JSON.parse(data.surf);
     state.dvi.volInput = JSON.parse(data.volInput);
@@ -53,7 +50,7 @@ const mutations = {
     state.dvi.domCal = JSON.parse(data.domCal);
     state.dvi.userWgtRanges = JSON.parse(data.userWgtRanges);
     state.dvisInUse = JSON.parse(data.dvisInUse);
-    console.log(state.dvi);
+    state.dvi.ipvSurf = JSON.parse(data.ipvSurf);
   },
   SET_DVI_AFTER_VOL_UPDATE(state, data) {
     state.dvi.main = JSON.parse(data.main);
@@ -65,10 +62,24 @@ const mutations = {
     state.dvi.surf = JSON.parse(data.surf);
     state.dvi.smileInput = JSON.parse(data.smileInput);
   },
+  SET_DVI_AFTER_USERWGT_UPDATE(state, data) {
+    state.dvi.main = JSON.parse(data.main);
+    state.dvi.surf = JSON.parse(data.surf);
+  },
+  SET_DVI_AFTER_USERWGTRANGE_UPDATE(state, data) {
+    state.dvi.main = JSON.parse(data.main);
+    state.dvi.surf = JSON.parse(data.surf);
+    state.dvi.userWgtRanges = JSON.parse(data.userWgtRanges);
+  },
 
-  SET_IPV_DATA(state, rawData) {
-    state.dviSurfData = JSON.parse(rawData.dviSurf);
-    state.ipvSurfData = JSON.parse(rawData.ipv);
+  SET_IPV_DATA(state, data) {
+    console.log(data);
+    state.dvi.surf = JSON.parse(data.dviSurf);
+    state.dvi.ipvSurf = JSON.parse(data.ipvSurf);
+  },
+  SET_SURF(state, data) {
+    state.dvi.surf = JSON.parse(data.surf);
+    console.log(state.dvi.surf);
   },
 
   SET_DVI_INPUT(state, data) {
@@ -81,9 +92,7 @@ const mutations = {
   SET_PRICER(state, data) {
     state.rawPricerData = data;
   },
-  SET_SURF(state, data) {
-    state.dviRawData.surf = data.surf;
-  },
+
   SET_ACTIVE_CROSS(state, activecross) {
     state.activecross = activecross;
   },
@@ -262,13 +271,51 @@ const actions = {
       });
     }
   },
-
-  async returnDviWithIpvMatch({ commit }, payload) {
+  async returnDviAfterUserWgtUpdate({ commit, dispatch }, payload) {
     try {
-      let response = await DviApi.MatchSurfaceToIpvInputs(payload);
+      let response = await DviApi.returnDviAfterUserWgtUpdate(payload);
+      commit("SET_DVI_AFTER_USERWGT_UPDATE", response.data);
+      return true;
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `${err} `
+      });
+    }
+  },
+  async returnDviAfterUserWgtRangeUpdate({ commit, dispatch }, payload) {
+    try {
+      let response = await DviApi.returnDviAfterUserWgtRangeUpdate(payload);
+      commit("SET_DVI_AFTER_USERWGTRANGE_UPDATE", response.data);
+      return true;
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `${err} `
+      });
+    }
+  },
 
-      commit("SET_DVI_DATA", response.data.dviReturn.value);
-
+  async returnMatchIpvSmile({ commit }, payload) {
+    try {
+      let response = await DviApi.returnMatchIpvSmile(payload);
+      commit("SET_DVI_AFTER_SMILE_UPDATE", response.data);
+      return response.status;
+    } catch (err) {
+      return { error: ` ${err}.` };
+    }
+  },
+  async returnMatchIpvAtm({ commit }, payload) {
+    try {
+      let response = await DviApi.returnMatchIpvAtm(payload);
+      commit("SET_DVI_AFTER_VOL_UPDATE", response.data);
+      return response.status;
+    } catch (err) {
+      return { error: ` ${err}.` };
+    }
+  },
+  async returnMatchIpvMults({ commit }, payload) {
+    try {
+      let response = await DviApi.returnMatchIpvMults(payload);
+      commit("SET_SURF", response.data);
       return response.status;
     } catch (err) {
       return { error: ` ${err}.` };
@@ -278,20 +325,13 @@ const actions = {
     try {
       let response = await DviApi.CheckAndLoadIpv(payload);
       commit("SET_IPV_DATA", response.data);
-      let ipv = JSON.parse(response.data.ipv);
+      let ipv = JSON.parse(response.data.ipvSurf);
       var notNull = ipv.length > 0 ? true : false;
 
       return notNull;
     } catch (err) {
       return { error: ` ${err}.` };
     }
-  },
-
-  getIpvVolData({ commit }) {
-    DviApi.GetIpvSurfaces().then(response => {
-      var data = JSON.parse(response.data.dashBoardSurfs);
-      commit("GET_IPV_VOLS", data);
-    });
   },
   updateMultsAndSpreads({ commit }, payload) {
     DviApi.UpdateMultsAndSpreads(payload).then(response => {
@@ -342,13 +382,6 @@ const actions = {
 };
 
 const getters = {
-  ipvSurfGetter(state) {
-    let ipv = state.ipvSurfData;
-    console.log(ipv.length);
-    if (ipv.length !== 0) {
-      return ipv;
-    } else return [];
-  },
   activeCrossGetter(state) {
     if (
       state.activecross === null ||

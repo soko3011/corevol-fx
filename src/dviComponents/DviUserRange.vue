@@ -49,7 +49,9 @@ export default {
         columnSorting: false,
         colWidths: [50, 100, 100, 100, 100, 100],
         onchange: this.OnChange,
-        onselection: this.selectionActive
+        onselection: this.selectionActive,
+        allowInsertRow: true,
+        allowManualInsertRow: false
       };
     },
 
@@ -127,7 +129,7 @@ export default {
         );
       }
     },
-    selectionActive(x1, y1) {
+    selectionActive(instance, x1, y1) {
       this.row = y1;
       this.col = x1;
     },
@@ -157,7 +159,7 @@ export default {
         iData.UserEventRangeUI.DayWgt != "" &&
         iData.UserEventRangeUI.KeepExistingWgt != ""
       ) {
-        this.$store.dispatch("loadDviWithPayload", iData);
+        this.$store.dispatch("returnDviAfterUserWgtRangeUpdate", iData);
       }
     },
 

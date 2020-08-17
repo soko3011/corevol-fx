@@ -50,7 +50,7 @@ export default {
         UserEventWgt: eventWgt,
         UserEventDayCount: dayCount
       };
-      this.$store.dispatch("dviRecalc", iData);
+      this.$store.dispatch("returnDviAfterUserWgtUpdate", iData);
     },
     RefreshTable() {
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));

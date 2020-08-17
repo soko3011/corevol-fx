@@ -28,7 +28,7 @@ export default {
 
   components: {},
   created() {
-    this.$store.dispatch("RefreshCrossList");
+    this.$store.dispatch("refreshCrossList");
   },
   computed: {
     ...mapState({

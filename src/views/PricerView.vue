@@ -183,9 +183,7 @@ export default {
     setUser(user) {
       this.$store.dispatch("changeCurrentUser", user);
     },
-    test() {
-      this.$store.dispatch("RefreshCrossList");
-    },
+
     EventListeners(event) {
       if (event.code == "KeyL" && event.ctrlKey) {
         event.preventDefault();

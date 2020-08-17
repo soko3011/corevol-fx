@@ -1,8 +1,14 @@
 import Api from "./Api";
 
 export default {
-  getInitialize() {
-    return Api.get("Initialize");
+  initializeDviUI(body) {
+    return Api.post("InitializeDviUI", body);
+  },
+  returnDviAfterVolUpdate(body) {
+    return Api.post("ReturnDviAfterVolUpdate", body);
+  },
+  returnDviAfterSmileUpdate(body) {
+    return Api.post("ReturnDviAfterSmileUpdate", body);
   },
   returnDviAfterUserWgtUpdate(body) {
     return Api.post("ReturnDviAfterUserWgtUpdate", body);
@@ -10,29 +16,23 @@ export default {
   returnDviAfterUserWgtRangeUpdate(body) {
     return Api.post("ReturnDviAfterUserWgtRangeUpdate", body);
   },
-  returnDviAfterVolUpdate(body) {
-    return Api.post("ReturnDviAfterVolUpdate", body);
-  },
-  initializeDviUI(body) {
-    return Api.post("InitializeDviUI", body);
-  },
-  changeDviCcyPair(body) {
-    return Api.post("ChangeDviCcyPair", body);
-  },
   UpdateMultsAndSpreads(body) {
     return Api.post("UpdateMultsAndSpreads", body);
   },
   DelRangeFromList(body) {
     return Api.post("DelRangeFromList", body);
   },
-  returnMatchIpvSmile(body) {
-    return Api.post("ReturnMatchIpvSmile", body);
+  CheckAndLoadIpv(body) {
+    return Api.post("CheckAndLoadIpv", body);
   },
   returnMatchIpvAtm(body) {
     return Api.post("ReturnMatchIpvAtm", body);
   },
-  GetListOfActiveDvis(body) {
-    return Api.post("GetListOfActiveDvis", body);
+  returnMatchIpvSmile(body) {
+    return Api.post("ReturnMatchIpvSmile", body);
+  },
+  returnMatchIpvMults(body) {
+    return Api.post("ReturnMatchIpvMults", body);
   },
   RemoveDviFromUse(body) {
     return Api.post("RemoveDviFromUse", body);
@@ -48,14 +48,5 @@ export default {
   },
   CheckSessionDviCount() {
     return Api.get("CheckSessionDviCount");
-  },
-  CheckAndLoadIpv(body) {
-    return Api.post("CheckAndLoadIpv", body);
-  },
-  returnMatchIpvMults(body) {
-    return Api.post("ReturnMatchIpvMults", body);
-  },
-  returnDviAfterSmileUpdate(body) {
-    return Api.post("ReturnDviAfterSmileUpdate", body);
   }
 };

@@ -82,13 +82,6 @@ const mutations = {
     console.log(state.dvi.surf);
   },
 
-  SET_DVI_INPUT(state, data) {
-    state.dviInput = data.inputs;
-    state.dviSmileInput = data.smileInputs;
-  },
-  SET_DVI_INPUT_TO_IPV(state, data) {
-    state.dviInput = data;
-  },
   SET_PRICER(state, data) {
     state.rawPricerData = data;
   },
@@ -110,12 +103,7 @@ const mutations = {
   SET_LAST_PRICER_CELL_POS(state, data) {
     state.lastPricerCellCoords = data;
   },
-  SET_IDATA(state, iData) {
-    Object.assign(state.iData, iData);
-  },
-  GET_IPV_VOLS(state, data) {
-    state.ipvVolData = data;
-  },
+
   SET_CURRENT_USER(state, user) {
     state.currentUser = user.UserName;
     state.isAdmin = user.IsAdmin;
@@ -128,10 +116,6 @@ const mutations = {
   SET_CROSSLIST(state, data) {
     state.crossList = JSON.parse(data).sort();
   }
-  // SET_IPV_VOLS(state, data) {
-  //   state.dviRawData.surf = JSON.stringify(data.surface);
-  //   state.dviRawData.ipvString = JSON.stringify(data.ipvSurface);
-  // }
 };
 
 const actions = {
@@ -229,7 +213,7 @@ const actions = {
     commit("SET_SNACKBAR", snackbar);
   },
 
-  RefreshCrossList({ commit }) {
+  refreshCrossList({ commit }) {
     SettingsApi.GetCrossList()
       .then(response => {
         commit("SET_CROSSLIST", response.data.crossList);
@@ -340,9 +324,6 @@ const actions = {
   },
   setActivecross({ commit }, payload) {
     commit("SET_ACTIVE_CROSS", payload);
-  },
-  AddIpvVol({ commit }, payload) {
-    commit("SET_IPV_VOLS", payload);
   },
 
   setPricerLayout({ commit }, payload) {

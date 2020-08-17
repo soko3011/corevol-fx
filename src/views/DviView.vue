@@ -126,14 +126,13 @@ export default {
     IpvSurf
   },
   created: async function() {
-    let response = await this.$store.dispatch("initializeDviUI", {
+    await this.$store.dispatch("initializeDviUI", {
       Cross: this.$route.params.ccyPair,
       UserName: this.$store.state.currentUser
     });
-    if (response === true) {
-      this.activeDvis = this.dvisInUse;
-      this.dataReturned = true;
-    }
+
+    this.activeDvis = this.dvisInUse;
+    this.dataReturned = true;
 
     document.addEventListener("keydown", this.KeyPressToPricer);
   },
@@ -240,34 +239,7 @@ export default {
         });
       }
     },
-    // MatchIpvMults() {
 
-    //   DviApi.returnMatchIpvMults({
-    //     Cross: this.$route.params.ccyPair,
-    //     UserName: this.$store.state.currentUser
-    //   })
-    //     .then(response => {
-    //       console.log(response.data);
-    //       const surf = JSON.parse(response.data.dviSurf);
-
-    //       if (surf.length === 0) {
-    //         this.$store.dispatch("setSnackbar", {
-    //           text: `There is no IPV source for ${this.$route.params.ccyPair}`
-    //         });
-    //       } else {
-    //         this.$store.dispatch("setSnackbar", {
-    //           text: `${this.$route.params.ccyPair} IPV MULTS UPDATED`
-    //         });
-
-    //         this.$store.dispatch("AddIpvVol", { surface: surf });
-    //       }
-    //     })
-    //     .catch(err => {
-    //       this.$store.dispatch("setSnackbar", {
-    //         text: `${this.$route.params.ccyPair} ERROR: ${err}`
-    //       });
-    //     });
-    // },
     async RefreshDviData(ccyPair) {
       let message = await this.$store.dispatch("dviRecalc", {
         Cross: this.$route.params.ccyPair,
@@ -281,23 +253,6 @@ export default {
         this.dataReturned = true;
       }
     },
-
-    // RefreshDviData(ccyPair) {
-    //   this.dataReturned = false;
-    //   this.$store
-    //     .dispatch("ChangeDviCcyPair", {
-    //       cross: this.$route.params.ccyPair,
-    //       userName: this.$store.state.currentUser
-    //     })
-    //     .then(data => {
-    //       if (data === 200) {
-    //         this.dataReturned = true;
-    //       }
-    //     })
-    //     .catch(error => {
-    //       alert(`There is an issue with: ${ccyPair}. \n${error}`);
-    //     });
-    // },
 
     ReloadDvi(ccyPair) {
       this.$route.params.ccyPair = ccyPair;

@@ -2,7 +2,8 @@
 import axios from "axios";
 import store from "@/store/index.js";
 
-const baseURL = "https://localhost:5001/api/";
+//const baseURL = "https://localhost:5001/api/";
+const baseURL = "http://localhost:5002/api/";
 
 let Api = axios.create({
   baseURL

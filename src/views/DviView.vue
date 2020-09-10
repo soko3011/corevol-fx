@@ -134,6 +134,17 @@
         <dviTable />
         <DviCalendar v-bind:calData="forCal" />
         <DviCalendar v-bind:calData="domCal" />
+        <div>
+          <iframe
+            src="https://www.widgets.investing.com/live-currency-cross-rates?theme=darkTheme&hideTitle=true&cols=bid,ask,last,prev,high,low,changePerc&pairs=1,3,2,4,7,5,8,6,9,10,49,11,13,16,47,51,58,50,53,15,12,52,48,55,101,1691"
+            width="400px"
+            height="1000px"
+            frameborder="0"
+            allowtransparency="false"
+            marginwidth="0"
+            marginheight="0"
+          ></iframe>
+        </div>
       </div>
     </v-container>
   </div>

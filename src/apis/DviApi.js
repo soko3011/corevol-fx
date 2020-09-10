@@ -34,6 +34,9 @@ export default {
   returnMatchIpvMults(body) {
     return Api.post("ReturnMatchIpvMults", body);
   },
+  getDviObject(body) {
+    return Api.post("GetDviObject", body);
+  },
   RemoveDviFromUse(body) {
     return Api.post("RemoveDviFromUse", body);
   },
@@ -48,5 +51,8 @@ export default {
   },
   CheckSessionDviCount() {
     return Api.get("CheckSessionDviCount");
+  },
+  downloadGlobalDvi(body) {
+    return Api.post("DownloadGlobalDvi", body);
   }
 };

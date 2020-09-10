@@ -308,7 +308,8 @@ export default {
         spot: this.KeyVal("Spot").toString(),
         expiryText: this.KeyVal("ExpiryText"),
         strikeText: this.KeyVal("StrikeText"),
-        call_put: this.KeyVal("Call_Put")
+        call_put: this.KeyVal("Call_Put"),
+        userName: this.$store.state.currentUser
       });
     },
     getSpot() {
@@ -324,37 +325,38 @@ export default {
         [""],
         true
       );
-      PricerApi.CheckIfSurfaceExists({ cross: this.KeyVal("Cross") }).then(
-        response => {
-          let surfExists = JSON.parse(response.data.surfExists);
-          if (surfExists === false) {
-            var cross = this.KeyVal("Cross");
-            alert("Please Update " + cross + " Vols");
-            this.$store.dispatch("setActivecross", {
-              cross: this.KeyVal("Cross")
-            });
-            this.$store.dispatch("loadDviWithPayload", {
-              cross: this.KeyVal("Cross")
-            });
-            this.$router.push({
-              name: "Dvi",
-              params: { ccyPair: this.KeyVal("Cross") }
-            });
-          } else {
-            PricerApi.GetSingleSpot({ cross: this.KeyVal("Cross") }).then(
-              response => {
-                let spotData = JSON.parse(response.data.singleSpot);
-                this.jExcelObj.setValueFromCoords(
-                  this.col,
-                  this.KeyRow("Spot"),
-                  [spotData],
-                  true
-                );
-              }
-            );
-          }
+      PricerApi.CheckIfSurfaceExists({
+        cross: this.KeyVal("Cross"),
+        userName: this.$store.state.currentUser
+      }).then(response => {
+        let surfExists = JSON.parse(response.data.surfExists);
+        if (surfExists === false) {
+          var cross = this.KeyVal("Cross");
+          alert("Please Update " + cross + " Vols");
+          this.$store.dispatch("setActivecross", {
+            cross: this.KeyVal("Cross")
+          });
+          this.$store.dispatch("loadDviWithPayload", {
+            cross: this.KeyVal("Cross")
+          });
+          this.$router.push({
+            name: "Dvi",
+            params: { ccyPair: this.KeyVal("Cross") }
+          });
+        } else {
+          PricerApi.GetSingleSpot({ cross: this.KeyVal("Cross") }).then(
+            response => {
+              let spotData = JSON.parse(response.data.singleSpot);
+              this.jExcelObj.setValueFromCoords(
+                this.col,
+                this.KeyRow("Spot"),
+                [spotData],
+                true
+              );
+            }
+          );
         }
-      );
+      });
     },
     selectionActive(instance, x1, y1, x2, y2) {
       this.row = y1;
@@ -496,6 +498,7 @@ export default {
     },
     ReCalcOpt(optData) {
       //sends optdata to server for calculation. Return entire json result. Will update everythign execpt the first 5 rows (cross, spot, exp, str, pc)
+
       PricerApi.ReCalcOpt(optData).then(response => {
         var result = JSON.parse(response.data.result);
         var optValues = [];
@@ -518,7 +521,7 @@ export default {
     },
     ReturnCurrent() {
       var StoredActivePricerData = {
-        userName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser,
         PricerData: {
           PricerTitle: this.pricerName,
           ActivePricerGridDataJSON: JSON.stringify(this.jExcelObj.getData()),

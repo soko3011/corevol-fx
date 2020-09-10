@@ -43,7 +43,6 @@ export default {
       this.FormatTable(this.apidata, this.jExcelObj);
     },
     RefreshTable() {
-      console.log("fire");
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
       this.FormatTable(this.apidata, this.jExcelObj);
     },
@@ -51,12 +50,15 @@ export default {
       var iData = {
         UserName: this.$store.state.currentUser,
         Cross: this.$store.getters.activeCrossGetter,
+        AutoSave: this.$store.state.dvi.autoSave,
         Mat1: this.jExcelObj.getValueFromCoords(0, 0),
         Mat2: this.jExcelObj.getValueFromCoords(0, 1),
         Vol1: this.jExcelObj.getValueFromCoords(1, 0),
         Vol2: this.jExcelObj.getValueFromCoords(1, 1),
         Dk: this.jExcelObj.getValueFromCoords(2, 0)
       };
+
+      console.log(iData);
       await this.$store.dispatch("returnDviAfterVolUpdate", iData);
     },
 

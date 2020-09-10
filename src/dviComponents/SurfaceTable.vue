@@ -2,6 +2,7 @@
   <div class="wrapper-jexcel">
     <div id="spreadsheet" ref="spreadsheet"></div>
   </div>
+  
 </template>
 
 <script>
@@ -49,7 +50,8 @@ export default {
       var iData = {
         Cross: this.$store.getters.activeCrossGetter,
         Term: this.jExcelObj.getValueFromCoords(1, this.row),
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
+        AutoSave: this.$store.state.dvi.autoSave
       };
 
       if (header === "RR_MULT") {

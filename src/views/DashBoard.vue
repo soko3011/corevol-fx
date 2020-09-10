@@ -50,6 +50,7 @@ export default {
     DviApi.GetDashBoardSurfs()
       .then(response => {
         this.surfs = JSON.parse(response.data.dashBoardSurfs);
+        console.log(this.surfs);
         if (this.ccyPair !== null) {
           this.surfs = Object.fromEntries(
             Object.entries(this.surfs).filter(([key]) => key === this.ccyPair)
@@ -97,7 +98,7 @@ export default {
       var str = cross;
       if (this.surfs[cross] !== undefined) {
         var data = JSON.parse(this.surfs[cross][1]);
-        var spot = data.spot;
+        var spot = data.Spot;
 
         str = str + " " + spot;
       }
@@ -106,7 +107,7 @@ export default {
     GetFooter(cross) {
       if (this.surfs[cross] !== undefined) {
         var data = JSON.parse(this.surfs[cross][1]);
-        var time = "Last Updated : " + data.time;
+        var time = "Last Updated : " + data.Time;
         return time;
       }
     },
@@ -115,7 +116,7 @@ export default {
 
       if (this.surfs[cross] !== undefined) {
         var data = JSON.parse(this.surfs[cross][1]);
-        var lastUpdate = this.parseTime(data.time);
+        var lastUpdate = this.parseTime(data.Time);
         var currenttime = new Date();
         var status = currenttime - lastUpdate;
 

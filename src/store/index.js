@@ -16,7 +16,9 @@ const state = {
     forCal: [],
     domCal: [],
     userWgtRanges: [],
-    ipvSurf: []
+    ipvSurf: [],
+    autoSave: true,
+    lastUpdate: []
   },
   dvisInUse: [],
 
@@ -28,7 +30,7 @@ const state = {
 
   lastPricerTab: "",
   lastPricerCellCoords: [],
-  ipvVolData: [],
+
   rawPricerData: [],
   currentUser: "",
   snackbars: [],
@@ -41,6 +43,9 @@ const mutations = {
   SET_SNACKBAR(state, snackbar) {
     state.snackbars = state.snackbars.concat(snackbar);
   },
+  SET_AUTOSAVE(state, data) {
+    state.dvi.autoSave = data;
+  },
   SET_DVI_INIT(state, data) {
     state.dvi.main = JSON.parse(data.main);
     state.dvi.surf = JSON.parse(data.surf);
@@ -51,24 +56,35 @@ const mutations = {
     state.dvi.userWgtRanges = JSON.parse(data.userWgtRanges);
     state.dvisInUse = JSON.parse(data.dvisInUse);
     state.dvi.ipvSurf = JSON.parse(data.ipvSurf);
+    state.dvi.lastUpdate = JSON.parse(data.lastUpdate);
   },
   SET_DVI_AFTER_VOL_UPDATE(state, data) {
     state.dvi.main = JSON.parse(data.main);
     state.dvi.surf = JSON.parse(data.surf);
     state.dvi.volInput = JSON.parse(data.volInput);
-    console.log(state.dvi.volInput);
+    state.dvi.lastUpdate = JSON.parse(data.lastUpdate);
   },
   SET_DVI_AFTER_SMILE_UPDATE(state, data) {
     state.dvi.surf = JSON.parse(data.surf);
     state.dvi.smileInput = JSON.parse(data.smileInput);
+    state.dvi.lastUpdate = JSON.parse(data.lastUpdate);
   },
   SET_DVI_AFTER_USERWGT_UPDATE(state, data) {
     state.dvi.main = JSON.parse(data.main);
     state.dvi.surf = JSON.parse(data.surf);
+    state.dvi.lastUpdate = JSON.parse(data.lastUpdate);
   },
   SET_DVI_AFTER_USERWGTRANGE_UPDATE(state, data) {
     state.dvi.main = JSON.parse(data.main);
     state.dvi.surf = JSON.parse(data.surf);
+    state.dvi.userWgtRanges = JSON.parse(data.userWgtRanges);
+    state.dvi.lastUpdate = JSON.parse(data.lastUpdate);
+  },
+  SET_DVI_AFTER_GLOBAL_DOWNLOAD(state, data) {
+    state.dvi.main = JSON.parse(data.main);
+    state.dvi.surf = JSON.parse(data.surf);
+    state.dvi.volInput = JSON.parse(data.volInput);
+    state.dvi.smileInput = JSON.parse(data.smileInput);
     state.dvi.userWgtRanges = JSON.parse(data.userWgtRanges);
   },
 
@@ -206,7 +222,9 @@ const actions = {
       return { error: `There was an error. ${err}.` };
     }
   },
-
+  setAutoSave({ commit }, data) {
+    commit("SET_AUTOSAVE", data);
+  },
   setSnackbar({ commit }, snackbar) {
     snackbar.showing = true;
     snackbar.color = snackbar.color || "dark";
@@ -237,6 +255,7 @@ const actions = {
     try {
       let response = await DviApi.returnDviAfterVolUpdate(payload);
       commit("SET_DVI_AFTER_VOL_UPDATE", response.data);
+      console.log(response.data);
       return true;
     } catch (err) {
       dispatch("setSnackbar", {
@@ -317,6 +336,16 @@ const actions = {
       return { error: ` ${err}.` };
     }
   },
+  async downloadGlobalDvi({ commit }, payload) {
+    try {
+      let response = await DviApi.downloadGlobalDvi(payload);
+      commit("SET_DVI_AFTER_GLOBAL_DOWNLOAD", response.data);
+      console.log(JSON.parse(response.data.globalDviExist));
+      return JSON.parse(response.data.globalDviExist);
+    } catch (err) {
+      return { error: ` ${err}.` };
+    }
+  },
   updateMultsAndSpreads({ commit }, payload) {
     DviApi.UpdateMultsAndSpreads(payload).then(response => {
       commit("SET_SURF", response.data);
@@ -345,7 +374,7 @@ const actions = {
   ChangePricer({ commit }, pricerName) {
     return new Promise((resolve, reject) => {
       PricerApi.setPricer({
-        User: state.currentUser,
+        UserName: state.currentUser,
         PricerData: { PricerTitle: pricerName }
       })
         .then(response => {

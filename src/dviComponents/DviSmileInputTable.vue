@@ -56,7 +56,8 @@ export default {
         Wgtbar: this.jExcelObj.getValueFromCoords(3, 0),
         Rrcorr: this.jExcelObj.getValueFromCoords(4, 0),
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
+        AutoSave: this.$store.state.dvi.autoSave
       };
       this.$store.dispatch("returnDviAfterSmileUpdate", iData);
     },

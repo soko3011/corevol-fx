@@ -63,10 +63,54 @@ export default {
     addRow() {
       this.jExcelObj.insertRow();
       this.jExcelObj.setHeight(this.jExcelObj.getData().length - 1, 22);
+      const ranges = this.jExcelObj.getData();
+      const row = ranges.length - 1;
+      this.row = row;
+      let ids = [];
+      ranges.forEach(function(childArray) {
+        if (childArray[0] !== "") {
+          ids.push(childArray[0]);
+        }
+      });
+
+      var newId = Math.max.apply(Math, ids) + 1;
+      console.log(newId);
+      this.jExcelObj.setValueFromCoords(0, row, newId);
+    },
+    setIdata() {
+      var iData = {
+        UserName: this.$store.state.currentUser,
+        Cross: this.$store.getters.activeCrossGetter,
+        UserEventRangeUI: {
+          AutoID: this.jExcelObj.getValueFromCoords(0, this.row),
+          RangeName: this.jExcelObj.getValueFromCoords(1, this.row),
+          StartDate: this.jExcelObj.getValueFromCoords(2, this.row),
+          EndDate: this.jExcelObj.getValueFromCoords(3, this.row),
+          KeepExistingWgt: this.jExcelObj.getValueFromCoords(4, this.row),
+          DayWgt: this.jExcelObj.getValueFromCoords(5, this.row)
+        }
+      };
+
+      if (
+        iData.UserEventRangeUI.StartDate != "" &&
+        iData.UserEventRangeUI.EndDate != "" &&
+        iData.UserEventRangeUI.DayWgt != "" &&
+        iData.UserEventRangeUI.KeepExistingWgt != ""
+      ) {
+        this.$store.dispatch("returnDviAfterUserWgtRangeUpdate", iData);
+      }
     },
     delRow() {
+      var iData = {
+        UserName: this.$store.state.currentUser,
+        Cross: this.$store.getters.activeCrossGetter,
+        UserEventRangeUI: {
+          AutoID: this.jExcelObj.getValueFromCoords(0, this.row)
+        }
+      };
+
       this.jExcelObj.setValueFromCoords(5, this.row, "CLEAR RANGE");
-      DviApi.DelRangeFromList(this.iData);
+      DviApi.DelRangeFromList(iData);
       this.jExcelObj.deleteRow(this.row, 1);
     },
     EventListeners(event) {
@@ -138,29 +182,6 @@ export default {
     },
     RefreshTable() {
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
-    },
-    setIdata() {
-      var iData = {
-        User: this.$store.state.currentUser,
-        cross: this.$store.getters.activeCrossGetter,
-        UserEventRangeUI: {
-          AutoID: this.row,
-          RangeName: this.jExcelObj.getValueFromCoords(1, this.row),
-          StartDate: this.jExcelObj.getValueFromCoords(2, this.row),
-          EndDate: this.jExcelObj.getValueFromCoords(3, this.row),
-          KeepExistingWgt: this.jExcelObj.getValueFromCoords(4, this.row),
-          DayWgt: this.jExcelObj.getValueFromCoords(5, this.row)
-        }
-      };
-
-      if (
-        iData.UserEventRangeUI.StartDate != "" &&
-        iData.UserEventRangeUI.EndDate != "" &&
-        iData.UserEventRangeUI.DayWgt != "" &&
-        iData.UserEventRangeUI.KeepExistingWgt != ""
-      ) {
-        this.$store.dispatch("returnDviAfterUserWgtRangeUpdate", iData);
-      }
     },
 
     FormatTable(data, table) {

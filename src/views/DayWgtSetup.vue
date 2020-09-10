@@ -172,18 +172,18 @@ export default {
       var body = { name: this.currentCcy, eventNames: eventNames };
       DayWgtSetupApi.GetSelectedEventList(body).then(response => {
         for (var event of JSON.parse(response.data.selectedEvents)) {
-          var index = this.selectedEvents.findIndex(e => e[1] === event.title);
+          var index = this.selectedEvents.findIndex(e => e[1] === event.Title);
           var wgt = this.jexcelSelectedEvents.getValueFromCoords(2, index);
 
-          if (!event.time.includes(":")) {
+          if (!event.Time.includes(":")) {
             //if (event.time === "All Day") {
-            event.time = "00:00";
+            event.Time = "00:00";
           }
           var addEvent = {
-            Event: event.title,
-            Date: event.date,
+            Event: event.Title,
+            Date: event.Date,
             DayWgt: wgt,
-            Time: event.time
+            Time: event.Time
           };
           this.productionList.push(addEvent);
         }

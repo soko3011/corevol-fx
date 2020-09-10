@@ -1,5 +1,7 @@
 <template>
   <div>
+    <!-- <v-btn @click="test" /> -->
+
     <v-toolbar color="blue-grey darken-0" min-width="300" collapse dense>
       <v-btn icon>
         <v-icon
@@ -25,6 +27,7 @@
           :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
           v-on:selection="ReloadDvi"
         />
+
         <div style="margin-bottom: 70px"></div>
         <v-card>
           <v-btn absolute small fab top left color="pink" elevation="12">
@@ -37,6 +40,26 @@
               v-on:selection="ReloadDvi"
             />
           </v-btn>
+        </v-card>
+        <div style="margin-bottom: 150px"></div>
+        <v-card>
+          <v-switch
+            @change="changeAutoSaveState"
+            :disabled="!this.$store.state.isAdmin"
+            class="ml-3"
+            color="success"
+            inset
+            v-model="autoSaveSwitch"
+            :label="`AUTOSAVE ${autoSaveStatus}`"
+          ></v-switch>
+          <v-switch
+            class="ml-3"
+            color="indigo"
+            inset
+            v-model="dayWgtRangesSwitch"
+            :label="`DAY WGT RANGES`"
+          ></v-switch>
+          <v-switch class="ml-3" v-if="ipvHasData" v-model="ipvSwitch" inset :label="`IPV VOLS`"></v-switch>
         </v-card>
         <v-btn class="mb-10" absolute small fab bottom right color="blue-grey" elevation="12">
           <PopUpModal
@@ -53,39 +76,58 @@
       <div class="d-flex flex-nowrap align-start justify-start">
         <div>
           <surfaceTable />
-          <div class="d-flex align-center justify-start mt-2">
-            <dviInputTable />
-            <div class="mb-10">
-              <v-speed-dial v-model="fabIpv" top left direction="right">
+          <v-card v-if="lastUpdate.Spot != null" color="blue-grey lighten-5" flat class="mx-1">
+            SPOT: {{lastUpdate.Spot}}
+            <v-spacer />
+            UPDATED: {{lastUpdate.Time}}
+          </v-card>
+          <v-card color="blue-grey lighten-5" flat class="mx-1">
+            <div class="d-flex align-center justify-end">
+              <v-speed-dial class="mx-3" v-model="fabIpv" direction="left">
                 <template v-slot:activator>
-                  <v-btn small v-model="fab" color="blue lighten-2" dark fab elevation="12">
+                  <v-btn x-small v-model="fab" color="blue lighten-2" dark fab elevation="12">
                     <v-icon v-if="fab">mdi-close</v-icon>
                     <v-icon v-else>mdi-axis-y-arrow</v-icon>
                   </v-btn>
                 </template>
-                <v-btn fab dark small color="blue accent-3" @click.stop="GetIpvVols()">
+                <v-btn fab dark x-small color="blue accent-3" @click.stop="GetIpvVols()">
                   <v-icon>mdi-alpha-u-circle-outline</v-icon>
                 </v-btn>
-                <v-btn fab dark small color="green accent-3" @click.stop="MatchIpvAtm()">
+                <v-btn fab dark x-small color="green accent-3" @click.stop="MatchIpvAtm()">
                   <v-icon>mdi-alpha-a-circle-outline</v-icon>
                 </v-btn>
-                <v-btn fab dark small color="indigo" @click.stop="MatchIpvSmile()">
+                <v-btn fab dark x-small color="indigo" @click.stop="MatchIpvSmile()">
                   <v-icon>mdi-alpha-s-circle-outline</v-icon>
                 </v-btn>
-                <v-btn fab dark small color="red">
+                <v-btn fab dark x-small color="red">
                   <v-icon @click.stop="MatchIpvMults()">mdi-alpha-m-circle-outline</v-icon>
                 </v-btn>
               </v-speed-dial>
+              <v-btn
+                class="mx-3"
+                @click="downloadGlobalDvi"
+                x-small
+                fab
+                color="blue-grey"
+                dark
+                elevation="20"
+              >
+                <v-icon>mdi-cloud-download-outline</v-icon>
+              </v-btn>
             </div>
+          </v-card>
+
+          <div class="d-flex align-center justify-start mt-0">
+            <dviInputTable />
           </div>
           <div class="d-flex align-center justify-start mb-2">
             <dviSmileInputTable />
           </div>
-          <div class="d-flex align-center justify-start mb-2">
+
+          <div v-if="dayWgtRangesSwitch" class="d-flex align-center justify-start mb-2">
             <userRange />
           </div>
           <div v-if="ipvHasData">
-            <v-switch class="ml-3" v-model="ipvSwitch" inset :label="`IPV VOLS`"></v-switch>
             <IpvSurf v-if="ipvSwitch ===true" class="ma-0" />
           </div>
         </div>
@@ -133,6 +175,11 @@ export default {
 
     this.activeDvis = this.dvisInUse;
     this.dataReturned = true;
+    if (this.$store.state.isAdmin === false) {
+      this.autoSaveSwitch = false;
+    } else {
+      this.autoSaveSwitch = this.$store.state.dvi.autoSave;
+    }
 
     document.addEventListener("keydown", this.KeyPressToPricer);
   },
@@ -151,10 +198,16 @@ export default {
       fab: false,
       fabIpv: false,
       fling: false,
-      ipvSwitch: true
+      ipvSwitch: true,
+      autoSaveSwitch: false,
+      dayWgtRangesSwitch: false
     };
   },
   computed: {
+    autoSaveStatus() {
+      return this.autoSaveSwitch === true ? "ON" : "OFF";
+    },
+
     mainWindowHeight() {
       return window.innerHeight - 150;
     },
@@ -165,7 +218,8 @@ export default {
       forCal: state => state.dvi.forCal,
       domCal: state => state.dvi.domCal,
       dvisInUse: state => state.dvisInUse,
-      ipvSurf: state => state.dvi.ipvSurf
+      ipvSurf: state => state.dvi.ipvSurf,
+      lastUpdate: state => state.dvi.lastUpdate
     }),
     ipvHasData() {
       return this.ipvSurf.length > 0 ? true : false;
@@ -197,7 +251,8 @@ export default {
     async MatchIpvAtm() {
       let response = await this.$store.dispatch("returnMatchIpvAtm", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
+        AutoSave: this.$store.state.dvi.autoSave
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
@@ -212,7 +267,8 @@ export default {
     async MatchIpvSmile() {
       let response = await this.$store.dispatch("returnMatchIpvSmile", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
+        AutoSave: this.$store.state.dvi.autoSave
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
@@ -227,7 +283,8 @@ export default {
     async MatchIpvMults() {
       let response = await this.$store.dispatch("returnMatchIpvMults", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
+        AutoSave: this.$store.state.dvi.autoSave
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
@@ -251,6 +308,28 @@ export default {
         });
       } else {
         this.dataReturned = true;
+      }
+    },
+    async downloadGlobalDvi() {
+      let response = await this.$store.dispatch("downloadGlobalDvi", {
+        Cross: this.$route.params.ccyPair,
+        UserName: this.$store.state.currentUser
+      });
+      let message = "";
+      if (response === true) {
+        message = `GLOBAL DVI FOR ${this.$route.params.ccyPair} DOWNLOADED`;
+      } else {
+        message = `GLOBAL DVI FOR ${this.$route.params.ccyPair} HAS NOT BEEN UPDATED`;
+      }
+
+      if (response.error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `There is an issue with: ${this.$route.params.ccyPair} GLOBAL DOWNLOAD\n${response.error}`
+        });
+      } else {
+        this.$store.dispatch("setSnackbar", {
+          text: ` ${message}`
+        });
       }
     },
 
@@ -291,6 +370,22 @@ export default {
 
         this.ReloadDvi(redirectTo);
       }
+    },
+    getDviObject() {
+      console.log(this.$store.state.dvi.autoSave);
+      // DviApi.getDviObject({
+      //   Cross: this.$route.params.ccyPair,
+      //   UserName: this.$store.state.currentUser
+      // })
+      //   .then(response => {
+      //     console.log(JSON.parse(response.data.dviObject));
+      //   })
+      //   .catch(err => {
+      //     alert(err);s
+      //   });
+    },
+    changeAutoSaveState() {
+      this.$store.dispatch("setAutoSave", this.autoSaveSwitch);
     },
 
     KeyPressToPricer(event) {

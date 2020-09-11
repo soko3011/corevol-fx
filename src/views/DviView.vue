@@ -1,6 +1,15 @@
 <template>
   <div>
     <!-- <v-btn @click="test" /> -->
+    <transition name="slide-fade">
+      <v-progress-linear
+        v-if="!dataReturned"
+        color="green accent-4"
+        indeterminate
+        rounded
+        height="6"
+      ></v-progress-linear>
+    </transition>
 
     <v-toolbar color="blue-grey darken-0" min-width="300" collapse dense>
       <v-btn icon>
@@ -15,160 +24,159 @@
       >{{ this.$route.params.ccyPair }}</h4>
       <v-spacer></v-spacer>
     </v-toolbar>
+    <transition name="fade">
+      <v-container v-if="dataReturned" :fluid="true" class="cont" :style="containerStyle">
+        <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
+          <TreeView
+            :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
+            v-on:selection="ReloadDvi"
+          />
 
-    <v-container v-if="dataReturned" :fluid="true" class="cont" :style="containerStyle">
-      <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
-        <TreeView
-          :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
-          v-on:selection="ReloadDvi"
-        />
-
-        <div style="margin-bottom: 70px"></div>
-        <v-card>
-          <v-btn absolute small fab top left color="pink" elevation="12">
+          <div style="margin-bottom: 70px"></div>
+          <v-card>
+            <v-btn absolute small fab top left color="pink" elevation="12">
+              <PopUpModal
+                :inputData="this.$store.state.crossList"
+                :icon="'mdi-expand-all'"
+                :color="'white'"
+                :large="false"
+                :title="'ADD DVI'"
+                v-on:selection="ReloadDvi"
+              />
+            </v-btn>
+          </v-card>
+          <div style="margin-bottom: 150px"></div>
+          <v-card>
+            <v-switch
+              @change="changeAutoSaveState"
+              :disabled="!this.$store.state.isAdmin"
+              class="ml-3"
+              color="success"
+              inset
+              v-model="autoSaveSwitch"
+              :label="`AUTOSAVE ${autoSaveStatus}`"
+            ></v-switch>
+            <v-switch
+              class="ml-3"
+              color="indigo"
+              inset
+              v-model="dayWgtRangesSwitch"
+              :label="`DAY WGT RANGES`"
+            ></v-switch>
+            <v-switch class="ml-3" v-if="ipvHasData" v-model="ipvSwitch" inset :label="`IPV VOLS`"></v-switch>
+          </v-card>
+          <v-btn class="mb-10" absolute small fab bottom right color="blue-grey" elevation="12">
             <PopUpModal
-              :inputData="this.$store.state.crossList"
-              :icon="'mdi-expand-all'"
+              :inputData="this.activeDvis"
+              :icon="'mdi-delete'"
               :color="'white'"
               :large="false"
-              :title="'ADD DVI'"
-              v-on:selection="ReloadDvi"
+              :title="'REMOVE DVI'"
+              v-on:selection="RemoveTab"
             />
           </v-btn>
         </v-card>
-        <div style="margin-bottom: 150px"></div>
-        <v-card>
-          <v-switch
-            @change="changeAutoSaveState"
-            :disabled="!this.$store.state.isAdmin"
-            class="ml-3"
-            color="success"
-            inset
-            v-model="autoSaveSwitch"
-            :label="`AUTOSAVE ${autoSaveStatus}`"
-          ></v-switch>
-          <v-switch
-            class="ml-3"
-            color="indigo"
-            inset
-            v-model="dayWgtRangesSwitch"
-            :label="`DAY WGT RANGES`"
-          ></v-switch>
-          <v-switch class="ml-3" v-if="ipvHasData" v-model="ipvSwitch" inset :label="`IPV VOLS`"></v-switch>
-        </v-card>
-        <v-btn class="mb-10" absolute small fab bottom right color="blue-grey" elevation="12">
-          <PopUpModal
-            :inputData="this.activeDvis"
-            :icon="'mdi-delete'"
-            :color="'white'"
-            :large="false"
-            :title="'REMOVE DVI'"
-            v-on:selection="RemoveTab"
-          />
-        </v-btn>
-      </v-card>
 
-      <div class="d-flex flex-nowrap align-start justify-start">
-        <div>
-          <surfaceTable />
-          <v-card v-if="lastUpdate.Spot != null" color="blue-grey lighten-5" flat class="mx-1">
-            SPOT: {{lastUpdate.Spot}}
-            <v-spacer />
-            UPDATED: {{lastUpdate.Time}}
-          </v-card>
-          <v-card color="blue-grey lighten-5" flat class="mx-1">
-            <div class="d-flex align-center justify-end">
-              <v-speed-dial class="mx-3" v-model="fabIpv" direction="left">
-                <template v-slot:activator>
-                  <v-btn x-small v-model="fab" color="blue lighten-2" dark fab elevation="12">
-                    <v-icon v-if="fab">mdi-close</v-icon>
-                    <v-icon v-else>mdi-axis-y-arrow</v-icon>
+        <div class="d-flex flex-nowrap align-start justify-start">
+          <div>
+            <SurfaceTable />
+            <v-card v-if="lastUpdate.Spot != null" color="blue-grey lighten-5" flat class="mx-1">
+              SPOT: {{lastUpdate.Spot}}
+              <v-spacer />
+              UPDATED: {{lastUpdate.Time}}
+            </v-card>
+            <v-card color="blue-grey lighten-5" flat class="mx-1">
+              <div class="d-flex align-center justify-end">
+                <v-speed-dial class="mx-3" v-model="fabIpv" direction="left">
+                  <template v-slot:activator>
+                    <v-btn x-small v-model="fab" color="blue lighten-2" dark fab elevation="12">
+                      <v-icon v-if="fab">mdi-close</v-icon>
+                      <v-icon v-else>mdi-axis-y-arrow</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-btn fab dark x-small color="blue accent-3" @click.stop="GetIpvVols()">
+                    <v-icon>mdi-alpha-u-circle-outline</v-icon>
                   </v-btn>
-                </template>
-                <v-btn fab dark x-small color="blue accent-3" @click.stop="GetIpvVols()">
-                  <v-icon>mdi-alpha-u-circle-outline</v-icon>
+                  <v-btn fab dark x-small color="green accent-3" @click.stop="MatchIpvAtm()">
+                    <v-icon>mdi-alpha-a-circle-outline</v-icon>
+                  </v-btn>
+                  <v-btn fab dark x-small color="indigo" @click.stop="MatchIpvSmile()">
+                    <v-icon>mdi-alpha-s-circle-outline</v-icon>
+                  </v-btn>
+                  <v-btn fab dark x-small color="red">
+                    <v-icon @click.stop="MatchIpvMults()">mdi-alpha-m-circle-outline</v-icon>
+                  </v-btn>
+                </v-speed-dial>
+                <v-btn
+                  class="mx-3"
+                  @click="downloadGlobalDvi"
+                  x-small
+                  fab
+                  color="blue-grey"
+                  dark
+                  elevation="20"
+                >
+                  <v-icon>mdi-cloud-download-outline</v-icon>
                 </v-btn>
-                <v-btn fab dark x-small color="green accent-3" @click.stop="MatchIpvAtm()">
-                  <v-icon>mdi-alpha-a-circle-outline</v-icon>
-                </v-btn>
-                <v-btn fab dark x-small color="indigo" @click.stop="MatchIpvSmile()">
-                  <v-icon>mdi-alpha-s-circle-outline</v-icon>
-                </v-btn>
-                <v-btn fab dark x-small color="red">
-                  <v-icon @click.stop="MatchIpvMults()">mdi-alpha-m-circle-outline</v-icon>
-                </v-btn>
-              </v-speed-dial>
-              <v-btn
-                class="mx-3"
-                @click="downloadGlobalDvi"
-                x-small
-                fab
-                color="blue-grey"
-                dark
-                elevation="20"
-              >
-                <v-icon>mdi-cloud-download-outline</v-icon>
-              </v-btn>
+              </div>
+            </v-card>
+
+            <div class="d-flex align-center justify-start mt-0">
+              <DviInputTable />
             </div>
-          </v-card>
+            <div class="d-flex align-center justify-start mb-2">
+              <DviSmileInputTable />
+            </div>
 
-          <div class="d-flex align-center justify-start mt-0">
-            <dviInputTable />
+            <div v-if="dayWgtRangesSwitch" class="d-flex align-center justify-start mb-2">
+              <UserRange />
+            </div>
+            <div v-if="ipvHasData">
+              <IpvSurf v-if="ipvSwitch ===true" class="ma-0" />
+            </div>
           </div>
-          <div class="d-flex align-center justify-start mb-2">
-            <dviSmileInputTable />
-          </div>
-
-          <div v-if="dayWgtRangesSwitch" class="d-flex align-center justify-start mb-2">
-            <userRange />
-          </div>
-          <div v-if="ipvHasData">
-            <IpvSurf v-if="ipvSwitch ===true" class="ma-0" />
+          <DviTable />
+          <DviCalendar v-bind:calData="forCal" />
+          <DviCalendar v-bind:calData="domCal" />
+          <div>
+            <iframe
+              src="https://www.widgets.investing.com/live-currency-cross-rates?theme=darkTheme&hideTitle=true&cols=bid,ask,last,prev,high,low,changePerc&pairs=1,3,2,4,7,5,8,6,9,10,49,11,13,16,47,51,58,50,53,15,12,52,48,55,101,1691"
+              width="400px"
+              height="2000px"
+              frameborder="0"
+              allowtransparency="false"
+              marginwidth="0"
+              marginheight="0"
+            ></iframe>
           </div>
         </div>
-        <dviTable />
-        <DviCalendar v-bind:calData="forCal" />
-        <DviCalendar v-bind:calData="domCal" />
-        <div>
-          <iframe
-            src="https://www.widgets.investing.com/live-currency-cross-rates?theme=darkTheme&hideTitle=true&cols=bid,ask,last,prev,high,low,changePerc&pairs=1,3,2,4,7,5,8,6,9,10,49,11,13,16,47,51,58,50,53,15,12,52,48,55,101,1691"
-            width="400px"
-            height="2000px"
-            frameborder="0"
-            allowtransparency="false"
-            marginwidth="0"
-            marginheight="0"
-          ></iframe>
-        </div>
-      </div>
-    </v-container>
+      </v-container>
+    </transition>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import surfaceTable from "@/dviComponents/SurfaceTable.vue";
-import dviTable from "@/dviComponents/DviTable.vue";
-import dviInputTable from "@/dviComponents/DviInputTable.vue";
-import dviSmileInputTable from "@/dviComponents/DviSmileInputTable.vue";
+import SurfaceTable from "@/dviComponents/SurfaceTable.vue";
+import DviTable from "@/dviComponents/DviTable.vue";
+import DviInputTable from "@/dviComponents/DviInputTable.vue";
+import DviSmileInputTable from "@/dviComponents/DviSmileInputTable.vue";
 import DviCalendar from "@/dviComponents/DviCalendar.vue";
-import userRange from "@/dviComponents/DviUserRange.vue";
+import UserRange from "@/dviComponents/DviUserRange.vue";
 import DviApi from "@/apis/DviApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import IpvSurf from "@/dviComponents/IpvSurf.vue";
 
-//import VolApi from "@/apis/FxVolApi";
-
 export default {
   name: "DviView",
   components: {
-    surfaceTable,
-    dviTable,
-    dviInputTable,
-    dviSmileInputTable,
+    SurfaceTable,
+    DviTable,
+    DviInputTable,
+    DviSmileInputTable,
     DviCalendar,
-    userRange,
+    UserRange,
     TreeView,
     PopUpModal,
     IpvSurf
@@ -448,5 +456,20 @@ export default {
 
   padding-left: 0px;
   padding-right: 0px;
+}
+.fade-enter {
+  /* starting style */
+  opacity: 0;
+}
+
+.fade-enter-active {
+  /* entering style */
+  transition: opacity 0.75s ease-out;
+}
+
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transition: all 4s ease;
+  opacity: 0;
 }
 </style>

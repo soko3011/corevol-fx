@@ -4,10 +4,10 @@
     <transition name="slide-fade">
       <v-progress-linear
         v-if="!dataReturned"
-        color="green accent-4"
+        color="blue accent-4"
         indeterminate
         rounded
-        height="6"
+        height="3"
       ></v-progress-linear>
     </transition>
 
@@ -469,7 +469,7 @@ export default {
 
 .slide-fade-enter, .slide-fade-leave-to
 /* .slide-fade-leave-active below version 2.1.8 */ {
-  transition: all 4s ease;
+  transition: all 2.25s ease;
   opacity: 0;
 }
 </style>

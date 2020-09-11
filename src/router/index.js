@@ -15,12 +15,6 @@ const UserRegistration = () => import("@/views/UserRegistration");
 const ManageUsers = () => import("@/views/ManageUsers");
 
 Vue.use(Router);
-// export default new Router({
-//   mode: "hash", // https://router.vuejs.org/api/#mode
-//   linkActiveClass: "active",
-//   scrollBehavior: () => ({ y: 0 }),
-//   routes: configRoutes()
-// });
 
 let router = new Router({
   routes: [

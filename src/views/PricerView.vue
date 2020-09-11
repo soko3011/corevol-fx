@@ -83,7 +83,7 @@
           </div>
         </v-card>
 
-        <div v-bind:style="{ height: `${mainWindowHeight}px` }">
+        <div :style="containerStyle">
           <transition name="fade">
             <section id="pricer">
               <v-btn
@@ -169,7 +169,18 @@ export default {
   },
   computed: {
     mainWindowHeight() {
-      return window.innerHeight - 150;
+      return window.innerHeight - 125;
+    },
+    mainWindowWidth() {
+      return window.innerWidth - 10;
+    },
+    containerStyle() {
+      return ` display: flex;
+  overflow-x: scroll;
+  padding-left: 0px;
+  padding-right: 0px;
+  width: ${this.mainWindowWidth}px;
+  height: ${this.mainWindowHeight}px;`;
     },
     crossList() {
       return this.$store.state.crossList;

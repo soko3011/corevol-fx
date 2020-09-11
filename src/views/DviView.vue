@@ -16,12 +16,7 @@
       <v-spacer></v-spacer>
     </v-toolbar>
 
-    <v-container
-      v-if="dataReturned"
-      :fluid="true"
-      class="cont"
-      v-bind:style="{ height: `${mainWindowHeight}px` }"
-    >
+    <v-container v-if="dataReturned" :fluid="true" class="cont" :style="containerStyle">
       <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
         <TreeView
           :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
@@ -220,7 +215,18 @@ export default {
     },
 
     mainWindowHeight() {
-      return window.innerHeight - 150;
+      return window.innerHeight - 125;
+    },
+    mainWindowWidth() {
+      return window.innerWidth - 10;
+    },
+    containerStyle() {
+      return ` display: flex;
+  overflow-x: scroll;
+  padding-left: 0px;
+  padding-right: 0px;
+  width: ${this.mainWindowWidth}px;
+  height: ${this.mainWindowHeight}px;`;
     },
     pricerTab() {
       return this.$store.getters.lastPricerTabGetter;

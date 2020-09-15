@@ -6,8 +6,8 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       builderOptions: {
-        appId: "corevol-fx",
-        icon: "/Users/jamiesokolsky/vuetify-ui/src/assets/icon.icns",
+        appId: "CoreVol-FX",
+        icon: "/Users/wimpole/vuetify-ui/src/assets/icon.icns",
         mac: {
           category: "finance",
         },

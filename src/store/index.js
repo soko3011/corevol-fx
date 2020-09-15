@@ -152,7 +152,7 @@ const actions = {
 
       return user;
     } catch (e) {
-      alert(e);
+      console.log(e);
       return { error: "There was an error.  Please try again." };
     }
   },

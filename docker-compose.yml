@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  vuetify-ui:
+    image: vuetify-ui
+    build: .
+    environment:
+      NODE_ENV: production

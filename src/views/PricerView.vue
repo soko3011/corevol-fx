@@ -146,6 +146,7 @@ export default {
     };
   },
   created: function() {
+    this.$store.dispatch("refreshCrossList");
     document.addEventListener("keydown", this.EventListeners);
 
     var view = this.$route.params.viewName;

@@ -99,7 +99,9 @@ export default {
       return `Mirror ${this.mirroredCross}`;
     }
   },
-  created() {},
+  created() {
+    this.$store.dispatch("refreshCrossList");
+  },
   methods: {
     OpenDialog(cross) {
       SettingsApi.MirrorCrossDets({ Cross: cross })

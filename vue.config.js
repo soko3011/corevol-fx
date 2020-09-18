@@ -7,16 +7,8 @@ module.exports = {
     electronBuilder: {
       builderOptions: {
         appId: "cross-platform-desktop",
-        directories: {
-          buildResources: "../../assets",
-          output: "../../dist"
-        },
-        extraResources: {
-          from: "../api/bin/dist/",
-          to: "api/bin/dist/",
-          filter: ["**/*"]
-        },
-        icon: "/Users/wimpole/vuetify-ui/src/assets/icon.icns",
+        icon: "./src/assets/icon.icns",
+        extraResources: ["./src/extraResources/dist/osx/**"],
         mac: {
           category: "finance"
         }
@@ -24,3 +16,5 @@ module.exports = {
     }
   }
 };
+
+//election build files are in here. extraresources is file path of published api files

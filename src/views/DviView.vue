@@ -182,6 +182,7 @@ export default {
     IpvSurf
   },
   created: async function() {
+    this.$store.dispatch("refreshCrossList");
     await this.$store.dispatch("initializeDviUI", {
       Cross: this.$route.params.ccyPair,
       UserName: this.$store.state.currentUser

@@ -5,6 +5,7 @@ module.exports = {
   lintOnSave: false,
   pluginOptions: {
     electronBuilder: {
+      nodeIntegration: true,
       builderOptions: {
         appId: "cross-platform-desktop",
         icon: "./src/assets/icon.icns",

@@ -1,13 +1,15 @@
 "use strict";
 
-import { app, protocol, BrowserWindow } from "electron";
+import { app, protocol, BrowserWindow, ipcMain } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win;
+let mainWindow;
+let secondaryWindows;
+let childWindowInt = 1;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -16,33 +18,31 @@ protocol.registerSchemesAsPrivileged([
 
 function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({
-    width: 1600,
-    height: 1200,
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 900,
     webPreferences: {
-      // Use pluginOptions.nodeIntegration, leave this alone
-      // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
     }
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
-    win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
-    if (!process.env.IS_TEST) win.webContents.openDevTools();
+    mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+    if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
   } else {
     createProtocol("app");
     // Load the index.html when not in development
-    win.loadURL("app://./index.html");
+    mainWindow.loadURL("app://./index.html");
   }
 
-  win.on("closed", () => {
-    win = null;
+  mainWindow.on("closed", () => {
+    mainWindow = null;
     apiProcess.kill();
   });
 }
 
-// Quit when all windows are closed.
+// Quit when all mainWindowdows are closed.
 app.on("window-all-closed", () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
@@ -54,8 +54,8 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (win === null) {
+  // dock icon is clicked and there are no other mainWindowdows open.
+  if (mainWindow === null) {
     startApi();
     //createWindow();
   }
@@ -75,6 +75,36 @@ app.on("ready", async () => {
   }
   startApi();
   //createWindow();
+});
+
+ipcMain.on("new-window", () => {
+  secondaryWindows = new BrowserWindow({
+    width: 1000,
+    height: 700,
+    title: "",
+    webPreferences: {
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+    }
+  });
+
+  if (process.env.WEBPACK_DEV_SERVER_URL) {
+    // Load the url of the dev server if in development mode
+    secondaryWindows.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+    if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
+  } else {
+    createProtocol("app");
+    // Load the index.html when not in development
+    secondaryWindows.loadURL("app://./index.html");
+  }
+
+  secondaryWindows.on("closed", () => {
+    secondaryWindows = null;
+  });
+
+  secondaryWindows.webContents.on("did-finish-load", () => {
+    secondaryWindows.setTitle(`COREVOLFX-${childWindowInt}`);
+    childWindowInt++;
+  });
 });
 
 // Exit cleanly on request from parent process in development mode.
@@ -102,7 +132,7 @@ var apiProcess = null;
 function startApi() {
   var proc = require("child_process").spawn;
   //  run server
-  //var apipath = path.join(__dirname, '..\\api\\bin\\dist\\win\\api.exe')
+  //var apipath = path.join(__dirname, '..\\api\\bin\\dist\\mainWindow\\api.exe')
   var apipath = "";
   if (os.platform() === "darwin") {
     apipath = path.join(
@@ -115,7 +145,7 @@ function startApi() {
 
   apiProcess.stdout.on("data", data => {
     writeLog(`stdout: ${data}`);
-    if (win == null) {
+    if (mainWindow == null) {
       createWindow();
     }
   });

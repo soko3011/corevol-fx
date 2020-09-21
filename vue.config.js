@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: "/corevol-fx",
+  //publicPath: "/corevol-fx",
   outputDir: "docs",
   transpileDependencies: ["vuetify"],
   lintOnSave: false,

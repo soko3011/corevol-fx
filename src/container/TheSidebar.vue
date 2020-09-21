@@ -127,7 +127,7 @@
       <v-list-item justify-end class="float-right">
         <v-list-item-action>
           <v-icon
-            @click="minify = !minify"
+            @click="setSidebarMinified"
             color="green lighten-3"
             class="mt-4"
           >
@@ -142,19 +142,24 @@
 </template>
 
 <script>
-//const { remote, ipcRenderer } = require("electron");
+import { mapState } from "vuex";
 
 export default {
   name: "TheSidebar",
   data: () => ({
-    minify: true,
     sideBarColor: "blue-grey darken-3"
   }),
+  created() {
+    console.log(this.minify);
+  },
   components: {},
   props: {
     showsidebar: { type: Boolean }
   },
   methods: {
+    setSidebarMinified() {
+      this.$store.dispatch("setSidebarMinified");
+    },
     newWindow() {
       try {
         const { remote, ipcRenderer } = require("electron");
@@ -173,6 +178,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      minify: state => state.sidebarMinified
+    }),
     activeCross() {
       return this.$store.getters.activeCrossGetter;
     },

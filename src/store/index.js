@@ -21,7 +21,7 @@ const state = {
     lastUpdate: []
   },
   dvisInUse: [],
-
+  sidebarMinified: true,
   activecross: "",
   userPrefCross: "",
   pricerLayoutName: "",
@@ -40,6 +40,9 @@ const state = {
 };
 
 const mutations = {
+  SET_SIDEBARMINIFIED(state) {
+    state.sidebarMinified = !state.sidebarMinified;
+  },
   SET_SNACKBAR(state, snackbar) {
     state.snackbars = state.snackbars.concat(snackbar);
   },
@@ -221,6 +224,9 @@ const actions = {
     } catch (err) {
       return { error: `There was an error. ${err}.` };
     }
+  },
+  setSidebarMinified({ commit }) {
+    commit("SET_SIDEBARMINIFIED");
   },
   setAutoSave({ commit }, data) {
     commit("SET_AUTOSAVE", data);

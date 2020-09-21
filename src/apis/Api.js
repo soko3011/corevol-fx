@@ -4,7 +4,8 @@ import store from "@/store/index.js";
 
 //const baseURL = "https://localhost:5001/api/";
 //const baseURL = "https://localhost:5002/api/";
-const baseURL = "http://localhost:5002/api/";
+//const baseURL = "http://localhost:5002/api/";
+const baseURL = "https://corevolapi-swfmuuo65q-ez.a.run.app";
 
 let Api = axios.create({
   baseURL

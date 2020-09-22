@@ -64,6 +64,9 @@
 import validations from "@/utils/validations";
 
 export default {
+  created() {
+    this.setUserTimezone();
+  },
   data() {
     return {
       valid: false,
@@ -71,12 +74,18 @@ export default {
       userInfo: {
         email: "",
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        timezone: ""
       },
       ...validations
     };
   },
-  props: ["submitForm", "buttonText", "hasName", "title"]
+  props: ["submitForm", "buttonText", "hasName", "title"],
+  methods: {
+    async setUserTimezone() {
+      this.userInfo.timezone = await this.$store.dispatch("getBrowserTimezone");
+    }
+  }
 };
 </script>
 

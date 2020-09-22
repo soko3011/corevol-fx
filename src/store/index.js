@@ -4,6 +4,7 @@ import DviApi from "@/apis/DviApi";
 import PricerApi from "@/apis/PricerApi";
 import LoginApi from "@/apis/LoginApi";
 import SettingsApi from "../apis/SettingsApi";
+import Axios from "axios";
 
 Vue.use(Vuex);
 
@@ -138,6 +139,15 @@ const mutations = {
 };
 
 const actions = {
+  async getBrowserTimezone() {
+    try {
+      let response = await Axios.get("https://worldtimeapi.org/api/ip");
+      return response.data.timezone;
+    } catch (e) {
+      alert(e);
+    }
+  },
+
   async checkLoginStatus({ commit }) {
     try {
       let response = await LoginApi.CheckLoginStatus({
@@ -177,7 +187,7 @@ const actions = {
     }
   },
 
-  async login({ commit }, loginInfo) {
+  async login({ dispatch, commit }, loginInfo) {
     try {
       let response = await LoginApi.LoginUser(loginInfo);
       let serverData = JSON.parse(response.data.serverData);

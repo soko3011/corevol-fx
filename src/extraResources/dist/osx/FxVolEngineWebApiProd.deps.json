@@ -27,7 +27,7 @@
           "AspNetCore.Identity.MongoDbCore": "2.1.1",
           "Autofac": "5.2.0",
           "Autofac.Extensions.DependencyInjection": "6.0.0",
-          "FxVolEngine2020": "1.0.0",
+          "FxVolEngine2020": "1.0.2",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "3.1.6",
           "Microsoft.IdentityModel.Tokens": "6.7.1",
           "Newtonsoft.Json": "12.0.3",
@@ -1667,7 +1667,7 @@
           "lib/netstandard2.1/EPPlus.dll": {}
         }
       },
-      "FxVolEngine2020/1.0.0": {
+      "FxVolEngine2020/1.0.2": {
         "dependencies": {
           "Autofac": "5.2.0",
           "ConsoleTables": "2.3.0",
@@ -3285,7 +3285,7 @@
           "AspNetCore.Identity.MongoDbCore": "2.1.1",
           "Autofac": "5.2.0",
           "Autofac.Extensions.DependencyInjection": "6.0.0",
-          "FxVolEngine2020": "1.0.0",
+          "FxVolEngine2020": "1.0.2",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "3.1.6",
           "Microsoft.IdentityModel.Tokens": "6.7.1",
           "Newtonsoft.Json": "12.0.3",
@@ -4888,7 +4888,7 @@
           }
         }
       },
-      "FxVolEngine2020/1.0.0": {
+      "FxVolEngine2020/1.0.2": {
         "dependencies": {
           "Autofac": "5.2.0",
           "ConsoleTables": "2.3.0",
@@ -4902,8 +4902,8 @@
         },
         "runtime": {
           "lib/netcoreapp3.1/FxVolEngine2020.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+            "assemblyVersion": "1.0.2.0",
+            "fileVersion": "1.0.2.0"
           }
         }
       },
@@ -6552,12 +6552,12 @@
       "path": "epplus/5.2.1",
       "hashPath": "epplus.5.2.1.nupkg.sha512"
     },
-    "FxVolEngine2020/1.0.0": {
+    "FxVolEngine2020/1.0.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-dz7xhSlpJm6kMMK+AOandeu+NBfdZ44qTnkWZ+Wr/Kz5ypUEQ1GI+w4jjB636/lkpSgTDq1xlshihYsW8TFsrA==",
-      "path": "fxvolengine2020/1.0.0",
-      "hashPath": "fxvolengine2020.1.0.0.nupkg.sha512"
+      "sha512": "sha512-ciF8oXp05a4u4OPl/NmPdemU8WpIEGKFSrMkOXoT3ioT8W5avKciFVUtKOIj5Dy+DPeRD3Dv4TylHuBognWA/g==",
+      "path": "fxvolengine2020/1.0.2",
+      "hashPath": "fxvolengine2020.1.0.2.nupkg.sha512"
     },
     "HtmlAgilityPack/1.11.9": {
       "type": "package",

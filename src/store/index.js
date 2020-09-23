@@ -22,7 +22,7 @@ const state = {
     lastUpdate: []
   },
   dvisInUse: [],
-  sidebarMinified: true,
+  sidebarMinified: false,
   activecross: "",
   userPrefCross: "",
   pricerLayoutName: "",
@@ -45,6 +45,7 @@ const mutations = {
     state.sidebarMinified = !state.sidebarMinified;
   },
   SET_SNACKBAR(state, snackbar) {
+    console.log(snackbar);
     state.snackbars = state.snackbars.concat(snackbar);
   },
   SET_AUTOSAVE(state, data) {
@@ -128,6 +129,7 @@ const mutations = {
     state.currentUser = user.UserName;
     state.isAdmin = user.IsAdmin;
     window.localStorage.currentUser = JSON.stringify(user.UserName);
+    state.userPrefCross = user.StarterFxCross;
   },
   SET_ISAUTHED(state, user) {
     state.isUserAuthed = user.IsAuthed;
@@ -244,6 +246,7 @@ const actions = {
   setSnackbar({ commit }, snackbar) {
     snackbar.showing = true;
     snackbar.color = snackbar.color || "dark";
+
     commit("SET_SNACKBAR", snackbar);
   },
 

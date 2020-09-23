@@ -3,8 +3,11 @@
     <router-view :key="$route.fullPath"></router-view>
     <div class="text-center ma-2">
       <v-snackbar
+        class="mt-10 mb-10"
         rounded="pill"
-        centered
+        :centered="snackbar.centered"
+        :bottom="snackbar.bottom"
+        :top="snackbar.top"
         elevation="20"
         v-for="snackbar in snackbars.filter(s => s.showing)"
         :key="snackbar.text + Math.random()"

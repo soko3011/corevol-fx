@@ -123,7 +123,8 @@ export default {
             err = "Admin Rights Required";
           }
           this.$store.dispatch("setSnackbar", {
-            text: ` ${err}`
+            text: ` ${err}`,
+            centered: true
           });
         });
     },
@@ -152,7 +153,8 @@ export default {
             err = "Admin Rights Required";
           }
           this.$store.dispatch("setSnackbar", {
-            text: `Update unsucessful.  ${err}`
+            text: `Update unsucessful.  ${err}`,
+            centered: true
           });
         });
 

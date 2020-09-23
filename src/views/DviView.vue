@@ -248,16 +248,19 @@ export default {
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
-          text: response.error
+          text: response.error,
+          centered: true
         });
       } else {
         if (response === false) {
           this.$store.dispatch("setSnackbar", {
-            text: `There is no IPV source for ${this.$route.params.ccyPair}`
+            text: `There is no IPV source for ${this.$route.params.ccyPair}`,
+            centered: true
           });
         } else {
           this.$store.dispatch("setSnackbar", {
-            text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`
+            text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`,
+            centered: true
           });
         }
       }
@@ -271,11 +274,13 @@ export default {
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
-          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`
+          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
+          centered: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
-          text: `IPV ATM ${this.$route.params.ccyPair} MATCHED`
+          text: `IPV ATM ${this.$route.params.ccyPair} MATCHED`,
+          bottom: true
         });
       }
     },
@@ -287,11 +292,13 @@ export default {
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
-          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV SMILE \n${response.error}`
+          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV SMILE \n${response.error}`,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
-          text: `IPV SMILE FOR ${this.$route.params.ccyPair} MATCHED`
+          text: `IPV SMILE FOR ${this.$route.params.ccyPair} MATCHED`,
+          bottom: true
         });
       }
     },
@@ -303,11 +310,13 @@ export default {
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
-          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV MULTS \n${response.error}`
+          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV MULTS \n${response.error}`,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
-          text: `IPV MUTLS FOR ${this.$route.params.ccyPair} MATCHED`
+          text: `IPV MUTLS FOR ${this.$route.params.ccyPair} MATCHED`,
+          bottom: true
         });
       }
     },
@@ -319,7 +328,8 @@ export default {
       });
       if (message.error) {
         this.$store.dispatch("setSnackbar", {
-          text: `There is an issue with: ${ccyPair}. \n${message.error}`
+          text: `There is an issue with: ${ccyPair}. \n${message.error}`,
+          centered: true
         });
       } else {
         this.dataReturned = true;
@@ -339,11 +349,13 @@ export default {
 
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
-          text: `There is an issue with: ${this.$route.params.ccyPair} GLOBAL DOWNLOAD\n${response.error}`
+          text: `There is an issue with: ${this.$route.params.ccyPair} GLOBAL DOWNLOAD\n${response.error}`,
+          centered: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
-          text: ` ${message}`
+          text: ` ${message}`,
+          centered: true
         });
       }
     },

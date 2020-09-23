@@ -13,6 +13,7 @@ const Settings = () => import("@/views/Settings");
 const UserLogin = () => import("@/views/UserLogin");
 const UserRegistration = () => import("@/views/UserRegistration");
 const ManageUsers = () => import("@/views/ManageUsers");
+const SplashScreen = () => import("@/views/SplashScreen");
 
 Vue.use(Router);
 
@@ -20,7 +21,7 @@ let router = new Router({
   routes: [
     {
       path: "/",
-      redirect: "/settings",
+      redirect: "/splashScreen",
       name: "Home",
       component: TheContainer,
       meta: {
@@ -62,12 +63,18 @@ let router = new Router({
           name: "Settings",
           component: Settings
         },
+
         {
           path: "manageUsers",
           name: "ManageUsers",
           component: ManageUsers
         }
       ]
+    },
+    {
+      path: "/splashScreen",
+      name: "SplashScreen",
+      component: SplashScreen
     },
     {
       path: "/userLogin",
@@ -111,7 +118,7 @@ router.beforeEach((to, from, next) => {
       console.log(`router is guested: ${store.state.isUserAuthed}`);
       if (store.state.isUserAuthed) {
         next({
-          path: "/settings",
+          path: "/splashScreen",
           query: {
             redirect: to.fullPath
           }

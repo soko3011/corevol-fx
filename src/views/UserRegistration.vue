@@ -25,11 +25,13 @@ export default {
       let user = await this.$store.dispatch("register", registrationInfo);
       if (user.error) {
         this.$store.dispatch("setSnackbar", {
-          text: user.error
+          text: user.error,
+          centered: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
-          text: "Welcome " + user.UserName
+          text: "Welcome " + user.UserName,
+          top: true
         });
 
         this.$router.push("/settings");

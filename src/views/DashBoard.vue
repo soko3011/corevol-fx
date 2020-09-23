@@ -51,6 +51,7 @@ export default {
       .then(response => {
         this.surfs = JSON.parse(response.data.dashBoardSurfs);
         console.log(this.surfs);
+        console.log(this.ccyPair);
         if (this.ccyPair !== null) {
           this.surfs = Object.fromEntries(
             Object.entries(this.surfs).filter(([key]) => key === this.ccyPair)

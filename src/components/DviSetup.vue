@@ -146,7 +146,8 @@ export default {
         SettingsApi.DeleteCcyPairData({ Cross: item.Cross })
           .then(response => {
             this.$store.dispatch("setSnackbar", {
-              text: `${item.Cross} deleted succesfully. Status ${response.status}`
+              text: `${item.Cross} deleted succesfully. Status ${response.status}`,
+              centered: true
             });
 
             this.initialize();
@@ -157,7 +158,8 @@ export default {
               err = "Admin Rights Required";
             }
             this.$store.dispatch("setSnackbar", {
-              text: `Delete unsucessful.  ${err}`
+              text: `Delete unsucessful.  ${err}`,
+              centered: true
             });
           });
     },
@@ -188,6 +190,7 @@ export default {
     save(item) {
       this.$store.dispatch("setSnackbar", {
         text: `Processing ${item.Cross} DVI update ...`,
+        centered: true,
         timeout: 2500
       });
       SettingsApi.UpdateDviDets({
@@ -196,7 +199,8 @@ export default {
       })
         .then(response => {
           this.$store.dispatch("setSnackbar", {
-            text: `${item.Cross} updated succesfully. Status ${response.status}`
+            text: `${item.Cross} updated succesfully. Status ${response.status}`,
+            centered: true
           });
 
           this.initialize();
@@ -206,7 +210,8 @@ export default {
             err = "Admin Rights Required";
           }
           this.$store.dispatch("setSnackbar", {
-            text: `Update unsucessful.  ${err}`
+            text: `Update unsucessful.  ${err}`,
+            centered: true
           });
         });
 

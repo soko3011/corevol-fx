@@ -31,10 +31,11 @@ export default {
         });
       } else {
         this.$store.dispatch("setSnackbar", {
-          text: "Welcome back " + user.UserName
+          text: "Welcome back " + user.UserName,
+          top: true
         });
 
-        this.$router.push("/settings");
+        this.$router.push("/splashScreen");
       }
     }
   }

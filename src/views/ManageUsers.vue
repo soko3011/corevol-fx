@@ -86,7 +86,8 @@ export default {
           }
 
           this.$store.dispatch("setSnackbar", {
-            text: `  ${err}`
+            text: `  ${err}`,
+            centered: true
           });
         });
     },
@@ -96,7 +97,8 @@ export default {
         LoginApi.DeleteUser(item)
           .then(response => {
             this.$store.dispatch("setSnackbar", {
-              text: `${item.UserName} deleted succesfully. Status ${response.status}`
+              text: `${item.UserName} deleted succesfully. Status ${response.status}`,
+              centered: true
             });
 
             this.initialize();
@@ -106,7 +108,8 @@ export default {
               err = "Admin Rights Required";
             }
             this.$store.dispatch("setSnackbar", {
-              text: ` Delete Unsuccessful. ${err}`
+              text: ` Delete Unsuccessful. ${err}`,
+              centered: true
             });
           });
     },
@@ -115,7 +118,8 @@ export default {
       LoginApi.UpdateUser(item)
         .then(response => {
           this.$store.dispatch("setSnackbar", {
-            text: `${item.UserName} updated succesfully. Status ${response.status}`
+            text: `${item.UserName} updated succesfully. Status ${response.status}`,
+            centered: true
           });
 
           this.initialize();
@@ -125,7 +129,8 @@ export default {
             err = "Admin Rights Required";
           }
           this.$store.dispatch("setSnackbar", {
-            text: ` Update Unsuccessful. ${err}`
+            text: ` Update Unsuccessful. ${err}`,
+            centered: true
           });
         });
     }

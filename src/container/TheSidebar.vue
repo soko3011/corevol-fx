@@ -132,7 +132,7 @@ import { mapState } from "vuex";
 export default {
   name: "TheSidebar",
   data: () => ({
-    sideBarColor: "blue-grey darken-3"
+    sideBarColor: "#385F73"
   }),
   created() {
     console.log(this.minify);

@@ -1,116 +1,125 @@
-<template lang="html">
+<template>
+  <div>
+    <v-card color="#385F73" dark>
+      <v-card-title class="headline">Forward Vols</v-card-title>
 
-  <div class="wrapper-jexcel">
-
-  <div id="spreadsheet" ref="spreadsheet"></div>
-  <div class="ml-2">{{outputString}}</div>
- 
+      <v-card-subtitle>Scroll over any two dates to get the fwd vol</v-card-subtitle>
+      <div class="mx-2">
+        <v-row>
+          <v-col cols="12" sm="6" md="4">
+            <v-text-field
+              dense
+              label="CalDay1"
+              :value="fwdVolInputs.cal1"
+              outlined
+              @change="userCal1"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-text-field
+              dense
+              label="Mat1"
+              :value="fwdVolInputs.mat1"
+              outlined
+              style="font-size: 14px;"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-text-field dense label="Vol1" :value="fwdVolInputs.vol1" outlined @change="userVol1"></v-text-field>
+          </v-col>
+        </v-row>
+      </div>
+      <div class="mx-2">
+        <v-row>
+          <v-col cols="12" sm="6" md="4">
+            <v-text-field
+              dense
+              label="Calday2"
+              :value="fwdVolInputs.cal2"
+              outlined
+              @change="userCal2"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-text-field
+              dense
+              label="Mat2"
+              :value="fwdVolInputs.mat2"
+              outlined
+              style="font-size: 14px;"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-text-field dense label="Vol2" :value="fwdVolInputs.vol2" outlined @change="userVol2"></v-text-field>
+          </v-col>
+        </v-row>
+      </div>
+      <div class="mx-2">
+        <v-row>
+          <v-col cols="12">
+            <v-text-field dense label="Fwd Vol" :value="fwdVolResult" outlined></v-text-field>
+          </v-col>
+        </v-row>
+      </div>
+    </v-card>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
-import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
-import setData from "jexcel"; // eslint-disable-line no-unused-vars
-import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
-
+import { watch } from "fs";
 export default {
   name: "fwdVol",
-  created() {},
-  data() {
-    return {
-      outputString: "",
-    };
+
+  methods: {
+    calcFwdVol() {
+      var a =
+        this.fwdVolInputs.vol2 *
+        this.fwdVolInputs.vol2 *
+        (this.fwdVolInputs.cal2 / 365);
+      var b =
+        this.fwdVolInputs.vol1 *
+        this.fwdVolInputs.vol1 *
+        (this.fwdVolInputs.cal1 / 365);
+      var c = (this.fwdVolInputs.cal2 - this.fwdVolInputs.cal1) / 365;
+      var d = (a - b) / c;
+
+      this.fwdVolInputs.fwdD = this.fwdVolInputs.cal2 - this.fwdVolInputs.cal1;
+      this.fwdVolInputs.fwdV = Math.sqrt(d).toFixed(2);
+    },
+
+    userVol1(val) {
+      this.fwdVolInputs.vol1 = val;
+      this.calcFwdVol();
+    },
+    userVol2(val) {
+      this.fwdVolInputs.vol2 = val;
+      this.calcFwdVol();
+    },
+    userCal1(val) {
+      this.fwdVolInputs.cal1 = val;
+      this.fwdVolInputs.vol1 = this.fwdVolInputs.volArr[val - 1];
+      this.fwdVolInputs.mat1 = this.fwdVolInputs.dateArr[val - 1];
+
+      this.calcFwdVol();
+    },
+    userCal2(val) {
+      this.fwdVolInputs.cal2 = val;
+      this.fwdVolInputs.vol2 = this.fwdVolInputs.volArr[val - 1];
+      this.fwdVolInputs.mat2 = this.fwdVolInputs.dateArr[val - 1];
+      this.calcFwdVol();
+    }
   },
   computed: {
     ...mapState({
-      apidata: (state) => state.fwdVolInputs,
+      fwdVolInputs: state => state.fwdVolInputs
     }),
-    config() {
-      return {
-        colHeaders: ["CalDay", "Expiry", "Vol"],
-        tableOverflow: false,
-        columnSorting: false,
-        colWidths: [100, 100, 100],
-        onchange: this.OnChange,
-        allowInsertRow: false,
-        data: [
-          ["", "", ""],
-          ["", "", ""],
-        ],
-      };
-    },
-  },
-  methods: {
-    OnChange() {
-      // this.FormatTable(this.apidata, this.jExcelObj);
-      // this.FormatTable(this.apidata, this.jExcelObj);
-    },
-    RefreshTable() {
-      // this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
-      // this.FormatTable(this.apidata, this.jExcelObj);
-    },
-
-    FormatTable(data, table) {
-      table.hideIndex();
-      for (var i = 0; i < data.length; i++) {
-        var row = i + 1;
-        var col0Name = "A" + row;
-        var col1Name = "B" + row;
-        var col2Name = "C" + row;
-
-        table.setStyle(col0Name, "color", "#000080");
-        table.setStyle(col0Name, "font-weight", "bold");
-
-        table.setStyle(col1Name, "background-color", "#64FAC0");
-        table.setStyle(col1Name, "font-weight", "bold");
-
-        table.setStyle(col2Name, "background-color", "#64FAC0");
-        table.setStyle(col2Name, "font-weight", "bold");
-        table.setStyle(col2Name, "color", "#000080");
-
-        table.setStyle("C2", "background-color", "#bfbfbf");
-      }
-    },
-  },
-  mounted: function () {
-    const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
-    jExcelObj.hideIndex();
-    // this.FormatTable(this.apidata, jExcelObj);
-    Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
-  },
-  watch: {
-    apidata() {
-      console.log(this.apidata);
-      this.jExcelObj.setValueFromCoords("0", "0", [this.apidata.cal1], true);
-      this.jExcelObj.setValueFromCoords("0", "1", [this.apidata.cal2], true);
-      this.jExcelObj.setValueFromCoords("1", "0", [this.apidata.mat1], true);
-      this.jExcelObj.setValueFromCoords("1", "1", [this.apidata.mat2], true);
-      this.jExcelObj.setValueFromCoords("2", "0", [this.apidata.vol1], true);
-      this.jExcelObj.setValueFromCoords("2", "1", [this.apidata.vol2], true);
-
-      this.outputString = `${this.apidata.fwdD} day vol in ${this.apidata.cal1} days time is ${this.apidata.fwdV}`;
-    },
-  },
+    fwdVolResult() {
+      return `${this.fwdVolInputs.fwdD} day vol in ${this.fwdVolInputs.cal1} days time is ${this.fwdVolInputs.fwdV}`;
+    }
+  }
 };
 </script>
 
 <style>
-.jexcel > thead > tr > td {
-  font-family: Arial;
-  font-size: 0.65rem;
-  background-color: #3c4b63;
-  color: white;
-}
-.jexcel > tbody > tr > td {
-  font-family: Arial;
-  font-size: 0.75rem;
-  padding: 0px;
-  line-height: 1.6em;
-}
-.jexcel > thead > tr > td.selected {
-  color: black;
-  background-color: #8f9494;
-}
 </style>

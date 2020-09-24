@@ -31,7 +31,7 @@
     </v-navigation-drawer>-->
 
     <main class="pa-0">
-      <v-toolbar color="blue-grey darken-0" min-width="300" dense collapse>
+      <v-toolbar color="#385F73" min-width="300" dense collapse>
         <v-btn icon>
           <v-icon @click="showSideControl = !showSideControl" color="blue lighten-2">
             {{

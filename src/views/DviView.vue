@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- <v-btn @click="test" /> -->
     <transition name="slide-fade">
       <v-progress-linear
         v-if="!dataReturned"
@@ -10,22 +9,41 @@
         height="3"
       ></v-progress-linear>
     </transition>
-
-    <v-toolbar color="blue-grey darken-0" min-width="300" collapse dense>
-      <v-btn icon>
-        <v-icon
-          @click="showSideControl = !showSideControl"
-          color="blue lighten-3"
-        >{{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
+    <div class="d-flex flex-nowrap align-start justify-start">
+      <v-toolbar color="#385F73" min-width="300" collapse dense>
+        <v-btn icon>
+          <v-icon
+            @click="showSideControl = !showSideControl"
+            color="blue lighten-3"
+          >{{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
+        </v-btn>
+        <v-spacer></v-spacer>
+        <h4
+          class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+        >{{ this.$route.params.ccyPair }}</h4>
+        <v-spacer></v-spacer>
+      </v-toolbar>
+      <v-spacer />
+      <v-btn
+        v-if="!this.$store.state.rightSideNav"
+        class="mt-10 mr-5"
+        absolute
+        small
+        fab
+        top
+        right
+        color="#385F73"
+        elevation="21"
+        dark
+        @click="toggleRightNav"
+      >
+        <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
-      <v-spacer></v-spacer>
-      <h4
-        class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-      >{{ this.$route.params.ccyPair }}</h4>
-      <v-spacer></v-spacer>
-    </v-toolbar>
+    </div>
+
     <transition name="fade">
       <v-container v-if="dataReturned" :fluid="true" class="cont" :style="containerStyle">
+        <RightNavDrawer />
         <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
           <TreeView
             :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
@@ -127,9 +145,7 @@
             <div class="d-flex align-center justify-start mb-2">
               <DviSmileInputTable />
             </div>
-            <div class="d-flex align-center justify-start mb-2">
-              <FwdVol />
-            </div>
+            <div class="d-flex align-center justify-start mb-2"></div>
 
             <div v-if="dayWgtRangesSwitch" class="d-flex align-center justify-start mb-2">
               <UserRange />
@@ -159,7 +175,7 @@ import DviApi from "@/apis/DviApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import IpvSurf from "@/dviComponents/IpvSurf.vue";
-import FwdVol from "@/dviComponents/FwdVol.vue";
+import RightNavDrawer from "@/dviComponents/RightNavDrawer.vue";
 
 export default {
   name: "DviView",
@@ -173,13 +189,14 @@ export default {
     TreeView,
     PopUpModal,
     IpvSurf,
-    FwdVol,
+
+    RightNavDrawer
   },
-  created: async function () {
+  created: async function() {
     this.$store.dispatch("refreshCrossList");
     await this.$store.dispatch("initializeDviUI", {
       Cross: this.$route.params.ccyPair,
-      UserName: this.$store.state.currentUser,
+      UserName: this.$store.state.currentUser
     });
 
     this.activeDvis = this.dvisInUse;
@@ -192,7 +209,7 @@ export default {
 
     document.addEventListener("keydown", this.KeyPressToPricer);
   },
-  destroyed: function () {
+  destroyed: function() {
     document.removeEventListener("keydown", this.KeyPressToPricer);
   },
 
@@ -209,7 +226,7 @@ export default {
       fling: false,
       ipvSwitch: true,
       autoSaveSwitch: false,
-      dayWgtRangesSwitch: false,
+      dayWgtRangesSwitch: false
     };
   },
   computed: {
@@ -235,37 +252,40 @@ export default {
       return this.$store.getters.lastPricerTabGetter;
     },
     ...mapState({
-      forCal: (state) => state.dvi.forCal,
-      domCal: (state) => state.dvi.domCal,
-      dvisInUse: (state) => state.dvisInUse,
-      ipvSurf: (state) => state.dvi.ipvSurf,
-      lastUpdate: (state) => state.dvi.lastUpdate,
+      forCal: state => state.dvi.forCal,
+      domCal: state => state.dvi.domCal,
+      dvisInUse: state => state.dvisInUse,
+      ipvSurf: state => state.dvi.ipvSurf,
+      lastUpdate: state => state.dvi.lastUpdate
     }),
     ipvHasData() {
       return this.ipvSurf.length > 0 ? true : false;
-    },
+    }
   },
   methods: {
+    toggleRightNav() {
+      this.$store.dispatch("toggleRightNav");
+    },
     async GetIpvVols() {
       let response = await this.$store.dispatch("checkAndLoadIpv", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: response.error,
-          centered: true,
+          centered: true
         });
       } else {
         if (response === false) {
           this.$store.dispatch("setSnackbar", {
             text: `There is no IPV source for ${this.$route.params.ccyPair}`,
-            centered: true,
+            centered: true
           });
         } else {
           this.$store.dispatch("setSnackbar", {
             text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`,
-            centered: true,
+            centered: true
           });
         }
       }
@@ -275,17 +295,17 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvAtm", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave,
+        AutoSave: this.$store.state.dvi.autoSave
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
-          centered: true,
+          centered: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV ATM ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -293,17 +313,17 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvSmile", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave,
+        AutoSave: this.$store.state.dvi.autoSave
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV SMILE \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV SMILE FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -311,17 +331,17 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvMults", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave,
+        AutoSave: this.$store.state.dvi.autoSave
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV MULTS \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV MUTLS FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -329,12 +349,12 @@ export default {
     async RefreshDviData(ccyPair) {
       let message = await this.$store.dispatch("dviRecalc", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       });
       if (message.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${ccyPair}. \n${message.error}`,
-          centered: true,
+          centered: true
         });
       } else {
         this.dataReturned = true;
@@ -343,7 +363,7 @@ export default {
     async downloadGlobalDvi() {
       let response = await this.$store.dispatch("downloadGlobalDvi", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       });
       let message = "";
       if (response === true) {
@@ -355,12 +375,12 @@ export default {
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} GLOBAL DOWNLOAD\n${response.error}`,
-          centered: true,
+          centered: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: ` ${message}`,
-          centered: true,
+          centered: true
         });
       }
     },
@@ -383,12 +403,12 @@ export default {
 
       DviApi.RemoveDviFromUse({
         Cross: item,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       })
-        .then((response) => {
+        .then(response => {
           this.activeDvis = JSON.parse(response.data.listOfActiveDvis);
         })
-        .catch((err) => {
+        .catch(err => {
           alert(err);
         });
 
@@ -427,7 +447,7 @@ export default {
         this.$router
           .push({
             name: "Pricer",
-            params: { viewName: this.pricerTab },
+            params: { viewName: this.pricerTab }
           })
           .catch(() => {});
       }
@@ -449,10 +469,10 @@ export default {
 
     ToggleCrossList() {
       this.crossListToggle = true;
-    },
+    }
   },
-  mounted: function () {},
-  watch: {},
+  mounted: function() {},
+  watch: {}
 };
 </script>
 
@@ -474,9 +494,17 @@ export default {
   transition: opacity 0.75s ease-out;
 }
 
+/* Enter and leave animations can use different */
+/* durations and timing functions.              */
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
 .slide-fade-enter, .slide-fade-leave-to
 /* .slide-fade-leave-active below version 2.1.8 */ {
-  transition: all 2.25s ease;
+  transform: translateX(10px);
   opacity: 0;
 }
 </style>

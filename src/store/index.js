@@ -21,6 +21,7 @@ const state = {
     autoSave: true,
     lastUpdate: []
   },
+  rightSideNav: false,
   fwdVolInputs: {},
   dvisInUse: [],
   sidebarMinified: false,
@@ -42,6 +43,10 @@ const state = {
 };
 
 const mutations = {
+  TOGGLE_RIGHT_NAV(state) {
+    state.rightSideNav = !state.rightSideNav;
+    console.log(state.rightSideNav);
+  },
   SET_FWDVOL_INPUTS(state, data) {
     state.fwdVolInputs = data;
   },
@@ -145,6 +150,9 @@ const mutations = {
 };
 
 const actions = {
+  toggleRightNav({ commit }) {
+    commit("TOGGLE_RIGHT_NAV");
+  },
   async getBrowserTimezone() {
     try {
       let response = await Axios.get("https://worldtimeapi.org/api/ip");

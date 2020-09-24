@@ -20,7 +20,7 @@ export default {
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.main
+      apidata: (state) => state.dvi.main,
     }),
     config() {
       return {
@@ -28,12 +28,12 @@ export default {
         colWidths: [50, 120, 75, 60, 60, 60, 60, 60, 60, 60, 60, 60],
         onchange: this.OnChange,
         onselection: this.selectionActive,
-        allowInsertRow: false
+        allowInsertRow: false,
       };
     },
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
-    }
+    },
   },
   methods: {
     selectionActive(instance, x1, y1, x2, y2, origin) {
@@ -50,16 +50,18 @@ export default {
       var d = (a - b) / c;
       var fwdV = Math.sqrt(d);
 
-      var fwdObj = {
+      var fwdVolObj = {
         mat1: mat1,
         mat2: mat2,
         cal1: cal1,
         cal2: cal2,
         vol1: vol1,
-        vol2: vol2
+        vol2: vol2,
+        fwdV: fwdV.toFixed(2),
+        fwdD: cal2 - cal1,
       };
-      console.log(fwdV);
-      console.log(cal1, cal2);
+
+      this.$store.dispatch("fwdVolInputsFromDviTable", fwdVolObj);
     },
 
     OnChange(instance, cell, x, y) {
@@ -75,7 +77,7 @@ export default {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
         UserEventWgt: eventWgt,
-        UserEventDayCount: dayCount
+        UserEventDayCount: dayCount,
       };
       this.$store.dispatch("returnDviAfterUserWgtUpdate", iData);
     },
@@ -128,9 +130,9 @@ export default {
           table.setStyle(col7Name, "background-color", "#bfbfbf");
         }
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj });
@@ -138,8 +140,8 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    }
-  }
+    },
+  },
 };
 </script>
 

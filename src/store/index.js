@@ -21,6 +21,7 @@ const state = {
     autoSave: true,
     lastUpdate: []
   },
+  fwdVolInputs: {},
   dvisInUse: [],
   sidebarMinified: false,
   activecross: "",
@@ -41,6 +42,9 @@ const state = {
 };
 
 const mutations = {
+  SET_FWDVOL_INPUTS(state, data) {
+    state.fwdVolInputs = data;
+  },
   SET_SIDEBARMINIFIED(state) {
     state.sidebarMinified = !state.sidebarMinified;
   },
@@ -407,6 +411,9 @@ const actions = {
   },
   changeCurrentUser({ commit }, payload) {
     commit("SET_CURRENT_USER", payload);
+  },
+  fwdVolInputsFromDviTable({ commit }, payload) {
+    commit("SET_FWDVOL_INPUTS", payload);
   }
 };
 

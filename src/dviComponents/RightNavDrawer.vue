@@ -5,7 +5,7 @@
         <v-system-bar color="#385F73" dark>
           <v-spacer></v-spacer>
 
-          <v-icon @click="toggleRightNav">mdi-close</v-icon>
+          <v-icon @click="toggleRightNav">mdi-chevron-right</v-icon>
         </v-system-bar>
 
         <v-container>
@@ -26,20 +26,20 @@ import FwdVol from "@/dviComponents/FwdVol.vue";
 export default {
   data: () => ({}),
   components: {
-    FwdVol
+    FwdVol,
   },
   computed: {
     ...mapState({
-      show: state => state.rightSideNav
+      show: (state) => state.rightSideNav,
     }),
     fwdVolResult() {
       return `${this.fwdVolInputs.fwdD} day vol in ${this.fwdVolInputs.cal1} days time is ${this.fwdVolInputs.fwdV}`;
-    }
+    },
   },
   methods: {
     toggleRightNav() {
       this.$store.dispatch("toggleRightNav");
-    }
-  }
+    },
+  },
 };
 </script>

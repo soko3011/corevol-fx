@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="main">
     <router-view :key="$route.fullPath"></router-view>
     <div class="text-center ma-2">
       <v-snackbar
@@ -33,12 +33,17 @@ export default {
   created() {},
   computed: {
     ...mapState({
-      snackbars: state => state.snackbars
-    })
+      snackbars: (state) => state.snackbars,
+    }),
   },
 
   data: () => ({
     //
-  })
+  }),
 };
 </script>
+
+<style>
+.main {
+}
+</style>

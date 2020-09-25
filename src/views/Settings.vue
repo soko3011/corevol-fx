@@ -83,10 +83,7 @@ export default {
     crossKeys: [],
     dviEdited: {},
     crossEdited: {},
-    mirroredCross: "",
-    zoomLevel: {
-      zoom: "60%",
-    },
+    mirroredCross: ""
   }),
 
   components: {
@@ -94,13 +91,19 @@ export default {
     CrossSetup,
     CcySetup,
     MarketData,
-    PopUpModal,
+    PopUpModal
   },
 
   computed: {
     formTitle() {
       return `Mirror ${this.mirroredCross}`;
     },
+    zoomLevel() {
+      var level = window.innerWidth > 1700 ? "75%" : "60%";
+      return {
+        zoom: level
+      };
+    }
   },
   created() {
     this.$store.dispatch("refreshCrossList");
@@ -108,7 +111,7 @@ export default {
   methods: {
     OpenDialog(cross) {
       SettingsApi.MirrorCrossDets({ Cross: cross })
-        .then((response) => {
+        .then(response => {
           const dvidata = JSON.parse(response.data.dviSetup);
           const crossdata = JSON.parse(response.data.crossSetup);
           delete crossdata.Cross;
@@ -121,13 +124,13 @@ export default {
 
           this.dialog = true;
         })
-        .catch((err) => {
+        .catch(err => {
           if (err.toString().includes("403") === true) {
             err = "Admin Rights Required";
           }
           this.$store.dispatch("setSnackbar", {
             text: ` ${err}`,
-            centered: true,
+            centered: true
           });
         });
     },
@@ -142,28 +145,28 @@ export default {
 
       SettingsApi.AddNewCcyPair({
         DviInputsUI: dvidata,
-        CrossDetsUI: crossdata,
+        CrossDetsUI: crossdata
       })
-        .then((response) => {
+        .then(response => {
           this.$store.dispatch("refreshCrossList");
           alert(
             `${dvidata.Cross} updated succesfully. Status ${response.status}`
           );
           this.refreshChildren = !this.refreshChildren;
         })
-        .catch((err) => {
+        .catch(err => {
           if (err.toString().includes("403") === true) {
             err = "Admin Rights Required";
           }
           this.$store.dispatch("setSnackbar", {
             text: `Update unsucessful.  ${err}`,
-            centered: true,
+            centered: true
           });
         });
 
       this.close();
-    },
-  },
+    }
+  }
 };
 </script>
 

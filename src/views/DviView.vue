@@ -190,13 +190,13 @@ export default {
     PopUpModal,
     IpvSurf,
 
-    RightNavDrawer,
+    RightNavDrawer
   },
-  created: async function () {
+  created: async function() {
     this.$store.dispatch("refreshCrossList");
     await this.$store.dispatch("initializeDviUI", {
       Cross: this.$route.params.ccyPair,
-      UserName: this.$store.state.currentUser,
+      UserName: this.$store.state.currentUser
     });
 
     this.activeDvis = this.dvisInUse;
@@ -209,7 +209,7 @@ export default {
 
     document.addEventListener("keydown", this.KeyPressToPricer);
   },
-  destroyed: function () {
+  destroyed: function() {
     document.removeEventListener("keydown", this.KeyPressToPricer);
   },
 
@@ -226,10 +226,7 @@ export default {
       fling: false,
       ipvSwitch: true,
       autoSaveSwitch: false,
-      dayWgtRangesSwitch: false,
-      zoomLevel: {
-        zoom: "65%",
-      },
+      dayWgtRangesSwitch: false
     };
   },
   computed: {
@@ -243,6 +240,13 @@ export default {
     mainWindowWidth() {
       return window.innerWidth - 10;
     },
+    zoomLevel() {
+      var level = window.innerWidth > 1700 ? "73%" : "65%";
+      return {
+        zoom: level
+      };
+    },
+
     containerStyle() {
       return ` display: flex;
   overflow-x: scroll;
@@ -255,15 +259,15 @@ export default {
       return this.$store.getters.lastPricerTabGetter;
     },
     ...mapState({
-      forCal: (state) => state.dvi.forCal,
-      domCal: (state) => state.dvi.domCal,
-      dvisInUse: (state) => state.dvisInUse,
-      ipvSurf: (state) => state.dvi.ipvSurf,
-      lastUpdate: (state) => state.dvi.lastUpdate,
+      forCal: state => state.dvi.forCal,
+      domCal: state => state.dvi.domCal,
+      dvisInUse: state => state.dvisInUse,
+      ipvSurf: state => state.dvi.ipvSurf,
+      lastUpdate: state => state.dvi.lastUpdate
     }),
     ipvHasData() {
       return this.ipvSurf.length > 0 ? true : false;
-    },
+    }
   },
   methods: {
     toggleRightNav() {
@@ -272,23 +276,23 @@ export default {
     async GetIpvVols() {
       let response = await this.$store.dispatch("checkAndLoadIpv", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: response.error,
-          centered: true,
+          centered: true
         });
       } else {
         if (response === false) {
           this.$store.dispatch("setSnackbar", {
             text: `There is no IPV source for ${this.$route.params.ccyPair}`,
-            centered: true,
+            centered: true
           });
         } else {
           this.$store.dispatch("setSnackbar", {
             text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`,
-            centered: true,
+            bottom: true
           });
         }
       }
@@ -298,17 +302,17 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvAtm", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave,
+        AutoSave: this.$store.state.dvi.autoSave
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV ATM ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -316,17 +320,17 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvSmile", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave,
+        AutoSave: this.$store.state.dvi.autoSave
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV SMILE \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV SMILE FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -334,17 +338,17 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvMults", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave,
+        AutoSave: this.$store.state.dvi.autoSave
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV MULTS \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV MUTLS FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -352,12 +356,12 @@ export default {
     async RefreshDviData(ccyPair) {
       let message = await this.$store.dispatch("dviRecalc", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       });
       if (message.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${ccyPair}. \n${message.error}`,
-          centered: true,
+          centered: true
         });
       } else {
         this.dataReturned = true;
@@ -366,7 +370,7 @@ export default {
     async downloadGlobalDvi() {
       let response = await this.$store.dispatch("downloadGlobalDvi", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       });
       let message = "";
       if (response === true) {
@@ -378,12 +382,12 @@ export default {
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} GLOBAL DOWNLOAD\n${response.error}`,
-          centered: true,
+          centered: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: ` ${message}`,
-          centered: true,
+          centered: true
         });
       }
     },
@@ -406,12 +410,12 @@ export default {
 
       DviApi.RemoveDviFromUse({
         Cross: item,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       })
-        .then((response) => {
+        .then(response => {
           this.activeDvis = JSON.parse(response.data.listOfActiveDvis);
         })
-        .catch((err) => {
+        .catch(err => {
           alert(err);
         });
 
@@ -450,7 +454,7 @@ export default {
         this.$router
           .push({
             name: "Pricer",
-            params: { viewName: this.pricerTab },
+            params: { viewName: this.pricerTab }
           })
           .catch(() => {});
       }
@@ -472,10 +476,10 @@ export default {
 
     ToggleCrossList() {
       this.crossListToggle = true;
-    },
+    }
   },
-  mounted: function () {},
-  watch: {},
+  mounted: function() {},
+  watch: {}
 };
 </script>
 

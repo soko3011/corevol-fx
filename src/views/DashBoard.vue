@@ -38,20 +38,28 @@ import DashBoardSurf from "@/components/DashBoardSurf.vue";
 export default {
   data: () => ({
     surfs: [],
-    dataReturned: false,
-    zoomLevel: {
-      zoom: "75%",
-    },
+    dataReturned: false
   }),
   props: {
-    ccyPair: { type: String, default: null },
+    ccyPair: { type: String, default: null }
   },
   components: {
-    DashBoardSurf,
+    DashBoardSurf
+  },
+  computed: {
+    zoomLevel() {
+      var level = window.innerWidth > 1700 ? "90%" : "70%";
+      return {
+        zoom: level
+      };
+    }
   },
   created() {
-    DviApi.GetDashBoardSurfs()
-      .then((response) => {
+    console.log(this.$store.state.currentUser);
+    DviApi.GetDashBoardSurfs({
+      userName: this.$store.state.currentUser
+    })
+      .then(response => {
         this.surfs = JSON.parse(response.data.dashBoardSurfs);
         console.log(this.surfs);
         console.log(this.ccyPair);
@@ -63,7 +71,7 @@ export default {
 
         this.dataReturned = true;
       })
-      .catch((error) => {
+      .catch(error => {
         alert(error.name);
       });
   },
@@ -72,7 +80,7 @@ export default {
       this.$store.dispatch("setActivecross", item);
       this.$router.push({
         name: "Dvi",
-        params: { ccyPair: item },
+        params: { ccyPair: item }
       });
     },
     SingleSurf(cross) {
@@ -80,7 +88,7 @@ export default {
       if (this.surfs[cross] !== undefined) {
         surf = JSON.parse(this.surfs[cross][0]);
 
-        surf = surf.map((row) => {
+        surf = surf.map(row => {
           const {
             DK_EFF, // eslint-disable-line no-unused-vars
             IPV_ATM, // eslint-disable-line no-unused-vars
@@ -91,7 +99,7 @@ export default {
             ...rest // eslint-disable-line no-unused-vars
           } = row; // eslint-disable-line no-unused-vars
           return {
-            ...rest,
+            ...rest
           };
         });
       }
@@ -161,21 +169,21 @@ export default {
       today.setHours(today.getHours() + hh);
       today.setMinutes(today.getMinutes() + mm);
       return today;
-    },
+    }
   },
   watch: {
     ccyPair() {
       DviApi.GetDashBoardSurfs()
-        .then((response) => {
+        .then(response => {
           const surfs = JSON.parse(response.data.dashBoardSurfs);
           this.surfs = Object.fromEntries(
             Object.entries(surfs).filter(([key]) => key === this.ccyPair)
           );
         })
-        .catch((error) => {
+        .catch(error => {
           alert(error.name);
         });
-    },
-  },
+    }
+  }
 };
 </script>

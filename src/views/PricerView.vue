@@ -130,7 +130,7 @@ export default {
     OptionPricer,
     TreeView,
     PopUpModal,
-    PopUpInput,
+    PopUpInput
     //DashBoard
   },
 
@@ -143,21 +143,18 @@ export default {
       viewName: this.$route.params.viewName,
       showSideControl: false,
       drawer: true,
-      currentCcyPair: this.$store.getters.activeCrossGetter,
-      zoomLevel: {
-        zoom: "70%",
-      },
+      currentCcyPair: this.$store.getters.activeCrossGetter
     };
   },
-  created: function () {
+  created: function() {
     this.$store.dispatch("refreshCrossList");
     document.addEventListener("keydown", this.EventListeners);
 
     var view = this.$route.params.viewName;
 
     PricerApi.GetListOfActivePricers({
-      userName: this.$store.state.currentUser,
-    }).then((response) => {
+      userName: this.$store.state.currentUser
+    }).then(response => {
       this.activePricers = JSON.parse(response.data.activePricers);
 
       if (this.activePricers.indexOf(view) === -1) {
@@ -168,11 +165,17 @@ export default {
     });
   },
 
-  destroyed: function () {
+  destroyed: function() {
     document.removeEventListener("keydown", this.EventListeners);
     this.$store.dispatch("setPricerTab", this.pricerTitle);
   },
   computed: {
+    zoomLevel() {
+      var level = window.innerWidth > 1700 ? "85%" : "70%";
+      return {
+        zoom: level
+      };
+    },
     mainWindowHeight() {
       return window.innerHeight - 125;
     },
@@ -189,7 +192,7 @@ export default {
     },
     crossList() {
       return this.$store.state.crossList;
-    },
+    }
   },
 
   methods: {
@@ -227,12 +230,12 @@ export default {
       this.dataReturned = false;
       this.$store
         .dispatch("ChangePricer", view)
-        .then((data) => {
+        .then(data => {
           if (data === 200) {
             this.dataReturned = true;
           }
         })
-        .catch((error) => {
+        .catch(error => {
           alert(`There is an issue with: ${view}. \n${error}`);
         });
     },
@@ -269,12 +272,12 @@ export default {
 
       PricerApi.RemovePricerFromUse({
         userName: this.$store.state.currentUser,
-        PricerData: { PricerTitle: item },
+        PricerData: { PricerTitle: item }
       })
-        .then((response) => {
+        .then(response => {
           this.activePricers = JSON.parse(response.data.listOfActivePricers);
         })
-        .catch((err) => {
+        .catch(err => {
           alert(err);
         });
 
@@ -290,16 +293,16 @@ export default {
 
         this.ReloadPricer(redirectTo);
       }
-    },
+    }
   },
-  mounted: function () {},
+  mounted: function() {},
   watch: {
     crossList() {
       if (this.crossList.length === 0) {
         this.$store.dispatch("RefreshCrossList");
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

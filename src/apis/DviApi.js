@@ -40,8 +40,8 @@ export default {
   RemoveDviFromUse(body) {
     return Api.post("RemoveDviFromUse", body);
   },
-  GetDashBoardSurfs() {
-    return Api.get("GetDashBoardSurfs");
+  GetDashBoardSurfs(body) {
+    return Api.post("GetDashBoardSurfs", body);
   },
   GetIpvSurfaces() {
     return Api.get("GetIpvSurfaces");

@@ -9,7 +9,7 @@
         height="3"
       ></v-progress-linear>
     </transition>
-    <div class="d-flex flex-nowrap align-start justify-start">
+    <div class="d-flex flex-nowrap align-start justify-start" v-bind:style="zoomLevel">
       <v-toolbar color="#385F73" min-width="300" collapse dense>
         <v-btn icon>
           <v-icon
@@ -43,8 +43,8 @@
 
     <transition name="fade">
       <v-container v-if="dataReturned" :fluid="true" class="cont" :style="containerStyle">
-        <RightNavDrawer />
-        <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
+        <RightNavDrawer v-bind:style="zoomLevel" />
+        <v-card v-if="showSideControl" min-width="225" shaped class="mr-3" v-bind:style="zoomLevel">
           <TreeView
             :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
             v-on:selection="ReloadDvi"
@@ -95,7 +95,7 @@
           </v-btn>
         </v-card>
 
-        <div class="d-flex flex-nowrap align-start justify-start">
+        <div class="d-flex flex-nowrap align-start justify-start" v-bind:style="zoomLevel">
           <div>
             <SurfaceTable />
             <v-card v-if="lastUpdate.Spot != null" color="blue-grey lighten-5" flat class="mx-1">
@@ -227,6 +227,9 @@ export default {
       ipvSwitch: true,
       autoSaveSwitch: false,
       dayWgtRangesSwitch: false,
+      zoomLevel: {
+        zoom: "65%",
+      },
     };
   },
   computed: {
@@ -235,7 +238,7 @@ export default {
     },
 
     mainWindowHeight() {
-      return window.innerHeight - 125;
+      return window.innerHeight - 100;
     },
     mainWindowWidth() {
       return window.innerWidth - 10;

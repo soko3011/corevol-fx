@@ -31,7 +31,7 @@
     </v-navigation-drawer>-->
 
     <main class="pa-0">
-      <v-toolbar color="#385F73" min-width="300" dense collapse>
+      <v-toolbar color="#385F73" min-width="300" dense collapse v-bind:style="zoomLevel">
         <v-btn icon>
           <v-icon @click="showSideControl = !showSideControl" color="blue lighten-2">
             {{
@@ -48,7 +48,7 @@
       </v-toolbar>
 
       <v-container v-if="dataReturned" class="cont" fluid>
-        <v-card v-if="showSideControl" min-width="225" shaped class="mr-3">
+        <v-card v-if="showSideControl" min-width="225" shaped class="mr-3" v-bind:style="zoomLevel">
           <TreeView
             :inputData="{
               list: this.activePricers,
@@ -105,6 +105,7 @@
               <OptionPricer
                 v-on:childToParent="setPricerTitle"
                 v-on:currentCcyPair="setCurrentCcyPair"
+                v-bind:style="zoomLevel"
               />
             </section>
           </transition>
@@ -129,7 +130,7 @@ export default {
     OptionPricer,
     TreeView,
     PopUpModal,
-    PopUpInput
+    PopUpInput,
     //DashBoard
   },
 
@@ -142,18 +143,21 @@ export default {
       viewName: this.$route.params.viewName,
       showSideControl: false,
       drawer: true,
-      currentCcyPair: this.$store.getters.activeCrossGetter
+      currentCcyPair: this.$store.getters.activeCrossGetter,
+      zoomLevel: {
+        zoom: "70%",
+      },
     };
   },
-  created: function() {
+  created: function () {
     this.$store.dispatch("refreshCrossList");
     document.addEventListener("keydown", this.EventListeners);
 
     var view = this.$route.params.viewName;
 
     PricerApi.GetListOfActivePricers({
-      userName: this.$store.state.currentUser
-    }).then(response => {
+      userName: this.$store.state.currentUser,
+    }).then((response) => {
       this.activePricers = JSON.parse(response.data.activePricers);
 
       if (this.activePricers.indexOf(view) === -1) {
@@ -164,7 +168,7 @@ export default {
     });
   },
 
-  destroyed: function() {
+  destroyed: function () {
     document.removeEventListener("keydown", this.EventListeners);
     this.$store.dispatch("setPricerTab", this.pricerTitle);
   },
@@ -185,7 +189,7 @@ export default {
     },
     crossList() {
       return this.$store.state.crossList;
-    }
+    },
   },
 
   methods: {
@@ -223,12 +227,12 @@ export default {
       this.dataReturned = false;
       this.$store
         .dispatch("ChangePricer", view)
-        .then(data => {
+        .then((data) => {
           if (data === 200) {
             this.dataReturned = true;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           alert(`There is an issue with: ${view}. \n${error}`);
         });
     },
@@ -265,12 +269,12 @@ export default {
 
       PricerApi.RemovePricerFromUse({
         userName: this.$store.state.currentUser,
-        PricerData: { PricerTitle: item }
+        PricerData: { PricerTitle: item },
       })
-        .then(response => {
+        .then((response) => {
           this.activePricers = JSON.parse(response.data.listOfActivePricers);
         })
-        .catch(err => {
+        .catch((err) => {
           alert(err);
         });
 
@@ -286,16 +290,16 @@ export default {
 
         this.ReloadPricer(redirectTo);
       }
-    }
+    },
   },
-  mounted: function() {},
+  mounted: function () {},
   watch: {
     crossList() {
       if (this.crossList.length === 0) {
         this.$store.dispatch("RefreshCrossList");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

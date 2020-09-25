@@ -24,7 +24,7 @@ const state = {
   rightSideNav: false,
   fwdVolInputs: {},
   dvisInUse: [],
-  sidebarMinified: false,
+  sidebarMinified: true,
   activecross: "",
   userPrefCross: "",
   pricerLayoutName: "",

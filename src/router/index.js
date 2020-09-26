@@ -5,6 +5,7 @@ import store from "@/store/index.js";
 import Dvi from "@/views/DviView";
 const TheContainer = () => import("@/container/TheContainer");
 const Pricer = () => import("@/views/PricerView");
+const Pricing = () => import("@/views/Pricing");
 const DashBoard = () => import("@/views/DashBoard");
 const Charts = () => import("@/views/Charts");
 const FxRates = () => import("@/views/FxRates");
@@ -37,6 +38,11 @@ let router = new Router({
           path: "pricer/:viewName",
           name: "Pricer",
           component: Pricer
+        },
+        {
+          path: "pricing/:viewName",
+          name: "Pricing",
+          component: Pricing
         },
         {
           path: "dashboard",

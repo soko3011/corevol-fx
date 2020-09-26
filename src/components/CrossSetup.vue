@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-data-table
+      v-if="apiDataReturned"
       :headers="headers"
       :items="data"
       sort-by="Cross"
@@ -10,7 +11,7 @@
       hide-default-footer
     >
       <template v-slot:top>
-        <v-toolbar dense class="mb-3" dark color="blue-grey darken-2">
+        <v-toolbar dense class="mb-3" dark color="#385F73">
           <v-toolbar-title>Cross Settings</v-toolbar-title>
 
           <v-spacer></v-spacer>
@@ -23,8 +24,17 @@
               <v-card-text>
                 <v-container>
                   <v-row>
-                    <v-col cols="12" sm="6" md="2" v-for="key in keys" :key="key">
-                      <v-text-field v-model="editedItem[key]" :label="key"></v-text-field>
+                    <v-col
+                      cols="12"
+                      sm="6"
+                      md="2"
+                      v-for="key in keys"
+                      :key="key"
+                    >
+                      <v-text-field
+                        v-model="editedItem[key]"
+                        :label="key"
+                      ></v-text-field>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -33,7 +43,9 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="save(editedItem)">Save</v-btn>
+                <v-btn color="blue darken-1" text @click="save(editedItem)"
+                  >Save</v-btn
+                >
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -42,15 +54,14 @@
       <template v-slot:item.actions="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
       </template>
-      <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize">Reset</v-btn>
-      </template>
     </v-data-table>
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
-        {{snackbarMessage}}
+        {{ snackbarMessage }}
         <template v-slot:action="{ attrs }">
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false"
+            >Close</v-btn
+          >
         </template>
       </v-snackbar>
     </div>
@@ -67,11 +78,9 @@ export default {
     data: [],
     editedItem: {},
     snackbar: false,
-    snackbarMessage: ""
+    snackbarMessage: "",
+    apiDataReturned: false
   }),
-  props: {
-    refreshComponent: { type: Boolean, default: false }
-  },
 
   computed: {
     formTitle() {
@@ -82,9 +91,6 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
-    },
-    refreshComponent() {
-      this.initialize();
     }
   },
 
@@ -109,6 +115,7 @@ export default {
             align: "center"
           });
           this.headers = headersNew;
+          this.apiDataReturned = true;
         })
         .catch(err => {
           this.snackbarMessage = ` Error: ${err}`;
@@ -151,6 +158,3 @@ export default {
 .custom-transform-class
   text-transform: uppercase
 </style>
-
-
-

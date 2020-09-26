@@ -1,68 +1,50 @@
 <template>
-  <div v-bind:style="zoomLevel">
-    <v-row>
-      <v-col cols="12" sm="12" lg="8">
-        <div>
-          <v-card>
-            <v-btn absolute small fab top right color="pink" elevation="12">
-              <PopUpModal
-                :inputData="this.$store.state.crossList"
-                :icon="'mdi-expand-all'"
-                :color="'white'"
-                :large="false"
-                :title="'MIRROR CROSS'"
-                v-on:selection="OpenDialog"
-              />
-            </v-btn>
-          </v-card>
-          <DviSetup
-            v-on:ccyPairDeleted="refreshChildren = !refreshChildren"
-            :refreshComponent="refreshChildren"
-          />
-        </div>
-      </v-col>
-      <v-col cols="12" sm="12" lg="4">
-        <MarketData :refreshComponent="refreshChildren" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" sm="12" lg="7">
-        <CrossSetup :refreshComponent="refreshChildren" />
-      </v-col>
-      <v-col cols="12" sm="12" lg="5">
-        <CcySetup />
-      </v-col>
-    </v-row>
-
-    <v-dialog v-model="dialog" max-width="1000px">
-      <v-card>
-        <v-card-title>
-          <span class="title">{{ formTitle }}</span>
-        </v-card-title>
-
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12" sm="6" md="2" v-for="key in dviKeys" :key="key">
-                <v-text-field v-model="dviEdited[key]" :label="key"></v-text-field>
-              </v-col>
-            </v-row>
-            <v-divider class="mt-5 mb-10" />
-            <v-row>
-              <v-col cols="12" sm="6" md="2" v-for="key in crossKeys" :key="key">
-                <v-text-field v-model="crossEdited[key]" :label="key"></v-text-field>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="save(dviEdited,crossEdited)">Save</v-btn>
-        </v-card-actions>
+  <div>
+    <div v-bind:style="zoomLevel">
+      <v-toolbar color="blue darken-3" min-width="300" collapse dense>
+        <v-spacer></v-spacer>
+        <h4
+          class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+        >
+          Settings
+        </h4>
+        <v-spacer></v-spacer>
+      </v-toolbar>
+    </div>
+    <div class="d-flex flex-nowrap align-start justify-start">
+      <v-card
+        min-width="225"
+        :height="mainWindowHeight"
+        shaped
+        class="mr-3 mt-8"
+        v-bind:style="zoomLevel"
+      >
+        <TreeView
+          :inputData="{
+            list: this.settingHeaders,
+            listName: 'Corevolfx Options'
+          }"
+          v-on:selection="ChangeSettings"
+        />
       </v-card>
-    </v-dialog>
+
+      <v-container :style="containerStyle">
+        <div v-bind:style="zoomLevel" class="mt-5">
+          <transition name="slide">
+            <DviSetup v-if="settingSelection === 'Dvi Settings'" />
+          </transition>
+          <transition name="fade">
+            <MarketData v-if="settingSelection === 'Market Data'" />
+          </transition>
+          <transition name="slide">
+            <CrossSetup v-if="settingSelection === 'Cross Settings'" />
+          </transition>
+          <transition name="slide">
+            <CcySetup v-if="settingSelection === 'Ccy Settings'" />
+          </transition>
+        </div>
+      </v-container>
+    </div>
   </div>
 </template>
 
@@ -73,17 +55,18 @@ import CcySetup from "@/components/CcySetup.vue";
 import MarketData from "@/components/MarketData.vue";
 import SettingsApi from "@/apis/SettingsApi";
 import PopUpModal from "@/components/PopUpModal.vue";
+import TreeView from "@/components/TreeView.vue";
 
 export default {
   name: "Setup",
   data: () => ({
-    refreshChildren: false,
-    dialog: false,
-    dviKeys: [],
-    crossKeys: [],
-    dviEdited: {},
-    crossEdited: {},
-    mirroredCross: ""
+    settingHeaders: [
+      "Dvi Settings",
+      "Cross Settings",
+      "Ccy Settings",
+      "Market Data"
+    ],
+    settingSelection: "Dvi Settings"
   }),
 
   components: {
@@ -91,83 +74,59 @@ export default {
     CrossSetup,
     CcySetup,
     MarketData,
-    PopUpModal
+    PopUpModal,
+    TreeView
   },
 
   computed: {
-    formTitle() {
-      return `Mirror ${this.mirroredCross}`;
-    },
     zoomLevel() {
-      var level = window.innerWidth > 1700 ? "75%" : "60%";
+      var level = window.innerWidth > 1700 ? "90%" : "80%";
       return {
         zoom: level
       };
+    },
+    mainWindowHeight() {
+      return window.innerHeight;
+    },
+    mainWindowWidth() {
+      return window.innerWidth - 10;
+    },
+    containerStyle() {
+      return ` display: flex;
+            overflow-x: scroll;
+            padding-left: 0px;
+            padding-right: 0px;
+            width: ${this.mainWindowWidth}px;
+            height: ${this.mainWindowHeight}px;`;
     }
   },
-  created() {
-    this.$store.dispatch("refreshCrossList");
-  },
+
   methods: {
-    OpenDialog(cross) {
-      SettingsApi.MirrorCrossDets({ Cross: cross })
-        .then(response => {
-          const dvidata = JSON.parse(response.data.dviSetup);
-          const crossdata = JSON.parse(response.data.crossSetup);
-          delete crossdata.Cross;
-          this.dviKeys = Object.keys(dvidata);
-          this.crossKeys = Object.keys(crossdata);
-          this.dviEdited = dvidata;
-          this.mirroredCross = this.dviEdited.Cross;
-          this.dviEdited.Cross = "";
-          this.crossEdited = crossdata;
-
-          this.dialog = true;
-        })
-        .catch(err => {
-          if (err.toString().includes("403") === true) {
-            err = "Admin Rights Required";
-          }
-          this.$store.dispatch("setSnackbar", {
-            text: ` ${err}`,
-            centered: true
-          });
-        });
-    },
-
-    close() {
-      this.dialog = false;
-      this.$nextTick(() => {});
-    },
-
-    save(dvidata, crossdata) {
-      crossdata.Cross = dvidata.Cross;
-
-      SettingsApi.AddNewCcyPair({
-        DviInputsUI: dvidata,
-        CrossDetsUI: crossdata
-      })
-        .then(response => {
-          this.$store.dispatch("refreshCrossList");
-          alert(
-            `${dvidata.Cross} updated succesfully. Status ${response.status}`
-          );
-          this.refreshChildren = !this.refreshChildren;
-        })
-        .catch(err => {
-          if (err.toString().includes("403") === true) {
-            err = "Admin Rights Required";
-          }
-          this.$store.dispatch("setSnackbar", {
-            text: `Update unsucessful.  ${err}`,
-            centered: true
-          });
-        });
-
-      this.close();
+    ChangeSettings(setting) {
+      this.settingSelection = setting;
     }
   }
 };
 </script>
 
-<style></style>
+<style>
+.fade-enter {
+  /* starting style */
+  opacity: 0;
+}
+
+.fade-enter-active {
+  /* entering style */
+  transition: opacity 3s ease-out;
+}
+
+.slide-enter-active {
+  transition: 1.25s;
+}
+.slide-enter {
+  transform: translate(100%, 0);
+}
+.slide-leave-to {
+  transform: translate(-100%, 0);
+}
+</style>

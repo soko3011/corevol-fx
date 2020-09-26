@@ -1,35 +1,5 @@
 <template>
   <div>
-    <!-- <v-navigation-drawer
-      color="blue-grey lighten-5"
-      app
-      right
-      height="100%"
-      width="500"
-      v-model="drawer"
-      floating
-      class="ma-0"
-    >
-      <v-card flat min-height="400" color="blue-grey lighten-5">
-        <DashBoard :ccyPair="currentCcyPair" />
-        <v-btn
-          v-if="drawer"
-          fab
-          small
-          absolute="true"
-          right="true"
-          color="pink"
-          dark
-          bottom
-          transition="scale-transition"
-          @click="drawer = !drawer"
-          elevation="12"
-        >
-          <v-icon>mdi-chevron-double-left</v-icon>
-        </v-btn>
-      </v-card>
-    </v-navigation-drawer>-->
-
     <main class="pa-0">
       <v-toolbar color="#385F73" min-width="300" dense collapse v-bind:style="zoomLevel">
         <v-btn icon>
@@ -130,7 +100,7 @@ export default {
     OptionPricer,
     TreeView,
     PopUpModal,
-    PopUpInput
+    PopUpInput,
     //DashBoard
   },
 
@@ -143,18 +113,18 @@ export default {
       viewName: this.$route.params.viewName,
       showSideControl: false,
       drawer: true,
-      currentCcyPair: this.$store.getters.activeCrossGetter
+      currentCcyPair: this.$store.getters.activeCrossGetter,
     };
   },
-  created: function() {
+  created: function () {
     this.$store.dispatch("refreshCrossList");
     document.addEventListener("keydown", this.EventListeners);
 
     var view = this.$route.params.viewName;
 
     PricerApi.GetListOfActivePricers({
-      userName: this.$store.state.currentUser
-    }).then(response => {
+      userName: this.$store.state.currentUser,
+    }).then((response) => {
       this.activePricers = JSON.parse(response.data.activePricers);
 
       if (this.activePricers.indexOf(view) === -1) {
@@ -165,7 +135,7 @@ export default {
     });
   },
 
-  destroyed: function() {
+  destroyed: function () {
     document.removeEventListener("keydown", this.EventListeners);
     this.$store.dispatch("setPricerTab", this.pricerTitle);
   },
@@ -173,7 +143,7 @@ export default {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "85%" : "70%";
       return {
-        zoom: level
+        zoom: level,
       };
     },
     mainWindowHeight() {
@@ -192,7 +162,7 @@ export default {
     },
     crossList() {
       return this.$store.state.crossList;
-    }
+    },
   },
 
   methods: {
@@ -230,12 +200,12 @@ export default {
       this.dataReturned = false;
       this.$store
         .dispatch("ChangePricer", view)
-        .then(data => {
+        .then((data) => {
           if (data === 200) {
             this.dataReturned = true;
           }
         })
-        .catch(error => {
+        .catch((error) => {
           alert(`There is an issue with: ${view}. \n${error}`);
         });
     },
@@ -272,12 +242,12 @@ export default {
 
       PricerApi.RemovePricerFromUse({
         userName: this.$store.state.currentUser,
-        PricerData: { PricerTitle: item }
+        PricerData: { PricerTitle: item },
       })
-        .then(response => {
+        .then((response) => {
           this.activePricers = JSON.parse(response.data.listOfActivePricers);
         })
-        .catch(err => {
+        .catch((err) => {
           alert(err);
         });
 
@@ -293,16 +263,16 @@ export default {
 
         this.ReloadPricer(redirectTo);
       }
-    }
+    },
   },
-  mounted: function() {},
+  mounted: function () {},
   watch: {
     crossList() {
       if (this.crossList.length === 0) {
         this.$store.dispatch("RefreshCrossList");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

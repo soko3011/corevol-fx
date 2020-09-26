@@ -9,22 +9,26 @@
           rounded
           color="grey lighten-3"
         >
-          <v-toolbar class="mb-0 mr-2" dark height="30" color="blue-grey darken-0">
+          <v-toolbar class="mb-0 mr-2" dark height="30" color="#385F73">
             <v-spacer></v-spacer>
             <v-toolbar-title class="text-subtitle-2">
-              {{
-              GetHeader(item)
-              }}
+              {{ GetHeader(item) }}
             </v-toolbar-title>
 
             <v-spacer></v-spacer>
             <v-btn icon>
-              <v-icon color="blue lighten-4" @click="gotoDvi(item)">mdi-circle-edit-outline</v-icon>
+              <v-icon color="blue lighten-4" @click="gotoDvi(item)"
+                >mdi-circle-edit-outline</v-icon
+              >
             </v-btn>
           </v-toolbar>
 
           <DashBoardSurf :apidata="SingleSurf(item)" class="ma-0" />
-          <v-system-bar class="mt-n2 mr-2" height="5" :color="GetWarningColor(item)"></v-system-bar>
+          <v-system-bar
+            class="mt-n2 mr-2"
+            height="5"
+            :color="GetWarningColor(item)"
+          ></v-system-bar>
           <h6 class="float-right mr-2">{{ GetFooter(item) }}</h6>
         </div>
       </div>
@@ -35,6 +39,8 @@
 <script>
 import DviApi from "@/apis/DviApi";
 import DashBoardSurf from "@/components/DashBoardSurf.vue";
+import moment from "moment";
+
 export default {
   data: () => ({
     surfs: [],
@@ -128,47 +134,29 @@ export default {
 
       if (this.surfs[cross] !== undefined) {
         var data = JSON.parse(this.surfs[cross][1]);
-        var lastUpdate = this.parseTime(data.Time);
+        var lastUpdate = moment(data.Time, "DD/MM/YYYY, h:mm:ss").toDate();
         var currenttime = new Date();
         var status = currenttime - lastUpdate;
 
-        var FIVE_MINUTES = 5 * 60 * 1000;
-        var TEN_MINUTES = 10 * 60 * 1000;
-        var FIFTEEN_MINUTES = 15 * 60 * 1000;
+        var FIRST_TIME_WARNING = 10 * 60 * 1000;
+        var SECOND_TIME_WARNING = 20 * 60 * 1000;
+        var THIRD_TIME_WARNING = 30 * 60 * 1000;
+
+        console.log(
+          `cross:${cross}, currentime:${currenttime}, lastUpdate:${lastUpdate}, status:${status}`
+        );
 
         warningColor =
-          status <= FIVE_MINUTES
+          status <= FIRST_TIME_WARNING
             ? "blue lighten-3"
-            : status <= TEN_MINUTES
+            : status <= SECOND_TIME_WARNING
             ? "green lighten-3"
-            : status <= FIFTEEN_MINUTES
+            : status <= THIRD_TIME_WARNING
             ? "orange lighten-3"
             : "red lighten-3";
       }
 
       return warningColor;
-    },
-    parseTime(s) {
-      var part = s.match(/(\d+):(\d+)(?: )?(am|pm)?/i);
-      var hh = parseInt(part[1], 10);
-      var mm = parseInt(part[2], 10);
-      var ap = part[3] ? part[3].toUpperCase() : null;
-      if (ap === "AM") {
-        if (hh == 12) {
-          hh = 0;
-        }
-      }
-      if (ap === "PM") {
-        if (hh != 12) {
-          hh += 12;
-        }
-      }
-
-      var today = new Date();
-      today.setHours(0, 0, 0, 0);
-      today.setHours(today.getHours() + hh);
-      today.setMinutes(today.getMinutes() + mm);
-      return today;
     }
   },
   watch: {

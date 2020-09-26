@@ -10,12 +10,13 @@
         color="pink"
         elevation="12"
         dark
-        @click="interfaceToggle= !interfaceToggle "
+        @click="interfaceToggle = !interfaceToggle"
       >
         <v-icon>mdi-information-variant</v-icon>
       </v-btn>
     </v-card>
     <v-data-table
+      v-if="apiDataReturned"
       :headers="headers"
       :items="data"
       sort-by="Cross"
@@ -25,13 +26,13 @@
       hide-default-footer
     >
       <template v-slot:top>
-        <v-toolbar dense class="mb-3" dark color="blue-grey darken-2">
+        <v-toolbar dense class="mb-3" dark color="#385F73">
           <v-toolbar-title>Market Data</v-toolbar-title>
           <v-spacer></v-spacer>
           <div class="green--text text--lighten-3">
-            <v-toolbar-title
-              class="font-weight-light subtitle-2"
-            >Spot:{{spotIface}} | Swap:{{swapIface}}</v-toolbar-title>
+            <v-toolbar-title class="font-weight-light subtitle-2"
+              >Spot:{{ spotIface }} | Swap:{{ swapIface }}</v-toolbar-title
+            >
           </div>
         </v-toolbar>
       </template>
@@ -43,9 +44,6 @@
       </template>
       <template v-slot:item.ratetiles="{ item }">
         <v-icon small @click="viewRateTiles(item)">mdi-eye</v-icon>
-      </template>
-      <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize">Reset</v-btn>
       </template>
     </v-data-table>
     <v-dialog v-model="showMarketTable" :max-width="marketTableWidth">
@@ -65,13 +63,13 @@
             v-model="spotIface"
             :items="ifaces"
             label="Spot Interface"
-            @change="changeIface($event,'spot')"
+            @change="changeIface($event, 'spot')"
           ></v-select>
           <v-select
             v-model="swapIface"
             :items="ifaces"
             label="Swaps Interface"
-            @change="changeIface($event,'swap')"
+            @change="changeIface($event, 'swap')"
           ></v-select>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -84,11 +82,11 @@
 
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
-        Interfaces Updated => Spot: {{spotIface}} | Swap :{{swapIface}}
-        <template
-          v-slot:action="{ attrs }"
-        >
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
+        Interfaces Updated => Spot: {{ spotIface }} | Swap :{{ swapIface }}
+        <template v-slot:action="{ attrs }">
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false"
+            >Close</v-btn
+          >
         </template>
       </v-snackbar>
     </div>
@@ -116,7 +114,8 @@ export default {
     ifaces: ["Barchart", "MongoDB", "Excel"],
     spotIface: "",
     swapIface: "",
-    snackbar: false
+    snackbar: false,
+    apiDataReturned: false
   }),
   components: {
     MarketDataTable
@@ -177,6 +176,7 @@ export default {
           });
 
           this.headers = headersNew;
+          this.apiDataReturned = true;
         })
         .catch(err => {
           alert(err);
@@ -256,8 +256,6 @@ export default {
       if (iface === "swap") {
         this.swapIface = event;
       }
-
-      // alert(`${this.spotIface}  ${this.swapIface}`);
     },
 
     save() {
@@ -281,8 +279,6 @@ export default {
   }
 };
 </script>
-
-
 
 <style lang="sass">
 .custom-transform-class

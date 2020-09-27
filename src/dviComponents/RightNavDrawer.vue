@@ -2,7 +2,7 @@
   <div v-if="show">
     <v-navigation-drawer class="mt-3" clipped absolute right width="450">
       <v-card max-width="450" class="mx-auto" flat>
-        <v-system-bar color="#237ba8" dark>
+        <v-system-bar color="#126496" dark>
           <v-icon @click="toggleRightNav">mdi-chevron-right</v-icon>
           <v-spacer></v-spacer>
         </v-system-bar>

@@ -122,11 +122,11 @@ export default {
     },
     containerStyle() {
       return ` display: flex;
-  overflow-x: scroll;
-  padding-left: 0px;
-  padding-right: 0px;
-  width: ${this.mainWindowWidth}px;
-  height: ${this.mainWindowHeight}px;`;
+              overflow-x: scroll;
+              padding-left: 0px;
+              padding-right: 0px;
+              width: ${this.mainWindowWidth}px;
+              height: ${this.mainWindowHeight}px;`;
     },
     configAllEvents() {
       return {

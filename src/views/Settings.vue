@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-bind:style="zoomLevel">
-      <v-toolbar color="blue darken-3" min-width="300" collapse dense>
+      <v-toolbar color="#126496" min-width="300" collapse dense>
         <v-spacer></v-spacer>
         <h4
           class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
@@ -22,7 +22,7 @@
         <TreeView
           :inputData="{
             list: this.settingHeaders,
-            listName: 'Corevolfx Options'
+            listName: 'Corevolfx Options',
           }"
           v-on:selection="ChangeSettings"
         />
@@ -57,7 +57,7 @@ export default {
   name: "Setup",
   data: () => ({
     settingHeaders: ["Dvi Settings", "Cross Settings", "Ccy Settings"],
-    settingSelection: "Dvi Settings"
+    settingSelection: "Dvi Settings",
   }),
 
   components: {
@@ -65,14 +65,14 @@ export default {
     CrossSetup,
     CcySetup,
     PopUpModal,
-    TreeView
+    TreeView,
   },
 
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "90%" : "80%";
       return {
-        zoom: level
+        zoom: level,
       };
     },
     mainWindowHeight() {
@@ -88,14 +88,14 @@ export default {
             padding-right: 0px;
             width: ${this.mainWindowWidth}px;
             height: ${this.mainWindowHeight}px;`;
-    }
+    },
   },
 
   methods: {
     ChangeSettings(setting) {
       this.settingSelection = setting;
-    }
-  }
+    },
+  },
 };
 </script>
 

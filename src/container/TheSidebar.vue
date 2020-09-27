@@ -66,7 +66,7 @@
           <v-icon color="blue lighten-3">mdi-currency-usd</v-icon>
         </v-list-item-action>
         <v-list-item-content>
-          <v-list-item-title>Fx Rates</v-list-item-title>
+          <v-list-item-title>Market Data</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item @click="() => $router.push({ name: 'DayWgtSetup' }).catch(() => {})">
@@ -150,14 +150,14 @@ import { mapState } from "vuex";
 export default {
   name: "TheSidebar",
   data: () => ({
-    sideBarColor: "#385F73",
+    sideBarColor: "#385F73"
   }),
   created() {
     console.log(this.minify);
   },
   components: {},
   props: {
-    showsidebar: { type: Boolean },
+    showsidebar: { type: Boolean }
   },
   methods: {
     setSidebarMinified() {
@@ -178,23 +178,23 @@ export default {
         this.$store.dispatch("logOutUser").then(() => {
           this.$router.push({ name: "UserLogin" }).catch(() => {});
         });
-    },
+    }
   },
   computed: {
     ...mapState({
-      minify: (state) => state.sidebarMinified,
+      minify: state => state.sidebarMinified
     }),
     activeCross() {
       return this.$store.getters.activeCrossGetter;
     },
     pricerTab() {
       return this.$store.getters.lastPricerTabGetter;
-    },
+    }
   },
   watch: {
     showsidebar() {
       this.drawer = this.showsidebar;
-    },
-  },
+    }
+  }
 };
 </script>

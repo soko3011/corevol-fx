@@ -1,6 +1,6 @@
 <template>
   <div v-if="apiDataReturned">
-    <v-card>
+    <v-card flat>
       <v-btn
         absolute
         small
@@ -19,7 +19,7 @@
       :headers="headers"
       :items="data"
       sort-by="Cross"
-      class="elevation-10 custom-transform-class"
+      class="elevation-0 custom-transform-class"
       dense
       disable-pagination
       hide-default-footer
@@ -29,9 +29,9 @@
           <v-toolbar-title>Market Data</v-toolbar-title>
           <v-spacer></v-spacer>
           <div class="green--text text--lighten-3">
-            <v-toolbar-title class="font-weight-light subtitle-2"
-              >Spot:{{ spotIface }} | Swap:{{ swapIface }}</v-toolbar-title
-            >
+            <v-toolbar-title
+              class="font-weight-light subtitle-2"
+            >Spot:{{ spotIface }} | Swap:{{ swapIface }}</v-toolbar-title>
           </div>
         </v-toolbar>
       </template>
@@ -82,10 +82,10 @@
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
         Interfaces Updated => Spot: {{ spotIface }} | Swap :{{ swapIface }}
-        <template v-slot:action="{ attrs }">
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false"
-            >Close</v-btn
-          >
+        <template
+          v-slot:action="{ attrs }"
+        >
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
         </template>
       </v-snackbar>
     </div>
@@ -176,6 +176,7 @@ export default {
 
           this.headers = headersNew;
           this.apiDataReturned = true;
+          this.$emit("hasData", true);
         })
         .catch(err => {
           alert(err);

@@ -60,7 +60,7 @@ export default {
         },
         {
           id: 5,
-          text: "FxRates",
+          text: "Market Data",
           class: "",
           route: { name: "FxRates" }
         },

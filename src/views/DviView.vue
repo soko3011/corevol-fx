@@ -9,26 +9,19 @@
         height="3"
       ></v-progress-linear>
     </transition>
-    <div
-      class="d-flex flex-nowrap align-start justify-start"
-      v-bind:style="zoomLevel"
-    >
+    <div class="d-flex flex-nowrap align-start justify-start" v-bind:style="zoomLevel">
       <v-toolbar color="#385F73" min-width="300" collapse dense>
         <v-btn icon>
-          <v-icon
-            @click="showSideControl = !showSideControl"
-            color="blue lighten-3"
-            >{{
-              showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
-            }}</v-icon
-          >
+          <v-icon @click="showSideControl = !showSideControl" color="blue lighten-3">
+            {{
+            showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
+            }}
+          </v-icon>
         </v-btn>
         <v-spacer></v-spacer>
         <h4
           class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-        >
-          {{ this.$route.params.ccyPair }}
-        </h4>
+        >{{ this.$route.params.ccyPair }}</h4>
         <v-spacer></v-spacer>
       </v-toolbar>
       <v-spacer />
@@ -52,13 +45,7 @@
     <transition name="fade">
       <v-container v-if="dataReturned" :fluid="true" :style="containerStyle">
         <RightNavDrawer v-bind:style="zoomLevel" />
-        <v-card
-          v-if="showSideControl"
-          min-width="225"
-          shaped
-          class="mr-3"
-          v-bind:style="zoomLevel"
-        >
+        <v-card v-if="showSideControl" min-width="225" shaped class="mr-3" v-bind:style="zoomLevel">
           <TreeView
             :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
             v-on:selection="ReloadDvi"
@@ -95,24 +82,9 @@
               v-model="dayWgtRangesSwitch"
               :label="`DAY WGT RANGES`"
             ></v-switch>
-            <v-switch
-              class="ml-3"
-              v-if="ipvHasData"
-              v-model="ipvSwitch"
-              inset
-              :label="`IPV VOLS`"
-            ></v-switch>
+            <v-switch class="ml-3" v-if="ipvHasData" v-model="ipvSwitch" inset :label="`IPV VOLS`"></v-switch>
           </v-card>
-          <v-btn
-            class="mb-10"
-            absolute
-            small
-            fab
-            bottom
-            right
-            color="blue-grey"
-            elevation="12"
-          >
+          <v-btn class="mb-10" absolute small fab bottom right color="blue-grey" elevation="12">
             <PopUpModal
               :inputData="this.activeDvis"
               :icon="'mdi-delete'"
@@ -124,18 +96,10 @@
           </v-btn>
         </v-card>
 
-        <div
-          class="d-flex flex-nowrap align-start justify-start"
-          v-bind:style="zoomLevel"
-        >
+        <div class="d-flex flex-nowrap align-start justify-start" v-bind:style="zoomLevel">
           <div>
             <SurfaceTable />
-            <v-card
-              v-if="lastUpdate.Spot != null"
-              color="blue-grey lighten-5"
-              flat
-              class="mx-1"
-            >
+            <v-card v-if="lastUpdate.Spot != null" color="blue-grey lighten-5" flat class="mx-1">
               SPOT: {{ lastUpdate.Spot }}
               <v-spacer />
               UPDATED: {{ lastUpdate.Time }}
@@ -144,49 +108,22 @@
               <div class="d-flex align-center justify-end">
                 <v-speed-dial class="mx-3" v-model="fabIpv" direction="left">
                   <template v-slot:activator>
-                    <v-btn
-                      x-small
-                      v-model="fab"
-                      color="blue lighten-2"
-                      dark
-                      fab
-                      elevation="12"
-                    >
+                    <v-btn x-small v-model="fab" color="blue lighten-2" dark fab elevation="12">
                       <v-icon v-if="fab">mdi-close</v-icon>
                       <v-icon v-else>mdi-axis-y-arrow</v-icon>
                     </v-btn>
                   </template>
-                  <v-btn
-                    fab
-                    dark
-                    x-small
-                    color="blue accent-3"
-                    @click.stop="GetIpvVols()"
-                  >
+                  <v-btn fab dark x-small color="blue accent-3" @click.stop="GetIpvVols()">
                     <v-icon>mdi-alpha-u-circle-outline</v-icon>
                   </v-btn>
-                  <v-btn
-                    fab
-                    dark
-                    x-small
-                    color="green accent-3"
-                    @click.stop="MatchIpvAtm()"
-                  >
+                  <v-btn fab dark x-small color="green accent-3" @click.stop="MatchIpvAtm()">
                     <v-icon>mdi-alpha-a-circle-outline</v-icon>
                   </v-btn>
-                  <v-btn
-                    fab
-                    dark
-                    x-small
-                    color="indigo"
-                    @click.stop="MatchIpvSmile()"
-                  >
+                  <v-btn fab dark x-small color="indigo" @click.stop="MatchIpvSmile()">
                     <v-icon>mdi-alpha-s-circle-outline</v-icon>
                   </v-btn>
                   <v-btn fab dark x-small color="red">
-                    <v-icon @click.stop="MatchIpvMults()"
-                      >mdi-alpha-m-circle-outline</v-icon
-                    >
+                    <v-icon @click.stop="MatchIpvMults()">mdi-alpha-m-circle-outline</v-icon>
                   </v-btn>
                 </v-speed-dial>
                 <v-btn
@@ -211,17 +148,14 @@
             </div>
             <div class="d-flex align-center justify-start mb-2"></div>
 
-            <div
-              v-if="dayWgtRangesSwitch"
-              class="d-flex align-center justify-start mb-2"
-            >
+            <div v-if="dayWgtRangesSwitch" class="d-flex align-center justify-start mb-2">
               <UserRange />
             </div>
             <div v-if="ipvHasData">
               <IpvSurf v-if="ipvSwitch === true" class="ma-0" />
             </div>
           </div>
-          <DviTable />
+          <DviTable :style="scrollY" />
           <DviCalendar v-bind:calData="forCal" />
           <DviCalendar v-bind:calData="domCal" />
         </div>
@@ -312,6 +246,11 @@ export default {
       return {
         zoom: level
       };
+    },
+    scrollY() {
+      return ` display: flex;
+  overflow-y: scroll;
+ `;
     },
 
     containerStyle() {

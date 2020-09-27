@@ -63,7 +63,7 @@
       </v-list-item>
       <v-list-item @click="() => $router.push({ name: 'FxRates' }).catch(() => {})">
         <v-list-item-action>
-          <v-icon color="blue lighten-3">mdi-currency-usd</v-icon>
+          <v-icon color="blue lighten-3">mdi-counter</v-icon>
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title>Market Data</v-list-item-title>

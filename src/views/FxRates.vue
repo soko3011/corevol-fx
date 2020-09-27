@@ -54,7 +54,7 @@ export default {
       return window.innerWidth;
     },
     containerStyleMarketData() {
-      var heightDelta = window.innerWidth > 1700 ? "0" : 150;
+      var heightDelta = window.innerWidth > 1700 ? 0 : 150;
       var styleHeight = this.mainWindowHeight + heightDelta;
       return ` display: flex;
   overflow-x: scroll;
@@ -64,14 +64,15 @@ export default {
   height: ${styleHeight}px;`;
     },
     containerStyleSpots() {
-      var heightDelta = window.innerWidth > 1700 ? "0" : 150;
+      var heightDelta = window.innerWidth > 1700 ? 0 : 150;
       var styleHeight = this.mainWindowHeight + heightDelta;
 
       return ` display: flex;
       margin-left: 20px;
   overflow-x: scroll;
   padding-left: 0px;
-  padding-right: 0px;
+  padding-right: 0px;,
+  margin-top: 10px:,
   height: ${styleHeight}px;
   width: ${400}px;`;
     }

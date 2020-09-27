@@ -1,8 +1,13 @@
 <template>
-  <div class="d-flex flex-wrap" v-bind:style="zoomLevel">
+  <div class="d-flex flex-nowrap" :style="marketDataStyle">
     <div class="ma-5">
       <transition name="fade">
-        <MarketData v-on:hasData="toggleMarketData = !toggleMarketData" />
+        <v-card flat>
+          <MarketData
+            v-on:hasData="toggleMarketData = !toggleMarketData"
+            v-bind:style="{ height: `${mainWindowHeight}px` }"
+          />
+        </v-card>
       </transition>
     </div>
     <transition name="slide">
@@ -12,7 +17,7 @@
           frameborder="0"
           allowtransparency="true"
           :height="`${mainWindowHeight}px`"
-          width="350px"
+          width="425px"
           marginwidth="0"
           marginheight="0"
         ></iframe>
@@ -25,7 +30,7 @@
           frameborder="0"
           allowtransparency="true"
           :height="`${mainWindowHeight}px`"
-          width="350px"
+          width="425px"
           marginwidth="0"
           marginheight="0"
         ></iframe>
@@ -38,7 +43,7 @@
           frameborder="0"
           allowtransparency="true"
           :height="`${mainWindowHeight}px`"
-          width="350px"
+          width="425px"
           marginwidth="0"
           marginheight="0"
         ></iframe>
@@ -52,32 +57,28 @@ import MarketData from "@/components/MarketData.vue";
 export default {
   name: "FxRates",
   components: {
-    MarketData
+    MarketData,
   },
   data() {
     return {
-      toggleMarketData: false
+      toggleMarketData: false,
     };
   },
   computed: {
-    zoomLevel() {
-      var level = window.innerWidth > 1700 ? "100%" : "75%";
-      return {
-        zoom: level
-      };
-    },
-
     mainWindowHeight() {
-      var heightAdjustment = window.innerWidth > 1700 ? -125 : 100;
+      var heightAdjustment = window.innerWidth > 1700 ? -125 : 230;
       var height = window.innerHeight + heightAdjustment;
       return height;
     },
-    mainWindowWidth() {
-      return window.innerWidth;
-    }
+    marketDataStyle() {
+      var level = window.innerWidth > 1700 ? "100%" : "70%";
+      return ` 
+              overflow-x: scroll;
+              zoom: ${level};`;
+    },
   },
 
-  mounted() {}
+  mounted() {},
 };
 </script>
 

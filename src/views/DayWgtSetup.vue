@@ -1,8 +1,13 @@
 <template>
-  <v-container fluid>
-    <div class="d-flex flex-wrap">
+  <v-container :fluid="true" :style="containerStyle">
+    <div class="d-flex flex-nowrap" v-bind:style="zoomLevel">
       <div>
-        <v-toolbar class="mb-0 mr-2" dark height="30" color="blue-grey darken-0">
+        <v-toolbar
+          class="mb-0 mr-2"
+          dark
+          height="30"
+          color="blue-grey darken-0"
+        >
           <v-spacer></v-spacer>
           <v-toolbar-title class="text-subtitle-2">Select Ccy</v-toolbar-title>
           <v-spacer></v-spacer>
@@ -17,29 +22,48 @@
           </v-btn>
         </v-toolbar>
 
-        <div style="margin-top:20px;" ref="spreadsheet"></div>
+        <div :style="scrollY" ref="spreadsheet"></div>
       </div>
       <div>
-        <v-toolbar class="mb-0 mr-2" dark height="30" color="blue-grey darken-0">
+        <v-toolbar
+          class="mb-0 mr-2"
+          dark
+          height="30"
+          color="blue-grey darken-0"
+        >
           <v-spacer></v-spacer>
-          <v-toolbar-title class="text-subtitle-2">Generate List</v-toolbar-title>
+          <v-toolbar-title class="text-subtitle-2"
+            >Generate List</v-toolbar-title
+          >
           <v-spacer></v-spacer>
           <v-btn icon>
-            <v-icon color="yellow" v-on:click="GetSelectedEventList">mdi-lightning-bolt</v-icon>
+            <v-icon color="yellow" v-on:click="GetSelectedEventList"
+              >mdi-lightning-bolt</v-icon
+            >
           </v-btn>
         </v-toolbar>
-        <div style="margin-top:20px;" ref="spreadsheet1"></div>
+
+        <div :style="scrollY" ref="spreadsheet1"></div>
       </div>
       <div>
-        <v-toolbar color="blue-grey darken-0" class="mb-0 mr-2" dark height="30">
+        <v-toolbar
+          color="blue-grey darken-0"
+          class="mb-0 mr-2"
+          dark
+          height="30"
+        >
           <v-spacer></v-spacer>
-          <v-toolbar-title class="text-subtitle-2">Save Setup To Databaset</v-toolbar-title>
+          <v-toolbar-title class="text-subtitle-2"
+            >Save Setup To Databaset</v-toolbar-title
+          >
           <v-spacer></v-spacer>
           <v-btn icon>
-            <v-icon color="blue-grey" v-on:click="SaveEventsToDB">mdi-content-save</v-icon>
+            <v-icon color="blue-grey" v-on:click="SaveEventsToDB"
+              >mdi-content-save</v-icon
+            >
           </v-btn>
         </v-toolbar>
-        <div style="margin-top:20px;" ref="spreadsheet2"></div>
+        <div :style="scrollY" ref="spreadsheet2"></div>
       </div>
     </div>
   </v-container>
@@ -56,12 +80,12 @@ import PopUpModal from "@/components/PopUpModal.vue";
 export default {
   name: "DayWgtSetup",
   components: { PopUpModal },
-  created: function() {
-    DayWgtSetupApi.GetAvailableCurr().then(response => {
+  created: function () {
+    DayWgtSetupApi.GetAvailableCurr().then((response) => {
       this.availableCurrencies = JSON.parse(response.data.availableCurrencies);
     });
   },
-  destroyed: function() {},
+  destroyed: function () {},
 
   data() {
     return {
@@ -69,10 +93,41 @@ export default {
       availableCurrencies: [],
       currentCcy: "SELECT CCY",
       selectedEvents: [],
-      productionList: []
+      productionList: [],
     };
   },
   computed: {
+    zoomLevel() {
+      var level = window.innerWidth > 1700 ? "100%" : "80%";
+      return {
+        zoom: level,
+      };
+    },
+    longComponentHeight() {
+      var heightAdjust = window.innerWidth > 1700 ? 1 : 0.9;
+      heightAdjust = this.mainWindowWidth * heightAdjust;
+      return heightAdjust;
+    },
+    mainWindowHeight() {
+      return window.innerHeight - 75;
+    },
+    mainWindowWidth() {
+      return window.innerWidth - 10;
+    },
+    scrollY() {
+      return ` display: flex;
+              margin-top: 20px;
+              overflow-y: scroll;
+              height: ${this.longComponentHeight}px;`;
+    },
+    containerStyle() {
+      return ` display: flex;
+  overflow-x: scroll;
+  padding-left: 0px;
+  padding-right: 0px;
+  width: ${this.mainWindowWidth}px;
+  height: ${this.mainWindowHeight}px;`;
+    },
     configAllEvents() {
       return {
         columnSorting: false,
@@ -84,9 +139,9 @@ export default {
           {
             type: "text",
             title: "EventName",
-            width: 350
-          }
-        ]
+            width: 350,
+          },
+        ],
       };
     },
     configSelectedEvents() {
@@ -100,14 +155,14 @@ export default {
           {
             type: "text",
             title: "EventName",
-            width: 350
+            width: 350,
           },
           {
             type: "text",
             title: "EventWgt",
-            width: 110
-          }
-        ]
+            width: 110,
+          },
+        ],
       };
     },
     configProductionList() {
@@ -119,31 +174,31 @@ export default {
           {
             type: "text",
             title: "Event",
-            width: 200
+            width: 200,
           },
           {
             type: "text",
             title: "Date",
-            width: 200
+            width: 200,
           },
           {
             type: "text",
             title: "DayWgt",
-            width: 100
+            width: 100,
           },
           {
             type: "text",
             title: "Time",
-            width: 100
-          }
-        ]
+            width: 100,
+          },
+        ],
       };
-    }
+    },
   },
   methods: {
     GetEvents(item) {
       var body = { name: item };
-      DayWgtSetupApi.GetEvents(body).then(response => {
+      DayWgtSetupApi.GetEvents(body).then((response) => {
         var ccyEvents = JSON.parse(response.data.currencyEvents);
         var activeEventsFromServer = response.data.activeEvents;
         var activeEvents = [];
@@ -165,14 +220,16 @@ export default {
     },
     GetSelectedEventList() {
       var eventNames = [];
-      this.selectedEvents.forEach(event => {
+      this.selectedEvents.forEach((event) => {
         eventNames.push(event[1]);
       });
 
       var body = { name: this.currentCcy, eventNames: eventNames };
-      DayWgtSetupApi.GetSelectedEventList(body).then(response => {
+      DayWgtSetupApi.GetSelectedEventList(body).then((response) => {
         for (var event of JSON.parse(response.data.selectedEvents)) {
-          var index = this.selectedEvents.findIndex(e => e[1] === event.Title);
+          var index = this.selectedEvents.findIndex(
+            (e) => e[1] === event.Title
+          );
           var wgt = this.jexcelSelectedEvents.getValueFromCoords(2, index);
 
           if (!event.Time.includes(":")) {
@@ -183,7 +240,7 @@ export default {
             Event: event.Title,
             Date: event.Date,
             DayWgt: wgt,
-            Time: event.Time
+            Time: event.Time,
           };
           this.productionList.push(addEvent);
         }
@@ -202,16 +259,16 @@ export default {
         var event = [
           true,
           this.jexcelAllEvents.getValueFromCoords(parseInt(1), parseInt(row)),
-          1
+          1,
         ];
 
-        var checkList = this.selectedEvents.some(e => e[1] === event[1]);
+        var checkList = this.selectedEvents.some((e) => e[1] === event[1]);
 
         if (!checkList) {
           this.selectedEvents.push(event);
         } else {
           this.selectedEvents = this.selectedEvents.filter(
-            e => e[1] != event[1]
+            (e) => e[1] != event[1]
           );
         }
 
@@ -228,10 +285,12 @@ export default {
           parseInt(1),
           parseInt(row)
         );
-        var checkList = this.selectedEvents.some(e => e[1] === event);
+        var checkList = this.selectedEvents.some((e) => e[1] === event);
 
         if (checkList) {
-          this.selectedEvents = this.selectedEvents.filter(e => e[1] != event);
+          this.selectedEvents = this.selectedEvents.filter(
+            (e) => e[1] != event
+          );
           var arr = this.jexcelAllEvents.getColumnData(1);
           var index = arr.indexOf(event);
           this.jexcelAllEvents.setValueFromCoords(0, index, false, true);
@@ -242,11 +301,11 @@ export default {
     },
     ConvertSelectedEventsToObjArr() {
       var output = [];
-      this.jexcelSelectedEvents.getData().forEach(event => {
+      this.jexcelSelectedEvents.getData().forEach((event) => {
         var newEvent = {
           IncludeEvent: event[0],
           EventName: event[1],
-          EventWgt: event[2]
+          EventWgt: event[2],
         };
 
         output.push(newEvent);
@@ -258,20 +317,20 @@ export default {
       var dbObj = {
         ccy: this.currentCcy,
         selectedEvents: JSON.stringify(this.ConvertSelectedEventsToObjArr()),
-        productionList: JSON.stringify(this.productionList)
+        productionList: JSON.stringify(this.productionList),
       };
 
       DayWgtSetupApi.SaveDataToDB(dbObj)
-        .then(response => {
+        .then((response) => {
           alert("Database Upadated. Status " + response.status);
         })
-        .catch(error => {
+        .catch((error) => {
           alert(error);
         });
-    }
+    },
   },
 
-  mounted: function() {
+  mounted: function () {
     const jexcelAllEvents = jexcel(
       this.$refs["spreadsheet"],
       this.configAllEvents
@@ -292,7 +351,7 @@ export default {
     );
     jexcelProductionList.hideIndex();
     Object.assign(this, { jexcelProductionList });
-  }
+  },
 };
 </script>
 

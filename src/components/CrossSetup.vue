@@ -1,7 +1,6 @@
 <template>
-  <div>
+  <div v-if="apiDataReturned">
     <v-data-table
-      v-if="apiDataReturned"
       :headers="headers"
       :items="data"
       sort-by="Cross"

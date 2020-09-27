@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="apiDataReturned">
     <v-card>
       <v-btn
         absolute
@@ -16,7 +16,6 @@
       </v-btn>
     </v-card>
     <v-data-table
-      v-if="apiDataReturned"
       :headers="headers"
       :items="data"
       sort-by="Cross"

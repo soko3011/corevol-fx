@@ -33,9 +33,6 @@
           <transition name="slide">
             <DviSetup v-if="settingSelection === 'Dvi Settings'" />
           </transition>
-          <transition name="fade">
-            <MarketData v-if="settingSelection === 'Market Data'" />
-          </transition>
           <transition name="slide">
             <CrossSetup v-if="settingSelection === 'Cross Settings'" />
           </transition>
@@ -52,7 +49,6 @@
 import DviSetup from "@/components/DviSetup.vue";
 import CrossSetup from "@/components/CrossSetup.vue";
 import CcySetup from "@/components/CcySetup.vue";
-import MarketData from "@/components/MarketData.vue";
 import SettingsApi from "@/apis/SettingsApi";
 import PopUpModal from "@/components/PopUpModal.vue";
 import TreeView from "@/components/TreeView.vue";
@@ -60,12 +56,7 @@ import TreeView from "@/components/TreeView.vue";
 export default {
   name: "Setup",
   data: () => ({
-    settingHeaders: [
-      "Dvi Settings",
-      "Cross Settings",
-      "Ccy Settings",
-      "Market Data"
-    ],
+    settingHeaders: ["Dvi Settings", "Cross Settings", "Ccy Settings"],
     settingSelection: "Dvi Settings"
   }),
 
@@ -73,7 +64,6 @@ export default {
     DviSetup,
     CrossSetup,
     CcySetup,
-    MarketData,
     PopUpModal,
     TreeView
   },
@@ -110,18 +100,8 @@ export default {
 </script>
 
 <style>
-.fade-enter {
-  /* starting style */
-  opacity: 0;
-}
-
-.fade-enter-active {
-  /* entering style */
-  transition: opacity 3s ease-out;
-}
-
 .slide-enter-active {
-  transition: 1.25s;
+  transition: 0.75s;
 }
 .slide-enter {
   transform: translate(100%, 0);

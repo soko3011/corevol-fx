@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="apiDataReturned">
     <v-card>
       <v-btn absolute small fab top right color="pink" elevation="12">
         <PopUpModal
@@ -13,7 +13,6 @@
       </v-btn>
     </v-card>
     <v-data-table
-      v-if="apiDataReturned"
       :headers="headers"
       :items="data"
       sort-by="Ccy"

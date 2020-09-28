@@ -1,72 +1,323 @@
 <template>
   <div>
-    <div ref="table"></div>
-    <VueTabulator v-model="tableData" :options="options" />
+    <main class="pa-0">
+      <v-toolbar
+        color="#385F73"
+        min-width="300"
+        dense
+        collapse
+        v-bind:style="zoomLevel"
+      >
+        <v-btn icon>
+          <v-icon
+            @click="showSideControl = !showSideControl"
+            color="blue lighten-2"
+          >
+            {{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}
+          </v-icon>
+        </v-btn>
+
+        <v-spacer></v-spacer>
+        <h4
+          class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+        >
+          {{ viewName }}
+        </h4>
+        <v-spacer></v-spacer>
+      </v-toolbar>
+
+      <v-container v-if="dataReturned" class="cont" fluid>
+        <v-card
+          v-if="showSideControl"
+          min-width="225"
+          shaped
+          class="mr-3"
+          v-bind:style="zoomLevel"
+        >
+          <TreeView
+            :inputData="{
+              list: this.activePricers,
+              listName: 'Active Pricers'
+            }"
+            v-on:selection="ReloadPricer"
+          />
+          <div>
+            <div style="margin-bottom: 70px"></div>
+            <v-card>
+              <v-btn absolute small fab top left color="pink" elevation="12">
+                <PopUpInput
+                  :icon="'mdi-expand-all'"
+                  :label="'add name and hit enter'"
+                  :color="'white'"
+                  :title="'ADD NEW PRICER'"
+                  :large="false"
+                  v-on:selection="UserAddPricer"
+                />
+              </v-btn>
+            </v-card>
+            <v-btn
+              class="mb-10"
+              absolute
+              small
+              fab
+              bottom
+              right
+              color="blue-grey"
+              elevation="12"
+            >
+              <PopUpModal
+                :inputData="this.activePricers"
+                :icon="'mdi-delete'"
+                :color="'white'"
+                :large="false"
+                :title="'REMOVE VIEW'"
+                v-on:selection="RemoveTab"
+              />
+            </v-btn>
+          </div>
+        </v-card>
+
+        <div :style="containerStyle">
+          <transition name="fade">
+            <section id="pricer">
+              <v-btn
+                transition="fade-transition"
+                v-if="!drawer"
+                fab
+                small
+                color="pink"
+                dark
+                top
+                right
+                absolute
+                class="mt-10 mr-5"
+                @click="drawer = !drawer"
+                elevation="12"
+              >
+                <v-icon>mdi-chevron-double-right</v-icon>
+              </v-btn>
+              <OptionPricer
+                v-on:childToParent="setPricerTitle"
+                v-on:currentCcyPair="setCurrentCcyPair"
+                v-bind:style="zoomLevel"
+              />
+            </section>
+          </transition>
+        </div>
+      </v-container>
+    </main>
   </div>
 </template>
 
 <script>
-export default {
-  data: function() {
-    return {
-      tableData: [
-        { id: 1, name: "Oli Bob", age: "12", col: "red", dob: "" },
-        { id: 2, name: "Mary May", age: "1", col: "blue", dob: "14/05/1982" },
-        {
-          id: 3,
-          name: "Christine Lobowski",
-          age: "42",
-          col: "green",
-          dob: "22/05/1982"
-        },
-        {
-          id: 4,
-          name: "Brendon Philips",
-          age: "125",
-          col: "orange",
-          dob: "01/08/1980"
-        },
-        {
-          id: 5,
-          name: "Margret Marmajuke",
-          age: "16",
-          col: "yellow",
-          dob: "31/01/1999"
-        }
-      ],
-      options: {
-        columns: [
-          { title: "Name", field: "name", width: 150 },
-          {
-            title: "Age",
-            field: "age",
-            hozAlign: "left",
-            formatter: "progress"
-          },
-          { title: "Favourite Color", field: "col" },
-          { title: "Date Of Birth", field: "dob", hozAlign: "center" },
-          {
-            title: "Rating",
-            field: "rating",
-            hozAlign: "center",
-            formatter: "star"
-          },
-          {
-            title: "Passed?",
-            field: "passed",
-            hozAlign: "center",
-            formatter: "tickCross"
-          }
-        ] //define table columns
-      }
+import OptionPricer from "@/pricerComponents/TabulatorPricer.vue";
+import PricerApi from "@/apis/PricerApi";
+import TreeView from "@/components/TreeView.vue";
+import PopUpModal from "@/components/PopUpModal.vue";
+import PopUpInput from "@/components/PopUpInput.vue";
+//import DashBoard from "@/views/DashBoard.vue";
 
-      //data for table to display
+export default {
+  name: "PricerView",
+
+  components: {
+    OptionPricer,
+    TreeView,
+    PopUpModal,
+    PopUpInput
+    //DashBoard
+  },
+
+  data() {
+    return {
+      activePricers: [],
+      dataReturned: false,
+      modalToggle: false,
+      pricerTitle: "",
+      viewName: this.$route.params.viewName,
+      showSideControl: false,
+      drawer: true,
+      currentCcyPair: this.$store.getters.activeCrossGetter
     };
   },
-  watch: {}
+  created: function() {
+    this.$store.dispatch("refreshCrossList");
+    document.addEventListener("keydown", this.EventListeners);
+
+    var view = this.$route.params.viewName;
+
+    PricerApi.GetListOfActivePricers({
+      userName: this.$store.state.currentUser
+    }).then(response => {
+      this.activePricers = JSON.parse(response.data.activePricers);
+
+      if (this.activePricers.indexOf(view) === -1) {
+        this.AddNewPricer(view);
+      } else {
+        this.RefreshPricerData(view);
+      }
+    });
+  },
+
+  destroyed: function() {
+    document.removeEventListener("keydown", this.EventListeners);
+    this.$store.dispatch("setPricerTab", this.pricerTitle);
+  },
+  computed: {
+    zoomLevel() {
+      var level = window.innerWidth > 1700 ? "85%" : "70%";
+      return {
+        zoom: level
+      };
+    },
+    mainWindowHeight() {
+      return window.innerHeight - 125;
+    },
+    mainWindowWidth() {
+      return window.innerWidth - 10;
+    },
+    containerStyle() {
+      return ` display: flex;
+  overflow-x: scroll;
+  padding-left: 0px;
+  padding-right: 0px;
+  width: ${this.mainWindowWidth}px;
+  height: ${this.mainWindowHeight}px;`;
+    },
+    crossList() {
+      return this.$store.state.crossList;
+    }
+  },
+
+  methods: {
+    focusInput() {
+      this.$refs.addPricer.focus();
+    },
+    setUser(user) {
+      this.$store.dispatch("changeCurrentUser", user);
+    },
+
+    EventListeners(event) {
+      if (event.code == "KeyL" && event.ctrlKey) {
+        event.preventDefault();
+        this.drawer = !this.drawer;
+      }
+    },
+    UserAddPricer(value) {
+      if (this.activePricers.indexOf(value) === -1) {
+        this.AddNewPricer(value.toUpperCase());
+      } else {
+        alert("Pricer already exist: Choose another name");
+      }
+    },
+    AddNewPricer(value) {
+      var index = this.activePricers.indexOf(value);
+      if (index === -1) {
+        this.activePricers.push(value);
+        index = this.activePricers.length;
+      }
+
+      this.modalToggle = false;
+      this.ReloadPricer(value);
+    },
+    RefreshPricerData(view) {
+      this.dataReturned = false;
+      this.$store
+        .dispatch("ChangePricer", view)
+        .then(data => {
+          if (data === 200) {
+            this.dataReturned = true;
+          }
+        })
+        .catch(error => {
+          alert(`There is an issue with: ${view}. \n${error}`);
+        });
+    },
+
+    ReloadPricer(view) {
+      this.$route.params.viewName = view;
+      this.$router
+        .push({ name: this.$route.name, viewName: view })
+        .catch(() => {});
+
+      this.RefreshPricerData(view);
+    },
+    setPricerTitle(value) {
+      this.pricerTitle = value;
+    },
+    setCurrentCcyPair(value) {
+      this.currentCcyPair = value;
+    },
+
+    GotoPricerSettings() {
+      this.$router.push("SetupView");
+    },
+    ToggleCrossList() {
+      this.modalToggle = true;
+    },
+    RemoveTab(item) {
+      const viewName = this.$route.params.viewName;
+      if (this.activePricers.length === 1) {
+        alert(
+          `Must have at least one Pricer. Add a new one before deleting ${viewName}`
+        );
+        return;
+      }
+
+      PricerApi.RemovePricerFromUse({
+        userName: this.$store.state.currentUser,
+        PricerData: { PricerTitle: item }
+      })
+        .then(response => {
+          this.activePricers = JSON.parse(response.data.listOfActivePricers);
+        })
+        .catch(err => {
+          alert(err);
+        });
+
+      const index = this.activePricers.indexOf(item);
+
+      if (this.activePricers[index] !== viewName) {
+        return;
+      } else {
+        const redirectTo =
+          index !== 0
+            ? this.activePricers[index - 1]
+            : this.activePricers[index + 1];
+
+        this.ReloadPricer(redirectTo);
+      }
+    }
+  },
+  mounted: function() {},
+  watch: {
+    crossList() {
+      if (this.crossList.length === 0) {
+        this.$store.dispatch("RefreshCrossList");
+      }
+    }
+  }
 };
 </script>
 
-<style lang="scss">
-@import "~vue-tabulator/dist/scss/bootstrap/tabulator_bootstrap4";
+<style>
+span {
+  cursor: pointer;
+}
+.cont {
+  display: flex;
+  overflow-x: scroll;
+
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 1.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 </style>

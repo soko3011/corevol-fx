@@ -162,6 +162,22 @@ const actions = {
     }
   },
 
+  async setPricer({ commit, dispatch }, pricerName) {
+    try {
+      let response = await PricerApi.setPricer({
+        UserName: state.currentUser,
+        PricerData: { PricerTitle: pricerName }
+      });
+
+      commit("SET_PRICER", response.data);
+      return "ok";
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `Error: ${err} `
+      });
+    }
+  },
+
   async checkLoginStatus({ commit }) {
     try {
       let response = await LoginApi.CheckLoginStatus({

@@ -1,11 +1,10 @@
 <template>
-  <div>
-    <VueTabulator ref="tabulator" v-model="tableData" :options="options" />
-  </div>
+  <div ref="table"></div>
 </template>
 
 <script>
 import PricerApi from "@/apis/PricerApi";
+import Tabulator from "tabulator-tables"; //import Tabulator library
 import { mapState } from "vuex";
 
 export default {
@@ -18,6 +17,7 @@ export default {
 
   data: function() {
     return {
+      tabulator: null,
       tableData: [],
       options: {
         history: true,
@@ -73,7 +73,25 @@ export default {
       }
     }
   },
-  watch: {}
+  mounted() {
+    //instantiate Tabulator when element is mounted
+    this.tabulator = new Tabulator(this.$refs.table, {
+      selectable: true,
+      selectableRangeMode: "click",
+      data: this.tableData, //link data to table
+      reactiveData: false, //enable data reactivity
+      columns: this.setColumns() //define table columns
+    });
+  },
+  watch: {
+    //update table if data changes
+    tableData: {
+      handler: function(newData) {
+        this.tabulator.replaceData(newData);
+      },
+      deep: true
+    }
+  }
 };
 </script>
 

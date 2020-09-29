@@ -21,8 +21,12 @@
             />
           </v-btn>
         </v-toolbar>
-
-        <div :style="scrollY" ref="spreadsheet"></div>
+        <v-card elevation="21" class="ma-3">
+          <div
+            ref="spreadsheet"
+            :style="ccyEvents.length > 0 ? scrollY : hold"
+          ></div>
+        </v-card>
       </div>
       <div>
         <v-toolbar
@@ -42,8 +46,9 @@
             >
           </v-btn>
         </v-toolbar>
-
-        <div :style="scrollY" ref="spreadsheet1"></div>
+        <v-card elevation="21" class="ma-3">
+          <div ref="spreadsheet1"></div>
+        </v-card>
       </div>
       <div>
         <v-toolbar
@@ -63,7 +68,12 @@
             >
           </v-btn>
         </v-toolbar>
-        <div :style="scrollY" ref="spreadsheet2"></div>
+        <v-card elevation="21" class="ma-3">
+          <div
+            ref="spreadsheet2"
+            :style="productionList.length > 0 ? scrollY : hold"
+          ></div>
+        </v-card>
       </div>
     </div>
   </v-container>
@@ -80,12 +90,12 @@ import PopUpModal from "@/components/PopUpModal.vue";
 export default {
   name: "DayWgtSetup",
   components: { PopUpModal },
-  created: function () {
-    DayWgtSetupApi.GetAvailableCurr().then((response) => {
+  created: function() {
+    DayWgtSetupApi.GetAvailableCurr().then(response => {
       this.availableCurrencies = JSON.parse(response.data.availableCurrencies);
     });
   },
-  destroyed: function () {},
+  destroyed: function() {},
 
   data() {
     return {
@@ -94,18 +104,22 @@ export default {
       currentCcy: "SELECT CCY",
       selectedEvents: [],
       productionList: [],
+      ccyEvents: []
     };
   },
   computed: {
+    ccyEventsListHeight() {
+      return this.$refs.spreadsheet.clientHeight;
+    },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "80%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
     longComponentHeight() {
-      var heightAdjust = window.innerWidth > 1700 ? 1 : 0.9;
-      heightAdjust = this.mainWindowWidth * heightAdjust;
+      var heightAdjust = window.innerWidth > 1700 ? 0.9 : 0.7;
+      heightAdjust = this.mainWindowHeight * heightAdjust;
       return heightAdjust;
     },
     mainWindowHeight() {
@@ -119,6 +133,10 @@ export default {
               margin-top: 20px;
               overflow-y: scroll;
               height: ${this.longComponentHeight}px;`;
+    },
+    hold() {
+      return ` display: flex;
+              margin-top: 20px;`;
     },
     containerStyle() {
       return ` display: flex;
@@ -139,9 +157,9 @@ export default {
           {
             type: "text",
             title: "EventName",
-            width: 350,
-          },
-        ],
+            width: 350
+          }
+        ]
       };
     },
     configSelectedEvents() {
@@ -155,14 +173,14 @@ export default {
           {
             type: "text",
             title: "EventName",
-            width: 350,
+            width: 350
           },
           {
             type: "text",
             title: "EventWgt",
-            width: 110,
-          },
-        ],
+            width: 110
+          }
+        ]
       };
     },
     configProductionList() {
@@ -174,32 +192,32 @@ export default {
           {
             type: "text",
             title: "Event",
-            width: 200,
+            width: 200
           },
           {
             type: "text",
             title: "Date",
-            width: 200,
+            width: 200
           },
           {
             type: "text",
             title: "DayWgt",
-            width: 100,
+            width: 100
           },
           {
             type: "text",
             title: "Time",
-            width: 100,
-          },
-        ],
+            width: 100
+          }
+        ]
       };
-    },
+    }
   },
   methods: {
     GetEvents(item) {
       var body = { name: item };
-      DayWgtSetupApi.GetEvents(body).then((response) => {
-        var ccyEvents = JSON.parse(response.data.currencyEvents);
+      DayWgtSetupApi.GetEvents(body).then(response => {
+        this.ccyEvents = JSON.parse(response.data.currencyEvents);
         var activeEventsFromServer = response.data.activeEvents;
         var activeEvents = [];
 
@@ -209,7 +227,9 @@ export default {
           );
         }
 
-        this.jexcelAllEvents.setData(customFunctions.ReFormatJson(ccyEvents));
+        this.jexcelAllEvents.setData(
+          customFunctions.ReFormatJson(this.ccyEvents)
+        );
         this.selectedEvents = activeEvents;
         this.jexcelSelectedEvents.setData(this.selectedEvents);
         this.productionList = [];
@@ -220,16 +240,14 @@ export default {
     },
     GetSelectedEventList() {
       var eventNames = [];
-      this.selectedEvents.forEach((event) => {
+      this.selectedEvents.forEach(event => {
         eventNames.push(event[1]);
       });
 
       var body = { name: this.currentCcy, eventNames: eventNames };
-      DayWgtSetupApi.GetSelectedEventList(body).then((response) => {
+      DayWgtSetupApi.GetSelectedEventList(body).then(response => {
         for (var event of JSON.parse(response.data.selectedEvents)) {
-          var index = this.selectedEvents.findIndex(
-            (e) => e[1] === event.Title
-          );
+          var index = this.selectedEvents.findIndex(e => e[1] === event.Title);
           var wgt = this.jexcelSelectedEvents.getValueFromCoords(2, index);
 
           if (!event.Time.includes(":")) {
@@ -240,7 +258,7 @@ export default {
             Event: event.Title,
             Date: event.Date,
             DayWgt: wgt,
-            Time: event.Time,
+            Time: event.Time
           };
           this.productionList.push(addEvent);
         }
@@ -259,16 +277,16 @@ export default {
         var event = [
           true,
           this.jexcelAllEvents.getValueFromCoords(parseInt(1), parseInt(row)),
-          1,
+          1
         ];
 
-        var checkList = this.selectedEvents.some((e) => e[1] === event[1]);
+        var checkList = this.selectedEvents.some(e => e[1] === event[1]);
 
         if (!checkList) {
           this.selectedEvents.push(event);
         } else {
           this.selectedEvents = this.selectedEvents.filter(
-            (e) => e[1] != event[1]
+            e => e[1] != event[1]
           );
         }
 
@@ -285,12 +303,10 @@ export default {
           parseInt(1),
           parseInt(row)
         );
-        var checkList = this.selectedEvents.some((e) => e[1] === event);
+        var checkList = this.selectedEvents.some(e => e[1] === event);
 
         if (checkList) {
-          this.selectedEvents = this.selectedEvents.filter(
-            (e) => e[1] != event
-          );
+          this.selectedEvents = this.selectedEvents.filter(e => e[1] != event);
           var arr = this.jexcelAllEvents.getColumnData(1);
           var index = arr.indexOf(event);
           this.jexcelAllEvents.setValueFromCoords(0, index, false, true);
@@ -301,11 +317,11 @@ export default {
     },
     ConvertSelectedEventsToObjArr() {
       var output = [];
-      this.jexcelSelectedEvents.getData().forEach((event) => {
+      this.jexcelSelectedEvents.getData().forEach(event => {
         var newEvent = {
           IncludeEvent: event[0],
           EventName: event[1],
-          EventWgt: event[2],
+          EventWgt: event[2]
         };
 
         output.push(newEvent);
@@ -317,20 +333,20 @@ export default {
       var dbObj = {
         ccy: this.currentCcy,
         selectedEvents: JSON.stringify(this.ConvertSelectedEventsToObjArr()),
-        productionList: JSON.stringify(this.productionList),
+        productionList: JSON.stringify(this.productionList)
       };
 
       DayWgtSetupApi.SaveDataToDB(dbObj)
-        .then((response) => {
+        .then(response => {
           alert("Database Upadated. Status " + response.status);
         })
-        .catch((error) => {
+        .catch(error => {
           alert(error);
         });
-    },
+    }
   },
 
-  mounted: function () {
+  mounted: function() {
     const jexcelAllEvents = jexcel(
       this.$refs["spreadsheet"],
       this.configAllEvents
@@ -351,7 +367,7 @@ export default {
     );
     jexcelProductionList.hideIndex();
     Object.assign(this, { jexcelProductionList });
-  },
+  }
 };
 </script>
 

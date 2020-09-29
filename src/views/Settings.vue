@@ -22,7 +22,7 @@
         <TreeView
           :inputData="{
             list: this.settingHeaders,
-            listName: 'Corevolfx Options',
+            listName: 'Corevolfx Options'
           }"
           v-on:selection="ChangeSettings"
         />
@@ -57,7 +57,7 @@ export default {
   name: "Setup",
   data: () => ({
     settingHeaders: ["Dvi Settings", "Cross Settings", "Ccy Settings"],
-    settingSelection: "Dvi Settings",
+    settingSelection: "Dvi Settings"
   }),
 
   components: {
@@ -65,18 +65,18 @@ export default {
     CrossSetup,
     CcySetup,
     PopUpModal,
-    TreeView,
+    TreeView
   },
 
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "90%" : "80%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
     mainWindowHeight() {
-      return window.innerHeight;
+      return window.innerHeight - 100;
     },
     mainWindowWidth() {
       return window.innerWidth - 10;
@@ -88,14 +88,14 @@ export default {
             padding-right: 0px;
             width: ${this.mainWindowWidth}px;
             height: ${this.mainWindowHeight}px;`;
-    },
+    }
   },
 
   methods: {
     ChangeSettings(setting) {
       this.settingSelection = setting;
-    },
-  },
+    }
+  }
 };
 </script>
 

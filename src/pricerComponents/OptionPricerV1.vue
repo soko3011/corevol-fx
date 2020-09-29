@@ -25,6 +25,7 @@ export default {
 
   data() {
     return {
+      toggleTableEditable: false,
       currentCcyPair: null,
       cellPosContainer: [],
       userFormat: {
@@ -74,15 +75,28 @@ export default {
   computed: {
     config() {
       return {
+        allowInsertRow: false,
         columnSorting: false,
-        tableOverflow: false,
-        columns: [{ readOnly: false }],
+        tableOverflow: true,
+        columns: this.setReadOnly(),
         colHeaders: this.setHeaders(),
         colWidths: this.setColWidths(),
         minDimensions: [50],
         onselection: this.selectionActive,
-        onchange: this.updateOption
+        onchange: this.updateOption,
+        freezeColumns: 1,
+        tableWidth: this.tableWidth,
+        tableHeight: this.tableHeight
+        //rowDrag: true
       };
+    },
+    tableWidth() {
+      let w = window.innerWidth - 150;
+      return w + "px";
+    },
+    tableHeight() {
+      let h = window.innerHeight - 175;
+      return h + "px";
     },
     crossListData() {
       return this.$store.state.crossList;
@@ -105,9 +119,48 @@ export default {
     },
     jExcelOptions() {
       return customFunctions.JexcelTableByList(this.pricerKeys, this.config);
+    },
+    NonReadOnlyList() {
+      let arr = [];
+      arr.push(
+        this.KeyRow("Cross"),
+        this.KeyRow("Spot"),
+        this.KeyRow("ExpiryText"),
+        this.KeyRow("StrikeText"),
+        this.KeyRow("Call_Put"),
+        this.KeyRow("Notional"),
+        this.KeyRow("UserVol"),
+        this.KeyRow("PremiumType"),
+        this.KeyRow("AtmVol"),
+        this.KeyRow("Rr"),
+        this.KeyRow("Fly"),
+        this.KeyRow("Sfly"),
+        this.KeyRow("RrMult"),
+        this.KeyRow("FlyMult"),
+        this.KeyRow("ForDepo"),
+        this.KeyRow("DomDepo"),
+        this.KeyRow("FwdOutRight"),
+        this.KeyRow("FwdPts")
+      );
+      return arr;
     }
   },
   methods: {
+    setReadOnly() {
+      var columns = [];
+
+      for (var c = 0; c < 50; c++) {
+        columns.push({ readOnly: true });
+      }
+      return columns;
+    },
+    setColWidths() {
+      var colWidths = [];
+      for (var c = 0; c < 50; c++) {
+        colWidths.push(135);
+      }
+      return colWidths;
+    },
     setHeaders() {
       var headers = [];
       headers.push("Key");
@@ -139,19 +192,35 @@ export default {
       this.redObj = [];
       this.optContainer = [];
     },
+    GetCell(col, row) {
+      var id = jexcel.getColumnNameFromId([col, row]);
+      var cell = this.jExcelObj.getCell([id]);
+      return cell;
+    },
+
     RestorePricerData(storedData) {
       this.ClearGrid();
       if (storedData !== null) {
         const data = JSON.parse(storedData.ActivePricerGridDataJSON);
+        const cols = this.jExcelObj.getData()[0].length;
 
         if (data !== null) {
           for (var row of data) {
             var key = row[0];
             var gridRow = this.pricerKeys.indexOf(key);
             if (gridRow !== -1) {
+              for (var i = 0; i < cols; i++) {
+                var cell = this.GetCell(i, gridRow);
+                cell.classList.remove("readonly");
+              }
               this.jExcelObj.ignoreEvents = true;
               this.jExcelObj.setRowData(gridRow, row);
               this.jExcelObj.ignoreEvents = false;
+
+              for (var i = 0; i < cols; i++) {
+                var cell = this.GetCell(i, gridRow);
+                cell.classList.add("readonly");
+              }
             }
           }
         }
@@ -363,8 +432,10 @@ export default {
       this.col = x1;
       this.userFormat.rowArray = [y1, y2];
       this.currentCcyPair = this.KeyVal("Cross");
-      if (this.col === 0) {
-        this.SelectCell(this.row, 1);
+
+      if (this.NonReadOnlyList.indexOf(this.row) !== -1) {
+        var cell = this.GetCell(x1, y1);
+        cell.classList.remove("readonly");
       }
     },
     ResetCellPosition(oldVal, newVal) {
@@ -740,7 +811,7 @@ export default {
     const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.jExcelOptions);
     Object.assign(this, { jExcelObj });
     jExcelObj.hideIndex();
-
+    console.log(this.storedData);
     this.RestorePricerData(this.storedData);
     this.SetCellPosition(this.pricerName);
     this.emitToParent();

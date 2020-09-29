@@ -35,9 +35,7 @@ export function JexcelTableByList(data, config) {
   }
 
   var options = {
-    data: newdata,
-    tableOverflow: false,
-    allowInsertRow: false
+    data: newdata
   };
 
   Object.assign(options, config);

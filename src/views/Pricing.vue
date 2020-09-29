@@ -1,111 +1,90 @@
 <template>
-  <div>
-    <main class="pa-0">
-      <v-toolbar
-        color="#385F73"
-        min-width="300"
-        dense
-        collapse
+  <div v-if="dataReturned">
+    <v-toolbar
+      class="ma-5"
+      color="#385F73"
+      min-width="300"
+      dense
+      collapse
+      v-bind:style="zoomLevel"
+    >
+      <v-btn icon>
+        <v-icon
+          @click="showSideControl = !showSideControl"
+          color="blue lighten-2"
+        >
+          {{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}
+        </v-icon>
+      </v-btn>
+
+      <v-spacer></v-spacer>
+      <h4
+        class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+      >
+        {{ pricerTitle }}
+      </h4>
+      <v-spacer></v-spacer>
+    </v-toolbar>
+
+    <div class="d-flex flex-nowrap ma-5">
+      <v-card
+        v-if="showSideControl"
+        min-width="225"
+        shaped
+        class="mr-3"
         v-bind:style="zoomLevel"
       >
-        <v-btn icon>
-          <v-icon
-            @click="showSideControl = !showSideControl"
-            color="blue lighten-2"
-          >
-            {{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}
-          </v-icon>
-        </v-btn>
-
-        <v-spacer></v-spacer>
-        <h4
-          class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-        >
-          {{ viewName }}
-        </h4>
-        <v-spacer></v-spacer>
-      </v-toolbar>
-
-      <v-container v-if="dataReturned" class="cont" fluid>
-        <v-card
-          v-if="showSideControl"
-          min-width="225"
-          shaped
-          class="mr-3"
-          v-bind:style="zoomLevel"
-        >
-          <TreeView
-            :inputData="{
-              list: this.activePricers,
-              listName: 'Active Pricers'
-            }"
-            v-on:selection="ReloadPricer"
-          />
-          <div>
-            <div style="margin-bottom: 70px"></div>
-            <v-card>
-              <v-btn absolute small fab top left color="pink" elevation="12">
-                <PopUpInput
-                  :icon="'mdi-expand-all'"
-                  :label="'add name and hit enter'"
-                  :color="'white'"
-                  :title="'ADD NEW PRICER'"
-                  :large="false"
-                  v-on:selection="UserAddPricer"
-                />
-              </v-btn>
-            </v-card>
-            <v-btn
-              class="mb-10"
-              absolute
-              small
-              fab
-              bottom
-              right
-              color="blue-grey"
-              elevation="12"
-            >
-              <PopUpModal
-                :inputData="this.activePricers"
-                :icon="'mdi-delete'"
+        <TreeView
+          :inputData="{
+            list: this.activePricers,
+            listName: 'Active Pricers'
+          }"
+          v-on:selection="ReloadPricer"
+        />
+        <div>
+          <div style="margin-bottom: 70px"></div>
+          <v-card>
+            <v-btn absolute small fab top left color="pink" elevation="12">
+              <PopUpInput
+                :icon="'mdi-expand-all'"
+                :label="'add name and hit enter'"
                 :color="'white'"
+                :title="'ADD NEW PRICER'"
                 :large="false"
-                :title="'REMOVE VIEW'"
-                v-on:selection="RemoveTab"
+                v-on:selection="UserAddPricer"
               />
             </v-btn>
-          </div>
-        </v-card>
-
-        <div :style="containerStyle">
-          <transition name="fade">
-            <section id="pricer">
-              <v-btn
-                transition="fade-transition"
-                v-if="!drawer"
-                fab
-                small
-                color="pink"
-                dark
-                top
-                right
-                absolute
-                class="mt-10 mr-5"
-                @click="drawer = !drawer"
-                elevation="12"
-              >
-                <v-icon>mdi-chevron-double-right</v-icon>
-              </v-btn>
-              <OptionPricer
-                v-on:childToParent="setPricerTitle"
-                v-on:currentCcyPair="setCurrentCcyPair"
-                v-bind:style="zoomLevel"
-              />
-            </section>
-          </transition>
+          </v-card>
+          <v-btn
+            class="mb-10"
+            absolute
+            small
+            fab
+            bottom
+            right
+            color="blue-grey"
+            elevation="12"
+          >
+            <PopUpModal
+              :inputData="this.activePricers"
+              :icon="'mdi-delete'"
+              :color="'white'"
+              :large="false"
+              :title="'REMOVE VIEW'"
+              v-on:selection="RemoveTab"
+            />
+          </v-btn>
         </div>
-      </v-container>
-    </main>
+      </v-card>
+
+      <transition name="fade">
+        <OptionPricer
+          v-on:childToParent="setPricerTitle"
+          v-on:currentCcyPair="setCurrentCcyPair"
+          v-bind:style="zoomLevel"
+        />
+      </transition>
+    </div>
   </div>
 </template>
 
@@ -115,7 +94,6 @@ import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import PopUpInput from "@/components/PopUpInput.vue";
-//import DashBoard from "@/views/DashBoard.vue";
 
 export default {
   name: "PricerView",
@@ -165,7 +143,7 @@ export default {
   },
   computed: {
     zoomLevel() {
-      var level = window.innerWidth > 1700 ? "85%" : "70%";
+      var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
         zoom: level
       };
@@ -176,13 +154,14 @@ export default {
     mainWindowWidth() {
       return window.innerWidth - 10;
     },
-    containerStyle() {
-      return ` display: flex;
-  overflow-x: scroll;
-  padding-left: 0px;
-  padding-right: 0px;
-  width: ${this.mainWindowWidth}px;
-  height: ${this.mainWindowHeight}px;`;
+    divStyle() {
+      return;
+      ` display: flex;
+        overflow-x: scroll;
+        padding-left: 0px;
+        padding-right: 0px;
+        width: ${this.mainWindowWidth}px;
+        height: ${this.mainWindowHeight}px;`;
     },
     crossList() {
       return this.$store.state.crossList;
@@ -303,14 +282,6 @@ export default {
 <style>
 span {
   cursor: pointer;
-}
-.cont {
-  display: flex;
-  overflow-x: scroll;
-
-  padding-left: 0px;
-  padding-right: 0px;
-  padding-bottom: 0px;
 }
 
 .fade-enter-active,

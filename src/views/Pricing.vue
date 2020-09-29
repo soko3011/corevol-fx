@@ -110,7 +110,7 @@
 </template>
 
 <script>
-import OptionPricer from "@/pricerComponents/TabulatorPricer.vue";
+import OptionPricer from "@/pricerComponents/OptionPricerV1.vue";
 import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";

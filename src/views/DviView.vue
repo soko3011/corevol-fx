@@ -301,12 +301,15 @@ export default {
     },
 
     longComponentHeight() {
-      var heightAdjust = window.innerWidth > 1700 ? 0.78 : 0.7;
+      var heightAdjust = window.innerWidth > 1700 ? 1.25 : 0.7;
       heightAdjust = this.mainWindowHeight * heightAdjust;
       return heightAdjust;
     },
     mainWindowWidth() {
       return window.innerWidth - 10;
+    },
+    mainWindowHeight() {
+      return window.innerHeight - 100;
     },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "73%" : "65%";

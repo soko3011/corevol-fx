@@ -49,7 +49,20 @@
         <v-card elevation="21" class="ma-3">
           <div ref="spreadsheet1"></div>
         </v-card>
+        <div v-if="ccyEvents.length === 0" class="centerWrapper">
+          <h3>Start</h3>
+          <v-btn icon>
+            <PopUpModal
+              :inputData="availableCurrencies"
+              :icon="'mdi-power'"
+              :color="'red'"
+              :title="'Select Ccy'"
+              v-on:selection="GetEvents"
+            />
+          </v-btn>
+        </div>
       </div>
+
       <div>
         <v-toolbar
           color="blue-grey darken-0"
@@ -63,7 +76,7 @@
           >
           <v-spacer></v-spacer>
           <v-btn icon>
-            <v-icon color="blue-grey" v-on:click="SaveEventsToDB"
+            <v-icon color="green lighten-3" v-on:click="SaveEventsToDB"
               >mdi-content-save</v-icon
             >
           </v-btn>
@@ -135,8 +148,8 @@ export default {
               height: ${this.longComponentHeight}px;`;
     },
     hold() {
-      return ` display: flex;
-              margin-top: 20px;`;
+      return `
+              `;
     },
     containerStyle() {
       return ` display: flex;
@@ -387,5 +400,14 @@ export default {
 .jexcel > thead > tr > td.selected {
   color: black;
   background-color: #8f9494;
+}
+
+.centerWrapper {
+  width: 100%;
+  height: 400px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

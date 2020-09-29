@@ -301,7 +301,7 @@ export default {
     },
 
     longComponentHeight() {
-      var heightAdjust = window.innerWidth > 1700 ? 1.25 : 0.7;
+      var heightAdjust = window.innerWidth > 1700 ? 1.25 : 1.5;
       heightAdjust = this.mainWindowHeight * heightAdjust;
       return heightAdjust;
     },

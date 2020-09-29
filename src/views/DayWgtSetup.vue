@@ -131,7 +131,7 @@ export default {
       };
     },
     longComponentHeight() {
-      var heightAdjust = window.innerWidth > 1700 ? 0.9 : 0.7;
+      var heightAdjust = window.innerWidth > 1700 ? 0.9 : 1.125;
       heightAdjust = this.mainWindowHeight * heightAdjust;
       return heightAdjust;
     },

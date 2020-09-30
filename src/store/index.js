@@ -35,6 +35,7 @@ const state = {
   lastPricerCellCoords: [],
 
   rawPricerData: [],
+  singleOptData: {},
   currentUser: "",
   snackbars: [],
   isUserAuthed: false,
@@ -45,7 +46,6 @@ const state = {
 const mutations = {
   TOGGLE_RIGHT_NAV(state) {
     state.rightSideNav = !state.rightSideNav;
-    console.log(state.rightSideNav);
   },
   SET_FWDVOL_INPUTS(state, data) {
     state.fwdVolInputs = data;
@@ -54,7 +54,6 @@ const mutations = {
     state.sidebarMinified = !state.sidebarMinified;
   },
   SET_SNACKBAR(state, snackbar) {
-    console.log(snackbar);
     state.snackbars = state.snackbars.concat(snackbar);
   },
   SET_AUTOSAVE(state, data) {
@@ -146,6 +145,9 @@ const mutations = {
   },
   SET_CROSSLIST(state, data) {
     state.crossList = JSON.parse(data).sort();
+  },
+  SET_SINGLE_OPT(state, data) {
+    state.singleOptData = data;
   }
 };
 
@@ -159,6 +161,18 @@ const actions = {
       return response.data.timezone;
     } catch (e) {
       alert(e);
+    }
+  },
+  async calcSingleOption({ commit, dispatch }, data) {
+    try {
+      let response = await PricerApi.ReCalcOpt(data);
+      let singleOpt = JSON.parse(response.data.result);
+      commit("SET_SINGLE_OPT", singleOpt);
+      return true;
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `Error: ${err} `
+      });
     }
   },
 

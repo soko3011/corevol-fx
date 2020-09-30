@@ -25,23 +25,23 @@ export function JexcelTableSettings(data, config) {
   return options;
 }
 
-export function JexcelTableByList(data, config) {
-  var newdata = [];
+// export function JexcelTableByList(data, config) {
+//   var newdata = [];
 
-  for (var r = 0; r < data.length; r++) {
-    var vals = [];
-    vals.push(data[r]);
-    newdata.push(vals);
-  }
+//   for (var r = 0; r < data.length; r++) {
+//     var vals = [];
+//     vals.push(data[r]);
+//     newdata.push(vals);
+//   }
 
-  var options = {
-    data: newdata
-  };
+//   var options = {
+//     data: newdata
+//   };
 
-  Object.assign(options, config);
+//   Object.assign(options, config);
 
-  return options;
-}
+//   return options;
+// }
 
 export function JexcelTableHeadersOnlyUserRows(data, config, rowNum) {
   var keys = Object.keys(data[0]);

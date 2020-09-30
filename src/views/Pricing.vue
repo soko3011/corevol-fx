@@ -76,20 +76,21 @@
           </v-btn>
         </div>
       </v-card>
-
-      <transition name="fade">
+      <div class="d-flex flex-column mb-6">
         <OptionPricer
+          v-bind:pricerKeys="pricerKeys"
           v-on:childToParent="setPricerTitle"
           v-on:currentCcyPair="setCurrentCcyPair"
           v-bind:style="zoomLevel"
         />
-      </transition>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import OptionPricer from "@/pricerComponents/OptionPricerV1.vue";
+
 import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
@@ -100,6 +101,7 @@ export default {
 
   components: {
     OptionPricer,
+
     TreeView,
     PopUpModal,
     PopUpInput
@@ -142,6 +144,12 @@ export default {
     this.$store.dispatch("setPricerTab", this.pricerTitle);
   },
   computed: {
+    apidata() {
+      return this.$store.state.rawPricerData;
+    },
+    pricerKeys() {
+      return JSON.parse(this.apidata.pricerKeys);
+    },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {

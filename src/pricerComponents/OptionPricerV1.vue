@@ -1,5 +1,9 @@
 <template>
-  <div ref="jexcelPricer"></div>
+  <div>
+    <v-btn @click="hide" />
+    <v-btn @click="show" />
+    <div ref="jexcelPricer"></div>
+  </div>
 </template>
 
 <script>
@@ -69,12 +73,106 @@ export default {
         "x",
         "y",
         "z"
-      ]
+      ],
+      keyGroups: {
+        bsGreeks: {
+          hide: true,
+          keys: [
+            "Price",
+            "Fwd_Price",
+            "Delta",
+            "Fwd_Delta",
+            "Vega",
+            "Gamma",
+            "Theta"
+          ]
+        },
+        volInfo: {
+          hide: true,
+          keys: [
+            "AtmVol",
+            "Rr",
+            "Fly",
+            "Sfly",
+            "RrMult",
+            "FlyMult",
+            "Zeta",
+            "VolToAtm"
+          ]
+        },
+        fwdInfo: {
+          hide: true,
+          keys: ["ForDepo", "DomDepo", "FwdOutRight", "FwdPts"]
+        },
+        regaSega: {
+          hide: true,
+          keys: ["Rega25", "Rega10", "Sega25", "Sega10"]
+        },
+        vannaVolga: {
+          hide: true,
+          keys: ["Volga", "Vanna", "Rho_For", "Rho_Dom", "SVanna", "SVolga"]
+        },
+        discountFactors: {
+          hide: true,
+          keys: [
+            "DfDomExp",
+            "DfDomDel",
+            "DfForExp",
+            "DfForDel",
+            "SpotDate",
+            "InceptionDate"
+          ]
+        },
+        greeksInAmts: {
+          hide: true,
+          keys: [
+            "PremiumAmt",
+            "Fwd_PremiumAmt",
+            "DeltaAmt",
+            "Fwd_DeltaAmt",
+            "VegaAmt",
+            "GammaAmt",
+            "Rega25Amt",
+            "Rega10Amt",
+            "Sega25Amt",
+            "Sega10Amt",
+            "VannaAmt",
+            "VolgaAmt",
+            "Rho_ForAmt",
+            "Rho_DomAmt",
+            "ThetaAmt",
+            "SVolgaAmt",
+            "SVannaAmt"
+          ]
+        },
+        smileGreeks: {
+          hide: true,
+          keys: [
+            "SDelta",
+            "Fwd_SDelta",
+            "SVega",
+            "SGamma",
+            "STheta",
+            "SDeltaAmt",
+            "Fwd_SDeltaAmt",
+            "SVegaAmt",
+            "SGammaAmt",
+            "SThetaAmt"
+          ]
+        }
+      }
     };
   },
+  props: {
+    pricerKeys: Array
+  },
   computed: {
+    columnCount() {
+      return this.jExcelObj.getData()[0].length;
+    },
     config() {
       return {
+        data: this.setPricerKeys(),
         allowInsertRow: false,
         columnSorting: false,
         tableOverflow: true,
@@ -87,7 +185,6 @@ export default {
         freezeColumns: 1,
         tableWidth: this.tableWidth,
         tableHeight: this.tableHeight
-        //rowDrag: true
       };
     },
     tableWidth() {
@@ -105,8 +202,8 @@ export default {
     apidata() {
       return this.$store.state.rawPricerData;
     },
-    pricerKeys() {
-      return JSON.parse(this.apidata.pricerKeys);
+    calculatedOptionData() {
+      return this.$store.state.singleOptData;
     },
     activeLayout() {
       return JSON.parse(this.apidata.activeLayout);
@@ -117,9 +214,7 @@ export default {
     pricerName() {
       return JSON.parse(this.apidata.storedPricerData).PricerTitle;
     },
-    jExcelOptions() {
-      return customFunctions.JexcelTableByList(this.pricerKeys, this.config);
-    },
+
     NonReadOnlyList() {
       let arr = [];
       arr.push(
@@ -146,6 +241,51 @@ export default {
     }
   },
   methods: {
+    hide() {
+      const columnCount = this.jExcelObj.getData()[0].length;
+
+      for (const keyGroup of Object.keys(this.keyGroups)) {
+        let hide = (keyGroup, this.keyGroups[keyGroup]).hide;
+        let keys = (keyGroup, this.keyGroups[keyGroup]).keys;
+
+        if (hide === true) {
+          for (var key of keys) {
+            for (var i = 0; i < columnCount; i++) {
+              var cell = this.GetCell(i, this.KeyRow(key));
+              cell.classList.add("hideRow");
+            }
+          }
+
+          var marker = this.KeyRow(keys[0]) - 1;
+          var cell = this.GetCell(0, marker);
+          cell.classList.add("hideClue");
+        }
+      }
+    },
+    show() {
+      const cols = this.jExcelObj.getData()[0].length;
+      var rowStart = 5;
+      var rowsTohide = 5;
+      for (var r = rowStart; r < rowStart + rowsTohide; r++) {
+        for (var i = 0; i < cols; i++) {
+          var cell = this.GetCell(i, r);
+          cell.classList.remove("hideRow");
+        }
+      }
+
+      var cell = this.GetCell(0, rowStart - 1);
+      cell.classList.remove("hideClue");
+    },
+    setPricerKeys() {
+      let keys = this.pricerKeys;
+      let keyList = [];
+      for (var r = 0; r < keys.length; r++) {
+        var key = [];
+        key.push(keys[r]);
+        keyList.push(key);
+      }
+      return keyList;
+    },
     setReadOnly() {
       var columns = [];
 
@@ -238,139 +378,128 @@ export default {
         }
       }
     },
-    BindTableTopage(options) {
-      var parentNode = this.$refs["parentDiv"];
 
-      if (parentNode.childElementCount > 0) {
-        parentNode.removeChild(parentNode.childNodes[0]);
-      }
-      var node = document.createElement("div");
-      parentNode.appendChild(node);
-      const jExcelObj = jexcel(node, options);
-      jExcelObj.hideIndex();
-      Object.assign(this, { jExcelObj });
-    },
     emitToParent() {
       this.$emit("childToParent", this.pricerName);
     },
-    EventListeners(event) {
-      if (event.code == "KeyP" && event.ctrlKey) {
-        event.preventDefault();
-        this.CopyOpt(this.col);
-      }
-      if (event.code == "KeyD" && event.ctrlKey) {
-        event.preventDefault();
-        this.ClearAll();
-      }
-      if (event.code == "KeyQ" && event.ctrlKey) {
-        event.preventDefault();
-        this.DelOpt(this.col);
-      }
-      if (event.code == "KeyR" && event.ctrlKey) {
-        event.preventDefault();
-        var newOpt = { name: this.col.toString() }; //create new opt object
-        var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
-        if (index != -1) {
-          this.optData = this.optContainer[index]; //set current option from container.
-          this.ReCalcOpt(this.optData);
-        }
-      }
-      if (
-        event.code === "Space" &&
-        this.row === this.KeyRow("Cross") &&
-        this.col != 0
-      ) {
-        event.preventDefault();
-        var cell = cellElements.getCellFromCoords(
-          this.jExcelObj,
-          this.col,
-          this.row
-        );
-        cellElements.openEditor(
-          this.jExcelObj,
-          cell,
-          "empty",
-          "dropdown",
-          this.crossListData,
-          this.col,
-          this.row
-        );
-      }
-      if (
-        event.code === "Space" &&
-        this.row === this.KeyRow("PremiumType") &&
-        this.col != 0
-      ) {
-        event.preventDefault();
-        cell = cellElements.getCellFromCoords(
-          this.jExcelObj,
-          this.col,
-          this.row
-        );
-        cellElements.openEditor(
-          this.jExcelObj,
-          cell,
-          "empty",
-          "dropdown",
-          ["Base_Pct", "Terms_Pips", "Base_Pips", "Terms_Pct"],
-          this.col,
-          this.row
-        );
-      }
-      if (
-        event.code === "Space" &&
-        this.row === this.KeyRow("Call_Put") &&
-        this.col != 0
-      ) {
-        event.preventDefault();
-        cell = cellElements.getCellFromCoords(
-          this.jExcelObj,
-          this.col,
-          this.row
-        );
-        cellElements.openEditor(
-          this.jExcelObj,
-          cell,
-          "empty",
-          "dropdown",
-          ["CALL", "PUT"],
-          this.col,
-          this.row
-        );
-      }
-      if (
-        event.code === "Space" &&
-        this.row === this.KeyRow("ExpiryText") &&
-        this.col != 0
-      ) {
-        event.preventDefault();
-        cell = cellElements.getCellFromCoords(
-          this.jExcelObj,
-          this.col,
-          this.row
-        );
-        cellElements.openEditor(
-          this.jExcelObj,
-          cell,
-          "empty",
-          "calendar",
-          this.crossListData,
-          this.col,
-          this.row
-        );
-      }
-      if (
-        event.code === "Space" &&
-        this.row === this.KeyRow("UserVol") &&
-        this.col != 0
-      ) {
-        event.preventDefault();
-        this.$router.push({
-          name: "Dvi",
-          params: { ccyPair: this.KeyVal("Cross") }
-        });
-      }
-    },
+    // EventListeners(event) {
+    //   if (event.code == "KeyP" && event.ctrlKey) {
+    //     event.preventDefault();
+    //     this.CopyOpt(this.col);
+    //   }
+    //   if (event.code == "KeyD" && event.ctrlKey) {
+    //     event.preventDefault();
+    //     this.ClearAll();
+    //   }
+    //   if (event.code == "KeyQ" && event.ctrlKey) {
+    //     event.preventDefault();
+    //     this.DelOpt(this.col);
+    //   }
+    //   if (event.code == "KeyR" && event.ctrlKey) {
+    //     event.preventDefault();
+    //     var newOpt = { name: this.col.toString() }; //create new opt object
+    //     var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
+    //     if (index != -1) {
+    //       this.optData = this.optContainer[index]; //set current option from container.
+    //       this.ReCalcOpt(this.optData);
+    //     }
+    //   }
+    //   if (
+    //     event.code === "Space" &&
+    //     this.row === this.KeyRow("Cross") &&
+    //     this.col != 0
+    //   ) {
+    //     event.preventDefault();
+    //     var cell = cellElements.getCellFromCoords(
+    //       this.jExcelObj,
+    //       this.col,
+    //       this.row
+    //     );
+    //     cellElements.openEditor(
+    //       this.jExcelObj,
+    //       cell,
+    //       "empty",
+    //       "dropdown",
+    //       this.crossListData,
+    //       this.col,
+    //       this.row
+    //     );
+    //   }
+    //   if (
+    //     event.code === "Space" &&
+    //     this.row === this.KeyRow("PremiumType") &&
+    //     this.col != 0
+    //   ) {
+    //     event.preventDefault();
+    //     cell = cellElements.getCellFromCoords(
+    //       this.jExcelObj,
+    //       this.col,
+    //       this.row
+    //     );
+    //     cellElements.openEditor(
+    //       this.jExcelObj,
+    //       cell,
+    //       "empty",
+    //       "dropdown",
+    //       ["Base_Pct", "Terms_Pips", "Base_Pips", "Terms_Pct"],
+    //       this.col,
+    //       this.row
+    //     );
+    //   }
+    //   if (
+    //     event.code === "Space" &&
+    //     this.row === this.KeyRow("Call_Put") &&
+    //     this.col != 0
+    //   ) {
+    //     event.preventDefault();
+    //     cell = cellElements.getCellFromCoords(
+    //       this.jExcelObj,
+    //       this.col,
+    //       this.row
+    //     );
+    //     cellElements.openEditor(
+    //       this.jExcelObj,
+    //       cell,
+    //       "empty",
+    //       "dropdown",
+    //       ["CALL", "PUT"],
+    //       this.col,
+    //       this.row
+    //     );
+    //   }
+    //   if (
+    //     event.code === "Space" &&
+    //     this.row === this.KeyRow("ExpiryText") &&
+    //     this.col != 0
+    //   ) {
+    //     event.preventDefault();
+    //     cell = cellElements.getCellFromCoords(
+    //       this.jExcelObj,
+    //       this.col,
+    //       this.row
+    //     );
+    //     cellElements.openEditor(
+    //       this.jExcelObj,
+    //       cell,
+    //       "empty",
+    //       "calendar",
+    //       this.crossListData,
+    //       this.col,
+    //       this.row
+    //     );
+    //   }
+    //   if (
+    //     event.code === "Space" &&
+    //     this.row === this.KeyRow("UserVol") &&
+    //     this.col != 0
+    //   ) {
+    //     event.preventDefault();
+    //     this.$router.push({
+    //       name: "Dvi",
+    //       params: { ccyPair: this.KeyVal("Cross") }
+    //     });
+    //   }
+    // },
     setOptObj() {
       Object.assign(this.optData, {
         cross: this.KeyVal("Cross"),
@@ -567,20 +696,23 @@ export default {
       this.redObj.push(id);
       this.redObj = [...new Set(this.redObj)];
     },
-    ReCalcOpt(optData) {
+    async ReCalcOpt(optData) {
       //sends optdata to server for calculation. Return entire json result. Will update everythign execpt the first 5 rows (cross, spot, exp, str, pc)
 
-      PricerApi.ReCalcOpt(optData).then(response => {
-        var result = JSON.parse(response.data.result);
-        var optValues = [];
-        for (var cell of this.pricerKeys) {
-          var index = result.findIndex(p => p.Key == cell);
-          optValues.push(result[index].Value);
-        }
-        this.replaceSingleOpt(optValues, this.col);
-        this.FormatComplete();
-      });
-      this.EmptyCol();
+      let response = await this.$store.dispatch("calcSingleOption", optData);
+      console.log(`singleOptData returned? ${response}`);
+
+      // PricerApi.ReCalcOpt(optData).then(response => {
+      //   var result = JSON.parse(response.data.result);
+      //   var optValues = [];
+      //   for (var cell of this.pricerKeys) {
+      //     var index = result.findIndex(p => p.Key == cell);
+      //     optValues.push(result[index].Value);
+      //   }
+      //   this.replaceSingleOpt(optValues, this.col);
+      //   this.FormatComplete();
+      // });
+      // this.EmptyCol();
     },
     replaceSingleOpt(newOpt, col) {
       var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
@@ -588,6 +720,7 @@ export default {
         newList[i][col] = newOpt[i];
       }
       this.jExcelObj.setData(newList);
+      this.hide();
       this.ReturnCurrent();
     },
     ReturnCurrent() {
@@ -808,16 +941,27 @@ export default {
     }
   },
   mounted() {
-    const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.jExcelOptions);
+    const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.config);
     Object.assign(this, { jExcelObj });
     jExcelObj.hideIndex();
-    console.log(this.storedData);
+
     this.RestorePricerData(this.storedData);
     this.SetCellPosition(this.pricerName);
     this.emitToParent();
     this.FormatComplete();
   },
   watch: {
+    calculatedOptionData() {
+      var optValues = [];
+      for (var cell of this.pricerKeys) {
+        var index = this.calculatedOptionData.findIndex(p => p.Key == cell);
+        optValues.push(this.calculatedOptionData[index].Value);
+      }
+      this.replaceSingleOpt(optValues, this.col);
+      this.FormatComplete();
+
+      this.EmptyCol();
+    },
     currentCcyPair() {
       if (this.currentCcyPair !== "") {
         this.$emit("currentCcyPair", this.currentCcyPair);
@@ -839,6 +983,13 @@ export default {
   font-size: 0.75rem;
   padding: 0px;
   line-height: 1.6em;
+}
+.jexcel > tbody > tr > td.hideRow {
+  display: none;
+}
+.jexcel > tbody > tr > td.hideClue:before {
+  content: "\002B";
+  color: red;
 }
 .jexcel > thead > tr > td.selected {
   color: black;

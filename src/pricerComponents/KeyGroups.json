@@ -1,0 +1,87 @@
+{
+  "bsGreeks": {
+    "hide": true,
+    "keys": [
+      "Price",
+      "Fwd_Price",
+      "Delta",
+      "Fwd_Delta",
+      "Vega",
+      "Gamma",
+      "Theta"
+    ]
+  },
+  "volInfo": {
+    "hide": true,
+    "keys": [
+      "AtmVol",
+      "Rr",
+      "Fly",
+      "Sfly",
+      "RrMult",
+      "FlyMult",
+      "Zeta",
+      "VolToAtm"
+    ]
+  },
+  "fwdInfo": {
+    "hide": true,
+    "keys": ["ForDepo", "DomDepo", "FwdOutRight", "FwdPts"]
+  },
+  "regaSega": {
+    "hide": true,
+    "keys": ["Rega25", "Rega10", "Sega25", "Sega10"]
+  },
+  "vannaVolga": {
+    "hide": true,
+    "keys": ["Volga", "Vanna", "Rho_For", "Rho_Dom", "SVanna", "SVolga"]
+  },
+  "discountFactors": {
+    "hide": true,
+    "keys": [
+      "DfDomExp",
+      "DfDomDel",
+      "DfForExp",
+      "DfForDel",
+      "SpotDate",
+      "InceptionDate"
+    ]
+  },
+  "greeksInAmts": {
+    "hide": true,
+    "keys": [
+      "PremiumAmt",
+      "Fwd_PremiumAmt",
+      "DeltaAmt",
+      "Fwd_DeltaAmt",
+      "VegaAmt",
+      "GammaAmt",
+      "Rega25Amt",
+      "Rega10Amt",
+      "Sega25Amt",
+      "Sega10Amt",
+      "VannaAmt",
+      "VolgaAmt",
+      "Rho_ForAmt",
+      "Rho_DomAmt",
+      "ThetaAmt",
+      "SVolgaAmt",
+      "SVannaAmt"
+    ]
+  },
+  "smileGreeks": {
+    "hide": true,
+    "keys": [
+      "SDelta",
+      "Fwd_SDelta",
+      "SVega",
+      "SGamma",
+      "STheta",
+      "SDeltaAmt",
+      "Fwd_SDeltaAmt",
+      "SVegaAmt",
+      "SGammaAmt",
+      "SThetaAmt"
+    ]
+  }
+}

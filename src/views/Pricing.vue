@@ -199,18 +199,12 @@ export default {
       this.modalToggle = false;
       this.ReloadPricer(value);
     },
-    RefreshPricerData(view) {
+    async RefreshPricerData(view) {
       this.dataReturned = false;
-      this.$store
-        .dispatch("ChangePricer", view)
-        .then(data => {
-          if (data === 200) {
-            this.dataReturned = true;
-          }
-        })
-        .catch(error => {
-          alert(`There is an issue with: ${view}. \n${error}`);
-        });
+      let response = await this.$store.dispatch("setPricer", view);
+      if (response === true) {
+        this.dataReturned = true;
+      }
     },
 
     ReloadPricer(view) {

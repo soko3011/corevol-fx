@@ -408,10 +408,10 @@ export default {
           this.$store.dispatch("loadDviWithPayload", {
             cross: this.KeyVal("Cross")
           });
-          this.$router.push({
-            name: "Dvi",
-            params: { ccyPair: this.KeyVal("Cross") }
-          });
+          // this.$router.push({
+          //   name: "Dvi",
+          //   params: { ccyPair: this.KeyVal("Cross") }
+          // });
         } else {
           PricerApi.GetSingleSpot({ cross: this.KeyVal("Cross") }).then(
             response => {

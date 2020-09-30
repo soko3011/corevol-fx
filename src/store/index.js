@@ -170,7 +170,7 @@ const actions = {
       });
 
       commit("SET_PRICER", response.data);
-      return "ok";
+      return true;
     } catch (err) {
       dispatch("setSnackbar", {
         text: `Error: ${err} `

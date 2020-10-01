@@ -4,6 +4,7 @@ import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
 import VueTabulator from "vue-tabulator";
+import "vue-swatches/dist/vue-swatches.css";
 
 Vue.use(VueTabulator);
 

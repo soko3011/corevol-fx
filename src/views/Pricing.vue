@@ -25,6 +25,21 @@
       </h4>
       <v-spacer></v-spacer>
     </v-toolbar>
+    <v-spacer />
+    <v-btn
+      class="mt-15 mr-5"
+      absolute
+      small
+      fab
+      top
+      right
+      color="#385F73"
+      elevation="21"
+      dark
+      @click="pricerSetupToggle = !pricerSetupToggle"
+    >
+      <v-icon>mdi-pencil-outline</v-icon>
+    </v-btn>
 
     <div class="d-flex flex-nowrap ma-5">
       <v-card
@@ -76,14 +91,14 @@
           </v-btn>
         </div>
       </v-card>
-      <div class="d-flex flex-column mb-6">
-        <OptionPricer
-          v-bind:pricerKeys="pricerKeys"
-          v-on:childToParent="setPricerTitle"
-          v-on:currentCcyPair="setCurrentCcyPair"
-          v-bind:style="zoomLevel"
-        />
-      </div>
+
+      <OptionPricer
+        v-bind:pricerKeys="pricerKeys"
+        v-on:childToParent="setPricerTitle"
+        v-on:currentCcyPair="setCurrentCcyPair"
+        v-bind:style="zoomLevel"
+      />
+      <PricerSetup :dialog="pricerSetupToggle" />
     </div>
   </div>
 </template>
@@ -95,13 +110,14 @@ import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import PopUpInput from "@/components/PopUpInput.vue";
+import PricerSetup from "@/pricerComponents/PricerSetup.vue";
 
 export default {
   name: "PricerView",
 
   components: {
     OptionPricer,
-
+    PricerSetup,
     TreeView,
     PopUpModal,
     PopUpInput
@@ -117,7 +133,8 @@ export default {
       viewName: this.$route.params.viewName,
       showSideControl: false,
       drawer: true,
-      currentCcyPair: this.$store.getters.activeCrossGetter
+      currentCcyPair: this.$store.getters.activeCrossGetter,
+      pricerSetupToggle: false
     };
   },
   created: function() {

@@ -1,8 +1,8 @@
 <template>
   <div>
-    <v-btn @click="hide" />
-    <v-btn @click="show" />
-    <PricerSetup />
+    <!-- <v-btn @click="hide" />
+    <v-btn @click="show" /> -->
+
     <div ref="jexcelPricer"></div>
   </div>
 </template>
@@ -14,13 +14,10 @@ import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as cellElements from "@/externaljs/cellElements.js"; // eslint-disable-line no-unused-vars
 import PricerApi from "@/apis/PricerApi";
 import keyGroupsJson from "./KeyGroups.json";
-import PricerSetup from "./PricerSetup.vue";
 
 export default {
   name: "optionPricer",
-  components: {
-    PricerSetup
-  },
+
   created: function() {
     document.addEventListener("keydown", this.EventListeners);
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;

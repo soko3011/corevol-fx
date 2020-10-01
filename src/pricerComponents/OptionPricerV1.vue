@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-btn @click="setVisibleKeys" />
+    <v-btn @click="wip" />
     <v-btn
       class="mt-15 mr-5"
       absolute
@@ -102,9 +102,6 @@ export default {
     pricerKeys: Array
   },
   computed: {
-    pricerSetup() {
-      return this.$store.state.pricerLayout;
-    },
     columnCount() {
       return this.jExcelObj.getData()[0].length;
     },
@@ -125,6 +122,7 @@ export default {
         tableHeight: this.tableHeight
       };
     },
+
     tableWidth() {
       let w = window.innerWidth - 150;
       return w + "px";
@@ -151,6 +149,15 @@ export default {
     },
     pricerName() {
       return JSON.parse(this.apidata.storedPricerData).PricerTitle;
+    },
+    pricerSetup() {
+      return this.$store.state.pricerLayout;
+    },
+    pricerKeysNew() {
+      return this.pricerSetup
+        .filter(item => item.show === true)
+        .map(group => group.keys)
+        .flat();
     },
 
     NonReadOnlyList() {
@@ -179,12 +186,16 @@ export default {
     }
   },
   methods: {
+    wip() {
+      console.log(this.pricerKeysNew.length);
+      const setKeys = this.pricerSetup.filter(item => item.show === true);
+      const activeKeys = setKeys.map(group => group.keys).flat();
+    },
     resetPricerSetupToggle(val) {
       this.pricerSetupToggle = val;
     },
     setVisibleKeys() {
       const columnCount = this.jExcelObj.getData()[0].length;
-
       var hiddenGroups = this.pricerSetup.filter(item => item.show !== true);
       var shownGroups = this.pricerSetup.filter(item => item.show === true);
 
@@ -884,10 +895,6 @@ export default {
     this.FormatComplete();
   },
   watch: {
-    pricerSetup() {
-      console.log("fuckeyou");
-      this.setVisibleKeys();
-    },
     calculatedOptionData() {
       var optValues = [];
       for (var cell of this.pricerKeys) {

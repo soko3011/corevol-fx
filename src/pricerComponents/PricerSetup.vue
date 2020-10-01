@@ -1,10 +1,10 @@
 <template>
   <div>
     <v-dialog v-model="dialog" persistent max-width="700">
-      <draggable :v-model="keyGroups" @start="drag = true" @end="drag = false">
+      <draggable :list="keyGroups" @start="drag = true" @end="drag = false">
         <v-card
           v-for="element in keyGroups"
-          :key="element.name"
+          :key="element.position"
           max-height="80"
           elevation="21"
           class="mb-1"
@@ -95,6 +95,7 @@ export default {
   data() {
     return {
       // keyGroups: keyGroupsJson,
+      drag: false,
       keyGroups: keyGroupsJsonNew.KeyGroups,
       dialog: false,
       swatchesText: [

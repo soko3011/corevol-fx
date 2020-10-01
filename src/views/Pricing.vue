@@ -79,7 +79,7 @@
       </v-card>
 
       <OptionPricer
-        v-bind:pricerKeys="pricerKeys"
+        v-bind:pricerKeys="pricerKeysSource"
         v-on:childToParent="setPricerTitle"
         v-on:currentCcyPair="setCurrentCcyPair"
         v-bind:style="zoomLevel"
@@ -90,7 +90,6 @@
 
 <script>
 import OptionPricer from "@/pricerComponents/OptionPricerV1.vue";
-
 import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
@@ -148,6 +147,17 @@ export default {
     pricerKeys() {
       return JSON.parse(this.apidata.pricerKeys);
     },
+    pricerKeysNew() {
+      return this.$store.state.pricerLayout
+        .filter(item => item.show === true)
+        .map(group => group.keys)
+        .flat();
+    },
+    pricerKeysSource() {
+      return this.pricerKeysNew.length > 0
+        ? this.pricerKeysNew
+        : this.pricerKeys;
+    },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
@@ -175,6 +185,9 @@ export default {
   },
 
   methods: {
+    test() {
+      console.log(this.pricerKeysNew);
+    },
     focusInput() {
       this.$refs.addPricer.focus();
     },

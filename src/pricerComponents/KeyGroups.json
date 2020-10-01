@@ -1,5 +1,5 @@
 {
-  "bsGreeks": {
+  "BsGreeks": {
     "hide": true,
     "keys": [
       "Price",
@@ -11,7 +11,7 @@
       "Theta"
     ]
   },
-  "volInfo": {
+  "VolData": {
     "hide": true,
     "keys": [
       "AtmVol",
@@ -24,19 +24,19 @@
       "VolToAtm"
     ]
   },
-  "fwdInfo": {
+  "FwdData": {
     "hide": true,
     "keys": ["ForDepo", "DomDepo", "FwdOutRight", "FwdPts"]
   },
-  "regaSega": {
+  "RegaSega": {
     "hide": true,
     "keys": ["Rega25", "Rega10", "Sega25", "Sega10"]
   },
-  "vannaVolga": {
+  "VannaVolga": {
     "hide": true,
     "keys": ["Volga", "Vanna", "Rho_For", "Rho_Dom", "SVanna", "SVolga"]
   },
-  "discountFactors": {
+  "DiscountFactors": {
     "hide": true,
     "keys": [
       "DfDomExp",
@@ -47,7 +47,7 @@
       "InceptionDate"
     ]
   },
-  "greeksInAmts": {
+  "BsGeeksUnits": {
     "hide": true,
     "keys": [
       "PremiumAmt",
@@ -69,7 +69,7 @@
       "SVannaAmt"
     ]
   },
-  "smileGreeks": {
+  "SmileGreeks": {
     "hide": true,
     "keys": [
       "SDelta",

@@ -2,6 +2,7 @@
   <div>
     <v-btn @click="hide" />
     <v-btn @click="show" />
+    <PricerSetup />
     <div ref="jexcelPricer"></div>
   </div>
 </template>
@@ -10,15 +11,16 @@
 import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
-
-import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
 import * as cellElements from "@/externaljs/cellElements.js"; // eslint-disable-line no-unused-vars
 import PricerApi from "@/apis/PricerApi";
 import keyGroupsJson from "./KeyGroups.json";
+import PricerSetup from "./PricerSetup.vue";
 
 export default {
   name: "optionPricer",
-  components: {},
+  components: {
+    PricerSetup
+  },
   created: function() {
     document.addEventListener("keydown", this.EventListeners);
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;
@@ -30,6 +32,7 @@ export default {
 
   data() {
     return {
+      showToggle: false,
       toggleTableEditable: false,
       currentCcyPair: null,
       cellPosContainer: [],
@@ -179,18 +182,19 @@ export default {
       }
     },
     show() {
-      const cols = this.jExcelObj.getData()[0].length;
-      var rowStart = 5;
-      var rowsTohide = 5;
-      for (var r = rowStart; r < rowStart + rowsTohide; r++) {
-        for (var i = 0; i < cols; i++) {
-          var cell = this.GetCell(i, r);
-          cell.classList.remove("hideRow");
-        }
-      }
+      this.showToggle = true;
+      // const cols = this.jExcelObj.getData()[0].length;
+      // var rowStart = 5;
+      // var rowsTohide = 5;
+      // for (var r = rowStart; r < rowStart + rowsTohide; r++) {
+      //   for (var i = 0; i < cols; i++) {
+      //     var cell = this.GetCell(i, r);
+      //     cell.classList.remove("hideRow");
+      //   }
+      // }
 
-      var cell = this.GetCell(0, rowStart - 1);
-      cell.classList.remove("hideClue");
+      // var cell = this.GetCell(0, rowStart - 1);
+      // cell.classList.remove("hideClue");
     },
     setPricerKeys() {
       let keys = this.pricerKeys;

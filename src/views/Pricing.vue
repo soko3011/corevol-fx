@@ -98,7 +98,10 @@
         v-on:currentCcyPair="setCurrentCcyPair"
         v-bind:style="zoomLevel"
       />
-      <PricerSetup :dialog="pricerSetupToggle" />
+      <PricerSetup
+        :showPricer="pricerSetupToggle"
+        @dialogState="resetPricerSetupToggle"
+      />
     </div>
   </div>
 </template>
@@ -194,6 +197,9 @@ export default {
   },
 
   methods: {
+    resetPricerSetupToggle(val) {
+      this.pricerSetupToggle = val;
+    },
     focusInput() {
       this.$refs.addPricer.focus();
     },

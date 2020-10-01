@@ -1,0 +1,114 @@
+{
+  "KeyGroups": [
+    {
+      "name": "BsGreeks",
+      "show": true,
+      "backgroudColor": "",
+      "textColor": "",
+      "keys": [
+        "Price",
+        "Fwd_Price",
+        "Delta",
+        "Fwd_Delta",
+        "Vega",
+        "Gamma",
+        "Theta"
+      ]
+    },
+
+    {
+      "name": "VolData",
+      "show": true,
+      "backgroudColor": "",
+      "textColor": "",
+      "keys": [
+        "AtmVol",
+        "Rr",
+        "Fly",
+        "Sfly",
+        "RrMult",
+        "FlyMult",
+        "Zeta",
+        "VolToAtm"
+      ]
+    },
+    {
+      "name": "FwdData",
+      "show": true,
+      "backgroudColor": "",
+      "textColor": "",
+      "keys": ["ForDepo", "DomDepo", "FwdOutRight", "FwdPts"]
+    },
+    {
+      "name": "RegaSega",
+      "show": true,
+      "backgroudColor": "",
+      "textColor": "",
+      "keys": ["Rega25", "Rega10", "Sega25", "Sega10"]
+    },
+    {
+      "name": "VannaVolga",
+      "show": true,
+      "backgroudColor": "",
+      "textColor": "",
+      "keys": ["Volga", "Vanna", "Rho_For", "Rho_Dom", "SVanna", "SVolga"]
+    },
+    {
+      "name": "DiscountFactors",
+      "show": true,
+      "backgroudColor": "",
+      "textColor": "",
+      "keys": [
+        "DfDomExp",
+        "DfDomDel",
+        "DfForExp",
+        "DfForDel",
+        "SpotDate",
+        "InceptionDate"
+      ]
+    },
+    {
+      "name": "BsGreeksUnits",
+      "show": true,
+      "backgroudColor": "",
+      "textColor": "",
+      "keys": [
+        "PremiumAmt",
+        "Fwd_PremiumAmt",
+        "DeltaAmt",
+        "Fwd_DeltaAmt",
+        "VegaAmt",
+        "GammaAmt",
+        "Rega25Amt",
+        "Rega10Amt",
+        "Sega25Amt",
+        "Sega10Amt",
+        "VannaAmt",
+        "VolgaAmt",
+        "Rho_ForAmt",
+        "Rho_DomAmt",
+        "ThetaAmt",
+        "SVolgaAmt",
+        "SVannaAmt"
+      ]
+    },
+    {
+      "name": "SmileGreeks",
+      "show": true,
+      "backgroudColor": "",
+      "textColor": "",
+      "keys": [
+        "SDelta",
+        "Fwd_SDelta",
+        "SVega",
+        "SGamma",
+        "STheta",
+        "SDeltaAmt",
+        "Fwd_SDeltaAmt",
+        "SVegaAmt",
+        "SGammaAmt",
+        "SThetaAmt"
+      ]
+    }
+  ]
+}

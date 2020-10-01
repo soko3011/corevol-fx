@@ -1,7 +1,7 @@
 <template>
   <div>
-    <!-- <v-btn @click="hide" />
-    <v-btn @click="show" /> -->
+    <v-btn @click="hide" />
+    <v-btn @click="show" />
 
     <div ref="jexcelPricer"></div>
   </div>
@@ -158,8 +158,17 @@ export default {
   methods: {
     hide() {
       const columnCount = this.jExcelObj.getData()[0].length;
+      const pricerSetup = this.$store.state.pricerLayout;
+      console.log(pricerSetup);
+      // let hiddenKeyGroupTitles = [];
+      // pricerSetup.map(item => {
+      //   if (item.show != true) {
+      //     hiddenKeyGroupTitles.push(item.name);
+      //   }
+      // });
 
       console.log(Object.keys(this.keyGroups));
+
       for (const keyGroup of Object.keys(this.keyGroups)) {
         let hide = (keyGroup, this.keyGroups[keyGroup]).hide;
         let keys = (keyGroup, this.keyGroups[keyGroup]).keys;

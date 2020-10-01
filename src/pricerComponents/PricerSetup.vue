@@ -72,7 +72,7 @@
           <v-card-actions> </v-card-actions>
         </v-card>
 
-        <v-btn color="blue lighten-3" block @click="saveLayout"
+        <v-btn class="mt-3" color="blue lighten-3" block @click="saveLayout"
           >Save Layout</v-btn
         >
         <v-btn class="mt-3 mb-3" color="red lighten-3" block @click="close"
@@ -87,6 +87,7 @@
 import draggable from "vuedraggable";
 import keyGroupsJson from "./KeyGroups.json";
 import Swatches from "vue-swatches";
+import { watch } from "fs";
 
 export default {
   components: {
@@ -94,12 +95,12 @@ export default {
     Swatches
   },
   props: {
-    dialog: { type: Boolean, default: false }
+    showPricer: { type: Boolean, default: false }
   },
   data() {
     return {
       keyGroups: keyGroupsJson,
-
+      dialog: false,
       swatchesText: [
         ["#F64272", "#F6648B", "#F493A7", "#F891A6", "#FFCCD5"],
         ["#8b5aff", "#a27bff", "#b99cff", "#d0bdff", "#e8deff"],
@@ -131,16 +132,12 @@ export default {
   },
 
   methods: {
-    // selectTextColor(element) {
-    //   var xx = this.keyGroupTitle.find(x => x.name === element.name);
-    //   console.log(xx);
-    //   console.log(element);
-    // },
     pickTextColor() {
       this.showColor = true;
     },
     saveLayout() {
-      console.log(this.keyGroupTitle);
+      this.$store.dispatch("setPricerLayout", this.keyGroupTitle);
+
       this.$store.dispatch("setSnackbar", {
         text: "Layout Saved",
         centered: true
@@ -150,6 +147,12 @@ export default {
     close() {
       this.dialog = false;
       this.$nextTick(() => {});
+      this.$emit("dialogState", this.dialog);
+    }
+  },
+  watch: {
+    showPricer() {
+      this.dialog = this.showPricer;
     }
   }
 };

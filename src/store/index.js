@@ -28,6 +28,7 @@ const state = {
   activecross: "",
   userPrefCross: "",
   pricerLayoutName: "",
+  pricerLayout: [],
   activePricerLayout: [],
   crossList: [],
 
@@ -148,6 +149,11 @@ const mutations = {
   },
   SET_SINGLE_OPT(state, data) {
     state.singleOptData = data;
+  },
+  SET_PRICER_LAYOUT(state, data) {
+    state.pricerLayout = data;
+    console.log("store  ");
+    console.log(state.pricerLayout);
   }
 };
 
@@ -278,6 +284,9 @@ const actions = {
     } catch (err) {
       return { error: `There was an error. ${err}.` };
     }
+  },
+  setPricerLayout({ commit }, data) {
+    commit("SET_PRICER_LAYOUT", data);
   },
   setSidebarMinified({ commit }) {
     commit("SET_SIDEBARMINIFIED");

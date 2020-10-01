@@ -1,13 +1,9 @@
 <template>
   <div>
     <v-dialog v-model="dialog" persistent max-width="700">
-      <draggable
-        :v-model="keyGroupTitle"
-        @start="drag = true"
-        @end="drag = false"
-      >
+      <draggable :v-model="keyGroups" @start="drag = true" @end="drag = false">
         <v-card
-          v-for="element in keyGroupTitle"
+          v-for="element in keyGroups"
           :key="element.name"
           max-height="80"
           elevation="21"
@@ -36,7 +32,6 @@
                 popover-x="right"
                 show-fallback
                 fallback-input-type="color"
-                @input="selectTextColor(element)"
               ></swatches>
             </v-col>
             <v-col cols="12" sm="2" align="center" justify="center">
@@ -86,8 +81,8 @@
 <script>
 import draggable from "vuedraggable";
 import keyGroupsJson from "./KeyGroups.json";
+import keyGroupsJsonNew from "./KeyGroupsNew.json";
 import Swatches from "vue-swatches";
-import { watch } from "fs";
 
 export default {
   components: {
@@ -99,7 +94,8 @@ export default {
   },
   data() {
     return {
-      keyGroups: keyGroupsJson,
+      // keyGroups: keyGroupsJson,
+      keyGroups: keyGroupsJsonNew.KeyGroups,
       dialog: false,
       swatchesText: [
         ["#F64272", "#F6648B", "#F493A7", "#F891A6", "#FFCCD5"],
@@ -113,22 +109,9 @@ export default {
         ["#51e5db", "#74ebe3", "#96f0ea", "#b9f5f1", "#dcfaf8"],
         ["#ffa51a", "#ffb748", "#ffc976", "#ffdba3", "#ffedd1"]
       ],
-      keyGroupTitle: [],
+      //keyGroups: [],
       textColor1: "yellow"
     };
-  },
-  created() {
-    var newArray = [];
-    for (const key of Object.keys(this.keyGroups)) {
-      newArray.push({
-        name: key,
-        show: true,
-        textColor: "#1CA085",
-        backgroundColor: "#ffedd1"
-      });
-    }
-
-    this.keyGroupTitle = newArray;
   },
 
   methods: {
@@ -136,12 +119,13 @@ export default {
       this.showColor = true;
     },
     saveLayout() {
-      this.$store.dispatch("setPricerLayout", this.keyGroupTitle);
+      this.$store.dispatch("setPricerLayout", this.keyGroups);
+      this.$emit("pricerLayoutChanged");
 
-      this.$store.dispatch("setSnackbar", {
-        text: "Layout Saved",
-        centered: true
-      });
+      //   this.$store.dispatch("setSnackbar", {
+      //     text: "Layout Saved",
+      //     centered: true
+      //   });
       this.close();
     },
     close() {

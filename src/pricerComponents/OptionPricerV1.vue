@@ -1,9 +1,26 @@
 <template>
   <div>
-    <v-btn @click="hide" />
-    <v-btn @click="show" />
-
+    <v-btn @click="setVisibleKeys" />
+    <v-btn
+      class="mt-15 mr-5"
+      absolute
+      small
+      fab
+      top
+      right
+      color="#385F73"
+      elevation="21"
+      dark
+      @click="pricerSetupToggle = !pricerSetupToggle"
+    >
+      <v-icon>mdi-pencil-outline</v-icon>
+    </v-btn>
     <div ref="jexcelPricer"></div>
+    <PricerSetup
+      :showPricer="pricerSetupToggle"
+      @dialogState="resetPricerSetupToggle"
+      @pricerLayoutChanged="setVisibleKeys"
+    />
   </div>
 </template>
 
@@ -14,6 +31,7 @@ import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as cellElements from "@/externaljs/cellElements.js"; // eslint-disable-line no-unused-vars
 import PricerApi from "@/apis/PricerApi";
 import keyGroupsJson from "./KeyGroups.json";
+import PricerSetup from "@/pricerComponents/PricerSetup.vue";
 
 export default {
   name: "optionPricer",
@@ -26,11 +44,13 @@ export default {
     document.removeEventListener("keydown", this.EventListeners);
     this.$store.dispatch("setLastCellPosition", this.cellPosContainer);
   },
+  components: {
+    PricerSetup
+  },
 
   data() {
     return {
-      showToggle: false,
-      toggleTableEditable: false,
+      pricerSetupToggle: false,
       currentCcyPair: null,
       cellPosContainer: [],
       userFormat: {
@@ -82,6 +102,9 @@ export default {
     pricerKeys: Array
   },
   computed: {
+    pricerSetup() {
+      return this.$store.state.pricerLayout;
+    },
     columnCount() {
       return this.jExcelObj.getData()[0].length;
     },
@@ -156,52 +179,36 @@ export default {
     }
   },
   methods: {
-    hide() {
+    resetPricerSetupToggle(val) {
+      this.pricerSetupToggle = val;
+    },
+    setVisibleKeys() {
       const columnCount = this.jExcelObj.getData()[0].length;
-      const pricerSetup = this.$store.state.pricerLayout;
-      console.log(pricerSetup);
-      // let hiddenKeyGroupTitles = [];
-      // pricerSetup.map(item => {
-      //   if (item.show != true) {
-      //     hiddenKeyGroupTitles.push(item.name);
-      //   }
-      // });
 
-      console.log(Object.keys(this.keyGroups));
+      var hiddenGroups = this.pricerSetup.filter(item => item.show !== true);
+      var shownGroups = this.pricerSetup.filter(item => item.show === true);
 
-      for (const keyGroup of Object.keys(this.keyGroups)) {
-        let hide = (keyGroup, this.keyGroups[keyGroup]).hide;
-        let keys = (keyGroup, this.keyGroups[keyGroup]).keys;
-
-        if (hide === true) {
-          for (var key of keys) {
-            for (var i = 0; i < columnCount; i++) {
-              var cell = this.GetCell(i, this.KeyRow(key));
-              cell.classList.add("hideRow");
-            }
+      for (const keyGroup of hiddenGroups) {
+        let keys = keyGroup.keys;
+        for (var key of keys) {
+          for (var i = 0; i < columnCount; i++) {
+            var cell = this.GetCell(i, this.KeyRow(key));
+            cell.classList.add("hideRow");
           }
+        }
+      }
 
-          var marker = this.KeyRow(keys[0]) - 1;
-          var cell = this.GetCell(0, marker);
-          cell.classList.add("hideClue");
+      for (const keyGroup of shownGroups) {
+        let keys = keyGroup.keys;
+        for (var key of keys) {
+          for (var i = 0; i < columnCount; i++) {
+            var cell = this.GetCell(i, this.KeyRow(key));
+            cell.classList.remove("hideRow");
+          }
         }
       }
     },
-    show() {
-      this.showToggle = true;
-      // const cols = this.jExcelObj.getData()[0].length;
-      // var rowStart = 5;
-      // var rowsTohide = 5;
-      // for (var r = rowStart; r < rowStart + rowsTohide; r++) {
-      //   for (var i = 0; i < cols; i++) {
-      //     var cell = this.GetCell(i, r);
-      //     cell.classList.remove("hideRow");
-      //   }
-      // }
 
-      // var cell = this.GetCell(0, rowStart - 1);
-      // cell.classList.remove("hideClue");
-    },
     setPricerKeys() {
       let keys = this.pricerKeys;
       let keyList = [];
@@ -877,6 +884,10 @@ export default {
     this.FormatComplete();
   },
   watch: {
+    pricerSetup() {
+      console.log("fuckeyou");
+      this.setVisibleKeys();
+    },
     calculatedOptionData() {
       var optValues = [];
       for (var cell of this.pricerKeys) {

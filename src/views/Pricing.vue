@@ -26,20 +26,6 @@
       <v-spacer></v-spacer>
     </v-toolbar>
     <v-spacer />
-    <v-btn
-      class="mt-15 mr-5"
-      absolute
-      small
-      fab
-      top
-      right
-      color="#385F73"
-      elevation="21"
-      dark
-      @click="pricerSetupToggle = !pricerSetupToggle"
-    >
-      <v-icon>mdi-pencil-outline</v-icon>
-    </v-btn>
 
     <div class="d-flex flex-nowrap ma-5">
       <v-card
@@ -98,10 +84,6 @@
         v-on:currentCcyPair="setCurrentCcyPair"
         v-bind:style="zoomLevel"
       />
-      <PricerSetup
-        :showPricer="pricerSetupToggle"
-        @dialogState="resetPricerSetupToggle"
-      />
     </div>
   </div>
 </template>
@@ -113,18 +95,15 @@ import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import PopUpInput from "@/components/PopUpInput.vue";
-import PricerSetup from "@/pricerComponents/PricerSetup.vue";
 
 export default {
   name: "PricerView",
 
   components: {
     OptionPricer,
-    PricerSetup,
     TreeView,
     PopUpModal,
     PopUpInput
-    //DashBoard
   },
 
   data() {
@@ -136,8 +115,7 @@ export default {
       viewName: this.$route.params.viewName,
       showSideControl: false,
       drawer: true,
-      currentCcyPair: this.$store.getters.activeCrossGetter,
-      pricerSetupToggle: false
+      currentCcyPair: this.$store.getters.activeCrossGetter
     };
   },
   created: function() {
@@ -197,9 +175,6 @@ export default {
   },
 
   methods: {
-    resetPricerSetupToggle(val) {
-      this.pricerSetupToggle = val;
-    },
     focusInput() {
       this.$refs.addPricer.focus();
     },

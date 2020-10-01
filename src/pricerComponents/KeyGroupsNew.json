@@ -3,7 +3,7 @@
     {
       "name": "BsGreeks",
       "show": true,
-      "backgroudColor": "",
+      "backgroundColor": "",
       "textColor": "",
       "keys": [
         "Price",
@@ -19,7 +19,7 @@
     {
       "name": "VolData",
       "show": true,
-      "backgroudColor": "",
+      "backgroundColor": "",
       "textColor": "",
       "keys": [
         "AtmVol",
@@ -35,28 +35,28 @@
     {
       "name": "FwdData",
       "show": true,
-      "backgroudColor": "",
+      "backgroundColor": "",
       "textColor": "",
       "keys": ["ForDepo", "DomDepo", "FwdOutRight", "FwdPts"]
     },
     {
       "name": "RegaSega",
       "show": true,
-      "backgroudColor": "",
+      "backgroundColor": "",
       "textColor": "",
       "keys": ["Rega25", "Rega10", "Sega25", "Sega10"]
     },
     {
       "name": "VannaVolga",
       "show": true,
-      "backgroudColor": "",
+      "backgroundColor": "",
       "textColor": "",
       "keys": ["Volga", "Vanna", "Rho_For", "Rho_Dom", "SVanna", "SVolga"]
     },
     {
       "name": "DiscountFactors",
       "show": true,
-      "backgroudColor": "",
+      "backgroundColor": "",
       "textColor": "",
       "keys": [
         "DfDomExp",
@@ -70,7 +70,7 @@
     {
       "name": "BsGreeksUnits",
       "show": true,
-      "backgroudColor": "",
+      "backgroundColor": "",
       "textColor": "",
       "keys": [
         "PremiumAmt",
@@ -95,7 +95,7 @@
     {
       "name": "SmileGreeks",
       "show": true,
-      "backgroudColor": "",
+      "backgroundColor": "",
       "textColor": "",
       "keys": [
         "SDelta",

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-btn @click="wip" />
+    <v-btn @click="initPricer" />
     <v-btn
       class="mt-15 mr-5"
       absolute
@@ -31,12 +31,14 @@ import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as cellElements from "@/externaljs/cellElements.js"; // eslint-disable-line no-unused-vars
 import PricerApi from "@/apis/PricerApi";
 import keyGroupsJson from "./KeyGroups.json";
+import alphabetJson from "./Alphabet.json";
 import PricerSetup from "@/pricerComponents/PricerSetup.vue";
+import { mapState } from "vuex";
 
 export default {
   name: "optionPricer",
 
-  created: function() {
+  async created() {
     document.addEventListener("keydown", this.EventListeners);
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;
   },
@@ -50,64 +52,32 @@ export default {
 
   data() {
     return {
+      keyPreset: "Trader",
+      pricerSettingsObj: [],
+      initialData: [],
+      pricerKeys: [],
       pricerSetupToggle: false,
       currentCcyPair: null,
       cellPosContainer: [],
-      userFormat: {
-        backgroundColor: "White",
-        fontColor: "Black",
-        rowArray: []
-      },
-      iData: {},
-      colsW: [],
       row: [],
       col: [],
-
-      obj: null,
       redObj: [],
       optData: {},
       optContainer: [],
-      alphabet: [
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "i",
-        "j",
-        "k",
-        "l",
-        "m",
-        "n",
-        "o",
-        "p",
-        "q",
-        "r",
-        "s",
-        "t",
-        "u",
-        "v",
-        "w",
-        "x",
-        "y",
-        "z"
-      ],
+      alphabet: alphabetJson,
       keyGroups: keyGroupsJson
     };
   },
-  props: {
-    pricerKeys: Array
-  },
   computed: {
+    ...mapState({
+      defaultPricerKeyGroups: state => state.defaultPricerKeyGroups
+    }),
     columnCount() {
       return this.jExcelObj.getData()[0].length;
     },
     config() {
       return {
-        data: this.setPricerKeys(),
+        data: this.initialData,
         allowInsertRow: false,
         columnSorting: false,
         tableOverflow: true,
@@ -122,7 +92,6 @@ export default {
         tableHeight: this.tableHeight
       };
     },
-
     tableWidth() {
       let w = window.innerWidth - 150;
       return w + "px";
@@ -134,7 +103,6 @@ export default {
     crossListData() {
       return this.$store.state.crossList;
     },
-
     apidata() {
       return this.$store.state.rawPricerData;
     },
@@ -153,13 +121,6 @@ export default {
     pricerSetup() {
       return this.$store.state.pricerLayout;
     },
-    pricerKeysNew() {
-      return this.pricerSetup
-        .filter(item => item.show === true)
-        .map(group => group.keys)
-        .flat();
-    },
-
     NonReadOnlyList() {
       let arr = [];
       arr.push(
@@ -186,6 +147,36 @@ export default {
     }
   },
   methods: {
+    selectionActive(instance, x1, y1, x2, y2) {
+      this.row = y1;
+      this.col = x1;
+
+      this.currentCcyPair = this.KeyVal("Cross");
+
+      if (this.NonReadOnlyList.indexOf(this.row) !== -1) {
+        var cell = this.GetCell(x1, y1);
+        cell.classList.remove("readonly");
+      }
+    },
+    setPricerSettingsObj(keyPreset) {
+      return this.defaultPricerKeyGroups[keyPreset];
+    },
+    setPricerKeys(keyPreset) {
+      return this.defaultPricerKeyGroups[keyPreset]
+        .filter(item => item.Show === true)
+        .map(group => group.Keys)
+        .flat();
+    },
+    setInitalData(keys) {
+      let keyList = [];
+      for (var r = 0; r < keys.length; r++) {
+        var key = [];
+        key.push(keys[r]);
+        keyList.push(key);
+      }
+      return keyList;
+    },
+    initPricer() {},
     wip() {
       console.log(this.pricerKeysNew.length);
       const setKeys = this.pricerSetup.filter(item => item.show === true);
@@ -220,16 +211,6 @@ export default {
       }
     },
 
-    setPricerKeys() {
-      let keys = this.pricerKeys;
-      let keyList = [];
-      for (var r = 0; r < keys.length; r++) {
-        var key = [];
-        key.push(keys[r]);
-        keyList.push(key);
-      }
-      return keyList;
-    },
     setReadOnly() {
       var columns = [];
 
@@ -500,17 +481,7 @@ export default {
         }
       });
     },
-    selectionActive(instance, x1, y1, x2, y2) {
-      this.row = y1;
-      this.col = x1;
-      this.userFormat.rowArray = [y1, y2];
-      this.currentCcyPair = this.KeyVal("Cross");
 
-      if (this.NonReadOnlyList.indexOf(this.row) !== -1) {
-        var cell = this.GetCell(x1, y1);
-        cell.classList.remove("readonly");
-      }
-    },
     ResetCellPosition(oldVal, newVal) {
       this.RecordCellPosition(oldVal);
       this.SetCellPosition(newVal);
@@ -664,7 +635,7 @@ export default {
         newList[i][col] = newOpt[i];
       }
       this.jExcelObj.setData(newList);
-      this.hide();
+
       this.ReturnCurrent();
     },
     ReturnCurrent() {
@@ -884,7 +855,17 @@ export default {
       this.userFormat.fontColor = value.fontColor;
     }
   },
-  mounted() {
+  async mounted() {
+    if (Object.keys(this.defaultPricerKeyGroups).length === 0) {
+      var response = await this.$store.dispatch("getDefaultPricerKeyGroups");
+      console.log(`DefaultPricerKeyGroups has data: ${response}`);
+    }
+    this.pricerSettingsObj = this.setPricerSettingsObj(this.keyPreset);
+    this.pricerKeys = this.setPricerKeys(this.keyPreset);
+    this.initialData = this.setInitalData(this.pricerKeys);
+
+    console.log(this.pricerSettingsObj);
+
     const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.config);
     Object.assign(this, { jExcelObj });
     jExcelObj.hideIndex();

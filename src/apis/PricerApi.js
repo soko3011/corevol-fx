@@ -33,5 +33,8 @@ export default {
   },
   SavePricerSetup(body) {
     return Api.post("SavePricerSetup", body);
+  },
+  GetDefaultPricerKeyGroups() {
+    return Api.get("GetDefaultPricerKeyGroups");
   }
 };

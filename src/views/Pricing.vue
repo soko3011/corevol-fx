@@ -1,5 +1,5 @@
 <template>
-  <div v-if="dataReturned">
+  <div>
     <v-toolbar
       class="ma-5"
       color="#385F73"
@@ -79,7 +79,6 @@
       </v-card>
 
       <OptionPricer
-        v-bind:pricerKeys="pricerKeysSource"
         v-on:childToParent="setPricerTitle"
         v-on:currentCcyPair="setCurrentCcyPair"
         v-bind:style="zoomLevel"
@@ -94,6 +93,7 @@ import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import PopUpInput from "@/components/PopUpInput.vue";
+import { mapState } from "vuex";
 
 export default {
   name: "PricerView",
@@ -117,11 +117,9 @@ export default {
       currentCcyPair: this.$store.getters.activeCrossGetter
     };
   },
-  created: function() {
-    this.$store.dispatch("refreshCrossList");
-    document.addEventListener("keydown", this.EventListeners);
-
+  async created() {
     var view = this.$route.params.viewName;
+    this.$store.dispatch("refreshCrossList");
 
     PricerApi.GetListOfActivePricers({
       userName: this.$store.state.currentUser
@@ -134,6 +132,8 @@ export default {
         this.RefreshPricerData(view);
       }
     });
+
+    document.addEventListener("keydown", this.EventListeners);
   },
 
   destroyed: function() {
@@ -141,6 +141,11 @@ export default {
     this.$store.dispatch("setPricerTab", this.pricerTitle);
   },
   computed: {
+    ...mapState({
+      defaultPricerKeyGroups: state => state.defaultPricerKeyGroups,
+      defaultPricerKeyGroupsHasData: state =>
+        state.defaultPricerKeyGroupsHasData
+    }),
     apidata() {
       return this.$store.state.rawPricerData;
     },

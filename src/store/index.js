@@ -31,6 +31,8 @@ const state = {
   pricerLayout: [],
   activePricerLayout: [],
   crossList: [],
+  defaultPricerKeyGroups: {},
+  activePricerSettings: [],
 
   lastPricerTab: "",
   lastPricerCellCoords: [],
@@ -45,6 +47,9 @@ const state = {
 };
 
 const mutations = {
+  SET_DEFAULT_PRICERKEYGROUPS(state, data) {
+    state.defaultPricerKeyGroups = data;
+  },
   TOGGLE_RIGHT_NAV(state) {
     state.rightSideNav = !state.rightSideNav;
   },
@@ -158,9 +163,21 @@ const mutations = {
 };
 
 const actions = {
+  async getDefaultPricerKeyGroups({ dispatch, commit }) {
+    try {
+      let response = await PricerApi.GetDefaultPricerKeyGroups();
+      var keyGroups = JSON.parse(response.data.result);
+
+      commit("SET_DEFAULT_PRICERKEYGROUPS", keyGroups);
+      return true;
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}`
+      });
+    }
+  },
   async savePricerSetup({ dispatch }, data) {
     try {
-      console.log(data);
       let response = await PricerApi.SavePricerSetup(data);
       dispatch("setSnackbar", {
         text: `PricerSetup saved. Status: ${response.status}`

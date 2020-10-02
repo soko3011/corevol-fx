@@ -122,6 +122,7 @@ export default {
     saveLayout() {
       this.$store.dispatch("setPricerLayout", this.keyGroups);
       this.$emit("pricerLayoutChanged");
+      this.$store.dispatch("savePricerSetup", this.keyGroups);
 
       //   this.$store.dispatch("setSnackbar", {
       //     text: "Layout Saved",

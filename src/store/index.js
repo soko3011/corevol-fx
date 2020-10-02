@@ -158,6 +158,19 @@ const mutations = {
 };
 
 const actions = {
+  async savePricerSetup({ dispatch }, data) {
+    try {
+      console.log(data);
+      let response = await PricerApi.SavePricerSetup(data);
+      dispatch("setSnackbar", {
+        text: `PricerSetup saved. Status: ${response.status}`
+      });
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}`
+      });
+    }
+  },
   toggleRightNav({ commit }) {
     commit("TOGGLE_RIGHT_NAV");
   },

@@ -33,7 +33,6 @@ const state = {
   crossList: [],
   defaultPricerKeyGroups: {},
   activePricerSettings: [],
-
   lastPricerTab: "",
   lastPricerCellCoords: [],
 

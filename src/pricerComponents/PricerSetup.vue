@@ -15,8 +15,8 @@
                 class="ml-10"
                 color="green"
                 inset
-                :label="element.name"
-                v-model="element.show"
+                :label="element.Name"
+                v-model="element.Show"
               ></v-switch>
             </v-col>
 
@@ -26,7 +26,7 @@
               </div>
 
               <swatches
-                v-model="element.textColor"
+                v-model="element.TextColor"
                 row-length="6"
                 show-border
                 popover-x="right"
@@ -39,7 +39,7 @@
                 Background
               </div>
               <swatches
-                v-model="element.backgroundColor"
+                v-model="element.BackGroundColor"
                 :swatches="swatchesLight"
                 row-length="6"
                 show-border
@@ -52,12 +52,12 @@
               <v-text-field
                 class="mt-3"
                 outlined
-                :background-color="element.backgroundColor"
-                :color="element.textColor"
+                :background-color="element.BackGroundColor"
+                :color="element.TextColor"
                 dense
                 readonly
               >
-                <v-icon slot="prepend-inner" :color="element.textColor"
+                <v-icon slot="prepend-inner" :color="element.TextColor"
                   >mdi-alphabetical</v-icon
                 >
               </v-text-field>
@@ -80,8 +80,6 @@
 
 <script>
 import draggable from "vuedraggable";
-import keyGroupsJson from "./KeyGroups.json";
-import keyGroupsJsonNew from "./KeyGroupsNew.json";
 import Swatches from "vue-swatches";
 
 export default {
@@ -90,13 +88,14 @@ export default {
     Swatches
   },
   props: {
-    showPricer: { type: Boolean, default: false }
+    showPricer: { type: Boolean, default: false },
+    ActivekeyGroups: { type: Array }
   },
+
   data() {
     return {
-      // keyGroups: keyGroupsJson,
       drag: false,
-      keyGroups: keyGroupsJsonNew.KeyGroups,
+      keyGroups: [],
       dialog: false,
       swatchesText: [
         ["#F64272", "#F6648B", "#F493A7", "#F891A6", "#FFCCD5"],
@@ -109,20 +108,15 @@ export default {
         ["#8b5aff", "#a27bff", "#b99cff", "#d0bdff", "#e8deff"],
         ["#51e5db", "#74ebe3", "#96f0ea", "#b9f5f1", "#dcfaf8"],
         ["#ffa51a", "#ffb748", "#ffc976", "#ffdba3", "#ffedd1"]
-      ],
-      //keyGroups: [],
-      textColor1: "yellow"
+      ]
     };
   },
 
   methods: {
-    pickTextColor() {
-      this.showColor = true;
-    },
     saveLayout() {
       this.$store.dispatch("setPricerLayout", this.keyGroups);
       this.$emit("pricerLayoutChanged");
-      this.$store.dispatch("savePricerSetup", this.keyGroups);
+      // this.$store.dispatch("savePricerSetup", this.keyGroups);
 
       //   this.$store.dispatch("setSnackbar", {
       //     text: "Layout Saved",
@@ -139,6 +133,7 @@ export default {
   watch: {
     showPricer() {
       this.dialog = this.showPricer;
+      this.keyGroups = this.ActivekeyGroups;
     }
   }
 };

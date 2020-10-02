@@ -17,6 +17,7 @@
     </v-btn>
     <div ref="jexcelPricer"></div>
     <PricerSetup
+      :ActivekeyGroups="pricerSettingsObj"
       :showPricer="pricerSetupToggle"
       @dialogState="resetPricerSetupToggle"
       @pricerLayoutChanged="setVisibleKeys"
@@ -863,7 +864,7 @@ export default {
     this.pricerSettingsObj = this.setPricerSettingsObj(this.keyPreset);
     this.pricerKeys = this.setPricerKeys(this.keyPreset);
     this.initialData = this.setInitalData(this.pricerKeys);
-
+    console.log("pricerSettingobj");
     console.log(this.pricerSettingsObj);
 
     const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.config);

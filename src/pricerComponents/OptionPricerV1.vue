@@ -17,7 +17,7 @@
     </v-btn>
     <div ref="jexcelPricer"></div>
     <PricerSetup
-      :ActivekeyGroups="pricerSettingsObj"
+      :activekeyGroups="pricerSettingsObj"
       :showPricer="pricerSetupToggle"
       @dialogState="resetPricerSetupToggle"
       @pricerLayoutChanged="setVisibleKeys"
@@ -43,12 +43,12 @@ export default {
     document.addEventListener("keydown", this.EventListeners);
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;
   },
-  destroyed: function() {
+  destroyed: function () {
     document.removeEventListener("keydown", this.EventListeners);
     this.$store.dispatch("setLastCellPosition", this.cellPosContainer);
   },
   components: {
-    PricerSetup
+    PricerSetup,
   },
 
   data() {
@@ -66,12 +66,12 @@ export default {
       optData: {},
       optContainer: [],
       alphabet: alphabetJson,
-      keyGroups: keyGroupsJson
+      keyGroups: keyGroupsJson,
     };
   },
   computed: {
     ...mapState({
-      defaultPricerKeyGroups: state => state.defaultPricerKeyGroups
+      defaultPricerKeyGroups: (state) => state.defaultPricerKeyGroups,
     }),
     columnCount() {
       return this.jExcelObj.getData()[0].length;
@@ -90,7 +90,7 @@ export default {
         onchange: this.updateOption,
         freezeColumns: 1,
         tableWidth: this.tableWidth,
-        tableHeight: this.tableHeight
+        tableHeight: this.tableHeight,
       };
     },
     tableWidth() {
@@ -119,9 +119,6 @@ export default {
     pricerName() {
       return JSON.parse(this.apidata.storedPricerData).PricerTitle;
     },
-    pricerSetup() {
-      return this.$store.state.pricerLayout;
-    },
     NonReadOnlyList() {
       let arr = [];
       arr.push(
@@ -145,7 +142,7 @@ export default {
         this.KeyRow("FwdPts")
       );
       return arr;
-    }
+    },
   },
   methods: {
     selectionActive(instance, x1, y1, x2, y2) {
@@ -164,8 +161,8 @@ export default {
     },
     setPricerKeys(keyPreset) {
       return this.defaultPricerKeyGroups[keyPreset]
-        .filter(item => item.Show === true)
-        .map(group => group.Keys)
+        .filter((item) => item.Show === true)
+        .map((group) => group.Keys)
         .flat();
     },
     setInitalData(keys) {
@@ -178,21 +175,17 @@ export default {
       return keyList;
     },
     initPricer() {},
-    wip() {
-      console.log(this.pricerKeysNew.length);
-      const setKeys = this.pricerSetup.filter(item => item.show === true);
-      const activeKeys = setKeys.map(group => group.keys).flat();
-    },
+    wip() {},
     resetPricerSetupToggle(val) {
       this.pricerSetupToggle = val;
     },
-    setVisibleKeys() {
+    setVisibleKeys(pricerSettignsObj) {
       const columnCount = this.jExcelObj.getData()[0].length;
-      var hiddenGroups = this.pricerSetup.filter(item => item.show !== true);
-      var shownGroups = this.pricerSetup.filter(item => item.show === true);
+      var hiddenGroups = pricerSettignsObj.filter((item) => item.Show !== true);
+      var shownGroups = pricerSettignsObj.filter((item) => item.Show === true);
 
       for (const keyGroup of hiddenGroups) {
-        let keys = keyGroup.keys;
+        let keys = keyGroup.Keys;
         for (var key of keys) {
           for (var i = 0; i < columnCount; i++) {
             var cell = this.GetCell(i, this.KeyRow(key));
@@ -202,7 +195,7 @@ export default {
       }
 
       for (const keyGroup of shownGroups) {
-        let keys = keyGroup.keys;
+        let keys = keyGroup.Keys;
         for (var key of keys) {
           for (var i = 0; i < columnCount; i++) {
             var cell = this.GetCell(i, this.KeyRow(key));
@@ -433,7 +426,7 @@ export default {
         expiryText: this.KeyVal("ExpiryText"),
         strikeText: this.KeyVal("StrikeText"),
         call_put: this.KeyVal("Call_Put"),
-        userName: this.$store.state.currentUser
+        userName: this.$store.state.currentUser,
       });
     },
     getSpot() {
@@ -451,17 +444,17 @@ export default {
       );
       PricerApi.CheckIfSurfaceExists({
         cross: this.KeyVal("Cross"),
-        userName: this.$store.state.currentUser
-      }).then(response => {
+        userName: this.$store.state.currentUser,
+      }).then((response) => {
         let surfExists = JSON.parse(response.data.surfExists);
         if (surfExists === false) {
           var cross = this.KeyVal("Cross");
           alert("Please Update " + cross + " Vols");
           this.$store.dispatch("setActivecross", {
-            cross: this.KeyVal("Cross")
+            cross: this.KeyVal("Cross"),
           });
           this.$store.dispatch("loadDviWithPayload", {
-            cross: this.KeyVal("Cross")
+            cross: this.KeyVal("Cross"),
           });
           // this.$router.push({
           //   name: "Dvi",
@@ -469,7 +462,7 @@ export default {
           // });
         } else {
           PricerApi.GetSingleSpot({ cross: this.KeyVal("Cross") }).then(
-            response => {
+            (response) => {
               let spotData = JSON.parse(response.data.singleSpot);
               this.jExcelObj.setValueFromCoords(
                 this.col,
@@ -488,7 +481,7 @@ export default {
       this.SetCellPosition(newVal);
     },
     pushToArray(arr, obj) {
-      const index = arr.findIndex(item => item.id === obj.id);
+      const index = arr.findIndex((item) => item.id === obj.id);
       if (index > -1) {
         arr[index] = obj;
       } else {
@@ -498,9 +491,11 @@ export default {
     RecordCellPosition() {
       var recordCellPos = {
         col: this.col,
-        pricer: this.pricerName
+        pricer: this.pricerName,
       };
-      var isDup = this.cellPosContainer.find(x => x.pricer === this.pricerName);
+      var isDup = this.cellPosContainer.find(
+        (x) => x.pricer === this.pricerName
+      );
       var index = this.cellPosContainer.indexOf(isDup);
       if (index === -1) {
         this.cellPosContainer.push(recordCellPos);
@@ -510,7 +505,7 @@ export default {
     },
     SetCellPosition() {
       var setCellPos = this.cellPosContainer.find(
-        x => x.pricer === this.pricerName
+        (x) => x.pricer === this.pricerName
       );
       if (setCellPos === undefined) {
         this.SelectCell(0, 1);
@@ -617,18 +612,6 @@ export default {
 
       let response = await this.$store.dispatch("calcSingleOption", optData);
       console.log(`singleOptData returned? ${response}`);
-
-      // PricerApi.ReCalcOpt(optData).then(response => {
-      //   var result = JSON.parse(response.data.result);
-      //   var optValues = [];
-      //   for (var cell of this.pricerKeys) {
-      //     var index = result.findIndex(p => p.Key == cell);
-      //     optValues.push(result[index].Value);
-      //   }
-      //   this.replaceSingleOpt(optValues, this.col);
-      //   this.FormatComplete();
-      // });
-      // this.EmptyCol();
     },
     replaceSingleOpt(newOpt, col) {
       var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
@@ -648,17 +631,17 @@ export default {
           UserOverwrittenInputsJSON: JSON.stringify(this.redObj),
           ActiveOptionsContainerJSON: JSON.stringify(this.optContainer),
           PricerLayoutName: JSON.parse(this.apidata.storedPricerData)
-            .PricerLayoutName
-        }
+            .PricerLayoutName,
+        },
       };
       PricerApi.ReturnCurrentOpts(StoredActivePricerData);
     },
     updateOption() {
       var newOpt = { name: this.col.toString() }; //create new opt object
-      var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
+      var index = this.optContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optContainer
       if (index === -1) {
         this.optContainer.push(newOpt);
-        index = this.optContainer.findIndex(x => x.name == newOpt.name);
+        index = this.optContainer.findIndex((x) => x.name == newOpt.name);
       }
       this.optData = this.optContainer[index]; //set current option from container.
       if (this.row == this.KeyRow("Cross")) {
@@ -682,7 +665,7 @@ export default {
       }
       if (this.row == this.KeyRow("PremiumType")) {
         Object.assign(this.optData, {
-          premiumType: this.KeyVal("PremiumType")
+          premiumType: this.KeyVal("PremiumType"),
         });
         this.ReCalcOpt(this.optData);
       }
@@ -763,12 +746,12 @@ export default {
     },
     CopyOpt(col) {
       var fxOptResult = this.jExcelObj.getColumnData(col);
-      var optObj = this.optContainer.filter(function(opt) {
+      var optObj = this.optContainer.filter(function (opt) {
         return opt.name == col;
       });
       var newOpt = this.copyObj(optObj[0]);
       newOpt.name = (col + 1).toString();
-      var index = this.optContainer.findIndex(x => x.name == newOpt.name);
+      var index = this.optContainer.findIndex((x) => x.name == newOpt.name);
       if (index > 0) {
         this.optContainer[index] = newOpt;
       } else {
@@ -781,10 +764,10 @@ export default {
       this.FormatComplete();
     },
     DelOpt(col) {
-      var optObj = this.optContainer.filter(function(opt) {
+      var optObj = this.optContainer.filter(function (opt) {
         return opt.name == col;
       });
-      var index = this.optContainer.findIndex(x => x.name == optObj[0].name);
+      var index = this.optContainer.findIndex((x) => x.name == optObj[0].name);
       this.optContainer.splice(index, 1);
       this.RemoveRedCellsFromArray();
       this.replaceSingleOpt(this.EmptyCol(), col);
@@ -842,7 +825,7 @@ export default {
         cellInfo = {
           Key: this.jExcelObj.getValue(cell),
           Color: this.jExcelObj.getCell(cell).style.backgroundColor,
-          FontColor: this.jExcelObj.getCell(cell).style.color
+          FontColor: this.jExcelObj.getCell(cell).style.color,
         };
         layoutInfo.push(cellInfo);
       }
@@ -854,7 +837,7 @@ export default {
     onChildClick(value) {
       this.userFormat.backgroundColor = value.backgroundColor;
       this.userFormat.fontColor = value.fontColor;
-    }
+    },
   },
   async mounted() {
     if (Object.keys(this.defaultPricerKeyGroups).length === 0) {
@@ -864,8 +847,6 @@ export default {
     this.pricerSettingsObj = this.setPricerSettingsObj(this.keyPreset);
     this.pricerKeys = this.setPricerKeys(this.keyPreset);
     this.initialData = this.setInitalData(this.pricerKeys);
-    console.log("pricerSettingobj");
-    console.log(this.pricerSettingsObj);
 
     const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.config);
     Object.assign(this, { jExcelObj });
@@ -880,7 +861,7 @@ export default {
     calculatedOptionData() {
       var optValues = [];
       for (var cell of this.pricerKeys) {
-        var index = this.calculatedOptionData.findIndex(p => p.Key == cell);
+        var index = this.calculatedOptionData.findIndex((p) => p.Key == cell);
         optValues.push(this.calculatedOptionData[index].Value);
       }
       this.replaceSingleOpt(optValues, this.col);
@@ -892,8 +873,8 @@ export default {
       if (this.currentCcyPair !== "") {
         this.$emit("currentCcyPair", this.currentCcyPair);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

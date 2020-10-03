@@ -2,7 +2,13 @@
   <v-app class="grey darken-4">
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
-        <v-toolbar class="mb-10" prominent flat color="grey darken-4" src="@/logo/corevollogo.png" />
+        <v-toolbar
+          class="mb-10"
+          prominent
+          flat
+          color="grey darken-4"
+          src="@/logo/corevollogo.png"
+        />
         <div align="center" class="ml-10">
           <v-list ref="menu" rounded color="grey darken-4" dark>
             <v-list-item
@@ -13,7 +19,7 @@
               @click="() => $router.push(item.route).catch(() => {})"
             >
               <v-list-item-content>
-                <v-list-item-title>{{item.text}}</v-list-item-title>
+                <v-list-item-title>{{ item.text }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -32,7 +38,7 @@ export default {
           id: 1,
           text: "DashBoard",
           class: "",
-          route: { name: "DashBoard" }
+          route: { name: "DashBoard" },
         },
         {
           id: 2,
@@ -40,55 +46,55 @@ export default {
           class: "",
           route: {
             name: "Dvi",
-            params: { ccyPair: `${this.$store.getters.activeCrossGetter}` }
-          }
+            params: { ccyPair: `${this.$store.getters.activeCrossGetter}` },
+          },
         },
         {
           id: 3,
           text: "Pricer",
           class: "",
           route: {
-            name: "Pricer",
-            params: { viewName: `${this.$store.getters.lastPricerTabGetter}` }
-          }
+            name: "Pricing",
+            params: { viewName: `${this.$store.getters.lastPricerTabGetter}` },
+          },
         },
         {
           id: 4,
           text: "Charts",
           class: "",
-          route: { name: "Charts" }
+          route: { name: "Charts" },
         },
         {
           id: 5,
           text: "Market Data",
           class: "",
-          route: { name: "FxRates" }
+          route: { name: "FxRates" },
         },
         {
           id: 6,
           text: "Settings",
           class: "",
-          route: { name: "Settings" }
-        }
+          route: { name: "Settings" },
+        },
       ],
 
-      previous_active_id: 1
+      previous_active_id: 1,
     };
   },
   methods: {
     set_active_id(id) {
       if (this.previous_active_id === id) return; //no need to go further
-      this.items.find(item => item.id === this.previous_active_id).class = ""; //remove the active class from old active li
-      this.items.find(item => item.id === id).class = "active"; //set active class to new li
+      this.items.find((item) => item.id === this.previous_active_id).class = ""; //remove the active class from old active li
+      this.items.find((item) => item.id === id).class = "active"; //set active class to new li
       this.previous_active_id = id; //store the new active li id
     },
     focusInput() {
       this.$refs.menu.$el.focus();
-    }
+    },
   },
   mounted() {
     this.focusInput();
-  }
+  },
 };
 </script>
 

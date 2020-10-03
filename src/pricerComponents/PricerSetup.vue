@@ -21,9 +21,7 @@
             </v-col>
 
             <v-col cols="12" sm="2" align="center" justify="center">
-              <div class="font-weight-light caption">
-                Text
-              </div>
+              <div class="font-weight-light caption">Text</div>
 
               <swatches
                 v-model="element.TextColor"
@@ -35,9 +33,7 @@
               ></swatches>
             </v-col>
             <v-col cols="12" sm="2" align="center" justify="center">
-              <div class="font-weight-light caption">
-                Background
-              </div>
+              <div class="font-weight-light caption">Background</div>
               <swatches
                 v-model="element.BackGroundColor"
                 :swatches="swatchesLight"
@@ -85,11 +81,11 @@ import Swatches from "vue-swatches";
 export default {
   components: {
     draggable,
-    Swatches
+    Swatches,
   },
   props: {
     showPricer: { type: Boolean, default: false },
-    ActivekeyGroups: { type: Array }
+    activekeyGroups: { type: Array },
   },
 
   data() {
@@ -101,21 +97,21 @@ export default {
         ["#F64272", "#F6648B", "#F493A7", "#F891A6", "#FFCCD5"],
         ["#8b5aff", "#a27bff", "#b99cff", "#d0bdff", "#e8deff"],
         ["#51e5db", "#74ebe3", "#96f0ea", "#b9f5f1", "#dcfaf8"],
-        ["#ffa51a", "#ffb748", "#ffc976", "#ffdba3", "#ffedd1"]
+        ["#ffa51a", "#ffb748", "#ffc976", "#ffdba3", "#ffedd1"],
       ],
       swatchesLight: [
         ["#F64272", "#F6648B", "#F493A7", "#F891A6", "#FFCCD5"],
         ["#8b5aff", "#a27bff", "#b99cff", "#d0bdff", "#e8deff"],
         ["#51e5db", "#74ebe3", "#96f0ea", "#b9f5f1", "#dcfaf8"],
-        ["#ffa51a", "#ffb748", "#ffc976", "#ffdba3", "#ffedd1"]
-      ]
+        ["#ffa51a", "#ffb748", "#ffc976", "#ffdba3", "#ffedd1"],
+      ],
     };
   },
 
   methods: {
     saveLayout() {
-      this.$store.dispatch("setPricerLayout", this.keyGroups);
-      this.$emit("pricerLayoutChanged");
+      //this.$store.dispatch("setPricerLayout", this.keyGroups);
+      this.$emit("pricerLayoutChanged", this.keyGroups);
       // this.$store.dispatch("savePricerSetup", this.keyGroups);
 
       //   this.$store.dispatch("setSnackbar", {
@@ -128,14 +124,14 @@ export default {
       this.dialog = false;
       this.$nextTick(() => {});
       this.$emit("dialogState", this.dialog);
-    }
+    },
   },
   watch: {
     showPricer() {
       this.dialog = this.showPricer;
-      this.keyGroups = this.ActivekeyGroups;
-    }
-  }
+      this.keyGroups = this.activekeyGroups;
+    },
+  },
 };
 </script>
 

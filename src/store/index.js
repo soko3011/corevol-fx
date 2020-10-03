@@ -28,8 +28,8 @@ const state = {
   activecross: "",
   userPrefCross: "",
   pricerLayoutName: "",
-  pricerLayout: [],
-  activePricerLayout: [],
+  // pricerLayout: [],
+  // activePricerLayout: [],
   crossList: [],
   defaultPricerKeyGroups: {},
   activePricerSettings: [],
@@ -107,7 +107,6 @@ const mutations = {
   },
 
   SET_IPV_DATA(state, data) {
-    console.log(data);
     state.dvi.surf = JSON.parse(data.dviSurf);
     state.dvi.ipvSurf = JSON.parse(data.ipvSurf);
   },
@@ -127,10 +126,6 @@ const mutations = {
     state.userPrefCross = user.StarterFxCross;
   },
 
-  SET_PRICER_LAYOUT(state, data) {
-    state.pricerLayoutName = data.name;
-    state.activePricerLayout = data.layout;
-  },
   SET_LAST_PRICER_TAB(state, data) {
     state.lastPricerTab = data;
   },
@@ -153,11 +148,6 @@ const mutations = {
   },
   SET_SINGLE_OPT(state, data) {
     state.singleOptData = data;
-  },
-  SET_PRICER_LAYOUT(state, data) {
-    state.pricerLayout = data;
-    console.log("store  ");
-    console.log(state.pricerLayout);
   }
 };
 
@@ -165,6 +155,7 @@ const actions = {
   async getDefaultPricerKeyGroups({ dispatch, commit }) {
     try {
       let response = await PricerApi.GetDefaultPricerKeyGroups();
+
       var keyGroups = JSON.parse(response.data.result);
 
       commit("SET_DEFAULT_PRICERKEYGROUPS", keyGroups);
@@ -314,9 +305,7 @@ const actions = {
       return { error: `There was an error. ${err}.` };
     }
   },
-  setPricerLayout({ commit }, data) {
-    commit("SET_PRICER_LAYOUT", data);
-  },
+
   setSidebarMinified({ commit }) {
     commit("SET_SIDEBARMINIFIED");
   },
@@ -454,9 +443,6 @@ const actions = {
     commit("SET_ACTIVE_CROSS", payload);
   },
 
-  setPricerLayout({ commit }, payload) {
-    commit("SET_PRICER_LAYOUT", payload);
-  },
   setPricerTab({ commit }, payload) {
     commit("SET_LAST_PRICER_TAB", payload);
   },

@@ -1,35 +1,49 @@
 {
   "KeyGroups": [
     {
-      "name": "RequiredKeys",
-      "show": true,
-      "backgroundColor": "",
-      "textColor": "",
-      "position": 0,
-      "keys": [
+      "Name": "Contract",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": true,
+      "Keys": [
         "Cross",
         "Spot",
         "ExpiryText",
         "StrikeText",
         "Call_Put",
-        "ExpiryDate",
-        "DeliveryDate",
-        "DayCountExpiry",
-        "DayCountDelivery",
-        "K",
         "Notional",
-        "UserVol",
-        "SystemVol",
-        "PremiumType"
+        "K"
       ]
     },
     {
-      "name": "BsGreeks",
-      "show": true,
-      "backgroundColor": "",
-      "textColor": "",
-      "position": 0,
-      "keys": [
+      "Name": "DatesInfo",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": true,
+      "Keys": [
+        "ExpiryDate",
+        "DeliveryDate",
+        "DayCountExpiry",
+        "DayCountDelivery"
+      ]
+    },
+    {
+      "Name": "UserInputs",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": true,
+      "Keys": ["SystemVol", "UserVol", "PremiumType"]
+    },
+    {
+      "Name": "BsGreeks",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": false,
+      "Keys": [
         "Price",
         "Fwd_Price",
         "Delta",
@@ -41,12 +55,12 @@
     },
 
     {
-      "name": "VolData",
-      "show": true,
-      "backgroundColor": "",
-      "textColor": "",
-      "position": 1,
-      "keys": [
+      "Name": "SurfaceInputs",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": false,
+      "Keys": [
         "AtmVol",
         "Rr",
         "Fly",
@@ -58,36 +72,36 @@
       ]
     },
     {
-      "name": "FwdData",
-      "show": true,
-      "backgroundColor": "",
-      "textColor": "",
-      "position": 2,
-      "keys": ["ForDepo", "DomDepo", "FwdOutRight", "FwdPts"]
+      "Name": "FwdsInputs",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": false,
+      "Keys": ["ForDepo", "DomDepo", "FwdOutRight", "FwdPts"]
     },
     {
-      "name": "RegaSega",
-      "show": true,
-      "backgroundColor": "",
-      "textColor": "",
-      "position": 3,
-      "keys": ["Rega25", "Rega10", "Sega25", "Sega10"]
+      "Name": "RegaSega",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": false,
+      "Keys": ["Rega25", "Rega10", "Sega25", "Sega10"]
     },
     {
-      "name": "VannaVolga",
-      "show": true,
-      "backgroundColor": "",
-      "textColor": "",
-      "position": 4,
-      "keys": ["Volga", "Vanna", "Rho_For", "Rho_Dom", "SVanna", "SVolga"]
+      "Name": "VannaVolga",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": false,
+      "Keys": ["Volga", "Vanna", "Rho_For", "Rho_Dom", "SVanna", "SVolga"]
     },
     {
-      "name": "DiscountFactors",
-      "show": true,
-      "backgroundColor": "",
-      "textColor": "",
-      "position": 5,
-      "keys": [
+      "Name": "DiscountFactors",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": false,
+      "Keys": [
         "DfDomExp",
         "DfDomDel",
         "DfForExp",
@@ -97,12 +111,12 @@
       ]
     },
     {
-      "name": "BsGreeksUnits",
-      "show": true,
-      "backgroundColor": "",
-      "textColor": "",
-      "position": 6,
-      "keys": [
+      "Name": "BsGreeksUnits",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": false,
+      "Keys": [
         "PremiumAmt",
         "Fwd_PremiumAmt",
         "DeltaAmt",
@@ -123,12 +137,12 @@
       ]
     },
     {
-      "name": "SmileGreeks",
-      "show": true,
-      "backgroundColor": "",
-      "textColor": "",
-      "position": 7,
-      "keys": [
+      "Name": "SmileGreeks",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": false,
+      "Keys": [
         "SDelta",
         "Fwd_SDelta",
         "SVega",

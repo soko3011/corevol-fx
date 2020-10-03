@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-btn @click="initPricer" />
     <v-btn
       class="mt-15 mr-5"
       absolute
@@ -31,7 +30,6 @@ import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as cellElements from "@/externaljs/cellElements.js"; // eslint-disable-line no-unused-vars
 import PricerApi from "@/apis/PricerApi";
-import keyGroupsJson from "./KeyGroups.json";
 import alphabetJson from "./Alphabet.json";
 import PricerSetup from "@/pricerComponents/PricerSetup.vue";
 import { mapState } from "vuex";
@@ -53,7 +51,6 @@ export default {
 
   data() {
     return {
-      keyPreset: "Trader",
       pricerSettingsObj: [],
       initialData: [],
       pricerKeys: [],
@@ -66,7 +63,6 @@ export default {
       optData: {},
       optContainer: [],
       alphabet: alphabetJson,
-      keyGroups: keyGroupsJson,
     };
   },
   computed: {
@@ -74,7 +70,10 @@ export default {
       defaultPricerKeyGroups: (state) => state.defaultPricerKeyGroups,
     }),
     columnCount() {
-      return this.jExcelObj.getData()[0].length;
+      return this.jExcelObj.headers.length;
+    },
+    keyPreset() {
+      return "Trader";
     },
     config() {
       return {
@@ -145,6 +144,27 @@ export default {
     },
   },
   methods: {
+    FormatComplete() {
+      for (const keyGroup of this.pricerSettingsObj) {
+        let keys = keyGroup.Keys;
+        for (var key of keys) {
+          for (var i = 0; i < this.columnCount; i++) {
+            var cellName = jexcel.getColumnNameFromId([i, this.KeyRow(key)]);
+
+            this.FormatCell(
+              cellName,
+              keyGroup.TextColor,
+              keyGroup.BackgroundColor
+            );
+          }
+        }
+      }
+      this.FormatRedcell();
+    },
+    FormatCell(cellName, textColor, backgroundColor) {
+      this.jExcelObj.setStyle(cellName, "background-color", backgroundColor);
+      this.jExcelObj.setStyle(cellName, "color", textColor);
+    },
     selectionActive(instance, x1, y1, x2, y2) {
       this.row = y1;
       this.col = x1;
@@ -159,8 +179,8 @@ export default {
     setPricerSettingsObj(keyPreset) {
       return this.defaultPricerKeyGroups[keyPreset];
     },
-    setPricerKeys(keyPreset) {
-      return this.defaultPricerKeyGroups[keyPreset]
+    setPricerKeys() {
+      return this.pricerSettingsObj
         .filter((item) => item.Show === true)
         .map((group) => group.Keys)
         .flat();
@@ -180,14 +200,13 @@ export default {
       this.pricerSetupToggle = val;
     },
     setVisibleKeys(pricerSettignsObj) {
-      const columnCount = this.jExcelObj.getData()[0].length;
       var hiddenGroups = pricerSettignsObj.filter((item) => item.Show !== true);
       var shownGroups = pricerSettignsObj.filter((item) => item.Show === true);
 
       for (const keyGroup of hiddenGroups) {
         let keys = keyGroup.Keys;
         for (var key of keys) {
-          for (var i = 0; i < columnCount; i++) {
+          for (var i = 0; i < this.columnCount; i++) {
             var cell = this.GetCell(i, this.KeyRow(key));
             cell.classList.add("hideRow");
           }
@@ -197,12 +216,14 @@ export default {
       for (const keyGroup of shownGroups) {
         let keys = keyGroup.Keys;
         for (var key of keys) {
-          for (var i = 0; i < columnCount; i++) {
+          for (var i = 0; i < this.columnCount; i++) {
             var cell = this.GetCell(i, this.KeyRow(key));
             cell.classList.remove("hideRow");
           }
         }
       }
+
+      this.FormatComplete();
     },
 
     setReadOnly() {
@@ -783,10 +804,11 @@ export default {
         this.jExcelObj.setStyle(this.redObj[i], "color", "white");
       }
     },
-    FormatComplete() {
+    FormatCompleteOld() {
       for (var j = 0; j < this.jExcelObj.rows.length; j++) {
         for (var i = 0; i < this.jExcelObj.headers.length; i++) {
           var cellName = jexcel.getColumnNameFromId([i, j]);
+
           this.FormatRowColorsByUser(cellName, j);
         }
       }
@@ -844,8 +866,10 @@ export default {
       var response = await this.$store.dispatch("getDefaultPricerKeyGroups");
       console.log(`DefaultPricerKeyGroups has data: ${response}`);
     }
+
     this.pricerSettingsObj = this.setPricerSettingsObj(this.keyPreset);
-    this.pricerKeys = this.setPricerKeys(this.keyPreset);
+
+    this.pricerKeys = this.setPricerKeys();
     this.initialData = this.setInitalData(this.pricerKeys);
 
     const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.config);

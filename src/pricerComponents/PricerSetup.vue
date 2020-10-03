@@ -17,6 +17,7 @@
                 inset
                 :label="element.Name"
                 v-model="element.Show"
+                :disabled="element.Required"
               ></v-switch>
             </v-col>
 
@@ -35,7 +36,7 @@
             <v-col cols="12" sm="2" align="center" justify="center">
               <div class="font-weight-light caption">Background</div>
               <swatches
-                v-model="element.BackGroundColor"
+                v-model="element.BackgroundColor"
                 :swatches="swatchesLight"
                 row-length="6"
                 show-border
@@ -48,7 +49,7 @@
               <v-text-field
                 class="mt-3"
                 outlined
-                :background-color="element.BackGroundColor"
+                :background-color="element.BackgroundColor"
                 :color="element.TextColor"
                 dense
                 readonly
@@ -130,6 +131,7 @@ export default {
     showPricer() {
       this.dialog = this.showPricer;
       this.keyGroups = this.activekeyGroups;
+      console.log(this.keyGroups);
     },
   },
 };

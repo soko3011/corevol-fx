@@ -612,7 +612,7 @@ export default {
     async ReCalcOpt(optData) {
       //sends optdata to server for calculation. Return entire json result. Will update everythign execpt the first 5 rows (cross, spot, exp, str, pc)
       try {
-        let response = await PricerApi.ReCalcOpt(data);
+        let response = await PricerApi.ReCalcOpt(optData);
         let singleOpt = JSON.parse(response.data.result);
         var optValues = [];
         for (var cell of this.pricerKeys) {
@@ -625,7 +625,7 @@ export default {
         this.EmptyCol();
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
-          text: `${err}`,
+          text: `${err}  -method: RecalcOpt`,
           top: true,
         });
       }

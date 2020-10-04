@@ -12,6 +12,7 @@
         "ExpiryText",
         "StrikeText",
         "Call_Put",
+        "PremiumType",
         "Notional",
         "K"
       ]
@@ -30,12 +31,12 @@
       ]
     },
     {
-      "Name": "UserInputs",
+      "Name": "ImpliedVol",
       "Show": true,
       "BackgroundColor": "",
       "TextColor": "",
       "Required": true,
-      "Keys": ["SystemVol", "UserVol", "PremiumType"]
+      "Keys": ["SystemVol", "UserVol", "VolToAtm", "Zeta"]
     },
     {
       "Name": "BsGreeks",
@@ -60,16 +61,7 @@
       "BackgroundColor": "",
       "TextColor": "",
       "Required": false,
-      "Keys": [
-        "AtmVol",
-        "Rr",
-        "Fly",
-        "Sfly",
-        "RrMult",
-        "FlyMult",
-        "Zeta",
-        "VolToAtm"
-      ]
+      "Keys": ["AtmVol", "Rr", "Fly", "Sfly", "RrMult", "FlyMult"]
     },
     {
       "Name": "FwdsInputs",
@@ -85,15 +77,24 @@
       "BackgroundColor": "",
       "TextColor": "",
       "Required": false,
-      "Keys": ["Rega25", "Rega10", "Sega25", "Sega10"]
+      "Keys": [
+        "Rega25",
+        "Rega10",
+        "Sega25",
+        "Sega10",
+        "Rega25Amt",
+        "Rega10Amt",
+        "Sega25Amt",
+        "Sega10Amt"
+      ]
     },
     {
-      "Name": "VannaVolga",
+      "Name": "VannaVolgaRho",
       "Show": true,
       "BackgroundColor": "",
       "TextColor": "",
       "Required": false,
-      "Keys": ["Volga", "Vanna", "Rho_For", "Rho_Dom", "SVanna", "SVolga"]
+      "Keys": ["Volga", "Vanna", "SVanna", "SVolga", "Rho_For", "Rho_Dom"]
     },
     {
       "Name": "DiscountFactors",
@@ -111,7 +112,7 @@
       ]
     },
     {
-      "Name": "BsGreeksUnits",
+      "Name": "BsGreeks_Units",
       "Show": true,
       "BackgroundColor": "",
       "TextColor": "",
@@ -123,17 +124,11 @@
         "Fwd_DeltaAmt",
         "VegaAmt",
         "GammaAmt",
-        "Rega25Amt",
-        "Rega10Amt",
-        "Sega25Amt",
-        "Sega10Amt",
         "VannaAmt",
         "VolgaAmt",
         "Rho_ForAmt",
         "Rho_DomAmt",
-        "ThetaAmt",
-        "SVolgaAmt",
-        "SVannaAmt"
+        "ThetaAmt"
       ]
     },
     {
@@ -142,17 +137,22 @@
       "BackgroundColor": "",
       "TextColor": "",
       "Required": false,
+      "Keys": ["SDelta", "Fwd_SDelta", "SVega", "SGamma", "STheta"]
+    },
+    {
+      "Name": "SmileGreeks_Units",
+      "Show": true,
+      "BackgroundColor": "",
+      "TextColor": "",
+      "Required": false,
       "Keys": [
-        "SDelta",
-        "Fwd_SDelta",
-        "SVega",
-        "SGamma",
-        "STheta",
         "SDeltaAmt",
         "Fwd_SDeltaAmt",
         "SVegaAmt",
         "SGammaAmt",
-        "SThetaAmt"
+        "SThetaAmt",
+        "SVolgaAmt",
+        "SVannaAmt"
       ]
     }
   ]

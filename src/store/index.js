@@ -36,8 +36,8 @@ const state = {
   lastPricerTab: "",
   lastPricerCellCoords: [],
 
-  rawPricerData: [],
-  singleOptData: {},
+  storedPricerData: [],
+
   currentUser: "",
   snackbars: [],
   isUserAuthed: false,
@@ -116,7 +116,8 @@ const mutations = {
   },
 
   SET_PRICER(state, data) {
-    state.rawPricerData = data;
+    state.storedPricerData = JSON.parse(data);
+    console.log(state.storedPricerData);
   },
 
   SET_ACTIVE_CROSS(state, activecross) {
@@ -145,9 +146,6 @@ const mutations = {
   },
   SET_CROSSLIST(state, data) {
     state.crossList = JSON.parse(data).sort();
-  },
-  SET_SINGLE_OPT(state, data) {
-    state.singleOptData = data;
   }
 };
 
@@ -189,12 +187,15 @@ const actions = {
       alert(e);
     }
   },
-  async calcSingleOption({ commit, dispatch }, data) {
+
+  async setPricerNew({ dispatch }, pricerName) {
     try {
-      let response = await PricerApi.ReCalcOpt(data);
-      let singleOpt = JSON.parse(response.data.result);
-      commit("SET_SINGLE_OPT", singleOpt);
-      return true;
+      let response = await PricerApi.setPricer({
+        UserName: state.currentUser,
+        PricerData: { PricerTitle: pricerName }
+      });
+
+      return JSON.parse(response.data.storedPricerData);
     } catch (err) {
       dispatch("setSnackbar", {
         text: `Error: ${err} `
@@ -209,7 +210,7 @@ const actions = {
         PricerData: { PricerTitle: pricerName }
       });
 
-      commit("SET_PRICER", response.data);
+      commit("SET_PRICER", response.data.storedPricerData);
       return true;
     } catch (err) {
       dispatch("setSnackbar", {

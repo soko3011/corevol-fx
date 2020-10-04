@@ -26,9 +26,11 @@
 
               <swatches
                 v-model="element.TextColor"
+                :swatches="swatchesHex"
                 row-length="6"
                 show-border
                 popover-x="right"
+                popover-y="down"
                 show-fallback
                 fallback-input-type="color"
               ></swatches>
@@ -37,10 +39,11 @@
               <div class="font-weight-light caption">Background</div>
               <swatches
                 v-model="element.BackgroundColor"
-                :swatches="swatchesLight"
+                :swatches="swatchesHex"
                 row-length="6"
                 show-border
                 popover-x="left"
+                popover-y="down"
                 show-fallback
                 fallback-input-type="color"
               ></swatches>
@@ -94,17 +97,15 @@ export default {
       drag: false,
       keyGroups: [],
       dialog: false,
-      swatchesText: [
-        ["#F64272", "#F6648B", "#F493A7", "#F891A6", "#FFCCD5"],
-        ["#8b5aff", "#a27bff", "#b99cff", "#d0bdff", "#e8deff"],
-        ["#51e5db", "#74ebe3", "#96f0ea", "#b9f5f1", "#dcfaf8"],
-        ["#ffa51a", "#ffb748", "#ffc976", "#ffdba3", "#ffedd1"],
-      ],
-      swatchesLight: [
-        ["#F64272", "#F6648B", "#F493A7", "#F891A6", "#FFCCD5"],
-        ["#8b5aff", "#a27bff", "#b99cff", "#d0bdff", "#e8deff"],
-        ["#51e5db", "#74ebe3", "#96f0ea", "#b9f5f1", "#dcfaf8"],
-        ["#ffa51a", "#ffb748", "#ffc976", "#ffdba3", "#ffedd1"],
+      swatchesHex: [
+        ["#dcedff", "#94b0da", "#8f91a2", "#505a5b", "#343f3e"],
+        ["#DAD7CD", "#A3B18A", "#588157", "#3A5A40", "#344E41"],
+        ["#0d1f2d", "#546a7b", "#9ea3b0", "#fae1df", "#e4c3ad"],
+        ["#0a2e36", "#27fb6b", "#14cc60", "#036d19", "#09a129"],
+        ["#e8ebe4", "#d2d5dd", "#b8bacf", "#999ac6", "#798071"],
+        ["#fefeff", "#d6efff", "#fed18c", "#fed99b", "#fe654f"],
+        ["#d1d7ff", "#d2e3ff", "#d2f1ff", "#d7f4ff", "#ecf7ff"],
+        ["#d7fff1", "#aafcb8", "#8cd790", "#77af9c", "#285943"],
       ],
     };
   },
@@ -113,12 +114,12 @@ export default {
     saveLayout() {
       //this.$store.dispatch("setPricerLayout", this.keyGroups);
       this.$emit("pricerLayoutChanged", this.keyGroups);
-      // this.$store.dispatch("savePricerSetup", this.keyGroups);
+      this.$store.dispatch("savePricerSetup", this.keyGroups);
 
-      //   this.$store.dispatch("setSnackbar", {
-      //     text: "Layout Saved",
-      //     centered: true
-      //   });
+      // this.$store.dispatch("setSnackbar", {
+      //   text: "Layout Saved",
+      //   centered: true
+      // });
       this.close();
     },
     close() {

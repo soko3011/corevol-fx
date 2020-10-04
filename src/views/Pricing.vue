@@ -38,7 +38,7 @@
         <TreeView
           :inputData="{
             list: this.activePricers,
-            listName: 'Active Pricers'
+            listName: 'Active Pricers',
           }"
           v-on:selection="ReloadPricer"
         />
@@ -79,6 +79,7 @@
       </v-card>
 
       <OptionPricer
+        :pricerName="viewName"
         v-on:childToParent="setPricerTitle"
         v-on:currentCcyPair="setCurrentCcyPair"
         v-bind:style="zoomLevel"
@@ -102,7 +103,7 @@ export default {
     OptionPricer,
     TreeView,
     PopUpModal,
-    PopUpInput
+    PopUpInput,
   },
 
   data() {
@@ -114,7 +115,7 @@ export default {
       viewName: this.$route.params.viewName,
       showSideControl: false,
       drawer: true,
-      currentCcyPair: this.$store.getters.activeCrossGetter
+      currentCcyPair: this.$store.getters.activeCrossGetter,
     };
   },
   async created() {
@@ -122,51 +123,30 @@ export default {
     this.$store.dispatch("refreshCrossList");
 
     PricerApi.GetListOfActivePricers({
-      userName: this.$store.state.currentUser
-    }).then(response => {
+      userName: this.$store.state.currentUser,
+    }).then((response) => {
       this.activePricers = JSON.parse(response.data.activePricers);
 
       if (this.activePricers.indexOf(view) === -1) {
         this.AddNewPricer(view);
-      } else {
-        this.RefreshPricerData(view);
       }
+      // } else {
+      //   this.RefreshPricerData(view);
+      // }
     });
 
     document.addEventListener("keydown", this.EventListeners);
   },
 
-  destroyed: function() {
+  destroyed() {
     document.removeEventListener("keydown", this.EventListeners);
     this.$store.dispatch("setPricerTab", this.pricerTitle);
   },
   computed: {
-    ...mapState({
-      defaultPricerKeyGroups: state => state.defaultPricerKeyGroups,
-      defaultPricerKeyGroupsHasData: state =>
-        state.defaultPricerKeyGroupsHasData
-    }),
-    apidata() {
-      return this.$store.state.rawPricerData;
-    },
-    pricerKeys() {
-      return JSON.parse(this.apidata.pricerKeys);
-    },
-    pricerKeysNew() {
-      return this.$store.state.pricerLayout
-        .filter(item => item.show === true)
-        .map(group => group.keys)
-        .flat();
-    },
-    pricerKeysSource() {
-      return this.pricerKeysNew.length > 0
-        ? this.pricerKeysNew
-        : this.pricerKeys;
-    },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level
+        zoom: level,
       };
     },
     mainWindowHeight() {
@@ -186,20 +166,16 @@ export default {
     },
     crossList() {
       return this.$store.state.crossList;
-    }
+    },
   },
 
   methods: {
-    test() {
-      console.log(this.pricerKeysNew);
-    },
     focusInput() {
       this.$refs.addPricer.focus();
     },
     setUser(user) {
       this.$store.dispatch("changeCurrentUser", user);
     },
-
     EventListeners(event) {
       if (event.code == "KeyL" && event.ctrlKey) {
         event.preventDefault();
@@ -237,7 +213,7 @@ export default {
         .push({ name: this.$route.name, viewName: view })
         .catch(() => {});
 
-      this.RefreshPricerData(view);
+      //this.RefreshPricerData(view);
     },
     setPricerTitle(value) {
       this.pricerTitle = value;
@@ -263,12 +239,12 @@ export default {
 
       PricerApi.RemovePricerFromUse({
         userName: this.$store.state.currentUser,
-        PricerData: { PricerTitle: item }
+        PricerData: { PricerTitle: item },
       })
-        .then(response => {
+        .then((response) => {
           this.activePricers = JSON.parse(response.data.listOfActivePricers);
         })
-        .catch(err => {
+        .catch((err) => {
           alert(err);
         });
 
@@ -284,16 +260,16 @@ export default {
 
         this.ReloadPricer(redirectTo);
       }
-    }
+    },
   },
-  mounted: function() {},
+  mounted: function () {},
   watch: {
     crossList() {
       if (this.crossList.length === 0) {
         this.$store.dispatch("RefreshCrossList");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

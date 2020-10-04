@@ -114,7 +114,7 @@ export default {
 
     try {
       let response = await PricerApi.GetListOfActivePricers({
-        userName: this.$store.state.currentUser,
+        userName: this.currentUser,
       });
 
       this.activePricers = JSON.parse(response.data.activePricers);
@@ -158,9 +158,6 @@ export default {
         width: ${this.mainWindowWidth}px;
         height: ${this.mainWindowHeight}px;`;
     },
-    // crossList() {
-    //   return this.$store.state.crossList;
-    // },
   },
 
   methods: {
@@ -187,44 +184,39 @@ export default {
         .push({ name: this.$route.name, viewName: view })
         .catch(() => {});
     },
-    setPricerTitle(value) {
-      this.pricerTitle = value;
-    },
-    RemoveTab(item) {
-      const viewName = this.$route.params.viewName;
+    async RemoveTab(item) {
       if (this.activePricers.length === 1) {
-        alert(
-          `Must have at least one Pricer. Add a new one before deleting ${viewName}`
-        );
-        return;
-      }
-
-      PricerApi.RemovePricerFromUse({
-        userName: this.$store.state.currentUser,
-        PricerData: { PricerTitle: item },
-      })
-        .then((response) => {
-          this.activePricers = JSON.parse(response.data.listOfActivePricers);
-        })
-        .catch((err) => {
-          alert(err);
+        this.$store.dispatch("setSnackbar", {
+          text: `Must have at least one Pricer. Add a new one before deleting ${this.viewName}`,
+          top: true,
         });
 
-      const index = this.activePricers.indexOf(item);
-
-      if (this.activePricers[index] !== viewName) {
         return;
-      } else {
-        const redirectTo =
-          index !== 0
-            ? this.activePricers[index - 1]
-            : this.activePricers[index + 1];
-
-        this.ReloadPricer(redirectTo);
       }
+
+      const index = this.activePricers.indexOf(item);
+      const redirectTo =
+        index !== 0
+          ? this.activePricers[index - 1]
+          : this.activePricers[index + 1];
+
+      try {
+        let response = await PricerApi.RemovePricerFromUse({
+          userName: this.currentUser,
+          PricerData: { PricerTitle: item },
+        });
+
+        this.activePricers = JSON.parse(response.data.listOfActivePricers);
+      } catch (error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${err}  -method: RemoveTab`,
+          top: true,
+        });
+      }
+
+      this.ReloadPricer(redirectTo);
     },
   },
-  mounted: function () {},
   watch: {
     crossList() {
       if (this.crossList.length === 0) {

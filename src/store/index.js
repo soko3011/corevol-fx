@@ -112,12 +112,10 @@ const mutations = {
   },
   SET_SURF(state, data) {
     state.dvi.surf = JSON.parse(data.surf);
-    console.log(state.dvi.surf);
   },
 
   SET_PRICER(state, data) {
     state.storedPricerData = JSON.parse(data);
-    console.log(state.storedPricerData);
   },
 
   SET_ACTIVE_CROSS(state, activecross) {
@@ -344,7 +342,7 @@ const actions = {
     try {
       let response = await DviApi.returnDviAfterVolUpdate(payload);
       commit("SET_DVI_AFTER_VOL_UPDATE", response.data);
-      console.log(response.data);
+
       return true;
     } catch (err) {
       dispatch("setSnackbar", {
@@ -429,7 +427,7 @@ const actions = {
     try {
       let response = await DviApi.downloadGlobalDvi(payload);
       commit("SET_DVI_AFTER_GLOBAL_DOWNLOAD", response.data);
-      console.log(JSON.parse(response.data.globalDviExist));
+
       return JSON.parse(response.data.globalDviExist);
     } catch (err) {
       return { error: ` ${err}.` };

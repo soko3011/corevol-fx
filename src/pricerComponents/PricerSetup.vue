@@ -111,15 +111,9 @@ export default {
   },
 
   methods: {
-    saveLayout() {
-      //this.$store.dispatch("setPricerLayout", this.keyGroups);
+    async saveLayout() {
+      await this.$store.dispatch("savePricerSetup", this.keyGroups);
       this.$emit("pricerLayoutChanged", this.keyGroups);
-      this.$store.dispatch("savePricerSetup", this.keyGroups);
-
-      // this.$store.dispatch("setSnackbar", {
-      //   text: "Layout Saved",
-      //   centered: true
-      // });
       this.close();
     },
     close() {
@@ -132,7 +126,6 @@ export default {
     showPricer() {
       this.dialog = this.showPricer;
       this.keyGroups = this.activekeyGroups;
-      console.log(this.keyGroups);
     },
   },
 };

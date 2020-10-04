@@ -21,7 +21,7 @@
       <h4
         class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
       >
-        {{ pricerTitle }}
+        {{ viewName }}
       </h4>
       <v-spacer></v-spacer>
     </v-toolbar>
@@ -78,12 +78,7 @@
         </div>
       </v-card>
 
-      <OptionPricer
-        :pricerName="viewName"
-        v-on:childToParent="setPricerTitle"
-        v-on:currentCcyPair="setCurrentCcyPair"
-        v-bind:style="zoomLevel"
-      />
+      <OptionPricer :pricerName="viewName" v-bind:style="zoomLevel" />
     </div>
   </div>
 </template>
@@ -109,40 +104,39 @@ export default {
   data() {
     return {
       activePricers: [],
-      dataReturned: false,
       modalToggle: false,
-      pricerTitle: "",
       viewName: this.$route.params.viewName,
       showSideControl: false,
-      drawer: true,
-      currentCcyPair: this.$store.getters.activeCrossGetter,
     };
   },
   async created() {
-    var view = this.$route.params.viewName;
     this.$store.dispatch("refreshCrossList");
 
-    PricerApi.GetListOfActivePricers({
-      userName: this.$store.state.currentUser,
-    }).then((response) => {
+    try {
+      let response = await PricerApi.GetListOfActivePricers({
+        userName: this.$store.state.currentUser,
+      });
+
       this.activePricers = JSON.parse(response.data.activePricers);
-
-      if (this.activePricers.indexOf(view) === -1) {
-        this.AddNewPricer(view);
+      if (this.activePricers.indexOf(this.viewName) === -1) {
+        this.AddNewPricer(this.viewName);
       }
-      // } else {
-      //   this.RefreshPricerData(view);
-      // }
-    });
-
-    document.addEventListener("keydown", this.EventListeners);
+    } catch (err) {
+      this.$store.dispatch("setSnackbar", {
+        text: `${err}  -method: Pricing(created)`,
+        top: true,
+      });
+    }
   },
 
   destroyed() {
-    document.removeEventListener("keydown", this.EventListeners);
-    this.$store.dispatch("setPricerTab", this.pricerTitle);
+    this.$store.dispatch("setPricerTab", this.viewName);
   },
   computed: {
+    ...mapState({
+      crossList: (state) => state.crossList,
+      currentUser: (state) => state.currentUser,
+    }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
@@ -164,24 +158,12 @@ export default {
         width: ${this.mainWindowWidth}px;
         height: ${this.mainWindowHeight}px;`;
     },
-    crossList() {
-      return this.$store.state.crossList;
-    },
+    // crossList() {
+    //   return this.$store.state.crossList;
+    // },
   },
 
   methods: {
-    focusInput() {
-      this.$refs.addPricer.focus();
-    },
-    setUser(user) {
-      this.$store.dispatch("changeCurrentUser", user);
-    },
-    EventListeners(event) {
-      if (event.code == "KeyL" && event.ctrlKey) {
-        event.preventDefault();
-        this.drawer = !this.drawer;
-      }
-    },
     UserAddPricer(value) {
       if (this.activePricers.indexOf(value) === -1) {
         this.AddNewPricer(value.toUpperCase());
@@ -199,34 +181,14 @@ export default {
       this.modalToggle = false;
       this.ReloadPricer(value);
     },
-    async RefreshPricerData(view) {
-      this.dataReturned = false;
-      let response = await this.$store.dispatch("setPricer", view);
-      if (response === true) {
-        this.dataReturned = true;
-      }
-    },
-
     ReloadPricer(view) {
       this.$route.params.viewName = view;
       this.$router
         .push({ name: this.$route.name, viewName: view })
         .catch(() => {});
-
-      //this.RefreshPricerData(view);
     },
     setPricerTitle(value) {
       this.pricerTitle = value;
-    },
-    setCurrentCcyPair(value) {
-      this.currentCcyPair = value;
-    },
-
-    GotoPricerSettings() {
-      this.$router.push("SetupView");
-    },
-    ToggleCrossList() {
-      this.modalToggle = true;
     },
     RemoveTab(item) {
       const viewName = this.$route.params.viewName;

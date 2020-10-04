@@ -19,7 +19,7 @@
       :activekeyGroups="pricerSettingsObj"
       :showPricer="pricerSetupToggle"
       @dialogState="resetPricerSetupToggle"
-      @pricerLayoutChanged="setVisibleKeys"
+      @pricerLayoutChanged="updatePricerLayout"
     />
   </div>
 </template>
@@ -56,7 +56,6 @@ export default {
       initialData: [],
       pricerKeys: [],
       pricerSetupToggle: false,
-      currentCcyPair: null,
       cellPosContainer: [],
       row: [],
       col: [],
@@ -156,8 +155,6 @@ export default {
       this.row = y1;
       this.col = x1;
 
-      this.currentCcyPair = this.KeyVal("Cross");
-
       if (this.NonReadOnlyList.indexOf(this.row) !== -1) {
         var cell = this.GetCell(x1, y1);
         cell.classList.remove("readonly");
@@ -184,7 +181,7 @@ export default {
     resetPricerSetupToggle(val) {
       this.pricerSetupToggle = val;
     },
-    setVisibleKeys(pricerSettignsObj) {
+    updatePricerLayout(pricerSettignsObj) {
       var hiddenGroups = pricerSettignsObj.filter((item) => item.Show !== true);
       var shownGroups = pricerSettignsObj.filter((item) => item.Show === true);
 
@@ -208,7 +205,8 @@ export default {
         }
       }
 
-      this.FormatComplete();
+      location.reload();
+      console.log(this.$route.name);
     },
     setReadOnly() {
       var columns = [];
@@ -264,10 +262,10 @@ export default {
     RestorePricerData(storedData) {
       this.ClearGrid();
       if (storedData !== null) {
-        const data = storedData.ActivePricerGridDataJSON;
+        let data = storedData.ActivePricerGridDataJSON;
         const cols = this.jExcelObj.getData()[0].length;
-
         if (data !== null) {
+          data = JSON.parse(data);
           for (var row of data) {
             var key = row[0];
             var gridRow = this.pricerKeys.indexOf(key);
@@ -287,22 +285,21 @@ export default {
             }
           }
         }
-        const optData = storedData.ActiveOptionsContainerJSON;
+        let optData = storedData.ActiveOptionsContainerJSON;
         if (optData !== null) {
+          optData = JSON.parse(optData);
           for (var item of optData) {
             this.optContainer.push(item);
           }
         }
-        const redData = storedData.UserOverwrittenInputsJSON;
+        let redData = storedData.UserOverwrittenInputsJSON;
         if (redData !== null) {
+          redData = JSON.parse(redData);
           for (item of redData) {
             this.redObj.push(item);
           }
         }
       }
-    },
-    emitToParent() {
-      this.$emit("childToParent", this.pricerName);
     },
     EventListeners(event) {
       if (event.code == "KeyP" && event.ctrlKey) {
@@ -596,15 +593,10 @@ export default {
       }
       this.ReCalcOpt(optData);
     },
-    WriteToTable(obj, col, row, val) {
-      obj.ignoreEvents = true;
-      obj.setValueFromCoords(col, row, val, true);
-      obj.ignoreEvents = false;
-    },
     setRed(key) {
       var x = this.col;
       var y = this.KeyRow(key);
-      // var id = x + "-" + y;
+
       var id = jexcel.getColumnNameFromId([x, y]);
       this.redObj.push(id);
       this.redObj = [...new Set(this.redObj)];
@@ -802,7 +794,6 @@ export default {
   async mounted() {
     if (Object.keys(this.defaultPricerKeyGroups).length === 0) {
       var response = await this.$store.dispatch("getDefaultPricerKeyGroups");
-      console.log(`DefaultPricerKeyGroups has data: ${response}`);
     }
     this.storedData = await this.$store.dispatch(
       "setPricerNew",
@@ -817,18 +808,11 @@ export default {
     Object.assign(this, { jExcelObj });
     jExcelObj.hideIndex();
 
-    this.RestorePricerData(this.storedData); //this is called before stored data is back
+    this.RestorePricerData(this.storedData);
     this.SetCellPosition(this.pricerName);
-    this.emitToParent();
     this.FormatComplete();
   },
-  watch: {
-    currentCcyPair() {
-      if (this.currentCcyPair !== "") {
-        this.$emit("currentCcyPair", this.currentCcyPair);
-      }
-    },
-  },
+  watch: {},
 };
 </script>
 

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- <v-btn @click="dev" /> -->
     <v-btn
       class="mt-15 mr-5"
       absolute
@@ -131,18 +132,28 @@ export default {
     },
   },
   methods: {
+    dev() {
+      var cellName = jexcel.getColumnNameFromId([1, this.keyRow("Cross")]);
+      for (var i = 0; i < this.columnCount; i++) {
+        var cellName = jexcel.getColumnNameFromId([i, 0]);
+
+        this.formatSingleCell(cellName, "#8cd790", "#8cd790");
+      }
+    },
     formatComplete() {
       for (const keyGroup of this.pricerSettingsObj) {
-        let keys = keyGroup.Keys;
-        for (var key of keys) {
-          for (var i = 0; i < this.columnCount; i++) {
-            var cellName = jexcel.getColumnNameFromId([i, this.keyRow(key)]);
+        if (keyGroup.Show === true) {
+          let keys = keyGroup.Keys;
+          for (var key of keys) {
+            for (var i = 0; i < this.columnCount; i++) {
+              var cellName = jexcel.getColumnNameFromId([i, this.keyRow(key)]);
 
-            this.formatSingleCell(
-              cellName,
-              keyGroup.TextColor,
-              keyGroup.BackgroundColor
-            );
+              this.formatSingleCell(
+                cellName,
+                keyGroup.TextColor,
+                keyGroup.BackgroundColor
+              );
+            }
           }
         }
       }
@@ -183,6 +194,7 @@ export default {
       this.pricerSetupToggle = val;
     },
     updatePricerLayout(updatedSettings) {
+      //
       var hiddenGroups = updatedSettings.filter((item) => item.Show !== true);
       var shownGroups = updatedSettings.filter((item) => item.Show === true);
 
@@ -191,6 +203,7 @@ export default {
         for (var key of keys) {
           for (var i = 0; i < this.columnCount; i++) {
             var cell = this.getCell(i, this.keyRow(key));
+
             cell.classList.add("hideRow");
           }
         }
@@ -206,8 +219,9 @@ export default {
         }
       }
 
+      this.formatComplete();
+
       //location.reload();
-      console.log(this.$route.name);
     },
     setReadOnly() {
       var columns = [];
@@ -451,7 +465,6 @@ export default {
         });
       }
     },
-
     async getSpot() {
       try {
         let response = await PricerApi.GetSingleSpot({
@@ -472,48 +485,6 @@ export default {
           this.keyRow("ExpiryText")
         );
       } catch (error) {}
-    },
-    getSpotOLD() {
-      this.jExcelObj.updateSelectionFromCoords(
-        this.col,
-        this.keyRow("ExpiryText"),
-        this.col,
-        this.keyRow("ExpiryText")
-      );
-      this.jExcelObj.setValueFromCoords(
-        this.col,
-        this.keyRow("Spot"),
-        [""],
-        true
-      );
-      PricerApi.CheckIfSurfaceExists({
-        cross: this.keyVal("Cross"),
-        userName: this.$store.state.currentUser,
-      }).then((response) => {
-        let surfExists = JSON.parse(response.data.surfExists);
-        if (surfExists === false) {
-          var cross = this.keyVal("Cross");
-          alert("Please Update " + cross + " Vols");
-          this.$store.dispatch("setActivecross", {
-            cross: this.keyVal("Cross"),
-          });
-          this.$store.dispatch("loadDviWithPayload", {
-            cross: this.keyVal("Cross"),
-          });
-        } else {
-          PricerApi.GetSingleSpot({ cross: this.keyVal("Cross") }).then(
-            (response) => {
-              let spotData = JSON.parse(response.data.singleSpot);
-              this.jExcelObj.setValueFromCoords(
-                this.col,
-                this.keyRow("Spot"),
-                [spotData],
-                true
-              );
-            }
-          );
-        }
-      });
     },
     resetCellPosition(oldVal, newVal) {
       this.recordCellPosition(oldVal);

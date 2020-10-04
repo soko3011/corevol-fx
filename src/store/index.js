@@ -36,8 +36,6 @@ const state = {
   lastPricerTab: "",
   lastPricerCellCoords: [],
 
-  storedPricerData: [],
-
   currentUser: "",
   snackbars: [],
   isUserAuthed: false,
@@ -112,10 +110,6 @@ const mutations = {
   },
   SET_SURF(state, data) {
     state.dvi.surf = JSON.parse(data.surf);
-  },
-
-  SET_PRICER(state, data) {
-    state.storedPricerData = JSON.parse(data);
   },
 
   SET_ACTIVE_CROSS(state, activecross) {
@@ -194,22 +188,6 @@ const actions = {
       });
 
       return JSON.parse(response.data.storedPricerData);
-    } catch (err) {
-      dispatch("setSnackbar", {
-        text: `Error: ${err} `
-      });
-    }
-  },
-
-  async setPricer({ commit, dispatch }, pricerName) {
-    try {
-      let response = await PricerApi.setPricer({
-        UserName: state.currentUser,
-        PricerData: { PricerTitle: pricerName }
-      });
-
-      commit("SET_PRICER", response.data.storedPricerData);
-      return true;
     } catch (err) {
       dispatch("setSnackbar", {
         text: `Error: ${err} `

@@ -88,7 +88,7 @@ export default {
     Swatches,
   },
   props: {
-    showPricer: { type: Boolean, default: false },
+    showPricerSetup: { type: Boolean, default: false },
     activekeyGroups: { type: Array },
   },
 
@@ -123,12 +123,11 @@ export default {
     },
   },
   watch: {
-    showPricer() {
-      this.dialog = this.showPricer;
+    showPricerSetup() {
+      this.dialog = this.showPricerSetup;
       this.keyGroups = this.activekeyGroups;
     },
   },
 };
 </script>
 
-<style></style>

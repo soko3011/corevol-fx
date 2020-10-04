@@ -17,7 +17,7 @@
     <div ref="jexcelPricer"></div>
     <PricerSetup
       :activekeyGroups="pricerSettingsObj"
-      :showPricer="pricerSetupToggle"
+      :showPricerSetup="pricerSetupToggle"
       @dialogState="resetPricerSetupToggle"
       @pricerLayoutChanged="updatePricerLayout"
     />
@@ -32,6 +32,7 @@ import * as cellElements from "@/externaljs/cellElements.js"; // eslint-disable-
 import PricerApi from "@/apis/PricerApi";
 import alphabetJson from "./Alphabet.json";
 import PricerSetup from "@/pricerComponents/PricerSetup.vue";
+import moment from "moment";
 import { mapState } from "vuex";
 
 export default {
@@ -40,11 +41,11 @@ export default {
     PricerSetup,
   },
   created() {
-    document.addEventListener("keydown", this.EventListeners);
+    document.addEventListener("keydown", this.eventListeners);
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;
   },
   destroyed() {
-    document.removeEventListener("keydown", this.EventListeners);
+    document.removeEventListener("keydown", this.eventListeners);
     this.$store.dispatch("setLastCellPosition", this.cellPosContainer);
   },
   props: {
@@ -62,7 +63,7 @@ export default {
       redObj: [],
       optData: {},
       optContainer: [],
-      alphabet: alphabetJson,
+      alphabet: alphabetJson.alphabet,
       storedData: [],
     };
   },
@@ -107,37 +108,37 @@ export default {
     NonReadOnlyList() {
       let arr = [];
       arr.push(
-        this.KeyRow("Cross"),
-        this.KeyRow("Spot"),
-        this.KeyRow("ExpiryText"),
-        this.KeyRow("StrikeText"),
-        this.KeyRow("Call_Put"),
-        this.KeyRow("Notional"),
-        this.KeyRow("UserVol"),
-        this.KeyRow("PremiumType"),
-        this.KeyRow("AtmVol"),
-        this.KeyRow("Rr"),
-        this.KeyRow("Fly"),
-        this.KeyRow("Sfly"),
-        this.KeyRow("RrMult"),
-        this.KeyRow("FlyMult"),
-        this.KeyRow("ForDepo"),
-        this.KeyRow("DomDepo"),
-        this.KeyRow("FwdOutRight"),
-        this.KeyRow("FwdPts")
+        this.keyRow("Cross"),
+        this.keyRow("Spot"),
+        this.keyRow("ExpiryText"),
+        this.keyRow("StrikeText"),
+        this.keyRow("Call_Put"),
+        this.keyRow("Notional"),
+        this.keyRow("UserVol"),
+        this.keyRow("PremiumType"),
+        this.keyRow("AtmVol"),
+        this.keyRow("Rr"),
+        this.keyRow("Fly"),
+        this.keyRow("Sfly"),
+        this.keyRow("RrMult"),
+        this.keyRow("FlyMult"),
+        this.keyRow("ForDepo"),
+        this.keyRow("DomDepo"),
+        this.keyRow("FwdOutRight"),
+        this.keyRow("FwdPts")
       );
       return arr;
     },
   },
   methods: {
-    FormatComplete() {
+    formatComplete() {
       for (const keyGroup of this.pricerSettingsObj) {
         let keys = keyGroup.Keys;
         for (var key of keys) {
           for (var i = 0; i < this.columnCount; i++) {
-            var cellName = jexcel.getColumnNameFromId([i, this.KeyRow(key)]);
+            var cellName = jexcel.getColumnNameFromId([i, this.keyRow(key)]);
 
-            this.FormatCell(
+            this.formatSingleCell(
               cellName,
               keyGroup.TextColor,
               keyGroup.BackgroundColor
@@ -145,9 +146,9 @@ export default {
           }
         }
       }
-      this.FormatRedcell();
+      this.formatRedCell();
     },
-    FormatCell(cellName, textColor, backgroundColor) {
+    formatSingleCell(cellName, textColor, backgroundColor) {
       this.jExcelObj.setStyle(cellName, "background-color", backgroundColor);
       this.jExcelObj.setStyle(cellName, "color", textColor);
     },
@@ -156,7 +157,7 @@ export default {
       this.col = x1;
 
       if (this.NonReadOnlyList.indexOf(this.row) !== -1) {
-        var cell = this.GetCell(x1, y1);
+        var cell = this.getCell(x1, y1);
         cell.classList.remove("readonly");
       }
     },
@@ -181,15 +182,15 @@ export default {
     resetPricerSetupToggle(val) {
       this.pricerSetupToggle = val;
     },
-    updatePricerLayout(pricerSettignsObj) {
-      var hiddenGroups = pricerSettignsObj.filter((item) => item.Show !== true);
-      var shownGroups = pricerSettignsObj.filter((item) => item.Show === true);
+    updatePricerLayout(updatedSettings) {
+      var hiddenGroups = updatedSettings.filter((item) => item.Show !== true);
+      var shownGroups = updatedSettings.filter((item) => item.Show === true);
 
       for (const keyGroup of hiddenGroups) {
         let keys = keyGroup.Keys;
         for (var key of keys) {
           for (var i = 0; i < this.columnCount; i++) {
-            var cell = this.GetCell(i, this.KeyRow(key));
+            var cell = this.getCell(i, this.keyRow(key));
             cell.classList.add("hideRow");
           }
         }
@@ -199,13 +200,13 @@ export default {
         let keys = keyGroup.Keys;
         for (var key of keys) {
           for (var i = 0; i < this.columnCount; i++) {
-            var cell = this.GetCell(i, this.KeyRow(key));
+            var cell = this.getCell(i, this.keyRow(key));
             cell.classList.remove("hideRow");
           }
         }
       }
 
-      location.reload();
+      //location.reload();
       console.log(this.$route.name);
     },
     setReadOnly() {
@@ -238,10 +239,10 @@ export default {
       }
       return colWidths;
     },
-    ClearGrid() {
+    clearGrid() {
       var cleanSlate = this.jExcelObj.getData()[0];
       var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
-      var newOpt = this.EmptyCol();
+      var newOpt = this.emptyCol();
       cleanSlate.forEach(myFunction);
       function myFunction(item, index) {
         if (item != "" && index != 0) {
@@ -254,13 +255,13 @@ export default {
       this.redObj = [];
       this.optContainer = [];
     },
-    GetCell(col, row) {
+    getCell(col, row) {
       var id = jexcel.getColumnNameFromId([col, row]);
       var cell = this.jExcelObj.getCell([id]);
       return cell;
     },
-    RestorePricerData(storedData) {
-      this.ClearGrid();
+    restorePricerData(storedData) {
+      this.clearGrid();
       if (storedData !== null) {
         let data = storedData.ActivePricerGridDataJSON;
         const cols = this.jExcelObj.getData()[0].length;
@@ -271,7 +272,7 @@ export default {
             var gridRow = this.pricerKeys.indexOf(key);
             if (gridRow !== -1) {
               for (var i = 0; i < cols; i++) {
-                var cell = this.GetCell(i, gridRow);
+                var cell = this.getCell(i, gridRow);
                 cell.classList.remove("readonly");
               }
               this.jExcelObj.ignoreEvents = true;
@@ -279,7 +280,7 @@ export default {
               this.jExcelObj.ignoreEvents = false;
 
               for (var i = 0; i < cols; i++) {
-                var cell = this.GetCell(i, gridRow);
+                var cell = this.getCell(i, gridRow);
                 cell.classList.add("readonly");
               }
             }
@@ -301,18 +302,19 @@ export default {
         }
       }
     },
-    EventListeners(event) {
+    eventListeners(event) {
       if (event.code == "KeyP" && event.ctrlKey) {
         event.preventDefault();
-        this.CopyOpt(this.col);
+
+        this.copyOpt(this.col);
       }
       if (event.code == "KeyD" && event.ctrlKey) {
         event.preventDefault();
-        this.ClearAll();
+        this.clearAll();
       }
       if (event.code == "KeyQ" && event.ctrlKey) {
         event.preventDefault();
-        this.DelOpt(this.col);
+        this.delOpt(this.col);
       }
       if (event.code == "KeyR" && event.ctrlKey) {
         event.preventDefault();
@@ -325,7 +327,7 @@ export default {
       }
       if (
         event.code === "Space" &&
-        this.row === this.KeyRow("Cross") &&
+        this.row === this.keyRow("Cross") &&
         this.col != 0
       ) {
         event.preventDefault();
@@ -346,7 +348,7 @@ export default {
       }
       if (
         event.code === "Space" &&
-        this.row === this.KeyRow("PremiumType") &&
+        this.row === this.keyRow("PremiumType") &&
         this.col != 0
       ) {
         event.preventDefault();
@@ -367,7 +369,7 @@ export default {
       }
       if (
         event.code === "Space" &&
-        this.row === this.KeyRow("Call_Put") &&
+        this.row === this.keyRow("Call_Put") &&
         this.col != 0
       ) {
         event.preventDefault();
@@ -388,7 +390,7 @@ export default {
       }
       if (
         event.code === "Space" &&
-        this.row === this.KeyRow("ExpiryText") &&
+        this.row === this.keyRow("ExpiryText") &&
         this.col != 0
       ) {
         event.preventDefault();
@@ -409,64 +411,102 @@ export default {
       }
       if (
         event.code === "Space" &&
-        this.row === this.KeyRow("UserVol") &&
+        this.row === this.keyRow("UserVol") &&
         this.col != 0
       ) {
         event.preventDefault();
         this.$router.push({
           name: "Dvi",
-          params: { ccyPair: this.KeyVal("Cross") },
+          params: { ccyPair: this.keyVal("Cross") },
         });
       }
     },
     setOptObj() {
       Object.assign(this.optData, {
-        cross: this.KeyVal("Cross"),
-        spot: this.KeyVal("Spot").toString(),
-        expiryText: this.KeyVal("ExpiryText"),
-        strikeText: this.KeyVal("StrikeText"),
-        call_put: this.KeyVal("Call_Put"),
+        cross: this.keyVal("Cross"),
+        spot: this.keyVal("Spot").toString(),
+        expiryText: this.keyVal("ExpiryText"),
+        strikeText: this.keyVal("StrikeText"),
+        call_put: this.keyVal("Call_Put"),
         userName: this.$store.state.currentUser,
       });
     },
-    getSpot() {
+    async getSurfaceUpdateTime() {
+      try {
+        let response = await PricerApi.CheckIfSurfaceExists({
+          cross: this.keyVal("Cross"),
+          userName: this.$store.state.currentUser,
+        });
+        console.log(response);
+
+        var lastUpdate = moment(
+          response.data.lastUpdate,
+          "DD/MM/YYYY, h:mm:ss"
+        ).toDate();
+        console.log(lastUpdate);
+      } catch (error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${error} source: CheckIfSurfaceExists`,
+          top: true,
+        });
+      }
+    },
+
+    async getSpot() {
+      try {
+        let response = await PricerApi.GetSingleSpot({
+          cross: this.keyVal("Cross"),
+        });
+        let spotData = JSON.parse(response.data.singleSpot);
+        this.jExcelObj.setValueFromCoords(
+          this.col,
+          this.keyRow("Spot"),
+          [spotData],
+          true
+        );
+
+        this.jExcelObj.updateSelectionFromCoords(
+          this.col,
+          this.keyRow("ExpiryText"),
+          this.col,
+          this.keyRow("ExpiryText")
+        );
+      } catch (error) {}
+    },
+    getSpotOLD() {
       this.jExcelObj.updateSelectionFromCoords(
         this.col,
-        this.KeyRow("ExpiryText"),
+        this.keyRow("ExpiryText"),
         this.col,
-        this.KeyRow("ExpiryText")
+        this.keyRow("ExpiryText")
       );
       this.jExcelObj.setValueFromCoords(
         this.col,
-        this.KeyRow("Spot"),
+        this.keyRow("Spot"),
         [""],
         true
       );
       PricerApi.CheckIfSurfaceExists({
-        cross: this.KeyVal("Cross"),
+        cross: this.keyVal("Cross"),
         userName: this.$store.state.currentUser,
       }).then((response) => {
         let surfExists = JSON.parse(response.data.surfExists);
         if (surfExists === false) {
-          var cross = this.KeyVal("Cross");
+          var cross = this.keyVal("Cross");
           alert("Please Update " + cross + " Vols");
           this.$store.dispatch("setActivecross", {
-            cross: this.KeyVal("Cross"),
+            cross: this.keyVal("Cross"),
           });
           this.$store.dispatch("loadDviWithPayload", {
-            cross: this.KeyVal("Cross"),
+            cross: this.keyVal("Cross"),
           });
-          // this.$router.push({
-          //   name: "Dvi",
-          //   params: { ccyPair: this.KeyVal("Cross") }
-          // });
         } else {
-          PricerApi.GetSingleSpot({ cross: this.KeyVal("Cross") }).then(
+          PricerApi.GetSingleSpot({ cross: this.keyVal("Cross") }).then(
             (response) => {
               let spotData = JSON.parse(response.data.singleSpot);
               this.jExcelObj.setValueFromCoords(
                 this.col,
-                this.KeyRow("Spot"),
+                this.keyRow("Spot"),
                 [spotData],
                 true
               );
@@ -475,9 +515,9 @@ export default {
         }
       });
     },
-    ResetCellPosition(oldVal, newVal) {
-      this.RecordCellPosition(oldVal);
-      this.SetCellPosition(newVal);
+    resetCellPosition(oldVal, newVal) {
+      this.recordCellPosition(oldVal);
+      this.setCellPosition(newVal);
     },
     pushToArray(arr, obj) {
       const index = arr.findIndex((item) => item.id === obj.id);
@@ -487,7 +527,7 @@ export default {
         arr.push(obj);
       }
     },
-    RecordCellPosition() {
+    recordCellPosition() {
       var recordCellPos = {
         col: this.col,
         pricer: this.pricerName,
@@ -502,14 +542,14 @@ export default {
         this.cellPosContainer[index] = recordCellPos;
       }
     },
-    SetCellPosition() {
+    setCellPosition() {
       var setCellPos = this.cellPosContainer.find(
         (x) => x.pricer === this.pricerName
       );
       if (setCellPos === undefined) {
-        this.SelectCell(0, 1);
+        this.selectCell(0, 1);
       } else {
-        this.SelectCell(0, setCellPos.col);
+        this.selectCell(0, setCellPos.col);
       }
     },
     checkProperties(obj) {
@@ -518,14 +558,14 @@ export default {
       }
       return false;
     },
-    KeyRow(key) {
+    keyRow(key) {
       var rowNum = this.pricerKeys.indexOf(key);
       return rowNum;
     },
-    KeyVal(key) {
+    keyVal(key) {
       var retVal = this.jExcelObj.getValueFromCoords(
         this.col,
-        this.KeyRow(key)
+        this.keyRow(key)
       );
       return this.checkArr(retVal);
     },
@@ -536,13 +576,13 @@ export default {
         return value;
       }
     },
-    SelectCell(row, col) {
+    selectCell(row, col) {
       this.jExcelObj.updateSelectionFromCoords(col, row, col, row);
     },
     resetCellFormat(arr, key) {
       //removes cell id from redObj list
       var x = this.col;
-      var y = this.KeyRow(key);
+      var y = this.keyRow(key);
       var id = jexcel.getColumnNameFromId([x, y]);
       //var id = x + "-" + y;
       var index = arr.indexOf(id);
@@ -550,7 +590,7 @@ export default {
         arr.splice(index, 1);
       }
     },
-    EmptyCol() {
+    emptyCol() {
       var data = [];
       var length = this.jExcelObj.getColumnData(0).length; // user defined length
       for (var i = 0; i < length; i++) {
@@ -561,12 +601,12 @@ export default {
     copyObj(src) {
       return Object.assign({}, src);
     },
-    ClearAll() {
+    clearAll() {
       this.optContainer = [];
       this.redObj = [];
       var cleanSlate = this.jExcelObj.getData()[0];
       var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
-      var newOpt = this.EmptyCol();
+      var newOpt = this.emptyCol();
       cleanSlate.forEach(myFunction);
       function myFunction(item, index) {
         if (item != "" && index != 0) {
@@ -576,45 +616,45 @@ export default {
         }
       }
       this.jExcelObj.setData(newList);
-      this.ReturnCurrent();
-      this.FormatComplete();
-      this.SelectCell(1, 1);
+      this.returnCurrent();
+      this.formatComplete();
+      this.selectCell(1, 1);
     },
-    DynamicFormat(optData, key, pct) {
+    dynamicFormat(optData, key, pct) {
       //will change cell to red if different from base values. Press delete to reset the value. Sends optdata to server for calcs. Pct input 100 for pct and 1 for normal val.
       var val = [];
-      if (this.KeyVal(key).length === 0) {
+      if (this.keyVal(key).length === 0) {
         this.resetCellFormat(this.redObj, key);
         optData[key] = null;
       } else {
         this.setRed(key);
-        val = this.KeyVal(key) / pct;
+        val = this.keyVal(key) / pct;
         optData[key] = val.toString();
       }
       this.ReCalcOpt(optData);
     },
     setRed(key) {
       var x = this.col;
-      var y = this.KeyRow(key);
+      var y = this.keyRow(key);
 
       var id = jexcel.getColumnNameFromId([x, y]);
       this.redObj.push(id);
       this.redObj = [...new Set(this.redObj)];
     },
     async ReCalcOpt(optData) {
-      //sends optdata to server for calculation. Return entire json result. Will update everythign execpt the first 5 rows (cross, spot, exp, str, pc)
       try {
         let response = await PricerApi.ReCalcOpt(optData);
         let singleOpt = JSON.parse(response.data.result);
+
         var optValues = [];
         for (var cell of this.pricerKeys) {
           var index = singleOpt.findIndex((p) => p.Key == cell);
           optValues.push(singleOpt[index].Value);
         }
         this.replaceSingleOpt(optValues, this.col);
-        this.FormatComplete();
+        this.formatComplete();
 
-        this.EmptyCol();
+        this.emptyCol();
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  -method: RecalcOpt`,
@@ -629,9 +669,9 @@ export default {
       }
       this.jExcelObj.setData(newList);
 
-      this.ReturnCurrent();
+      this.returnCurrent();
     },
-    ReturnCurrent() {
+    returnCurrent() {
       var StoredActivePricerData = {
         UserName: this.$store.state.currentUser,
         PricerData: {
@@ -643,7 +683,7 @@ export default {
       };
       PricerApi.ReturnCurrentOpts(StoredActivePricerData);
     },
-    updateOption() {
+    async updateOption() {
       var newOpt = { name: this.col.toString() }; //create new opt object
       var index = this.optContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optContainer
       if (index === -1) {
@@ -651,14 +691,15 @@ export default {
         index = this.optContainer.findIndex((x) => x.name == newOpt.name);
       }
       this.optData = this.optContainer[index]; //set current option from container.
-      if (this.row == this.KeyRow("Cross")) {
+      if (this.row == this.keyRow("Cross")) {
+        await this.getSurfaceUpdateTime();
         this.getSpot();
-        this.RecordCellPosition(this.pricerName);
+        this.recordCellPosition(this.pricerName);
       }
       if (
-        this.row == this.KeyRow("Spot") ||
-        this.row == this.KeyRow("ExpiryText") ||
-        this.row == this.KeyRow("StrikeText")
+        this.row == this.keyRow("Spot") ||
+        this.row == this.keyRow("ExpiryText") ||
+        this.row == this.keyRow("StrikeText")
       ) {
         this.setOptObj(); //assigns value to opdata
         var checkNull = this.checkProperties(this.optData);
@@ -666,60 +707,60 @@ export default {
           this.ReCalcOpt(this.optData);
         }
       } //end of initial startup
-      if (this.row == this.KeyRow("Call_Put")) {
-        Object.assign(this.optData, { call_put: this.KeyVal("Call_Put") });
+      if (this.row == this.keyRow("Call_Put")) {
+        Object.assign(this.optData, { call_put: this.keyVal("Call_Put") });
         this.ReCalcOpt(this.optData);
       }
-      if (this.row == this.KeyRow("PremiumType")) {
+      if (this.row == this.keyRow("PremiumType")) {
         Object.assign(this.optData, {
-          premiumType: this.KeyVal("PremiumType"),
+          premiumType: this.keyVal("PremiumType"),
         });
         this.ReCalcOpt(this.optData);
       }
-      if (this.row == this.KeyRow("UserVol")) {
-        this.DynamicFormat(this.optData, "UserVol", 100);
+      if (this.row == this.keyRow("UserVol")) {
+        this.dynamicFormat(this.optData, "UserVol", 100);
       }
-      if (this.row == this.KeyRow("AtmVol")) {
-        this.DynamicFormat(this.optData, "AtmVol", 100);
+      if (this.row == this.keyRow("AtmVol")) {
+        this.dynamicFormat(this.optData, "AtmVol", 100);
       }
-      if (this.row == this.KeyRow("Rr")) {
-        this.DynamicFormat(this.optData, "Rr", 100);
+      if (this.row == this.keyRow("Rr")) {
+        this.dynamicFormat(this.optData, "Rr", 100);
       }
-      if (this.row == this.KeyRow("Fly")) {
-        this.DynamicFormat(this.optData, "Fly", 100);
+      if (this.row == this.keyRow("Fly")) {
+        this.dynamicFormat(this.optData, "Fly", 100);
       }
-      if (this.row == this.KeyRow("RrMult")) {
-        this.DynamicFormat(this.optData, "RrMult", 1);
+      if (this.row == this.keyRow("RrMult")) {
+        this.dynamicFormat(this.optData, "RrMult", 1);
       }
-      if (this.row == this.KeyRow("SmileFlyMult")) {
-        this.DynamicFormat(this.optData, "SmileFlyMult", 1);
+      if (this.row == this.keyRow("SmileFlyMult")) {
+        this.dynamicFormat(this.optData, "SmileFlyMult", 1);
       }
-      if (this.row == this.KeyRow("FwdPts")) {
-        this.DynamicFormat(this.optData, "FwdPts", 1);
+      if (this.row == this.keyRow("FwdPts")) {
+        this.dynamicFormat(this.optData, "FwdPts", 1);
       }
-      if (this.row == this.KeyRow("OutRight")) {
-        this.DynamicFormat(this.optData, "OutRight", 1);
+      if (this.row == this.keyRow("OutRight")) {
+        this.dynamicFormat(this.optData, "OutRight", 1);
       }
-      if (this.row == this.KeyRow("ForDepo")) {
-        this.DynamicFormat(this.optData, "ForDepo", 100);
+      if (this.row == this.keyRow("ForDepo")) {
+        this.dynamicFormat(this.optData, "ForDepo", 100);
       }
-      if (this.row == this.KeyRow("DomDepo")) {
-        this.DynamicFormat(this.optData, "DomDepo", 100);
+      if (this.row == this.keyRow("DomDepo")) {
+        this.dynamicFormat(this.optData, "DomDepo", 100);
       }
-      if (this.row == this.KeyRow("Notional")) {
-        this.DynamicFormat(this.optData, "Notional", 1);
+      if (this.row == this.keyRow("Notional")) {
+        this.dynamicFormat(this.optData, "Notional", 1);
       }
-      if (this.row == this.KeyRow("Spot")) {
-        if (this.KeyVal("Spot").length === 0) {
+      if (this.row == this.keyRow("Spot")) {
+        if (this.keyVal("Spot").length === 0) {
           this.resetCellFormat(this.redObj, "Spot");
           // this.RefreshSpots();
           this.getSpot();
         } else {
-          this.setRed("Spot");
+          //this.setRed("Spot");
         }
       }
     },
-    RemoveRedCellsFromArray() {
+    removeRedCellsFromArray() {
       for (var cellName of this.redObj) {
         var cellLetter = cellName.charAt(0).toLowerCase();
         var colNum = this.alphabet.indexOf(cellLetter);
@@ -738,7 +779,7 @@ export default {
         }
       }
     },
-    AddRedCellsToArray() {
+    addRedCellsToArray() {
       for (var cellName of this.redObj) {
         var cellLetter = cellName.charAt(0).toLowerCase();
         var colNum = this.alphabet.indexOf(cellLetter);
@@ -751,7 +792,7 @@ export default {
         }
       }
     },
-    CopyOpt(col) {
+    copyOpt(col) {
       var fxOptResult = this.jExcelObj.getColumnData(col);
       var optObj = this.optContainer.filter(function (opt) {
         return opt.name == col;
@@ -764,27 +805,27 @@ export default {
       } else {
         this.optContainer.push(newOpt);
       }
-      this.AddRedCellsToArray();
+      this.addRedCellsToArray();
       this.replaceSingleOpt(fxOptResult, col + 1);
-      this.SelectCell(this.row, this.col + 1);
-      this.ReturnCurrent();
-      this.FormatComplete();
+      this.selectCell(this.row, this.col + 1);
+      this.returnCurrent();
+      this.formatComplete();
     },
-    DelOpt(col) {
+    delOpt(col) {
       var optObj = this.optContainer.filter(function (opt) {
         return opt.name == col;
       });
       var index = this.optContainer.findIndex((x) => x.name == optObj[0].name);
       this.optContainer.splice(index, 1);
-      this.RemoveRedCellsFromArray();
-      this.replaceSingleOpt(this.EmptyCol(), col);
+      this.removeRedCellsFromArray();
+      this.replaceSingleOpt(this.emptyCol(), col);
       if (col != 1) {
-        this.SelectCell(this.row, col - 1);
+        this.selectCell(this.row, col - 1);
       }
-      this.ReturnCurrent();
-      this.FormatComplete();
+      this.returnCurrent();
+      this.formatComplete();
     },
-    FormatRedcell() {
+    formatRedCell() {
       for (var i = 0; i < this.redObj.length; i++) {
         this.jExcelObj.setStyle(this.redObj[i], "background-color", "red");
         this.jExcelObj.setStyle(this.redObj[i], "color", "white");
@@ -808,9 +849,9 @@ export default {
     Object.assign(this, { jExcelObj });
     jExcelObj.hideIndex();
 
-    this.RestorePricerData(this.storedData);
-    this.SetCellPosition(this.pricerName);
-    this.FormatComplete();
+    this.restorePricerData(this.storedData);
+    this.setCellPosition(this.pricerName);
+    this.formatComplete();
   },
   watch: {},
 };

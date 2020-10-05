@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container class="mt-5">
+    <v-container class="mt-5" fluid>
       <v-menu
         v-model="menu"
         :close-on-content-click="false"
@@ -210,9 +210,9 @@ export default {
 
       let warningColor =
         status <= FIRST_TIME_WARNING
-          ? "blue lighten-3"
-          : status <= SECOND_TIME_WARNING
           ? "green lighten-3"
+          : status <= SECOND_TIME_WARNING
+          ? "blue lighten-3"
           : status <= THIRD_TIME_WARNING
           ? "orange lighten-3"
           : "red lighten-3";

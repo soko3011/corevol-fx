@@ -194,7 +194,6 @@ export default {
       this.pricerSetupToggle = val;
     },
     updatePricerLayout(updatedSettings) {
-      //
       var hiddenGroups = updatedSettings.filter((item) => item.Show !== true);
       var shownGroups = updatedSettings.filter((item) => item.Show === true);
 
@@ -336,7 +335,7 @@ export default {
         var index = this.optContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optContainer
         if (index != -1) {
           this.optData = this.optContainer[index]; //set current option from container.
-          this.ReCalcOpt(this.optData);
+          this.reCalcOpt(this.optData);
         }
       }
       if (
@@ -451,19 +450,40 @@ export default {
           cross: this.keyVal("Cross"),
           userName: this.$store.state.currentUser,
         });
-        console.log(response);
 
-        var lastUpdate = moment(
+        let lastUpdate = moment(
           response.data.lastUpdate,
           "DD/MM/YYYY, h:mm:ss"
         ).toDate();
-        console.log(lastUpdate);
+
+        var cell = this.getCell(this.col, this.keyRow("Cross"));
+        cell.classList.remove("volGo", "volWarn", "volOld", "volNoGo");
+        let statusClass = this.setVolStatus(lastUpdate);
+        cell.classList.add(statusClass);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: CheckIfSurfaceExists`,
           top: true,
         });
       }
+    },
+    setVolStatus(lastUpdate) {
+      var currenttime = new Date();
+      var status = currenttime - lastUpdate;
+
+      var FIRST_TIME_WARNING = 10 * 60 * 1000;
+      var SECOND_TIME_WARNING = 20 * 60 * 1000;
+      var THIRD_TIME_WARNING = 30 * 60 * 1000;
+      let statusClass =
+        status <= FIRST_TIME_WARNING
+          ? "volGo"
+          : status <= SECOND_TIME_WARNING
+          ? "volWarn"
+          : status <= THIRD_TIME_WARNING
+          ? "volOld"
+          : "volNoGo";
+
+      return statusClass;
     },
     async getSpot() {
       try {
@@ -592,7 +612,6 @@ export default {
       this.selectCell(1, 1);
     },
     dynamicFormat(optData, key, pct) {
-      //will change cell to red if different from base values. Press delete to reset the value. Sends optdata to server for calcs. Pct input 100 for pct and 1 for normal val.
       var val = [];
       if (this.keyVal(key).length === 0) {
         this.resetCellFormat(this.redObj, key);
@@ -602,7 +621,7 @@ export default {
         val = this.keyVal(key) / pct;
         optData[key] = val.toString();
       }
-      this.ReCalcOpt(optData);
+      this.reCalcOpt(optData);
     },
     setRed(key) {
       var x = this.col;
@@ -612,7 +631,7 @@ export default {
       this.redObj.push(id);
       this.redObj = [...new Set(this.redObj)];
     },
-    async ReCalcOpt(optData) {
+    async reCalcOpt(optData) {
       try {
         let response = await PricerApi.ReCalcOpt(optData);
         let singleOpt = JSON.parse(response.data.result);
@@ -623,8 +642,8 @@ export default {
           optValues.push(singleOpt[index].Value);
         }
         this.replaceSingleOpt(optValues, this.col);
-        this.formatComplete();
 
+        this.formatComplete();
         this.emptyCol();
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
@@ -675,18 +694,18 @@ export default {
         this.setOptObj(); //assigns value to opdata
         var checkNull = this.checkProperties(this.optData);
         if (checkNull === false) {
-          this.ReCalcOpt(this.optData);
+          this.reCalcOpt(this.optData);
         }
       } //end of initial startup
       if (this.row == this.keyRow("Call_Put")) {
         Object.assign(this.optData, { call_put: this.keyVal("Call_Put") });
-        this.ReCalcOpt(this.optData);
+        this.reCalcOpt(this.optData);
       }
       if (this.row == this.keyRow("PremiumType")) {
         Object.assign(this.optData, {
           premiumType: this.keyVal("PremiumType"),
         });
-        this.ReCalcOpt(this.optData);
+        this.reCalcOpt(this.optData);
       }
       if (this.row == this.keyRow("UserVol")) {
         this.dynamicFormat(this.optData, "UserVol", 100);
@@ -852,4 +871,25 @@ export default {
   color: black;
   background-color: #8f9494;
 }
+
+.jexcel > tbody > tr > td.volGo:before {
+  content: "\2705";
+  color: green;
+}
+
+.jexcel > tbody > tr > td.volWarn:before {
+  content: "\2713";
+  color: #f6c46f;
+}
+
+.jexcel > tbody > tr > td.volOld:before {
+  content: "\2757";
+  color: #fe6f54;
+}
+
+.jexcel > tbody > tr > td.volNoGo:before {
+  content: "\26D4";
+  color: #f50505;
+}
 </style>
+

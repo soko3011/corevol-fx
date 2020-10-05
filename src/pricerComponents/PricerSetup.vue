@@ -4,7 +4,7 @@
       <draggable :list="keyGroups" @start="drag = true" @end="drag = false">
         <v-card
           v-for="element in keyGroups"
-          :key="element.position"
+          :key="element.Name"
           max-height="80"
           elevation="21"
           class="mb-1"

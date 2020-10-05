@@ -1,36 +1,62 @@
 <template>
   <div>
+    <v-btn
+      class="mt-15 mr-5"
+      absolute
+      small
+      fab
+      top
+      right
+      color="#385F73"
+      elevation="21"
+      dark
+      @click="setupToggle = !setupToggle"
+    >
+      <v-icon>mdi-pencil-outline</v-icon>
+    </v-btn>
+    <DashBoardSetup
+      :activeList="Object.keys(surfs)"
+      :show="setupToggle"
+      @dialogState="resetSetupToggle"
+      @dashBoardLayoutChanged="updateLayout"
+    />
     <div v-if="dataReturned">
       <div class="d-flex flex-wrap" v-bind:style="zoomLevel">
-        <div
-          v-for="(item, index) in Object.keys(this.surfs)"
-          :key="index"
-          class="ma-3"
-          rounded
-          color="grey lighten-3"
+        <draggable
+          :list="Object.keys(this.surfs)"
+          @start="drag = true"
+          @end="drag = false"
         >
-          <v-toolbar class="mb-0 mr-2" dark height="30" color="#385F73">
-            <v-spacer></v-spacer>
-            <v-toolbar-title class="text-subtitle-2">
-              {{ GetHeader(item) }}
-            </v-toolbar-title>
+          <v-card
+            v-for="(item, index) in Object.keys(this.surfs)"
+            :key="index"
+            class="ma-3"
+            rounded
+            color="grey lighten-3"
+          >
+            <v-toolbar class="mb-0 mr-2" dark height="30" color="#385F73">
+              <v-spacer></v-spacer>
+              <v-toolbar-title class="text-subtitle-2">
+                {{ GetHeader(item) }}
+              </v-toolbar-title>
 
-            <v-spacer></v-spacer>
-            <v-btn icon>
-              <v-icon color="blue lighten-4" @click="gotoDvi(item)"
-                >mdi-circle-edit-outline</v-icon
-              >
-            </v-btn>
-          </v-toolbar>
+              <v-spacer></v-spacer>
+              <v-btn icon>
+                <v-icon color="blue lighten-4" @click="gotoDvi(item)"
+                  >mdi-circle-edit-outline</v-icon
+                >
+              </v-btn>
+            </v-toolbar>
 
-          <DashBoardSurf :apidata="SingleSurf(item)" class="ma-0" />
-          <v-system-bar
-            class="mt-n2 mr-2"
-            height="5"
-            :color="GetWarningColor(item)"
-          ></v-system-bar>
-          <h6 class="float-right mr-2">{{ GetFooter(item) }}</h6>
-        </div>
+            <DashBoardSurf :apidata="SingleSurf(item)" class="ma-0" />
+            <v-system-bar
+              class="mt-n2 mr-2"
+              height="5"
+              :color="GetWarningColor(item)"
+            ></v-system-bar>
+            <h6 class="float-right mr-2">{{ GetFooter(item) }}</h6>
+          </v-card>
+        </draggable>
       </div>
     </div>
   </div>
@@ -39,18 +65,23 @@
 <script>
 import DviApi from "@/apis/DviApi";
 import DashBoardSurf from "@/components/DashBoardSurf.vue";
+import DashBoardSetup from "@/dashboardComponents/DashBoardSetup.vue";
 import moment from "moment";
+import draggable from "vuedraggable";
 
 export default {
   data: () => ({
+    drag: false,
     surfs: [],
     dataReturned: false,
+    setupToggle: false,
   }),
   props: {
     ccyPair: { type: String, default: null },
   },
   components: {
     DashBoardSurf,
+    DashBoardSetup,
   },
   computed: {
     zoomLevel() {
@@ -61,20 +92,19 @@ export default {
     },
   },
   created() {
-    console.log(this.$store.state.currentUser);
     DviApi.GetDashBoardSurfs({
       userName: this.$store.state.currentUser,
     })
       .then((response) => {
         this.surfs = JSON.parse(response.data.dashBoardSurfs);
-        console.log(this.surfs);
-        console.log(this.ccyPair);
+
         if (this.ccyPair !== null) {
           this.surfs = Object.fromEntries(
             Object.entries(this.surfs).filter(([key]) => key === this.ccyPair)
           );
         }
 
+        console.log(this.surfs);
         this.dataReturned = true;
       })
       .catch((error) => {
@@ -82,6 +112,10 @@ export default {
       });
   },
   methods: {
+    updateLayout() {},
+    resetSetupToggle(val) {
+      this.setupToggle = val;
+    },
     gotoDvi(item) {
       this.$store.dispatch("setActivecross", item);
       this.$router.push({
@@ -141,10 +175,6 @@ export default {
         var FIRST_TIME_WARNING = 10 * 60 * 1000;
         var SECOND_TIME_WARNING = 20 * 60 * 1000;
         var THIRD_TIME_WARNING = 30 * 60 * 1000;
-
-        console.log(
-          `cross:${cross}, currentime:${currenttime}, lastUpdate:${lastUpdate}, status:${status}`
-        );
 
         warningColor =
           status <= FIRST_TIME_WARNING

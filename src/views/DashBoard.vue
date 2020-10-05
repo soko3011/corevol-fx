@@ -1,207 +1,225 @@
 <template>
   <div>
-    <v-btn
-      class="mt-15 mr-5"
-      absolute
-      small
-      fab
-      top
-      right
-      color="#385F73"
-      elevation="21"
-      dark
-      @click="setupToggle = !setupToggle"
-    >
-      <v-icon>mdi-pencil-outline</v-icon>
-    </v-btn>
-    <DashBoardSetup
-      :activeList="Object.keys(surfs)"
-      :show="setupToggle"
-      @dialogState="resetSetupToggle"
-      @dashBoardLayoutChanged="updateLayout"
-    />
-    <div v-if="dataReturned">
-      <div class="d-flex flex-wrap" v-bind:style="zoomLevel">
-        <draggable
-          :list="Object.keys(this.surfs)"
-          @start="drag = true"
-          @end="drag = false"
-        >
-          <v-card
-            v-for="(item, index) in Object.keys(this.surfs)"
-            :key="index"
-            class="ma-3"
-            rounded
-            color="grey lighten-3"
+    <v-container class="mt-5">
+      <v-menu
+        v-model="menu"
+        :close-on-content-click="false"
+        bottom
+        origin="center center"
+        transition="scale-transition"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="mt-10 mr-15"
+            absolute
+            small
+            fab
+            top
+            right
+            color="pink"
+            elevation="21"
+            dark
+            v-bind="attrs"
+            v-on="on"
           >
-            <v-toolbar class="mb-0 mr-2" dark height="30" color="#385F73">
-              <v-spacer></v-spacer>
-              <v-toolbar-title class="text-subtitle-2">
-                {{ GetHeader(item) }}
-              </v-toolbar-title>
+            <v-icon>mdi-pencil-outline</v-icon>
+          </v-btn>
+        </template>
+        <v-card>
+          <v-list>
+            <v-list-item v-for="item in surfs" :key="item.Cross">
+              <v-list-item-action>
+                <v-switch v-model="item.Show" color="green lighten-2"></v-switch>
+              </v-list-item-action>
+              <v-list-item-title>{{item.Cross}}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+          <v-card-actions>
+            <v-spacer></v-spacer>
 
-              <v-spacer></v-spacer>
-              <v-btn icon>
-                <v-icon color="blue lighten-4" @click="gotoDvi(item)"
-                  >mdi-circle-edit-outline</v-icon
-                >
-              </v-btn>
-            </v-toolbar>
+            <v-btn text @click="menu = false">Cancel</v-btn>
+            <v-btn color="primary" text @click="saveSetup">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
 
-            <DashBoardSurf :apidata="SingleSurf(item)" class="ma-0" />
-            <v-system-bar
-              class="mt-n2 mr-2"
-              height="5"
-              :color="GetWarningColor(item)"
-            ></v-system-bar>
-            <h6 class="float-right mr-2">{{ GetFooter(item) }}</h6>
-          </v-card>
-        </draggable>
-      </div>
-    </div>
+      <Draggable
+        class="d-flex flex-wrap justify-start"
+        v-bind:style="zoomLevel"
+        :list="surfs"
+        @start="drag = true"
+        @end="drag = false"
+      >
+        <v-card
+          v-for="item in activeSurfs"
+          :key="item.Cross"
+          class="ma-3"
+          rounded
+          color="grey lighten-3"
+          flat
+        >
+          <v-toolbar class="mb-0 mr-2" dark height="30" color="#385F73">
+            <v-spacer></v-spacer>
+            <v-toolbar-title class="text-subtitle-2">{{ getHeader(item) }}</v-toolbar-title>
+
+            <v-spacer></v-spacer>
+            <v-btn icon>
+              <v-icon small color="blue lighten-4" @click="gotoDvi(item)">mdi-pencil-outline</v-icon>
+            </v-btn>
+          </v-toolbar>
+
+          <DashBoardSurf :apidata="singleSurf(item)" class="ma-0" />
+          <v-system-bar class="mt-n2 mr-2" height="5" :color="getWarningColor(item)"></v-system-bar>
+          <h6 align="center" justify="center">{{ getFooter(item) }}</h6>
+        </v-card>
+      </Draggable>
+    </v-container>
   </div>
 </template>
 
 <script>
 import DviApi from "@/apis/DviApi";
 import DashBoardSurf from "@/components/DashBoardSurf.vue";
-import DashBoardSetup from "@/dashboardComponents/DashBoardSetup.vue";
+
 import moment from "moment";
-import draggable from "vuedraggable";
+import Draggable from "vuedraggable";
+import TreeView from "@/components/TreeView.vue";
 
 export default {
   data: () => ({
     drag: false,
     surfs: [],
-    dataReturned: false,
-    setupToggle: false,
+    menu: false
   }),
-  props: {
-    ccyPair: { type: String, default: null },
-  },
+
   components: {
     DashBoardSurf,
-    DashBoardSetup,
+    Draggable,
+    TreeView
   },
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "90%" : "80%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
+    userPrefs() {
+      return this.$store.state.dashBoardPrefs;
+    },
+
+    activeSurfs() {
+      return this.surfs.filter(item => item.Show === true);
+    }
   },
-  created() {
-    DviApi.GetDashBoardSurfs({
-      userName: this.$store.state.currentUser,
-    })
-      .then((response) => {
-        this.surfs = JSON.parse(response.data.dashBoardSurfs);
-
-        if (this.ccyPair !== null) {
-          this.surfs = Object.fromEntries(
-            Object.entries(this.surfs).filter(([key]) => key === this.ccyPair)
-          );
-        }
-
-        console.log(this.surfs);
-        this.dataReturned = true;
-      })
-      .catch((error) => {
-        alert(error.name);
+  async created() {
+    try {
+      let response = await DviApi.GetDashBoardSurfs({
+        userName: this.$store.state.currentUser
       });
+      let rawData = JSON.parse(response.data.dashBoardSurfs);
+      if (this.userPrefs.length > 0) {
+        for (var item of this.userPrefs) {
+          const ccyPairData = rawData.find(x => x.Cross === item.Cross);
+          ccyPairData.Show = item.Show;
+          this.surfs.push(ccyPairData);
+        }
+      } else {
+        this.surfs = this.rawData;
+      }
+    } catch (error) {
+      this.$store.dispatch("setSnackbar", {
+        text: `${error} source: DashBoard.vue-created`,
+        top: true
+      });
+    }
   },
+
   methods: {
-    updateLayout() {},
-    resetSetupToggle(val) {
-      this.setupToggle = val;
+    async saveSetup() {
+      try {
+        let prefs = this.surfs.map(({ Cross, Show }) => ({ Cross, Show }));
+
+        let response = await DviApi.saveUserDashBoardPrefs({
+          UserName: this.$store.state.currentUser,
+          DashBoardUI: JSON.stringify(prefs)
+        });
+        this.$store.dispatch("setSnackbar", {
+          text: `DashBoard Layout Saved`,
+          centered: true
+        });
+      } catch (error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${error} source: DashBoard.vue-saveSetup`,
+          bottom: true
+        });
+      }
+      this.menu = false;
     },
     gotoDvi(item) {
       this.$store.dispatch("setActivecross", item);
       this.$router.push({
         name: "Dvi",
-        params: { ccyPair: item },
+        params: { ccyPair: item.Cross }
       });
     },
-    SingleSurf(cross) {
+    singleSurf(item) {
       var surf = [{}];
-      if (this.surfs[cross] !== undefined) {
-        surf = JSON.parse(this.surfs[cross][0]);
+      surf = JSON.parse(item.Surface);
 
-        surf = surf.map((row) => {
-          const {
-            DK_EFF, // eslint-disable-line no-unused-vars
-            IPV_ATM, // eslint-disable-line no-unused-vars
-            RR_MULT, // eslint-disable-line no-unused-vars
-            S_FLY_MULT, // eslint-disable-line no-unused-vars
-            SFLY25, // eslint-disable-line no-unused-vars
-            SFLY10, // eslint-disable-line no-unused-vars
-            ...rest // eslint-disable-line no-unused-vars
-          } = row; // eslint-disable-line no-unused-vars
-          return {
-            ...rest,
-          };
-        });
-      }
+      surf = surf.map(row => {
+        const {
+          DK_EFF, // eslint-disable-line no-unused-vars
+          IPV_ATM, // eslint-disable-line no-unused-vars
+          RR_MULT, // eslint-disable-line no-unused-vars
+          S_FLY_MULT, // eslint-disable-line no-unused-vars
+          SFLY25, // eslint-disable-line no-unused-vars
+          SFLY10, // eslint-disable-line no-unused-vars
+          ...rest // eslint-disable-line no-unused-vars
+        } = row; // eslint-disable-line no-unused-vars
+        return {
+          ...rest
+        };
+      });
 
       return surf;
     },
-    GetHeader(cross) {
-      var str = cross;
-      if (this.surfs[cross] !== undefined) {
-        var data = JSON.parse(this.surfs[cross][1]);
-        var spot = data.Spot;
+    getHeader(item) {
+      var str = item.Cross;
+      var data = JSON.parse(item.LastUpdate);
+      var spot = data.Spot;
 
-        str = str + " " + spot;
-      }
+      str = str + " " + spot;
+
       return str;
     },
-    GetFooter(cross) {
-      if (this.surfs[cross] !== undefined) {
-        var data = JSON.parse(this.surfs[cross][1]);
-        var time = "Last Updated : " + data.Time;
-        return time;
-      }
+    getFooter(item) {
+      var data = JSON.parse(item.LastUpdate);
+      var time = "Last Updated : " + data.Time;
+      return time;
     },
-    GetWarningColor(cross) {
-      var warningColor = "secondary";
+    getWarningColor(item) {
+      var data = JSON.parse(item.LastUpdate);
+      var lastUpdate = moment(data.Time, "DD/MM/YYYY, h:mm:ss").toDate();
+      var currenttime = new Date();
+      var status = currenttime - lastUpdate;
 
-      if (this.surfs[cross] !== undefined) {
-        var data = JSON.parse(this.surfs[cross][1]);
-        var lastUpdate = moment(data.Time, "DD/MM/YYYY, h:mm:ss").toDate();
-        var currenttime = new Date();
-        var status = currenttime - lastUpdate;
+      var FIRST_TIME_WARNING = 10 * 60 * 1000;
+      var SECOND_TIME_WARNING = 20 * 60 * 1000;
+      var THIRD_TIME_WARNING = 30 * 60 * 1000;
 
-        var FIRST_TIME_WARNING = 10 * 60 * 1000;
-        var SECOND_TIME_WARNING = 20 * 60 * 1000;
-        var THIRD_TIME_WARNING = 30 * 60 * 1000;
-
-        warningColor =
-          status <= FIRST_TIME_WARNING
-            ? "blue lighten-3"
-            : status <= SECOND_TIME_WARNING
-            ? "green lighten-3"
-            : status <= THIRD_TIME_WARNING
-            ? "orange lighten-3"
-            : "red lighten-3";
-      }
+      let warningColor =
+        status <= FIRST_TIME_WARNING
+          ? "blue lighten-3"
+          : status <= SECOND_TIME_WARNING
+          ? "green lighten-3"
+          : status <= THIRD_TIME_WARNING
+          ? "orange lighten-3"
+          : "red lighten-3";
 
       return warningColor;
-    },
+    }
   },
-  watch: {
-    ccyPair() {
-      DviApi.GetDashBoardSurfs()
-        .then((response) => {
-          const surfs = JSON.parse(response.data.dashBoardSurfs);
-          this.surfs = Object.fromEntries(
-            Object.entries(surfs).filter(([key]) => key === this.ccyPair)
-          );
-        })
-        .catch((error) => {
-          alert(error.name);
-        });
-    },
-  },
+  watch: {}
 };
 </script>

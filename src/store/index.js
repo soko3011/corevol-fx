@@ -40,7 +40,8 @@ const state = {
   snackbars: [],
   isUserAuthed: false,
   isAdmin: false,
-  token: ""
+  token: "",
+  dashBoardPrefs: []
 };
 
 const mutations = {
@@ -131,6 +132,7 @@ const mutations = {
     state.isAdmin = user.IsAdmin;
     window.localStorage.currentUser = JSON.stringify(user.UserName);
     state.userPrefCross = user.StarterFxCross;
+    state.dashBoardPrefs = JSON.parse(user.DashBoardPrefs);
   },
   SET_ISAUTHED(state, user) {
     state.isUserAuthed = user.IsAuthed;

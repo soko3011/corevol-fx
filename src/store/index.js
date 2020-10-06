@@ -39,12 +39,16 @@ const state = {
   dashBoardPrefs: [],
   userPricerLayoutPrefs: [],
   activePricerLayoutTitle: "Trader",
-  pricerSetupToggle: false
+  pricerSetupToggle: false,
+  pricerSetupClosed: false
 };
 
 const mutations = {
-  SET_PRICER_SETUP_TOGGLE(state) {
+  SET_PRICER_SETUP_TOGGLE(state, data) {
     state.pricerSetupToggle = !state.pricerSetupToggle;
+    if (data === "setupClosed") {
+      state.pricerSetupClosed = !state.pricerSetupClosed;
+    }
   },
   SET_ACTIVE_PRICERLAYOUT_TITLE(state, data) {
     state.activePricerLayoutTitle = data;
@@ -151,8 +155,8 @@ const mutations = {
 };
 
 const actions = {
-  togglePricerSetupPage({ commit }) {
-    commit("SET_PRICER_SETUP_TOGGLE");
+  togglePricerSetupPage({ commit }, data) {
+    commit("SET_PRICER_SETUP_TOGGLE", data);
   },
   async setPricerLayoutTitle({ commit }, data) {
     commit("SET_ACTIVE_PRICERLAYOUT_TITLE", data);

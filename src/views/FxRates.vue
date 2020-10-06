@@ -101,4 +101,11 @@ export default {
   /* entering style */
   transition: opacity 1.25s ease-out;
 }
+
+/* table th + th {
+  border-left: 1px solid #dddddd;
+}
+table td + td {
+  border-left: 1px solid #dddddd;
+} */
 </style>

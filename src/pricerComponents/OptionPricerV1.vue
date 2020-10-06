@@ -642,9 +642,15 @@ export default {
           optValues.push(singleOpt[index].Value);
         }
         this.replaceSingleOpt(optValues, this.col);
-
         this.formatComplete();
         this.emptyCol();
+
+        this.jExcelObj.updateSelectionFromCoords(
+          this.col,
+          this.row,
+          this.col,
+          this.row
+        );
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  -method: RecalcOpt`,

@@ -28,14 +28,10 @@ const state = {
   activecross: "",
   userPrefCross: "",
   pricerLayoutName: "",
-  // pricerLayout: [],
-  // activePricerLayout: [],
   crossList: [],
   defaultPricerKeyGroups: {},
-  activePricerSettings: [],
   lastPricerTab: "",
   lastPricerCellCoords: [],
-
   currentUser: "",
   snackbars: [],
   isUserAuthed: false,
@@ -181,7 +177,6 @@ const actions = {
       alert(e);
     }
   },
-
   async setPricerNew({ dispatch }, pricerName) {
     try {
       let response = await PricerApi.setPricer({
@@ -196,7 +191,6 @@ const actions = {
       });
     }
   },
-
   async checkLoginStatus({ commit }) {
     try {
       let response = await LoginApi.CheckLoginStatus({
@@ -218,7 +212,6 @@ const actions = {
       return { error: "There was an error.  Please try again." };
     }
   },
-
   async logOutUser({ dispatch, commit }) {
     try {
       let response = await LoginApi.LogOutUser({
@@ -235,7 +228,6 @@ const actions = {
       return { error: "There was an error.  Please try again." };
     }
   },
-
   async login({ dispatch, commit }, loginInfo) {
     try {
       let response = await LoginApi.LoginUser(loginInfo);
@@ -284,7 +276,6 @@ const actions = {
       return { error: `There was an error. ${err}.` };
     }
   },
-
   setSidebarMinified({ commit }) {
     commit("SET_SIDEBARMINIFIED");
   },
@@ -297,7 +288,6 @@ const actions = {
 
     commit("SET_SNACKBAR", snackbar);
   },
-
   refreshCrossList({ commit }) {
     SettingsApi.GetCrossList()
       .then(response => {
@@ -363,7 +353,6 @@ const actions = {
       });
     }
   },
-
   async returnMatchIpvSmile({ commit }, payload) {
     try {
       let response = await DviApi.returnMatchIpvSmile(payload);
@@ -421,7 +410,6 @@ const actions = {
   setActivecross({ commit }, payload) {
     commit("SET_ACTIVE_CROSS", payload);
   },
-
   setPricerTab({ commit }, payload) {
     commit("SET_LAST_PRICER_TAB", payload);
   },
@@ -434,7 +422,6 @@ const actions = {
   setLastCellPosition({ commit }, payload) {
     commit("SET_LAST_PRICER_CELL_POS", payload);
   },
-
   ChangePricer({ commit }, pricerName) {
     return new Promise((resolve, reject) => {
       PricerApi.setPricer({

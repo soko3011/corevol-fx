@@ -56,6 +56,6 @@ export default {
     return Api.post("DownloadGlobalDvi", body);
   },
   saveUserDashBoardPrefs(body) {
-    return Api.post("saveUserDashBoardPrefs", body);
+    return Api.post("SaveUserDashBoardPrefs", body);
   }
 };

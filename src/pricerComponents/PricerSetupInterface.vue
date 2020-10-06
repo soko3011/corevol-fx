@@ -102,20 +102,20 @@ export default {
       this.$store.dispatch("togglePricerSetupPage");
     },
     newLayout(val) {
-      if (this.userPricerLayoutPrefs.map(x => x.title).indexOf(val) === -1) {
-        const newLayout = this.combinedPricerLayouts.find(
-          x => x.title === "Trader"
-        );
-        newLayout.title = val.toUpperCase();
-
-        this.userPricerLayoutPrefs.push(newLayout);
-        this.$store.dispatch(
-          "saveUserPricerLayoutPrefs",
-          this.userPricerLayoutPrefs
-        );
-      } else {
-        alert("Pricer already exist: Choose another name");
-      }
+      console.log(val);
+      // if (this.userPricerLayoutPrefs.map(x => x.title).indexOf(val) === -1) {
+      //   const newLayout = this.combinedPricerLayouts.find(
+      //     x => x.title === "Trader"
+      //   );
+      //   newLayout.title = val.toUpperCase();
+      //   this.userPricerLayoutPrefs.push(newLayout);
+      //   this.$store.dispatch(
+      //     "saveUserPricerLayoutPrefs",
+      //     this.userPricerLayoutPrefs
+      //   );
+      // } else {
+      //   alert("Pricer already exist: Choose another name");
+      // }
     },
     removeLayout(val) {
       this.userPricerLayoutPrefs.splice(

@@ -74,6 +74,7 @@
 <script>
 import draggable from "vuedraggable";
 import Swatches from "vue-swatches";
+import { mapState } from "vuex";
 
 export default {
   components: {
@@ -81,7 +82,6 @@ export default {
     Swatches
   },
   props: {
-    showPricerSetup: { type: Boolean, default: false },
     activekeyGroups: { type: Array }
   },
 
@@ -102,6 +102,11 @@ export default {
       ]
     };
   },
+  computed: {
+    ...mapState({
+      pricerSetupToggle: state => state.pricerSetupToggle
+    })
+  },
 
   methods: {
     async saveLayout() {
@@ -115,14 +120,13 @@ export default {
       this.close();
     },
     close() {
-      this.dialog = false;
+      this.$store.dispatch("togglePricerSetupPage");
       this.$nextTick(() => {});
-      this.$emit("dialogState", this.dialog);
     }
   },
   watch: {
-    showPricerSetup() {
-      this.dialog = this.showPricerSetup;
+    pricerSetupToggle() {
+      this.dialog = this.pricerSetupToggle;
       this.keyGroups = this.activekeyGroups;
     }
   }

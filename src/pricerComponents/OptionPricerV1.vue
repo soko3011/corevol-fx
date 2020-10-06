@@ -1,83 +1,7 @@
 <template>
   <div>
-    <!-- <v-btn @click="dev" /> -->
-
-    <v-row>
-      <v-col cols="12">
-        <div class="d-flex justify-end">
-          <v-menu v-model="menu" bottom origin="center center" transition="scale-transition">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn icon small color="blue" dark v-bind="attrs" v-on="on">
-                <v-icon>mdi-chevron-double-down</v-icon>
-              </v-btn>
-            </template>
-            <v-card max-width="800">
-              <v-list rounded align="center" justify="center">
-                <v-subheader>LAYOUTS</v-subheader>
-                <v-list-item-group color="blue darken--3">
-                  <v-list-item
-                    v-for="item in combinedPricerLayouts"
-                    :key="item.title"
-                    @click="setLayout(item)"
-                  >
-                    <v-list-item-content>
-                      <v-list-item-title v-text="item.title"></v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
-              <v-card-actions>
-                <PopUpInput
-                  :icon="'mdi-expand-all'"
-                  :label="'add name and hit enter'"
-                  :color="'blue darken-3'"
-                  :title="'ADD NEW LAYOUT'"
-                  :large="false"
-                  v-on:selection="newLayout"
-                />
-
-                <PopUpModal
-                  :inputData="userPricerLayoutPrefs.map(x=>x.title)"
-                  :icon="'mdi-delete'"
-                  :color="'blue darken-3'"
-                  :large="false"
-                  :title="'REMOVE LAYLOUT'"
-                  v-on:selection="removeLayout"
-                />
-              </v-card-actions>
-            </v-card>
-          </v-menu>
-          <div class="mr-5" />
-          <v-btn
-            small
-            icon
-            color="blue darken-3"
-            dark
-            @click="pricerSetupToggle = !pricerSetupToggle"
-          >
-            <v-icon>mdi-pencil-outline</v-icon>
-          </v-btn>
-        </div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <div ref="jexcelPricer"></div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12">
-        <div class="d-flex justify-end ml-10">
-          <div>Layout: {{activePricerLayoutTitle}}</div>
-        </div>
-      </v-col>
-    </v-row>
-    <PricerSetup
-      :activekeyGroups="pricerSettingsObj"
-      :showPricerSetup="pricerSetupToggle"
-      @dialogState="resetPricerSetupToggle"
-      @pricerLayoutChanged="updatePricerLayout"
-    />
+    <div ref="jexcelPricer"></div>
+    <PricerSetup :activekeyGroups="pricerSettingsObj" @pricerLayoutChanged="updatePricerLayout" />
   </div>
 </template>
 
@@ -90,16 +14,12 @@ import PricerApi from "@/apis/PricerApi";
 import alphabetJson from "./Alphabet.json";
 import PricerSetup from "@/pricerComponents/PricerSetup.vue";
 import moment from "moment";
-import PopUpModal from "@/components/PopUpModal.vue";
-import PopUpInput from "@/components/PopUpInput.vue";
 import { mapState } from "vuex";
 
 export default {
   name: "optionPricer",
   components: {
-    PricerSetup,
-    PopUpModal,
-    PopUpInput
+    PricerSetup
   },
   created() {
     document.addEventListener("keydown", this.eventListeners);
@@ -114,7 +34,6 @@ export default {
   },
   data() {
     return {
-      menu: false,
       pricerSettingsObj: [],
       initialData: [],
       pricerKeys: [],
@@ -205,37 +124,6 @@ export default {
     }
   },
   methods: {
-    newLayout(val) {
-      if (this.userPricerLayoutPrefs.map(x => x.title).indexOf(val) === -1) {
-        const newLayout = this.combinedPricerLayouts.find(
-          x => x.title === "Trader"
-        );
-        newLayout.title = val.toUpperCase();
-
-        this.userPricerLayoutPrefs.push(newLayout);
-        this.$store.dispatch(
-          "saveUserPricerLayoutPrefs",
-          this.userPricerLayoutPrefs
-        );
-      } else {
-        alert("Pricer already exist: Choose another name");
-      }
-    },
-    removeLayout(val) {
-      this.userPricerLayoutPrefs.splice(
-        this.userPricerLayoutPrefs.findIndex(item => item.title === val),
-        1
-      );
-
-      this.$store.dispatch(
-        "saveUserPricerLayoutPrefs",
-        this.userPricerLayoutPrefs
-      );
-    },
-    setLayout(item) {
-      this.$store.dispatch("setPricerLayoutTitle", item.title);
-      this.pricerSettingsObj = item.layout;
-    },
     formatComplete() {
       for (const keyGroup of this.pricerSettingsObj) {
         if (keyGroup.Show === true) {
@@ -943,8 +831,7 @@ export default {
     this.restorePricerData(this.storedData);
     this.setCellPosition(this.pricerName);
     this.formatComplete();
-  },
-  watch: {}
+  }
 };
 </script>
 

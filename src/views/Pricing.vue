@@ -18,6 +18,7 @@
 
     <div class="d-flex flex-nowrap ma-5">
       <v-card v-if="showSideControl" min-width="225" shaped class="mr-3" v-bind:style="zoomLevel">
+        <PricerSetupInterface />
         <TreeView
           :inputData="{
             list: this.activePricers,
@@ -25,9 +26,7 @@
           }"
           v-on:selection="ReloadPricer"
         />
-        <v-card-actions>
-          <v-text-field label="Layout" outlined :value="activePricerLayoutTitle" readonly></v-text-field>
-        </v-card-actions>
+
         <div>
           <div style="margin-bottom: 70px"></div>
           <v-card flat>
@@ -56,7 +55,7 @@
         </div>
       </v-card>
 
-      <OptionPricer :pricerName="viewName" v-bind:style="zoomLevel" />
+      <OptionPricer :pricerName="viewName" v-bind:style="zoomLevel" :key="componentKey" />
     </div>
   </div>
 </template>
@@ -67,6 +66,7 @@ import PricerApi from "@/apis/PricerApi";
 import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import PopUpInput from "@/components/PopUpInput.vue";
+import PricerSetupInterface from "@/pricerComponents/PricerSetupInterface.vue";
 import { mapState } from "vuex";
 import { stat } from "fs";
 
@@ -77,11 +77,13 @@ export default {
     OptionPricer,
     TreeView,
     PopUpModal,
-    PopUpInput
+    PopUpInput,
+    PricerSetupInterface
   },
 
   data() {
     return {
+      componentKey: 0,
       activePricers: [],
       modalToggle: false,
       viewName: this.$route.params.viewName,
@@ -202,6 +204,10 @@ export default {
       if (this.crossList.length === 0) {
         this.$store.dispatch("RefreshCrossList");
       }
+    },
+
+    activePricerLayoutTitle() {
+      this.componentKey += 1;
     }
   }
 };

@@ -3,9 +3,11 @@
     <v-dialog v-model="dialog" max-width="300">
       <template v-slot:activator="{ on, attrs }">
         <v-btn icon>
-          <v-icon :large="large" :color="color" v-bind="attrs" v-on="on">{{
+          <v-icon :large="large" :color="color" v-bind="attrs" v-on="on">
+            {{
             icon
-          }}</v-icon>
+            }}
+          </v-icon>
         </v-btn>
       </template>
 
@@ -33,9 +35,7 @@
         </v-list>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="dialog = false"
-            >Cancel</v-btn
-          >
+          <v-btn color="green darken-1" text @click="dialog = false">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

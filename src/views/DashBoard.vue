@@ -51,6 +51,15 @@
         @start="drag = true"
         @end="drag = false"
       >
+        <!-- <DashBoardSurf
+          class="ma-3"
+          v-for="item in activeSurfs"
+          :key="item.Cross"
+          :surfData="singleSurf(item)"
+          :toolbarData="getHeader(item)"
+          :warnColor="getWarningColor(item)"
+          :footerData="getFooter(item)"
+        />-->
         <v-card
           v-for="item in activeSurfs"
           :key="item.Cross"
@@ -61,27 +70,20 @@
         >
           <v-toolbar class="mb-0 mr-2" dark height="30" color="#385F73">
             <v-spacer></v-spacer>
-            <v-toolbar-title class="text-subtitle-2">{{
+            <v-toolbar-title class="text-subtitle-2">
+              {{
               getHeader(item)
-            }}</v-toolbar-title>
+              }}
+            </v-toolbar-title>
 
             <v-spacer></v-spacer>
             <v-btn icon>
-              <v-icon
-                small
-                :color="getWarningColor(item)"
-                @click="gotoDvi(item)"
-                >mdi-lightning-bolt</v-icon
-              >
+              <v-icon small :color="getWarningColor(item)" @click="gotoDvi(item)">mdi-lightning-bolt</v-icon>
             </v-btn>
           </v-toolbar>
 
           <DashBoardSurf :apidata="singleSurf(item)" class="ma-0" />
-          <v-system-bar
-            class="mt-n2 mr-2"
-            height="5"
-            :color="getWarningColor(item)"
-          ></v-system-bar>
+          <v-system-bar class="mt-n2 mr-1" height="5" :color="getWarningColor(item)"></v-system-bar>
           <h6 align="center" justify="center">{{ getFooter(item) }}</h6>
         </v-card>
       </Draggable>
@@ -101,19 +103,19 @@ export default {
   data: () => ({
     drag: false,
     surfs: [],
-    menu: false,
+    menu: false
   }),
 
   components: {
     DashBoardSurf,
     Draggable,
-    TreeView,
+    TreeView
   },
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "90%" : "80%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
     userPrefs() {
@@ -121,18 +123,18 @@ export default {
     },
 
     activeSurfs() {
-      return this.surfs.filter((item) => item.Show === true);
-    },
+      return this.surfs.filter(item => item.Show === true);
+    }
   },
   async created() {
     try {
       let response = await DviApi.GetDashBoardSurfs({
-        userName: this.$store.state.currentUser,
+        userName: this.$store.state.currentUser
       });
       let rawData = JSON.parse(response.data.dashBoardSurfs);
       if (this.userPrefs.length > 0) {
         for (var item of this.userPrefs) {
-          const ccyPairData = rawData.find((x) => x.Cross === item.Cross);
+          const ccyPairData = rawData.find(x => x.Cross === item.Cross);
           ccyPairData.Show = item.Show;
           this.surfs.push(ccyPairData);
         }
@@ -142,7 +144,7 @@ export default {
     } catch (error) {
       this.$store.dispatch("setSnackbar", {
         text: `${error} source: DashBoard.vue-created`,
-        top: true,
+        top: true
       });
     }
   },
@@ -154,16 +156,16 @@ export default {
 
         let response = await DviApi.saveUserDashBoardPrefs({
           UserName: this.$store.state.currentUser,
-          DashBoardUI: JSON.stringify(prefs),
+          DashBoardUI: JSON.stringify(prefs)
         });
         this.$store.dispatch("setSnackbar", {
           text: `DashBoard Layout Saved`,
-          centered: true,
+          centered: true
         });
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: DashBoard.vue-saveSetup`,
-          bottom: true,
+          bottom: true
         });
       }
       this.menu = false;
@@ -172,14 +174,14 @@ export default {
       this.$store.dispatch("setActivecross", item);
       this.$router.push({
         name: "Dvi",
-        params: { ccyPair: item.Cross },
+        params: { ccyPair: item.Cross }
       });
     },
     singleSurf(item) {
       var surf = [{}];
       surf = JSON.parse(item.Surface);
 
-      surf = surf.map((row) => {
+      surf = surf.map(row => {
         const {
           DK_EFF, // eslint-disable-line no-unused-vars
           IPV_ATM, // eslint-disable-line no-unused-vars
@@ -190,7 +192,7 @@ export default {
           ...rest // eslint-disable-line no-unused-vars
         } = row; // eslint-disable-line no-unused-vars
         return {
-          ...rest,
+          ...rest
         };
       });
 
@@ -230,8 +232,8 @@ export default {
           : "red lighten-3";
 
       return warningColor;
-    },
+    }
   },
-  watch: {},
+  watch: {}
 };
 </script>

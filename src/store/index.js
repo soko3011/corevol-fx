@@ -27,7 +27,6 @@ const state = {
   sidebarMinified: true,
   activecross: "",
   userPrefCross: "",
-  pricerLayoutName: "",
   crossList: [],
   defaultPricerKeyGroups: {},
   lastPricerTab: "",
@@ -37,10 +36,15 @@ const state = {
   isUserAuthed: false,
   isAdmin: false,
   token: "",
-  dashBoardPrefs: []
+  dashBoardPrefs: [],
+  userPricerLayoutPrefs: [],
+  activePricerLayoutTitle: "Trader"
 };
 
 const mutations = {
+  SET_ACTIVE_PRICERLAYOUT_TITLE(state, data) {
+    state.activePricerLayoutTitle = data;
+  },
   SET_DEFAULT_PRICERKEYGROUPS(state, data) {
     state.defaultPricerKeyGroups = data;
   },
@@ -129,6 +133,9 @@ const mutations = {
     window.localStorage.currentUser = JSON.stringify(user.UserName);
     state.userPrefCross = user.StarterFxCross;
     state.dashBoardPrefs = JSON.parse(user.DashBoardPrefs);
+    state.userPricerLayoutPrefs = JSON.parse(user.PricerLayoutPrefs);
+    state.activePricerLayoutTitle = user.ActivePricerLayoutTitle;
+    console.log(state.activePricerLayoutTitle);
   },
   SET_ISAUTHED(state, user) {
     state.isUserAuthed = user.IsAuthed;
@@ -140,6 +147,21 @@ const mutations = {
 };
 
 const actions = {
+  async setPricerLayoutTitle({ commit }, data) {
+    commit("SET_ACTIVE_PRICERLAYOUT_TITLE", data);
+
+    try {
+      let response = await PricerApi.SetPricerLayoutTitle({
+        UserName: state.currentUser,
+        ActivePricerLayoutTitle: data
+      });
+      console.log(`activeLayoutTitleSaved ${response.status}`);
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}`
+      });
+    }
+  },
   async getDefaultPricerKeyGroups({ dispatch, commit }) {
     try {
       let response = await PricerApi.GetDefaultPricerKeyGroups();
@@ -154,7 +176,22 @@ const actions = {
       });
     }
   },
-  async savePricerSetup({ dispatch }, data) {
+  async saveUserPricerLayoutPrefs({ dispatch }, data) {
+    try {
+      let response = await PricerApi.SaveUserPricerLayoutPrefs({
+        UserName: state.currentUser,
+        PricerLayoutPrefs: JSON.stringify(data)
+      });
+      dispatch("setSnackbar", {
+        text: `PricerSetup saved. Status: ${response.status}`
+      });
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}`
+      });
+    }
+  },
+  async saveDefaultTraderLayout({ dispatch }, data) {
     try {
       let response = await PricerApi.SavePricerSetup(data);
       dispatch("setSnackbar", {

@@ -2,9 +2,11 @@
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="400">
       <template v-slot:activator="{ on, attrs }">
-        <v-icon :large="large" :color="color" v-bind="attrs" v-on="on">{{
+        <v-icon :large="large" :color="color" v-bind="attrs" v-on="on">
+          {{
           icon
-        }}</v-icon>
+          }}
+        </v-icon>
       </template>
 
       <v-card flush class="mx-auto" max-width="400">
@@ -16,9 +18,8 @@
         <v-text-field :label="label" @change="emitToParent"></v-text-field>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="dialog = false"
-            >Cancel</v-btn
-          >
+
+          <v-btn color="green darken-1" text @click="dialog = false">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -40,6 +41,7 @@ export default {
   methods: {
     emitToParent(item) {
       this.$emit("selection", item);
+      this.dialog = false;
     }
   }
 };

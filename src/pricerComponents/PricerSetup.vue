@@ -57,22 +57,15 @@
                 dense
                 readonly
               >
-                <v-icon slot="prepend-inner" :color="element.TextColor"
-                  >mdi-alphabetical</v-icon
-                >
+                <v-icon slot="prepend-inner" :color="element.TextColor">mdi-alphabetical</v-icon>
               </v-text-field>
             </v-col>
           </v-row>
 
-          <v-card-actions> </v-card-actions>
+          <v-card-actions></v-card-actions>
         </v-card>
-
-        <v-btn class="mt-3" color="blue lighten-3" block @click="saveLayout"
-          >Save Layout</v-btn
-        >
-        <v-btn class="mt-3 mb-3" color="red lighten-3" block @click="close"
-          >Cancel</v-btn
-        >
+        <v-btn class="mt-3" color="blue lighten-3" block @click="saveLayout">Save Layout</v-btn>
+        <v-btn class="mt-3 mb-3" color="red lighten-3" block @click="close">Cancel</v-btn>
       </draggable>
     </v-dialog>
   </div>
@@ -85,11 +78,11 @@ import Swatches from "vue-swatches";
 export default {
   components: {
     draggable,
-    Swatches,
+    Swatches
   },
   props: {
     showPricerSetup: { type: Boolean, default: false },
-    activekeyGroups: { type: Array },
+    activekeyGroups: { type: Array }
   },
 
   data() {
@@ -105,14 +98,19 @@ export default {
         ["#e8ebe4", "#d2d5dd", "#b8bacf", "#999ac6", "#798071"],
         ["#fefeff", "#d6efff", "#fed18c", "#fed99b", "#fe654f"],
         ["#d1d7ff", "#d2e3ff", "#d2f1ff", "#d7f4ff", "#ecf7ff"],
-        ["#d7fff1", "#aafcb8", "#8cd790", "#77af9c", "#285943"],
-      ],
+        ["#d7fff1", "#aafcb8", "#8cd790", "#77af9c", "#285943"]
+      ]
     };
   },
 
   methods: {
     async saveLayout() {
-      await this.$store.dispatch("savePricerSetup", this.keyGroups);
+      // await this.$store.dispatch("saveDefaultTraderLayout", this.keyGroups);
+      await this.$store.dispatch(
+        "saveUserPricerLayoutPrefs",
+        this.$store.state.userPricerLayoutPrefs
+      );
+
       this.$emit("pricerLayoutChanged", this.keyGroups);
       this.close();
     },
@@ -120,14 +118,14 @@ export default {
       this.dialog = false;
       this.$nextTick(() => {});
       this.$emit("dialogState", this.dialog);
-    },
+    }
   },
   watch: {
     showPricerSetup() {
       this.dialog = this.showPricerSetup;
       this.keyGroups = this.activekeyGroups;
-    },
-  },
+    }
+  }
 };
 </script>
 

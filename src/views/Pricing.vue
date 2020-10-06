@@ -1,40 +1,23 @@
 <template>
   <div>
-    <v-toolbar
-      class="ma-5"
-      color="#385F73"
-      min-width="300"
-      dense
-      collapse
-      v-bind:style="zoomLevel"
-    >
+    <v-toolbar class="ma-5" color="#385F73" min-width="300" dense collapse v-bind:style="zoomLevel">
       <v-btn icon>
         <v-icon
           @click="showSideControl = !showSideControl"
           color="blue lighten-2"
-        >
-          {{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}
-        </v-icon>
+        >{{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
       </v-btn>
 
       <v-spacer></v-spacer>
       <h4
         class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-      >
-        {{ viewName }}
-      </h4>
+      >{{ viewName }}</h4>
       <v-spacer></v-spacer>
     </v-toolbar>
     <v-spacer />
 
     <div class="d-flex flex-nowrap ma-5">
-      <v-card
-        v-if="showSideControl"
-        min-width="225"
-        shaped
-        class="mr-3"
-        v-bind:style="zoomLevel"
-      >
+      <v-card v-if="showSideControl" min-width="225" shaped class="mr-3" v-bind:style="zoomLevel">
         <TreeView
           :inputData="{
             list: this.activePricers,
@@ -42,9 +25,12 @@
           }"
           v-on:selection="ReloadPricer"
         />
+        <v-card-actions>
+          <v-text-field label="Layout" outlined :value="activePricerLayoutTitle" readonly></v-text-field>
+        </v-card-actions>
         <div>
           <div style="margin-bottom: 70px"></div>
-          <v-card>
+          <v-card flat>
             <v-btn absolute small fab top left color="pink" elevation="12">
               <PopUpInput
                 :icon="'mdi-expand-all'"
@@ -56,16 +42,8 @@
               />
             </v-btn>
           </v-card>
-          <v-btn
-            class="mb-10"
-            absolute
-            small
-            fab
-            bottom
-            right
-            color="blue-grey"
-            elevation="12"
-          >
+
+          <v-btn class="mb-10" absolute small fab bottom right color="blue-grey" elevation="12">
             <PopUpModal
               :inputData="this.activePricers"
               :icon="'mdi-delete'"
@@ -90,6 +68,7 @@ import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import PopUpInput from "@/components/PopUpInput.vue";
 import { mapState } from "vuex";
+import { stat } from "fs";
 
 export default {
   name: "PricerView",
@@ -98,7 +77,7 @@ export default {
     OptionPricer,
     TreeView,
     PopUpModal,
-    PopUpInput,
+    PopUpInput
   },
 
   data() {
@@ -106,7 +85,7 @@ export default {
       activePricers: [],
       modalToggle: false,
       viewName: this.$route.params.viewName,
-      showSideControl: false,
+      showSideControl: false
     };
   },
   async created() {
@@ -114,7 +93,7 @@ export default {
 
     try {
       let response = await PricerApi.GetListOfActivePricers({
-        userName: this.currentUser,
+        userName: this.currentUser
       });
 
       this.activePricers = JSON.parse(response.data.activePricers);
@@ -124,7 +103,7 @@ export default {
     } catch (err) {
       this.$store.dispatch("setSnackbar", {
         text: `${err}  -method: Pricing(created)`,
-        top: true,
+        top: true
       });
     }
   },
@@ -134,13 +113,14 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: (state) => state.crossList,
-      currentUser: (state) => state.currentUser,
+      crossList: state => state.crossList,
+      currentUser: state => state.currentUser,
+      activePricerLayoutTitle: state => state.activePricerLayoutTitle
     }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
     mainWindowHeight() {
@@ -157,7 +137,7 @@ export default {
         padding-right: 0px;
         width: ${this.mainWindowWidth}px;
         height: ${this.mainWindowHeight}px;`;
-    },
+    }
   },
 
   methods: {
@@ -188,7 +168,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `Must have at least one Pricer. Add a new one before deleting ${this.viewName}`,
-          top: true,
+          top: true
         });
 
         return;
@@ -203,27 +183,27 @@ export default {
       try {
         let response = await PricerApi.RemovePricerFromUse({
           userName: this.currentUser,
-          PricerData: { PricerTitle: item },
+          PricerData: { PricerTitle: item }
         });
 
         this.activePricers = JSON.parse(response.data.listOfActivePricers);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  -method: RemoveTab`,
-          top: true,
+          top: true
         });
       }
 
       this.ReloadPricer(redirectTo);
-    },
+    }
   },
   watch: {
     crossList() {
       if (this.crossList.length === 0) {
         this.$store.dispatch("RefreshCrossList");
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

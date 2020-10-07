@@ -1,29 +1,23 @@
 <template>
-  <div>
-    <div v-bind:style="zoomLevel">
+  <div class="d-flex flex-column">
+    <div>
       <v-toolbar color="#126496" min-width="300" collapse>
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
-          <h4
-            class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-          >
+          <h4 class="font-weight-medium text-center text-uppercase grey--text text--lighten-3">
             Corevolfx
-            <v-icon small color="green lighten-3" class="mb-4"
-              >mdi-cog-outline</v-icon
-            >
+            <v-icon small color="green lighten-3" class="mb-4">mdi-cog-outline</v-icon>
           </h4>
           <h6
             class="font-weight-light text-center text-uppercase green--text text--lighten-3"
             align="center"
             justify="center"
-          >
-            settings
-          </h6>
+          >settings</h6>
         </div>
         <v-spacer></v-spacer>
       </v-toolbar>
     </div>
-    <div class="d-flex flex-nowrap align-start justify-start">
+    <div class="d-flex flex-nowrap align-start justify-start" v-bind:style="zoomLevel">
       <v-card
         min-width="225"
         :height="mainWindowHeight"
@@ -69,7 +63,7 @@ export default {
   name: "Setup",
   data: () => ({
     settingHeaders: ["Dvi Settings", "Cross Settings", "Ccy Settings"],
-    settingSelection: "Dvi Settings",
+    settingSelection: "Dvi Settings"
   }),
 
   components: {
@@ -77,18 +71,18 @@ export default {
     CrossSetup,
     CcySetup,
     PopUpModal,
-    TreeView,
+    TreeView
   },
 
   computed: {
     zoomLevel() {
-      var level = window.innerWidth > 1700 ? "90%" : "80%";
+      var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
     mainWindowHeight() {
-      return window.innerHeight - 100;
+      return window.innerHeight - 250;
     },
     mainWindowWidth() {
       return window.innerWidth - 10;
@@ -100,14 +94,14 @@ export default {
             padding-right: 0px;
             width: ${this.mainWindowWidth}px;
             height: ${this.mainWindowHeight}px;`;
-    },
+    }
   },
 
   methods: {
     ChangeSettings(setting) {
       this.settingSelection = setting;
-    },
-  },
+    }
+  }
 };
 </script>
 

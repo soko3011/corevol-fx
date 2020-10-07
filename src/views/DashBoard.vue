@@ -1,47 +1,48 @@
 <template>
-  <div>
-    <v-system-bar color="grey lighten-3" />
-    <v-menu
-      v-model="menu"
-      :close-on-content-click="false"
-      bottom
-      origin="center center"
-      transition="scale-transition"
-    >
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          class="mt-10"
-          absolute
-          small
-          fab
-          top
-          right
-          color="pink"
-          elevation="24"
-          dark
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-icon>mdi-pencil-outline</v-icon>
-        </v-btn>
-      </template>
-      <v-card>
-        <v-list>
-          <v-list-item v-for="item in surfs" :key="item.Cross">
-            <v-list-item-action>
-              <v-switch v-model="item.Show" color="green lighten-2"></v-switch>
-            </v-list-item-action>
-            <v-list-item-title>{{ item.Cross }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-        <v-card-actions>
-          <v-spacer></v-spacer>
+  <div class="d-flex flex-column">
+    <div class="flex d-flex justify-end mb-n10">
+      <v-menu
+        v-model="menu"
+        :close-on-content-click="false"
+        bottom
+        origin="center center"
+        transition="scale-transition"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="mt-5 mr-10"
+            small
+            fab
+            color="pink"
+            elevation="24"
+            dark
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-icon>mdi-pencil-outline</v-icon>
+          </v-btn>
+        </template>
+        <v-card>
+          <v-list>
+            <v-list-item v-for="item in surfs" :key="item.Cross">
+              <v-list-item-action>
+                <v-switch
+                  v-model="item.Show"
+                  color="green lighten-2"
+                ></v-switch>
+              </v-list-item-action>
+              <v-list-item-title>{{ item.Cross }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+          <v-card-actions>
+            <v-spacer></v-spacer>
 
-          <v-btn text @click="menu = false">Cancel</v-btn>
-          <v-btn color="primary" text @click="saveSetup">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-menu>
+            <v-btn text @click="menu = false">Cancel</v-btn>
+            <v-btn color="primary" text @click="saveSetup">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
+    </div>
 
     <v-container class="mt-5" fluid>
       <Draggable
@@ -71,19 +72,26 @@
           <v-toolbar class="mb-0 mr-2" dark height="30" color="#385F73">
             <v-spacer></v-spacer>
             <v-toolbar-title class="text-subtitle-2">
-              {{
-              getHeader(item)
-              }}
+              {{ getHeader(item) }}
             </v-toolbar-title>
 
             <v-spacer></v-spacer>
             <v-btn icon>
-              <v-icon small :color="getWarningColor(item)" @click="gotoDvi(item)">mdi-lightning-bolt</v-icon>
+              <v-icon
+                small
+                :color="getWarningColor(item)"
+                @click="gotoDvi(item)"
+                >mdi-lightning-bolt</v-icon
+              >
             </v-btn>
           </v-toolbar>
 
           <DashBoardSurf :apidata="singleSurf(item)" class="ma-0" />
-          <v-system-bar class="mt-n2 mr-1" height="5" :color="getWarningColor(item)"></v-system-bar>
+          <v-system-bar
+            class="mt-n2 mr-1"
+            height="5"
+            :color="getWarningColor(item)"
+          ></v-system-bar>
           <h6 align="center" justify="center">{{ getFooter(item) }}</h6>
         </v-card>
       </Draggable>
@@ -132,11 +140,14 @@ export default {
         userName: this.$store.state.currentUser
       });
       let rawData = JSON.parse(response.data.dashBoardSurfs);
+      console.log(rawData);
+      console.log(this.userPrefs);
       if (this.userPrefs.length > 0) {
-        for (var item of this.userPrefs) {
-          const ccyPairData = rawData.find(x => x.Cross === item.Cross);
-          ccyPairData.Show = item.Show;
-          this.surfs.push(ccyPairData);
+        for (var item of rawData) {
+          const userShow = this.userPrefs.find(x => x.Cross === item.Cross);
+          item.show = userShow !== undefined ? userShow.show : item.show;
+
+          this.surfs.push(item);
         }
       } else {
         this.surfs = this.rawData;

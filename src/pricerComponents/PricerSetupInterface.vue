@@ -36,7 +36,7 @@
                   :icon="'mdi-expand-all'"
                   :label="'New Layout Name'"
                   :color="'blue darken-3'"
-                  :title="'Pricer Layout'"
+                  :title="'corevolFX Pricer Layout'"
                   :large="false"
                   v-on:selection="newLayout"
                 />

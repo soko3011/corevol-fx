@@ -31,10 +31,9 @@
         v-if="showSideControl"
         min-width="225"
         shaped
-        class="mr-3"
+        class="mr-3 d-flex flex-column"
         v-bind:style="zoomLevel"
       >
-        <PricerSetupInterface />
         <TreeView
           :inputData="{
             list: this.activePricers,
@@ -42,21 +41,30 @@
           }"
           v-on:selection="ReloadPricer"
         />
+        <v-spacer />
+        <PricerSetupInterface class="mb-10" />
+        <div class="mt-10" />
 
         <div>
-          <div style="margin-bottom: 70px"></div>
-          <v-card flat>
-            <v-btn absolute small fab top left color="pink" elevation="12">
-              <PopUpInput
-                :icon="'mdi-expand-all'"
-                :label="'add name and hit enter'"
-                :color="'white'"
-                :title="'ADD NEW PRICER'"
-                :large="false"
-                v-on:selection="UserAddPricer"
-              />
-            </v-btn>
-          </v-card>
+          <v-btn
+            class="mb-10"
+            absolute
+            small
+            fab
+            bottom
+            left
+            color="pink"
+            elevation="12"
+          >
+            <PopUpInput
+              :icon="'mdi-expand-all'"
+              :label="'Pricer Name'"
+              :color="'white'"
+              :title="'corevolFx Pricer'"
+              :large="false"
+              v-on:selection="UserAddPricer"
+            />
+          </v-btn>
 
           <v-btn
             class="mb-10"

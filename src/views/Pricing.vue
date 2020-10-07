@@ -4,7 +4,6 @@
       class="ma-5"
       color="#385F73"
       min-width="300"
-      dense
       collapse
       v-bind:style="zoomLevel"
     >
@@ -17,11 +16,23 @@
       </v-btn>
 
       <v-spacer></v-spacer>
-      <h4
-        class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-      >
-        {{ viewName }}
-      </h4>
+      <div class="d-flex flex-column">
+        <h4
+          class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+        >
+          corevolFX Pricer
+          <v-icon small color="green lighten-3" class="mb-4"
+            >mdi-cog-outline</v-icon
+          >
+        </h4>
+        <h6
+          class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+          align="center"
+          justify="center"
+        >
+          {{ viewName }}
+        </h6>
+      </div>
       <v-spacer></v-spacer>
     </v-toolbar>
     <v-spacer />

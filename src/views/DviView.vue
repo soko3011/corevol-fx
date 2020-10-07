@@ -64,7 +64,6 @@
             :height="mainWindowHeight - 30"
             shaped
             class="mr-3 d-flex flex-column"
-            v-bind:style="zoomLevel"
           >
             <TreeView
               :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"

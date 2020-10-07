@@ -28,7 +28,7 @@
         <TreeView
           :inputData="{
             list: this.settingHeaders,
-            listName: 'Corevolfx Options',
+            listName: 'Corevolfx Options'
           }"
           v-on:selection="ChangeSettings"
         />

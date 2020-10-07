@@ -15,27 +15,19 @@
           <v-icon
             @click="showSideControl = !showSideControl"
             color="blue lighten-3"
-          >
-            {{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}
-          </v-icon>
+          >{{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
         </v-btn>
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
-          <h4
-            class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-          >
+          <h4 class="font-weight-medium text-center text-uppercase grey--text text--lighten-3">
             corevolFX DVI
-            <v-icon small color="green lighten-3" class="mb-4"
-              >mdi-cog-outline</v-icon
-            >
+            <v-icon small color="green lighten-3" class="mb-4">mdi-cog-outline</v-icon>
           </h4>
           <h6
             class="font-weight-light text-center text-uppercase green--text text--lighten-3"
             align="center"
             justify="center"
-          >
-            {{ this.$route.params.ccyPair }}
-          </h6>
+          >{{ this.$route.params.ccyPair }}</h6>
         </div>
 
         <v-spacer></v-spacer>
@@ -57,25 +49,56 @@
         <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
     </div>
-
     <transition name="fade">
-      <v-container v-if="dataReturned" :fluid="true" :style="containerStyle">
+      <v-container
+        fluid
+        class="d-flex flex-nowrap align-start justify-start"
+        v-if="dataReturned"
+        :style="containerStyle"
+      >
         <RightNavDrawer v-bind:style="zoomLevel" />
-        <v-card
-          v-if="showSideControl"
-          min-width="225"
-          shaped
-          class="mr-3"
-          v-bind:style="zoomLevel"
-        >
-          <TreeView
-            :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
-            v-on:selection="ReloadDvi"
-          />
-
-          <div style="margin-bottom: 70px"></div>
-          <v-card>
-            <v-btn absolute small fab top left color="pink" elevation="12">
+        <div class="d-flex flex-column">
+          <v-card
+            v-if="showSideControl"
+            min-width="225"
+            :height="mainWindowHeight - 30"
+            shaped
+            class="mr-3 d-flex flex-column"
+            v-bind:style="zoomLevel"
+          >
+            <TreeView
+              :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
+              v-on:selection="ReloadDvi"
+            />
+            <v-spacer></v-spacer>
+            <v-card flat>
+              <v-switch
+                @change="changeAutoSaveState"
+                :disabled="!this.$store.state.isAdmin"
+                class="ml-3"
+                color="success"
+                inset
+                v-model="autoSaveSwitch"
+                :label="`AUTOSAVE ${autoSaveStatus}`"
+              ></v-switch>
+              <v-switch
+                class="ml-3"
+                color="indigo"
+                inset
+                v-model="dayWgtRangesSwitch"
+                :label="`DAY WGT RANGES`"
+              ></v-switch>
+              <v-switch
+                class="ml-3"
+                color="#2E5266"
+                v-if="ipvHasData"
+                v-model="ipvSwitch"
+                inset
+                :label="`IPV VOLS`"
+              ></v-switch>
+            </v-card>
+            <v-card class="mb-10" rounded flat height="100" />
+            <v-btn class="mb-10" absolute small fab bottom left color="pink" elevation="21">
               <PopUpModal
                 :inputData="this.$store.state.crossList"
                 :icon="'mdi-expand-all'"
@@ -85,166 +108,105 @@
                 v-on:selection="ReloadDvi"
               />
             </v-btn>
+            <v-btn class="mb-10" absolute small fab bottom right color="blue-grey" elevation="21">
+              <PopUpModal
+                :inputData="this.activeDvis"
+                :icon="'mdi-delete'"
+                :color="'white'"
+                :large="false"
+                :title="'REMOVE DVI'"
+                v-on:selection="RemoveTab"
+              />
+            </v-btn>
           </v-card>
-          <div style="margin-bottom: 150px"></div>
-          <v-card>
-            <v-switch
-              @change="changeAutoSaveState"
-              :disabled="!this.$store.state.isAdmin"
-              class="ml-3"
-              color="success"
-              inset
-              v-model="autoSaveSwitch"
-              :label="`AUTOSAVE ${autoSaveStatus}`"
-            ></v-switch>
-            <v-switch
-              class="ml-3"
-              color="indigo"
-              inset
-              v-model="dayWgtRangesSwitch"
-              :label="`DAY WGT RANGES`"
-            ></v-switch>
-            <v-switch
-              class="ml-3"
-              v-if="ipvHasData"
-              v-model="ipvSwitch"
-              inset
-              :label="`IPV VOLS`"
-            ></v-switch>
-          </v-card>
-          <v-btn
-            class="mb-10"
-            absolute
-            small
-            fab
-            bottom
-            right
-            color="blue-grey"
-            elevation="12"
-          >
-            <PopUpModal
-              :inputData="this.activeDvis"
-              :icon="'mdi-delete'"
-              :color="'white'"
-              :large="false"
-              :title="'REMOVE DVI'"
-              v-on:selection="RemoveTab"
-            />
-          </v-btn>
-        </v-card>
-
-        <div
-          class="d-flex flex-nowrap align-start justify-start"
-          v-bind:style="zoomLevel"
-        >
-          <div>
-            <SurfaceTable />
-            <v-card
-              v-if="lastUpdate.Spot != null"
-              color="blue-grey lighten-5"
-              flat
-              class="mx-1"
+        </div>
+        <div class="d-flex flex-column">
+          <SurfaceTable />
+          <div class="d-flex flex-nowrap align-start justify-start mb-3">
+            <v-btn
+              class="mx-3"
+              @click="downloadGlobalDvi"
+              x-small
+              fab
+              color="blue lighten-2"
+              dark
+              elevation="20"
             >
-              SPOT: {{ lastUpdate.Spot }}
-              <v-spacer />
-              UPDATED: {{ lastUpdate.Time }}
-            </v-card>
-            <v-card color="blue-grey lighten-5" flat class="mx-1">
-              <div class="d-flex align-center justify-end">
-                <v-speed-dial class="mx-3" v-model="fabIpv" direction="left">
-                  <template v-slot:activator>
-                    <v-btn
-                      large
-                      color="blue darken-2"
-                      dark
-                      fab
-                      elevation="24"
-                      @click="GetIpvVols()"
-                    >
-                      IPV
-                      <!-- <v-icon>mdi-axis-y-arrow</v-icon> -->
-                    </v-btn>
-                  </template>
-                  <v-btn
-                    fab
-                    dark
-                    x-small
-                    color="blue accent-3"
-                    @click.stop="GetIpvVols()"
-                  >
-                    <v-icon>mdi-alpha-u-circle-outline</v-icon>
-                  </v-btn>
-                </v-speed-dial>
+              <v-icon>mdi-cloud-download-outline</v-icon>
+            </v-btn>
 
-                <v-btn
-                  v-if="fabIpv"
-                  fab
-                  dark
-                  x-small
-                  color="green accent-3"
-                  @click.stop="MatchIpvAtm()"
-                >
-                  <v-icon>mdi-alpha-a-circle-outline</v-icon>
+            <v-speed-dial v-model="fab" direction="right" transition="slide-y-transition">
+              <template v-slot:activator>
+                <v-btn x-small v-model="fab" color="#2E5266" dark fab elevation="20">
+                  <v-icon v-if="fab">mdi-close</v-icon>
+                  <div v-else @click="GetIpvVols()">IPV</div>
                 </v-btn>
+              </template>
+              <v-btn
+                fab
+                dark
+                small
+                color="#9EB7E5"
+                @click.stop="MatchIpvAtm()"
+                :loading="!ipvReturned"
+              >
+                <v-icon>mdi-alpha-a-circle-outline</v-icon>
+              </v-btn>
+              <v-btn
+                fab
+                dark
+                small
+                color="#648de5"
+                @click.stop="MatchIpvSmile()"
+                :loading="!ipvReturned"
+              >
+                <v-icon>mdi-alpha-s-circle-outline</v-icon>
+              </v-btn>
+              <v-btn
+                fab
+                dark
+                small
+                color="#304c89"
+                @click.stop="MatchIpvMults()"
+                :loading="!ipvReturned"
+              >
+                <v-icon>mdi-alpha-m-circle-outline</v-icon>
+              </v-btn>
+            </v-speed-dial>
 
-                <!-- <v-btn
-                    fab
-                    dark
-                    x-small
-                    color="green accent-3"
-                    @click.stop="MatchIpvAtm()"
-                  >
-                    <v-icon>mdi-alpha-a-circle-outline</v-icon>
-                  </v-btn>
-                  <v-btn
-                    fab
-                    dark
-                    x-small
-                    color="indigo"
-                    @click.stop="MatchIpvSmile()"
-                  >
-                    <v-icon>mdi-alpha-s-circle-outline</v-icon>
-                  </v-btn>
-                  <v-btn fab dark x-small color="red">
-                    <v-icon @click.stop="MatchIpvMults()"
-                      >mdi-alpha-m-circle-outline</v-icon
-                    >
-                  </v-btn>
-                </v-speed-dial>
-                <v-btn
-                  class="mx-3"
-                  @click="downloadGlobalDvi"
-                  x-small
-                  fab
-                  color="blue-grey"
-                  dark
-                  elevation="20"
-                >
-                  <v-icon>mdi-cloud-download-outline</v-icon>
-                </v-btn> -->
-              </div>
-            </v-card>
-
-            <div class="d-flex align-center justify-start mt-0">
-              <DviInputTable />
-            </div>
-            <div class="d-flex align-center justify-start mb-2">
-              <DviSmileInputTable />
-            </div>
-            <div class="d-flex align-center justify-start mb-2"></div>
-
-            <div
-              v-if="dayWgtRangesSwitch"
-              class="d-flex align-center justify-start mb-2"
+            <v-spacer />
+            <h5
+              v-if="lastUpdate.Spot != null"
+              class="blue-grey--text text--darken-4 mx-1 font-weight-light"
+              align="right"
             >
-              <UserRange />
-            </div>
-            <div v-if="ipvHasData">
-              <IpvSurf v-if="ipvSwitch === true" class="ma-0" />
-            </div>
+              UPDATED: {{ lastUpdateTime }}
+              <v-spacer />
+              SPOT: {{ lastUpdate.Spot }}
+            </h5>
           </div>
+          <div class="d-flex align-center justify-start mt-0">
+            <DviInputTable />
+          </div>
+          <div class="d-flex align-center justify-start mb-2">
+            <DviSmileInputTable />
+          </div>
+          <div class="d-flex align-center justify-start mb-2"></div>
+
+          <div v-if="dayWgtRangesSwitch" class="d-flex align-center justify-start mb-2">
+            <UserRange />
+          </div>
+          <div v-if="ipvHasData">
+            <IpvSurf v-if="ipvSwitch === true" class="ma-0" />
+          </div>
+        </div>
+        <div class="d-flex flex-column">
           <DviTable :style="scrollY" />
+        </div>
+        <div class="d-flex flex-column">
           <DviCalendar v-bind:calData="forCal" :style="scrollY" />
+        </div>
+        <div class="d-flex flex-column">
           <DviCalendar v-bind:calData="domCal" :style="scrollY" />
         </div>
       </v-container>
@@ -265,6 +227,7 @@ import TreeView from "@/components/TreeView.vue";
 import PopUpModal from "@/components/PopUpModal.vue";
 import IpvSurf from "@/dviComponents/IpvSurf.vue";
 import RightNavDrawer from "@/dviComponents/RightNavDrawer.vue";
+import moment from "moment";
 
 export default {
   name: "DviView",
@@ -278,7 +241,6 @@ export default {
     TreeView,
     PopUpModal,
     IpvSurf,
-
     RightNavDrawer
   },
   created: async function() {
@@ -291,10 +253,13 @@ export default {
 
     this.activeDvis = this.dvisInUse;
     this.dataReturned = true;
+
+    this.ipvSwitch = this.dviPrefs.ipvSwitch;
+    this.autoSaveSwitch = this.dviPrefs.autoSaveSwitch;
+    this.dayWgtRangesSwitch = this.dviPrefs.dayWgtRangesSwitch;
+
     if (this.$store.state.isAdmin === false) {
       this.autoSaveSwitch = false;
-    } else {
-      this.autoSaveSwitch = this.$store.state.dvi.autoSave;
     }
 
     document.addEventListener("keydown", this.KeyPressToPricer);
@@ -312,7 +277,7 @@ export default {
       showSideControl: true,
       transition: "slide-y-reverse-transition",
       fab: false,
-      fabIpv: false,
+      ipvReturned: false,
       ipvSwitch: true,
       autoSaveSwitch: false,
       dayWgtRangesSwitch: false
@@ -322,9 +287,8 @@ export default {
     autoSaveStatus() {
       return this.autoSaveSwitch === true ? "ON" : "OFF";
     },
-
     longComponentHeight() {
-      var heightAdjust = window.innerWidth > 1700 ? 1.25 : 1.5;
+      var heightAdjust = window.innerWidth > 1700 ? 1.0 : 1.5;
       heightAdjust = this.mainWindowHeight * heightAdjust;
       return heightAdjust;
     },
@@ -332,7 +296,7 @@ export default {
       return window.innerWidth - 10;
     },
     mainWindowHeight() {
-      return window.innerHeight - 100;
+      return window.innerHeight - 150;
     },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "65%";
@@ -347,7 +311,7 @@ export default {
     },
 
     containerStyle() {
-      return ` display: flex;
+      return `display: flex;
               overflow-x: scroll;
               padding-left: 0px;
               padding-right: 0px;
@@ -362,10 +326,20 @@ export default {
       domCal: state => state.dvi.domCal,
       dvisInUse: state => state.dvisInUse,
       ipvSurf: state => state.dvi.ipvSurf,
-      lastUpdate: state => state.dvi.lastUpdate
+      lastUpdate: state => state.dvi.lastUpdate,
+      dviPrefs: state => state.dviPrefs
     }),
     ipvHasData() {
       return this.ipvSurf.length > 0 ? true : false;
+    },
+    lastUpdateTime() {
+      const dateTime = moment(
+        this.lastUpdate.Time,
+        "DD/MM/YYYY, h:mm:ss"
+      ).toDate();
+
+      console.log(dateTime);
+      return dateTime;
     }
   },
   methods: {
@@ -373,6 +347,7 @@ export default {
       this.$store.dispatch("toggleRightNav");
     },
     async GetIpvVols() {
+      this.ipvReturned = false;
       let response = await this.$store.dispatch("checkAndLoadIpv", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser
@@ -389,6 +364,7 @@ export default {
             centered: true
           });
         } else {
+          this.ipvReturned = true;
           this.$store.dispatch("setSnackbar", {
             text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`,
             bottom: true
@@ -566,7 +542,29 @@ export default {
     }
   },
   mounted: function() {},
-  watch: {}
+  watch: {
+    ipvSwitch() {
+      this.$store.dispatch("saveDviPrefs", {
+        ipvSwitch: this.ipvSwitch,
+        autoSaveSwitch: this.autoSaveSwitch,
+        dayWgtRangesSwitch: this.dayWgtRangesSwitch
+      });
+    },
+    autoSaveSwitch() {
+      this.$store.dispatch("saveDviPrefs", {
+        ipvSwitch: this.ipvSwitch,
+        autoSaveSwitch: this.autoSaveSwitch,
+        dayWgtRangesSwitch: this.dayWgtRangesSwitch
+      });
+    },
+    dayWgtRangesSwitch() {
+      this.$store.dispatch("saveDviPrefs", {
+        ipvSwitch: this.ipvSwitch,
+        autoSaveSwitch: this.autoSaveSwitch,
+        dayWgtRangesSwitch: this.dayWgtRangesSwitch
+      });
+    }
+  }
 };
 </script>
 

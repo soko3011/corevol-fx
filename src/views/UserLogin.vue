@@ -27,7 +27,8 @@ export default {
       let user = await this.$store.dispatch("login", loginInfo);
       if (user.error) {
         this.$store.dispatch("setSnackbar", {
-          text: user.error
+          text: user.error,
+          top: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {

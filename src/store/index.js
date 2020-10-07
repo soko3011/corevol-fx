@@ -38,6 +38,11 @@ const state = {
   token: "",
   dashBoardPrefs: [],
   userPricerLayoutPrefs: [],
+  dviPrefs: {
+    autoSaveSwitch: false,
+    dayWgtRangesSwitch: false,
+    ipvSwitch: false
+  },
   activePricerLayoutTitle: "Trader",
   pricerSetupToggle: false,
   pricerSetupClosed: false
@@ -143,7 +148,10 @@ const mutations = {
     state.dashBoardPrefs = JSON.parse(user.DashBoardPrefs);
     state.userPricerLayoutPrefs = JSON.parse(user.PricerLayoutPrefs);
     state.activePricerLayoutTitle = user.ActivePricerLayoutTitle;
-    console.log(state.activePricerLayoutTitle);
+    if (user.DviPrefs !== null) {
+      state.dviPrefs = JSON.parse(user.DviPrefs);
+    }
+    console.log(state.dviPrefs);
   },
   SET_ISAUTHED(state, user) {
     state.isUserAuthed = user.IsAuthed;
@@ -181,6 +189,20 @@ const actions = {
 
       commit("SET_DEFAULT_PRICERKEYGROUPS", keyGroups);
       return true;
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}`
+      });
+    }
+  },
+  async saveDviPrefs({ dispatch }, data) {
+    try {
+      let response = await DviApi.saveDviPrefs({
+        UserName: state.currentUser,
+        DviPrefs: JSON.stringify(data)
+      });
+
+      console.log("dviPrefs saved");
     } catch (error) {
       dispatch("setSnackbar", {
         text: `${error}`

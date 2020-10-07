@@ -57,5 +57,8 @@ export default {
   },
   saveUserDashBoardPrefs(body) {
     return Api.post("SaveUserDashBoardPrefs", body);
+  },
+  saveDviPrefs(body) {
+    return Api.post("SaveDviPrefs", body);
   }
 };

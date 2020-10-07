@@ -26,10 +26,7 @@
           <v-list>
             <v-list-item v-for="item in surfs" :key="item.Cross">
               <v-list-item-action>
-                <v-switch
-                  v-model="item.Show"
-                  color="green lighten-2"
-                ></v-switch>
+                <v-switch v-model="item.Show" color="green lighten-2"></v-switch>
               </v-list-item-action>
               <v-list-item-title>{{ item.Cross }}</v-list-item-title>
             </v-list-item>
@@ -71,27 +68,16 @@
         >
           <v-toolbar class="mb-0 mr-2" dark height="30" color="#385F73">
             <v-spacer></v-spacer>
-            <v-toolbar-title class="text-subtitle-2">
-              {{ getHeader(item) }}
-            </v-toolbar-title>
+            <v-toolbar-title class="text-subtitle-2">{{ getHeader(item) }}</v-toolbar-title>
 
             <v-spacer></v-spacer>
             <v-btn icon>
-              <v-icon
-                small
-                :color="getWarningColor(item)"
-                @click="gotoDvi(item)"
-                >mdi-lightning-bolt</v-icon
-              >
+              <v-icon small :color="getWarningColor(item)" @click="gotoDvi(item)">mdi-lightning-bolt</v-icon>
             </v-btn>
           </v-toolbar>
 
           <DashBoardSurf :apidata="singleSurf(item)" class="ma-0" />
-          <v-system-bar
-            class="mt-n2 mr-1"
-            height="5"
-            :color="getWarningColor(item)"
-          ></v-system-bar>
+          <v-system-bar class="mt-n2 mr-1" height="5" :color="getWarningColor(item)"></v-system-bar>
           <h6 align="center" justify="center">{{ getFooter(item) }}</h6>
         </v-card>
       </Draggable>
@@ -142,7 +128,7 @@ export default {
       let rawData = JSON.parse(response.data.dashBoardSurfs);
       console.log(rawData);
       console.log(this.userPrefs);
-      if (this.userPrefs.length > 0) {
+      if (this.userPrefs !== null) {
         for (var item of rawData) {
           const userShow = this.userPrefs.find(x => x.Cross === item.Cross);
           item.show = userShow !== undefined ? userShow.show : item.show;
@@ -150,7 +136,9 @@ export default {
           this.surfs.push(item);
         }
       } else {
-        this.surfs = this.rawData;
+        for (var item of rawData) {
+          this.surfs.push(item);
+        }
       }
     } catch (error) {
       this.$store.dispatch("setSnackbar", {

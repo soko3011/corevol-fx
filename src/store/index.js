@@ -146,8 +146,15 @@ const mutations = {
     window.localStorage.currentUser = JSON.stringify(user.UserName);
     state.userPrefCross = user.StarterFxCross;
     state.dashBoardPrefs = JSON.parse(user.DashBoardPrefs);
-    state.userPricerLayoutPrefs = JSON.parse(user.PricerLayoutPrefs);
-    state.activePricerLayoutTitle = user.ActivePricerLayoutTitle;
+    if (user.PricerLayoutPrefs !== null) {
+      state.userPricerLayoutPrefs = JSON.parse(user.PricerLayoutPrefs);
+    }
+    console.log(state.userPricerLayoutPrefs);
+
+    if (user.activePricerLayoutTitle !== null) {
+      state.activePricerLayoutTitle = user.ActivePricerLayoutTitle;
+    }
+
     if (user.DviPrefs !== null) {
       state.dviPrefs = JSON.parse(user.DviPrefs);
     }

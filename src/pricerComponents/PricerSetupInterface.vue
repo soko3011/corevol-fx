@@ -77,6 +77,11 @@ export default {
       menu: false
     };
   },
+  created() {
+    console.log("inpricer");
+    console.log(this.userPricerLayoutPrefs);
+    console.log(this.userPricerList);
+  },
   components: { PopUpModal, PopUpInput },
   computed: {
     ...mapState({
@@ -86,7 +91,7 @@ export default {
     }),
     combinedPricerLayouts() {
       const userLayouts = [];
-      if (this.userPricerLayoutPrefs !== null) {
+      if (this.userPricerLayoutPrefs.length > 0) {
         userLayouts.push(...this.userPricerLayoutPrefs);
       }
 
@@ -97,8 +102,8 @@ export default {
       return userLayouts;
     },
     userPricerList() {
-      if (this.userPricerLayoutPrefs !== null) {
-        return userPricerLayoutPrefs.map(x => x.title);
+      if (this.userPricerLayoutPrefs.length > 0) {
+        return this.userPricerLayoutPrefs.map(x => x.title);
       } else {
         return [];
       }
@@ -109,23 +114,30 @@ export default {
       this.$store.dispatch("togglePricerSetupPage");
     },
     newLayout(val) {
-      if (
-        this.userPricerLayoutPrefs
+      if (this.userPricerLayoutPrefs.length > 0) {
+        const checkForDupes = this.userPricerLayoutPrefs
           .map(x => x.title)
-          .indexOf(val.toUpperCase()) === -1
-      ) {
-        const newLayout = this.combinedPricerLayouts.find(
-          x => x.title === "Trader"
-        );
-        newLayout.title = val.toUpperCase();
-        this.userPricerLayoutPrefs.push(newLayout);
-        this.$store.dispatch(
-          "saveUserPricerLayoutPrefs",
-          this.userPricerLayoutPrefs
-        );
-      } else {
-        alert("Pricer already exist: Choose another name");
+          .indexOf(val.toUpperCase());
+
+        if (checkForDupes !== -1) {
+          this.$store.dispatch("setSnackbar", {
+            text: "Pricer already exist: Choose another name",
+            top: true
+          });
+
+          return;
+        }
       }
+
+      const newLayout = this.combinedPricerLayouts.find(
+        x => x.title === "Trader"
+      );
+      newLayout.title = val.toUpperCase();
+      this.userPricerLayoutPrefs.push(newLayout);
+      this.$store.dispatch(
+        "saveUserPricerLayoutPrefs",
+        this.userPricerLayoutPrefs
+      );
     },
     removeLayout(val) {
       this.userPricerLayoutPrefs.splice(

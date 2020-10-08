@@ -18,7 +18,6 @@ const state = {
     domCal: [],
     userWgtRanges: [],
     ipvSurf: [],
-    autoSave: true,
     lastUpdate: []
   },
   rightSideNav: false,
@@ -73,9 +72,7 @@ const mutations = {
   SET_SNACKBAR(state, snackbar) {
     state.snackbars = state.snackbars.concat(snackbar);
   },
-  SET_AUTOSAVE(state, data) {
-    state.dvi.autoSave = data;
-  },
+
   SET_DVI_INIT(state, data) {
     state.dvi.main = JSON.parse(data.main);
     state.dvi.surf = JSON.parse(data.surf);
@@ -356,9 +353,7 @@ const actions = {
   setSidebarMinified({ commit }) {
     commit("SET_SIDEBARMINIFIED");
   },
-  setAutoSave({ commit }, data) {
-    commit("SET_AUTOSAVE", data);
-  },
+
   setSnackbar({ commit }, snackbar) {
     snackbar.showing = true;
     snackbar.color = snackbar.color || "dark";
@@ -469,9 +464,12 @@ const actions = {
       return { error: ` ${err}.` };
     }
   },
-  async downloadGlobalDvi({ commit }, payload) {
+  async downloadGlobalDvi({ dispatch, commit }, payload) {
     try {
       let response = await DviApi.downloadGlobalDvi(payload);
+      if (JSON.parse(response.data.dateCheck) === false) {
+        return false;
+      }
       commit("SET_DVI_AFTER_GLOBAL_DOWNLOAD", response.data);
 
       return JSON.parse(response.data.globalDviExist);

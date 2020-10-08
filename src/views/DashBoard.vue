@@ -126,8 +126,7 @@ export default {
         userName: this.$store.state.currentUser
       });
       let rawData = JSON.parse(response.data.dashBoardSurfs);
-      console.log(rawData);
-      console.log(this.userPrefs);
+
       if (this.userPrefs !== null) {
         for (var item of rawData) {
           const userShow = this.userPrefs.find(x => x.Cross === item.Cross);

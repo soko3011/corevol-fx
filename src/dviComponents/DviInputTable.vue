@@ -50,7 +50,7 @@ export default {
       var iData = {
         UserName: this.$store.state.currentUser,
         Cross: this.$store.getters.activeCrossGetter,
-        AutoSave: this.$store.state.dvi.autoSave,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
         Mat1: this.jExcelObj.getValueFromCoords(0, 0),
         Mat2: this.jExcelObj.getValueFromCoords(0, 1),
         Vol1: this.jExcelObj.getValueFromCoords(1, 0),

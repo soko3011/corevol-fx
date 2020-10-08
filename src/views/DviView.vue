@@ -72,7 +72,6 @@
             <v-spacer></v-spacer>
             <v-card flat>
               <v-switch
-                @change="changeAutoSaveState"
                 :disabled="!this.$store.state.isAdmin"
                 class="ml-3"
                 color="success"
@@ -130,6 +129,7 @@
               color="blue lighten-2"
               dark
               elevation="20"
+              :loading="!globalDviReturned"
             >
               <v-icon>mdi-cloud-download-outline</v-icon>
             </v-btn>
@@ -247,7 +247,7 @@ export default {
     await this.$store.dispatch("initializeDviUI", {
       Cross: this.$route.params.ccyPair,
       UserName: this.$store.state.currentUser,
-      AutoSave: this.$store.state.dvi.autoSave
+      AutoSave: this.dviPrefs.autoSaveSwitch
     });
 
     this.activeDvis = this.dvisInUse;
@@ -277,6 +277,7 @@ export default {
       transition: "slide-y-reverse-transition",
       fab: false,
       ipvReturned: false,
+      globalDviReturned: true,
       ipvSwitch: true,
       autoSaveSwitch: false,
       dayWgtRangesSwitch: false
@@ -376,7 +377,7 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvAtm", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
@@ -394,7 +395,7 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvSmile", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
@@ -412,7 +413,7 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvMults", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
@@ -442,6 +443,7 @@ export default {
       }
     },
     async downloadGlobalDvi() {
+      this.globalDviReturned = false;
       let response = await this.$store.dispatch("downloadGlobalDvi", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser
@@ -464,6 +466,8 @@ export default {
           centered: true
         });
       }
+
+      this.globalDviReturned = true;
     },
 
     ReloadDvi(ccyPair) {
@@ -503,10 +507,6 @@ export default {
 
         this.ReloadDvi(redirectTo);
       }
-    },
-
-    changeAutoSaveState() {
-      this.$store.dispatch("setAutoSave", this.autoSaveSwitch);
     },
 
     KeyPressToPricer(event) {

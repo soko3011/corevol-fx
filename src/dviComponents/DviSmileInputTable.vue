@@ -57,7 +57,7 @@ export default {
         Rrcorr: this.jExcelObj.getValueFromCoords(4, 0),
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       };
       this.$store.dispatch("returnDviAfterSmileUpdate", iData);
     },

@@ -432,7 +432,6 @@ export default {
           cross: this.keyVal("Cross"),
           userName: this.$store.state.currentUser
         });
-        let surfRecalc = response.data.surfRecalc;
 
         let lastUpdate = moment(
           response.data.lastUpdateLocal,

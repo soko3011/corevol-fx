@@ -78,7 +78,7 @@ export default {
         Cross: this.$store.getters.activeCrossGetter,
         Term: this.jExcelObj.getValueFromCoords(1, this.row),
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dvi.autoSave
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       };
 
       if (header === "RR_MULT") {

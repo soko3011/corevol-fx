@@ -444,6 +444,7 @@ export default {
     },
     async downloadGlobalDvi() {
       this.globalDviReturned = false;
+
       let response = await this.$store.dispatch("downloadGlobalDvi", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser

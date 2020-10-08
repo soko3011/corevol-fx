@@ -669,6 +669,17 @@ export default {
       }
       this.optData = this.optContainer[index]; //set current option from container.
       if (this.row == this.keyRow("Cross")) {
+        const val = this.keyVal("Cross").toUpperCase();
+
+        if (this.crossListData.indexOf(val) === -1) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${this.keyVal("Cross")} is not a valid Cross `,
+            centered: true
+          });
+
+          return;
+        }
+
         await this.getSurfaceUpdateTime();
         this.getSpot();
         this.recordCellPosition(this.pricerName);

@@ -428,23 +428,25 @@ export default {
     },
     async getSurfaceUpdateTime() {
       try {
-        let response = await PricerApi.CheckIfSurfaceExists({
+        let response = await PricerApi.GetSurfaceStatus({
           cross: this.keyVal("Cross"),
           userName: this.$store.state.currentUser
         });
+        let surfRecalc = response.data.surfRecalc;
 
         let lastUpdate = moment(
-          response.data.lastUpdate,
+          response.data.lastUpdateLocal,
           "DD/MM/YYYY, h:mm:ss"
         ).toDate();
 
         var cell = this.getCell(this.col, this.keyRow("Cross"));
         cell.classList.remove("volGo", "volWarn", "volOld", "volNoGo");
         let statusClass = this.setVolStatus(lastUpdate);
+
         cell.classList.add(statusClass);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
-          text: `${error} source: CheckIfSurfaceExists`,
+          text: `${error} source: GetSurfaceStatus`,
           top: true
         });
       }

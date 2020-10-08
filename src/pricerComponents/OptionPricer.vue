@@ -325,7 +325,7 @@ export default {
         [""],
         true
       );
-      PricerApi.CheckIfSurfaceExists({
+      PricerApi.GetSurfaceStatus({
         cross: this.KeyVal("Cross"),
         userName: this.$store.state.currentUser
       }).then(response => {

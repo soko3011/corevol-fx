@@ -22,8 +22,8 @@ export default {
   ReCalcOpt(body) {
     return Api.post("FxOpt", body);
   },
-  CheckIfSurfaceExists(body) {
-    return Api.post("CheckIfSurfaceExists", body);
+  GetSurfaceStatus(body) {
+    return Api.post("GetSurfaceStatus", body);
   },
   ReturnCurrentOpts(body) {
     return Api.post("CurrentOpts", body);

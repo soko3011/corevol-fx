@@ -23,8 +23,8 @@ export default {
   },
   created() {
     document.addEventListener("keydown", this.eventListeners);
-    document.addEventListener("keydown", this.getDropDownVals);
-    document.addEventListener("keydown", this.consumeVal);
+    document.addEventListener("keydown", this.userCrossInputIgniter);
+
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;
   },
   destroyed() {
@@ -299,8 +299,21 @@ export default {
         }
       }
     },
-    consumeVal() {
-      this.getDropDownVals(fuck => {
+
+    userCrossInputIgniter() {
+      const getUserSelection = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          var elements = document.getElementsByClassName(
+            "jdropdown-description"
+          );
+
+          if (elements.length === 1) {
+            resolve(elements[0].innerText);
+          }
+        }, 500);
+      });
+
+      getUserSelection.then(result => {
         var cell = cellElements.getCellFromCoords(
           this.jExcelObj,
           this.col,
@@ -308,20 +321,9 @@ export default {
         );
 
         cellElements.closeEditor(this.jExcelObj, "dropdown", cell, true);
-
-        this.jExcelObj.setValue(cell, fuck);
-
+        this.jExcelObj.setValue(cell, result);
         cell.classList.add("readonly");
       });
-    },
-    getDropDownVals(callback) {
-      setTimeout(() => {
-        var elements = document.getElementsByClassName("jdropdown-description");
-
-        if (elements.length === 1) {
-          callback(elements[0].innerText);
-        }
-      }, 500);
     },
 
     eventListeners(event) {

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-progress-linear :active="loading" :indeterminate="loading" top color="green accent-4"></v-progress-linear>
     <div ref="jexcelPricer"></div>
     <PricerSetup :activekeyGroups="pricerSettingsObj" @pricerLayoutChanged="updatePricerLayout" />
   </div>
@@ -14,6 +15,7 @@ import PricerApi from "@/apis/PricerApi";
 import alphabetJson from "./Alphabet.json";
 import PricerSetup from "@/pricerComponents/PricerSetup.vue";
 import moment from "moment";
+``;
 import { mapState } from "vuex";
 
 export default {
@@ -36,6 +38,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       pricerSettingsObj: [],
       initialData: [],
       pricerKeys: [],
@@ -458,6 +461,7 @@ export default {
       });
     },
     async getSurfaceUpdateTime() {
+      this.loading = true;
       try {
         let response = await PricerApi.GetSurfaceStatus({
           cross: this.keyVal("Cross"),
@@ -472,13 +476,14 @@ export default {
         var cell = this.getCell(this.col, this.keyRow("Cross"));
         cell.classList.remove("volGo", "volWarn", "volOld", "volNoGo");
         let statusClass = this.setVolStatus(lastUpdate);
-
         cell.classList.add(statusClass);
+        this.loading = false;
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: GetSurfaceStatus`,
           top: true
         });
+        this.loading = false;
       }
     },
     setVolStatus(lastUpdate) {

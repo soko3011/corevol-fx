@@ -82,6 +82,7 @@ export function openEditor(obj, cell, empty, type, source) {
         type: "autocomplete",
         onclose: function() {
           closeEditor(obj, type, cell, true);
+          cell.classList.add("readonly");
         }
       };
       // if (options && options.type) {

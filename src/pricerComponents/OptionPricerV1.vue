@@ -23,6 +23,8 @@ export default {
   },
   created() {
     document.addEventListener("keydown", this.eventListeners);
+    document.addEventListener("keydown", this.getDropDownVals);
+    document.addEventListener("keydown", this.consumeVal);
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;
   },
   destroyed() {
@@ -101,7 +103,7 @@ export default {
     NonReadOnlyList() {
       let arr = [];
       arr.push(
-        this.keyRow("Cross"),
+        //this.keyRow("Cross"),
         this.keyRow("Spot"),
         this.keyRow("ExpiryText"),
         this.keyRow("StrikeText"),
@@ -297,6 +299,31 @@ export default {
         }
       }
     },
+    consumeVal() {
+      this.getDropDownVals(fuck => {
+        var cell = cellElements.getCellFromCoords(
+          this.jExcelObj,
+          this.col,
+          this.row
+        );
+
+        cellElements.closeEditor(this.jExcelObj, "dropdown", cell, true);
+
+        this.jExcelObj.setValue(cell, fuck);
+
+        cell.classList.add("readonly");
+      });
+    },
+    getDropDownVals(callback) {
+      setTimeout(() => {
+        var elements = document.getElementsByClassName("jdropdown-description");
+
+        if (elements.length === 1) {
+          callback(elements[0].innerText);
+        }
+      }, 500);
+    },
+
     eventListeners(event) {
       if (event.code == "KeyP" && event.ctrlKey) {
         event.preventDefault();
@@ -326,11 +353,13 @@ export default {
         this.col != 0
       ) {
         event.preventDefault();
+
         var cell = cellElements.getCellFromCoords(
           this.jExcelObj,
           this.col,
           this.row
         );
+        cell.classList.remove("readonly");
         cellElements.openEditor(
           this.jExcelObj,
           cell,

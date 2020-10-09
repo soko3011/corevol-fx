@@ -1,6 +1,12 @@
 <template>
   <div>
-    <v-progress-linear :active="loading" :indeterminate="loading" top color="green accent-4"></v-progress-linear>
+    <v-progress-linear
+      active
+      :indeterminate="loading"
+      top
+      background-opacity="0"
+      color="green accent-4"
+    ></v-progress-linear>
     <div ref="jexcelPricer"></div>
     <PricerSetup :activekeyGroups="pricerSettingsObj" @pricerLayoutChanged="updatePricerLayout" />
   </div>

@@ -6,9 +6,13 @@
       top
       background-opacity="0"
       color="green accent-4"
+      rounded
     ></v-progress-linear>
     <div ref="jexcelPricer"></div>
-    <PricerSetup :activekeyGroups="pricerSettingsObj" @pricerLayoutChanged="updatePricerLayout" />
+    <PricerSetup
+      :activekeyGroups="pricerSettingsObj"
+      @pricerLayoutChanged="updatePricerLayout"
+    />
   </div>
 </template>
 
@@ -21,7 +25,6 @@ import PricerApi from "@/apis/PricerApi";
 import alphabetJson from "./Alphabet.json";
 import PricerSetup from "@/pricerComponents/PricerSetup.vue";
 import moment from "moment";
-``;
 import { mapState } from "vuex";
 
 export default {
@@ -167,7 +170,6 @@ export default {
         cell.classList.remove("readonly");
       }
     },
-
     setPricerKeys() {
       return this.pricerSettingsObj
         .filter(item => item.Show === true)
@@ -308,7 +310,6 @@ export default {
         }
       }
     },
-
     userCrossInputIgniter() {
       const getUserSelection = new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -334,7 +335,6 @@ export default {
         cell.classList.add("readonly");
       });
     },
-
     eventListeners(event) {
       if (event.code == "KeyP" && event.ctrlKey) {
         event.preventDefault();
@@ -347,7 +347,7 @@ export default {
       }
       if (event.code == "KeyQ" && event.ctrlKey) {
         event.preventDefault();
-        this.delOpt(this.col);
+        this.delOpt(this.col, 1);
       }
       if (event.code == "KeyR" && event.ctrlKey) {
         event.preventDefault();
@@ -364,7 +364,9 @@ export default {
         this.col != 0
       ) {
         event.preventDefault();
-
+        if (this.keyVal("Cross") !== "") {
+          this.delOpt(this.col, 0);
+        }
         var cell = cellElements.getCellFromCoords(
           this.jExcelObj,
           this.col,
@@ -655,8 +657,10 @@ export default {
       this.redObj = [...new Set(this.redObj)];
     },
     async reCalcOpt(optData) {
+      this.loading = true;
       try {
         let response = await PricerApi.ReCalcOpt(optData);
+        this.loading = false;
         let singleOpt = JSON.parse(response.data.result);
 
         var optValues = [];
@@ -841,7 +845,7 @@ export default {
       this.returnCurrent();
       this.formatComplete();
     },
-    delOpt(col) {
+    delOpt(col, offset) {
       var optObj = this.optContainer.filter(function(opt) {
         return opt.name == col;
       });
@@ -850,7 +854,7 @@ export default {
       this.removeRedCellsFromArray();
       this.replaceSingleOpt(this.emptyCol(), col);
       if (col != 1) {
-        this.selectCell(this.row, col - 1);
+        this.selectCell(this.row, col - offset);
       }
       this.returnCurrent();
       this.formatComplete();
@@ -885,6 +889,13 @@ export default {
     this.restorePricerData(this.storedData);
     this.setCellPosition(this.pricerName);
     this.formatComplete();
+  },
+  watch: {
+    loading(val) {
+      if (!val) return;
+
+      setTimeout(() => (this.loading = false), 5000);
+    }
   }
 };
 </script>
@@ -934,4 +945,3 @@ export default {
   color: #f50505;
 }
 </style>
-

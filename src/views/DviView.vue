@@ -15,19 +15,28 @@
           <v-icon
             @click="showSideControl = !showSideControl"
             color="blue lighten-3"
-          >{{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
+            >{{
+              showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
+            }}</v-icon
+          >
         </v-btn>
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
-          <h4 class="font-weight-medium text-center text-uppercase grey--text text--lighten-3">
+          <h4
+            class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+          >
             corevolFX DVI
-            <v-icon small color="green lighten-3" class="mb-4">mdi-cog-outline</v-icon>
+            <v-icon small color="green lighten-3" class="mb-4"
+              >mdi-cog-outline</v-icon
+            >
           </h4>
           <h6
             class="font-weight-light text-center text-uppercase green--text text--lighten-3"
             align="center"
             justify="center"
-          >{{ this.$route.params.ccyPair }}</h6>
+          >
+            {{ this.$route.params.ccyPair }}
+          </h6>
         </div>
 
         <v-spacer></v-spacer>
@@ -96,7 +105,16 @@
               ></v-switch>
             </v-card>
             <v-card class="mb-10" rounded flat height="100" />
-            <v-btn class="mb-10" absolute small fab bottom left color="pink" elevation="21">
+            <v-btn
+              class="mb-10"
+              absolute
+              small
+              fab
+              bottom
+              left
+              color="pink"
+              elevation="21"
+            >
               <PopUpModal
                 :inputData="this.$store.state.crossList"
                 :icon="'mdi-expand-all'"
@@ -106,7 +124,16 @@
                 v-on:selection="ReloadDvi"
               />
             </v-btn>
-            <v-btn class="mb-10" absolute small fab bottom right color="blue-grey" elevation="21">
+            <v-btn
+              class="mb-10"
+              absolute
+              small
+              fab
+              bottom
+              right
+              color="blue-grey"
+              elevation="21"
+            >
               <PopUpModal
                 :inputData="this.activeDvis"
                 :icon="'mdi-delete'"
@@ -120,6 +147,14 @@
         </div>
         <div class="d-flex flex-column">
           <SurfaceTable />
+          <v-progress-linear
+            active
+            :indeterminate="loading"
+            top
+            background-opacity="0"
+            color="green accent-4"
+            rounded
+          ></v-progress-linear>
           <div class="d-flex flex-nowrap align-start justify-start mb-3">
             <v-btn
               class="mx-3"
@@ -134,9 +169,20 @@
               <v-icon>mdi-cloud-download-outline</v-icon>
             </v-btn>
 
-            <v-speed-dial v-model="fab" direction="right" transition="slide-y-transition">
+            <v-speed-dial
+              v-model="fab"
+              direction="right"
+              transition="slide-y-transition"
+            >
               <template v-slot:activator>
-                <v-btn x-small v-model="fab" color="#2E5266" dark fab elevation="20">
+                <v-btn
+                  x-small
+                  v-model="fab"
+                  color="#2E5266"
+                  dark
+                  fab
+                  elevation="20"
+                >
                   <v-icon v-if="fab">mdi-close</v-icon>
                   <div v-else @click="GetIpvVols()">IPV</div>
                 </v-btn>
@@ -192,7 +238,10 @@
           </div>
           <div class="d-flex align-center justify-start mb-2"></div>
 
-          <div v-if="dayWgtRangesSwitch" class="d-flex align-center justify-start mb-2">
+          <div
+            v-if="dayWgtRangesSwitch"
+            class="d-flex align-center justify-start mb-2"
+          >
             <UserRange />
           </div>
           <div v-if="ipvHasData">
@@ -266,7 +315,6 @@ export default {
   destroyed: function() {
     document.removeEventListener("keydown", this.KeyPressToPricer);
   },
-
   data() {
     return {
       activeDvis: [],
@@ -280,7 +328,8 @@ export default {
       globalDviReturned: true,
       ipvSwitch: true,
       autoSaveSwitch: false,
-      dayWgtRangesSwitch: false
+      dayWgtRangesSwitch: false,
+      loading: false
     };
   },
   computed: {
@@ -372,13 +421,14 @@ export default {
         }
       }
     },
-
     async MatchIpvAtm() {
+      this.loading = true;
       let response = await this.$store.dispatch("returnMatchIpvAtm", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
         AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
+      this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
@@ -392,11 +442,13 @@ export default {
       }
     },
     async MatchIpvSmile() {
+      this.loading = true;
       let response = await this.$store.dispatch("returnMatchIpvSmile", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
         AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
+      this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV SMILE \n${response.error}`,
@@ -410,11 +462,13 @@ export default {
       }
     },
     async MatchIpvMults() {
+      this.loading = true;
       let response = await this.$store.dispatch("returnMatchIpvMults", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
         AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
+      this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV MULTS \n${response.error}`,
@@ -427,7 +481,6 @@ export default {
         });
       }
     },
-
     async RefreshDviData(ccyPair) {
       let message = await this.$store.dispatch("dviRecalc", {
         Cross: this.$route.params.ccyPair,
@@ -443,12 +496,14 @@ export default {
       }
     },
     async downloadGlobalDvi() {
+      this.loading = true;
       this.globalDviReturned = false;
 
       let response = await this.$store.dispatch("downloadGlobalDvi", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser
       });
+      this.loading = false;
       let message = "";
       if (response === true) {
         message = `GLOBAL DVI FOR ${this.$route.params.ccyPair} DOWNLOADED`;
@@ -470,7 +525,6 @@ export default {
 
       this.globalDviReturned = true;
     },
-
     ReloadDvi(ccyPair) {
       this.$route.params.ccyPair = ccyPair;
       this.$router
@@ -509,7 +563,6 @@ export default {
         this.ReloadDvi(redirectTo);
       }
     },
-
     KeyPressToPricer(event) {
       if (event.code == "KeyP" && event.ctrlKey) {
         event.preventDefault();
@@ -522,7 +575,6 @@ export default {
           .catch(() => {});
       }
     },
-
     GoToPricer() {
       this.$router.push("PricerView");
     },
@@ -536,7 +588,6 @@ export default {
       this.crossListToggle = false;
       this.RefreshDviData(value);
     },
-
     ToggleCrossList() {
       this.crossListToggle = true;
     }

@@ -251,11 +251,6 @@ export function closeEditor(obj, type, cell, save) {
   obj.edition = null;
 }
 
-var data2 = [
-  ["PHP", "14:00"],
-  ["Javascript", "16:30"]
-];
-
 var customColumn = {
   // Methods
   closeEditor: function(cell, save) {

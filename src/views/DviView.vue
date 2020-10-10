@@ -264,17 +264,17 @@
 
 <script>
 import { mapState } from "vuex";
-import SurfaceTable from "@/dviComponents/SurfaceTable.vue";
-import DviTable from "@/dviComponents/DviTable.vue";
-import DviInputTable from "@/dviComponents/DviInputTable.vue";
-import DviSmileInputTable from "@/dviComponents/DviSmileInputTable.vue";
-import DviCalendar from "@/dviComponents/DviCalendar.vue";
-import UserRange from "@/dviComponents/DviUserRange.vue";
+import SurfaceTable from "@/components/dviComponents/SurfaceTable.vue";
+import DviTable from "@/components/dviComponents/DviTable.vue";
+import DviInputTable from "@/components/dviComponents/DviInputTable.vue";
+import DviSmileInputTable from "@/components/dviComponents/DviSmileInputTable.vue";
+import DviCalendar from "@/components/dviComponents/DviCalendar.vue";
+import UserRange from "@/components/dviComponents/DviUserRange.vue";
 import DviApi from "@/apis/DviApi";
-import TreeView from "@/components/TreeView.vue";
-import PopUpModal from "@/components/PopUpModal.vue";
-import IpvSurf from "@/dviComponents/IpvSurf.vue";
-import RightNavDrawer from "@/dviComponents/RightNavDrawer.vue";
+import TreeView from "@/components/common/TreeView.vue";
+import PopUpModal from "@/components/common/PopUpModal.vue";
+import IpvSurf from "@/components/dviComponents/IpvSurf.vue";
+import RightNavDrawer from "@/components/dviComponents/RightNavDrawer.vue";
 import moment from "moment";
 
 export default {
@@ -614,6 +614,11 @@ export default {
         autoSaveSwitch: this.autoSaveSwitch,
         dayWgtRangesSwitch: this.dayWgtRangesSwitch
       });
+    },
+    loading(val) {
+      if (!val) return;
+
+      setTimeout(() => (this.loading = false), 5000);
     }
   }
 };

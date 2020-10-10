@@ -98,7 +98,7 @@ import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
 import DayWgtSetupApi from "@/apis/DayWgtSetupApi";
-import PopUpModal from "@/components/PopUpModal.vue";
+import PopUpModal from "@/components/common/PopUpModal.vue";
 
 export default {
   name: "DayWgtSetup",

@@ -2,7 +2,13 @@
   <v-app class="grey darken-4">
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
-        <v-toolbar class="mb-10" prominent flat color="grey darken-4" src="@/logo/corevollogo.png"></v-toolbar>
+        <v-toolbar
+          class="mb-10"
+          prominent
+          flat
+          color="grey darken-4"
+          src="@/logo/corevollogo.png"
+        ></v-toolbar>
         <UserAuthForm
           :submitForm="registerUser"
           buttonText="Register"
@@ -15,7 +21,7 @@
 </template>
 
 <script>
-import UserAuthForm from "@/components/UserAuthForm.vue";
+import UserAuthForm from "@/components/userAuth/UserAuthForm.vue";
 export default {
   components: {
     UserAuthForm
@@ -41,5 +47,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

@@ -53,15 +53,15 @@
 </template>
 
 <script>
-import MarketData from "@/components/MarketData.vue";
+import MarketData from "@/components/marketData/MarketData.vue";
 export default {
   name: "FxRates",
   components: {
-    MarketData,
+    MarketData
   },
   data() {
     return {
-      toggleMarketData: false,
+      toggleMarketData: false
     };
   },
   computed: {
@@ -75,10 +75,10 @@ export default {
       return ` 
               overflow-x: scroll;
               zoom: ${level};`;
-    },
+    }
   },
 
-  mounted() {},
+  mounted() {}
 };
 </script>
 

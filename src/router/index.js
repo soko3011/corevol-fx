@@ -4,7 +4,7 @@ import store from "@/store/index.js";
 
 import Dvi from "@/views/DviView";
 const TheContainer = () => import("@/container/TheContainer");
-const Pricer = () => import("@/views/PricerView");
+
 const Pricing = () => import("@/views/Pricing");
 const DashBoard = () => import("@/views/DashBoard");
 const Charts = () => import("@/views/Charts");
@@ -33,11 +33,6 @@ let router = new Router({
           path: "/dvi/:ccyPair",
           name: "Dvi",
           component: Dvi
-        },
-        {
-          path: "pricer/:viewName",
-          name: "Pricer",
-          component: Pricer
         },
         {
           path: "pricing/:viewName",

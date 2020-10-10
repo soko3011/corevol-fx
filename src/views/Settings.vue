@@ -4,20 +4,29 @@
       <v-toolbar color="#126496" min-width="300" collapse>
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
-          <h4 class="font-weight-medium text-center text-uppercase grey--text text--lighten-3">
+          <h4
+            class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+          >
             Corevolfx
-            <v-icon small color="green lighten-3" class="mb-4">mdi-cog-outline</v-icon>
+            <v-icon small color="green lighten-3" class="mb-4"
+              >mdi-cog-outline</v-icon
+            >
           </h4>
           <h6
             class="font-weight-light text-center text-uppercase green--text text--lighten-3"
             align="center"
             justify="center"
-          >settings</h6>
+          >
+            settings
+          </h6>
         </div>
         <v-spacer></v-spacer>
       </v-toolbar>
     </div>
-    <div class="d-flex flex-nowrap align-start justify-start" v-bind:style="zoomLevel">
+    <div
+      class="d-flex flex-nowrap align-start justify-start"
+      v-bind:style="zoomLevel"
+    >
       <v-card
         min-width="225"
         :height="mainWindowHeight"
@@ -52,12 +61,12 @@
 </template>
 
 <script>
-import DviSetup from "@/components/DviSetup.vue";
-import CrossSetup from "@/components/CrossSetup.vue";
-import CcySetup from "@/components/CcySetup.vue";
+import DviSetup from "@/components/settings/DviSetup.vue";
+import CrossSetup from "@/components/settings/CrossSetup.vue";
+import CcySetup from "@/components/settings/CcySetup.vue";
 import SettingsApi from "@/apis/SettingsApi";
-import PopUpModal from "@/components/PopUpModal.vue";
-import TreeView from "@/components/TreeView.vue";
+import PopUpModal from "@/components/common/PopUpModal.vue";
+import TreeView from "@/components/common/TreeView.vue";
 
 export default {
   name: "Setup",

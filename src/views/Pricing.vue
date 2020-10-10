@@ -48,7 +48,7 @@
         <TreeView
           :inputData="{
             list: this.activePricers,
-            listName: 'Active Pricers',
+            listName: 'Active Pricers'
           }"
           v-on:selection="ReloadPricer"
         />
@@ -109,12 +109,12 @@
 </template>
 
 <script>
-import OptionPricer from "@/pricerComponents/OptionPricerV1.vue";
+import OptionPricer from "@/components/pricer/OptionPricerV1.vue";
 import PricerApi from "@/apis/PricerApi";
-import TreeView from "@/components/TreeView.vue";
-import PopUpModal from "@/components/PopUpModal.vue";
-import PopUpInput from "@/components/PopUpInput.vue";
-import PricerSetupInterface from "@/pricerComponents/PricerSetupInterface.vue";
+import TreeView from "@/components/common/TreeView.vue";
+import PopUpModal from "@/components/common/PopUpModal.vue";
+import PopUpInput from "@/components/common/PopUpInput.vue";
+import PricerSetupInterface from "@/components/pricer/PricerSetupInterface.vue";
 import { mapState } from "vuex";
 import { stat } from "fs";
 
@@ -126,7 +126,7 @@ export default {
     TreeView,
     PopUpModal,
     PopUpInput,
-    PricerSetupInterface,
+    PricerSetupInterface
   },
 
   data() {
@@ -135,7 +135,7 @@ export default {
       activePricers: [],
       modalToggle: false,
       viewName: this.$route.params.viewName,
-      showSideControl: false,
+      showSideControl: false
     };
   },
   async created() {
@@ -143,7 +143,7 @@ export default {
 
     try {
       let response = await PricerApi.GetListOfActivePricers({
-        userName: this.currentUser,
+        userName: this.currentUser
       });
 
       this.activePricers = JSON.parse(response.data.activePricers);
@@ -153,7 +153,7 @@ export default {
     } catch (err) {
       this.$store.dispatch("setSnackbar", {
         text: `${err}  -method: Pricing(created)`,
-        top: true,
+        top: true
       });
     }
   },
@@ -163,15 +163,15 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: (state) => state.crossList,
-      currentUser: (state) => state.currentUser,
-      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
-      pricerSetupClosed: (state) => state.pricerSetupClosed,
+      crossList: state => state.crossList,
+      currentUser: state => state.currentUser,
+      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
+      pricerSetupClosed: state => state.pricerSetupClosed
     }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
     mainWindowHeight() {
@@ -188,7 +188,7 @@ export default {
         padding-right: 0px;
         width: ${this.mainWindowWidth}px;
         height: ${this.mainWindowHeight}px;`;
-    },
+    }
   },
 
   methods: {
@@ -219,7 +219,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `Must have at least one Pricer. Add a new one before deleting ${this.viewName}`,
-          top: true,
+          top: true
         });
 
         return;
@@ -234,19 +234,19 @@ export default {
       try {
         let response = await PricerApi.RemovePricerFromUse({
           userName: this.currentUser,
-          PricerData: { PricerTitle: item },
+          PricerData: { PricerTitle: item }
         });
 
         this.activePricers = JSON.parse(response.data.listOfActivePricers);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  -method: RemoveTab`,
-          top: true,
+          top: true
         });
       }
 
       this.ReloadPricer(redirectTo);
-    },
+    }
   },
   watch: {
     crossList() {
@@ -260,8 +260,8 @@ export default {
 
     activePricerLayoutTitle() {
       this.componentKey += 1;
-    },
-  },
+    }
+  }
 };
 </script>
 

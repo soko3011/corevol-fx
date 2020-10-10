@@ -26,7 +26,10 @@
           <v-list>
             <v-list-item v-for="item in surfs" :key="item.Cross">
               <v-list-item-action>
-                <v-switch v-model="item.Show" color="green lighten-2"></v-switch>
+                <v-switch
+                  v-model="item.Show"
+                  color="green lighten-2"
+                ></v-switch>
               </v-list-item-action>
               <v-list-item-title>{{ item.Cross }}</v-list-item-title>
             </v-list-item>
@@ -68,16 +71,27 @@
         >
           <v-toolbar class="mb-0 mr-2" dark height="30" color="#385F73">
             <v-spacer></v-spacer>
-            <v-toolbar-title class="text-subtitle-2">{{ getHeader(item) }}</v-toolbar-title>
+            <v-toolbar-title class="text-subtitle-2">{{
+              getHeader(item)
+            }}</v-toolbar-title>
 
             <v-spacer></v-spacer>
             <v-btn icon>
-              <v-icon small :color="getWarningColor(item)" @click="gotoDvi(item)">mdi-lightning-bolt</v-icon>
+              <v-icon
+                small
+                :color="getWarningColor(item)"
+                @click="gotoDvi(item)"
+                >mdi-lightning-bolt</v-icon
+              >
             </v-btn>
           </v-toolbar>
 
           <DashBoardSurf :apidata="singleSurf(item)" class="ma-0" />
-          <v-system-bar class="mt-n2 mr-1" height="5" :color="getWarningColor(item)"></v-system-bar>
+          <v-system-bar
+            class="mt-n2 mr-1"
+            height="5"
+            :color="getWarningColor(item)"
+          ></v-system-bar>
           <h6 align="center" justify="center">{{ getFooter(item) }}</h6>
         </v-card>
       </Draggable>
@@ -87,11 +101,11 @@
 
 <script>
 import DviApi from "@/apis/DviApi";
-import DashBoardSurf from "@/components/DashBoardSurf.vue";
+import DashBoardSurf from "@/components/dashboard/DashBoardSurf.vue";
 
 import moment from "moment";
 import Draggable from "vuedraggable";
-import TreeView from "@/components/TreeView.vue";
+import TreeView from "@/components/common/TreeView.vue";
 
 export default {
   data: () => ({

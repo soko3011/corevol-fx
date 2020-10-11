@@ -9,7 +9,10 @@
       rounded
     ></v-progress-linear>
     <div ref="jexcelPricer"></div>
-    <PricerSetup :activekeyGroups="pricerSettingsObj" @pricerLayoutChanged="updatePricerLayout" />
+    <PricerSetup
+      :activekeyGroups="pricerSettingsObj"
+      @pricerLayoutChanged="updatePricerLayout"
+    />
   </div>
 </template>
 
@@ -108,7 +111,7 @@ export default {
     crossListData() {
       return this.$store.state.crossList;
     },
-    NonReadOnlyList() {
+    nonReadOnlyList() {
       let arr = [];
       arr.push(
         //this.keyRow("Cross"),
@@ -119,6 +122,30 @@ export default {
         this.keyRow("Notional"),
         this.keyRow("UserVol"),
         // this.keyRow("PremiumType"),
+        this.keyRow("AtmVol"),
+        this.keyRow("Rr"),
+        this.keyRow("Fly"),
+        this.keyRow("Sfly"),
+        this.keyRow("RrMult"),
+        this.keyRow("FlyMult"),
+        this.keyRow("ForDepo"),
+        this.keyRow("DomDepo"),
+        this.keyRow("FwdOutRight"),
+        this.keyRow("FwdPts")
+      );
+      return arr;
+    },
+    userEditableCells() {
+      let arr = [];
+      arr.push(
+        this.keyRow("Cross"),
+        this.keyRow("Spot"),
+        this.keyRow("ExpiryText"),
+        this.keyRow("StrikeText"),
+        this.keyRow("Call_Put"),
+        this.keyRow("Notional"),
+        this.keyRow("UserVol"),
+        this.keyRow("PremiumType"),
         this.keyRow("AtmVol"),
         this.keyRow("Rr"),
         this.keyRow("Fly"),
@@ -163,9 +190,18 @@ export default {
       if (this.col === 0) {
         this.jExcelObj.updateSelectionFromCoords(1, this.row, 1, this.row);
       }
-      if (this.NonReadOnlyList.indexOf(this.row) !== -1) {
+      if (this.nonReadOnlyList.indexOf(this.row) !== -1) {
         var cell = this.getCell(x1, y1);
         cell.classList.remove("readonly");
+      }
+      var cellsWithUserEditClass = document.getElementsByClassName(
+        "userEditCell"
+      );
+      while (cellsWithUserEditClass.length)
+        cellsWithUserEditClass[0].classList.remove("userEditCell");
+      if (this.userEditableCells.indexOf(this.row) !== -1) {
+        var cell = this.getCell(x1, y1);
+        cell.classList.add("userEditCell");
       }
     },
     setPricerKeys() {
@@ -800,7 +836,11 @@ export default {
           return;
         }
 
-        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+        if (
+          !/^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/.test(
+            userInput
+          )
+        ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
             top: true
@@ -816,7 +856,11 @@ export default {
           return;
         }
 
-        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+        if (
+          !/^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/.test(
+            userInput
+          )
+        ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
             top: true
@@ -880,7 +924,11 @@ export default {
           return;
         }
 
-        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+        if (
+          !/^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/.test(
+            userInput
+          )
+        ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
             top: true
@@ -1067,12 +1115,14 @@ export default {
   background-color: #3c4b63;
   color: white;
 }
+
 .jexcel > tbody > tr > td {
   font-family: Arial;
   font-size: 0.75rem;
   padding: 0px;
   line-height: 1.6em;
 }
+
 .jexcel > tbody > tr > td.hideRow {
   display: none;
 }
@@ -1081,8 +1131,12 @@ export default {
   color: red;
 }
 .jexcel > thead > tr > td.selected {
-  color: black;
-  background-color: #8f9494;
+  color: white;
+  background-color: #385f73;
+}
+.jexcel > tbody > tr > td.userEditCell {
+  color: black !important;
+  background-color: #ffffcc !important;
 }
 
 .jexcel > tbody > tr > td.volGo:before {

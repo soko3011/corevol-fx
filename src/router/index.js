@@ -4,7 +4,6 @@ import store from "@/store/index.js";
 
 import Dvi from "@/views/DviView";
 const TheContainer = () => import("@/container/TheContainer");
-
 const Pricing = () => import("@/views/Pricing");
 const DashBoard = () => import("@/views/DashBoard");
 const Charts = () => import("@/views/Charts");

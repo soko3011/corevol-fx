@@ -83,7 +83,6 @@ export default {
     columnCount() {
       return this.jExcelObj.headers.length;
     },
-
     config() {
       return {
         data: this.initialData,
@@ -122,7 +121,7 @@ export default {
         this.keyRow("Call_Put"),
         this.keyRow("Notional"),
         this.keyRow("UserVol"),
-        this.keyRow("PremiumType"),
+        // this.keyRow("PremiumType"),
         this.keyRow("AtmVol"),
         this.keyRow("Rr"),
         this.keyRow("Fly"),
@@ -405,6 +404,7 @@ export default {
           this.col,
           this.row
         );
+        cell.classList.remove("readonly");
       }
       if (
         event.code === "Space" &&
@@ -718,7 +718,6 @@ export default {
       this.optData = this.optContainer[index]; //set current option from container.
       if (this.row == this.keyRow("Cross")) {
         const val = this.keyVal("Cross").toUpperCase();
-
         if (this.crossListData.indexOf(val) === -1) {
           this.$store.dispatch("setSnackbar", {
             text: `${this.keyVal("Cross")} is not a valid Cross `,
@@ -737,6 +736,20 @@ export default {
         this.row == this.keyRow("ExpiryText") ||
         this.row == this.keyRow("StrikeText")
       ) {
+        var userInput = this.keyVal("Spot");
+        if (userInput === "") {
+          this.resetCellFormat(this.redObj, "Spot");
+          this.getSpot();
+          return;
+        }
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
+
         this.setOptObj(); //assigns value to opdata
         var checkNull = this.checkProperties(this.optData);
         if (checkNull === false) {
@@ -748,52 +761,200 @@ export default {
         this.reCalcOpt(this.optData);
       }
       if (this.row == this.keyRow("PremiumType")) {
+        var userInput = this.keyVal("PremiumType");
+        if (
+          userInput !== "Base_Pct" &&
+          userInput !== "Base_Pips" &&
+          userInput !== "Terms_Pct" &&
+          userInput !== "Terms_Pips"
+        ) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a valid Premium Type`,
+            top: true
+          });
+          return;
+        }
         Object.assign(this.optData, {
-          premiumType: this.keyVal("PremiumType")
+          premiumType: userInput
         });
         this.reCalcOpt(this.optData);
       }
       if (this.row == this.keyRow("UserVol")) {
+        var userInput = this.keyVal("UserVol");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "UserVol", 100);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
+
         this.dynamicFormat(this.optData, "UserVol", 100);
       }
       if (this.row == this.keyRow("AtmVol")) {
+        var userInput = this.keyVal("AtmVol");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "AtmVol", 100);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
         this.dynamicFormat(this.optData, "AtmVol", 100);
       }
       if (this.row == this.keyRow("Rr")) {
+        var userInput = this.keyVal("Rr");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "Rr", 100);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
         this.dynamicFormat(this.optData, "Rr", 100);
       }
       if (this.row == this.keyRow("Fly")) {
+        var userInput = this.keyVal("Fly");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "Fly", 100);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
         this.dynamicFormat(this.optData, "Fly", 100);
       }
       if (this.row == this.keyRow("RrMult")) {
+        var userInput = this.keyVal("RrMult");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "RrMult", 1);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
         this.dynamicFormat(this.optData, "RrMult", 1);
       }
       if (this.row == this.keyRow("SmileFlyMult")) {
+        var userInput = this.keyVal("SmileFlyMult");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "SmileFlyMult", 1);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
         this.dynamicFormat(this.optData, "SmileFlyMult", 1);
       }
       if (this.row == this.keyRow("FwdPts")) {
+        var userInput = this.keyVal("FwdPts");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "FwdPts", 1);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
         this.dynamicFormat(this.optData, "FwdPts", 1);
       }
       if (this.row == this.keyRow("OutRight")) {
+        var userInput = this.keyVal("OutRight");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "OutRight", 1);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
         this.dynamicFormat(this.optData, "OutRight", 1);
       }
       if (this.row == this.keyRow("ForDepo")) {
+        var userInput = this.keyVal("ForDepo");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "ForDepo", 100);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
         this.dynamicFormat(this.optData, "ForDepo", 100);
       }
       if (this.row == this.keyRow("DomDepo")) {
+        var userInput = this.keyVal("DomeDepo");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "DomDepo", 100);
+          return;
+        }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
         this.dynamicFormat(this.optData, "DomDepo", 100);
       }
       if (this.row == this.keyRow("Notional")) {
-        this.dynamicFormat(this.optData, "Notional", 1);
-      }
-      if (this.row == this.keyRow("Spot")) {
-        if (this.keyVal("Spot").length === 0) {
-          this.resetCellFormat(this.redObj, "Spot");
-          // this.RefreshSpots();
-          this.getSpot();
-        } else {
-          //this.setRed("Spot");
+        var userInput = this.keyVal("Notional");
+        if (userInput === "") {
+          this.dynamicFormat(this.optData, "Notional", 1);
+          return;
         }
+
+        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+          this.$store.dispatch("setSnackbar", {
+            text: `${userInput} is not valid. Please enter a number`,
+            top: true
+          });
+          return;
+        }
+        this.dynamicFormat(this.optData, "Notional", 1);
       }
     },
     removeRedCellsFromArray() {

@@ -9,10 +9,7 @@
       rounded
     ></v-progress-linear>
     <div ref="jexcelPricer"></div>
-    <PricerSetup
-      :activekeyGroups="pricerSettingsObj"
-      @pricerLayoutChanged="updatePricerLayout"
-    />
+    <PricerSetup :activekeyGroups="pricerSettingsObj" @pricerLayoutChanged="updatePricerLayout" />
   </div>
 </template>
 
@@ -892,10 +889,10 @@ export default {
         }
         this.dynamicFormat(this.optData, "FwdPts", 1);
       }
-      if (this.row == this.keyRow("OutRight")) {
-        var userInput = this.keyVal("OutRight");
+      if (this.row == this.keyRow("FwdOutRight")) {
+        var userInput = this.keyVal("FwdOutRight");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "OutRight", 1);
+          this.dynamicFormat(this.optData, "FwdOutRight", 1);
           return;
         }
 
@@ -906,7 +903,7 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "OutRight", 1);
+        this.dynamicFormat(this.optData, "FwdOutRight", 1);
       }
       if (this.row == this.keyRow("ForDepo")) {
         var userInput = this.keyVal("ForDepo");
@@ -925,7 +922,7 @@ export default {
         this.dynamicFormat(this.optData, "ForDepo", 100);
       }
       if (this.row == this.keyRow("DomDepo")) {
-        var userInput = this.keyVal("DomeDepo");
+        var userInput = this.keyVal("DomDepo");
         if (userInput === "") {
           this.dynamicFormat(this.optData, "DomDepo", 100);
           return;

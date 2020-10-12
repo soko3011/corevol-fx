@@ -603,7 +603,6 @@ export default {
         }
       }
     },
-
     eventListeners(event) {
       if (event.code == "KeyP" && event.ctrlKey) {
         event.preventDefault();

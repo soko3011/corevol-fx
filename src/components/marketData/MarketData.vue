@@ -29,9 +29,9 @@
           <v-toolbar-title>System Data</v-toolbar-title>
           <v-spacer></v-spacer>
           <div class="green--text text--lighten-3">
-            <v-toolbar-title class="font-weight-light subtitle-2"
-              >Spot:{{ spotIface }} | Swap:{{ swapIface }}</v-toolbar-title
-            >
+            <v-toolbar-title
+              class="font-weight-light subtitle-2"
+            >Spot:{{ spotIface }} | Swap:{{ swapIface }}</v-toolbar-title>
           </div>
         </v-toolbar>
       </template>
@@ -82,10 +82,10 @@
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
         Interfaces Updated => Spot: {{ spotIface }} | Swap :{{ swapIface }}
-        <template v-slot:action="{ attrs }">
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false"
-            >Close</v-btn
-          >
+        <template
+          v-slot:action="{ attrs }"
+        >
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
         </template>
       </v-snackbar>
     </div>
@@ -147,6 +147,8 @@ export default {
       MarketDataApi.GetSpotRates({ userName: this.$store.state.currentUser })
         .then(response => {
           this.data = JSON.parse(response.data.spotRates);
+          console.log(this.data);
+
           this.data.sort((a, b) => (a.cross > b.cross ? 1 : -1));
 
           let headersNew = [];

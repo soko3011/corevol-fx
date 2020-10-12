@@ -9,7 +9,10 @@
       rounded
     ></v-progress-linear>
     <div ref="jexcelPricer"></div>
-    <PricerSetup :activekeyGroups="pricerSettingsObj" @pricerLayoutChanged="updatePricerLayout" />
+    <PricerSetup
+      :activekeyGroups="pricerSettingsObj"
+      @pricerLayoutChanged="updatePricerLayout"
+    />
   </div>
 </template>
 
@@ -49,6 +52,9 @@ export default {
     this.restorePricerData(this.storedData);
     this.setCellPosition(this.pricerName);
     this.formatComplete();
+    // document.querySelector("body").onclick = e => {
+    //   e.target.style.setProperty("--x", "blue");
+    // };
   },
   watch: {
     loading(val) {
@@ -236,7 +242,7 @@ export default {
       this.redObj.push(id);
       this.redObj = [...new Set(this.redObj)];
     },
-    async reCalcOpt(optData) {
+    async reCalcOpt(optData, col) {
       this.loading = true;
       try {
         let response = await PricerApi.ReCalcOpt(optData);
@@ -248,7 +254,7 @@ export default {
           var index = singleOpt.findIndex(p => p.Key == cell);
           optValues.push(singleOpt[index].Value);
         }
-        this.replaceSingleOpt(optValues, this.col);
+        this.replaceSingleOpt(optValues, col);
         this.formatComplete();
         this.emptyCol();
 
@@ -335,9 +341,9 @@ export default {
         );
 
         this.jExcelObj.updateSelectionFromCoords(
-          this.col,
+          col,
           this.keyRow("ExpiryText"),
-          this.col,
+          col,
           this.keyRow("ExpiryText")
         );
       } catch (error) {}
@@ -514,7 +520,7 @@ export default {
         var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
         if (index != -1) {
           this.optData = this.optContainer[index]; //set current option from container.
-          this.reCalcOpt(this.optData);
+          this.reCalcOpt(this.optData, this.col);
         }
       }
       if (
@@ -813,9 +819,13 @@ export default {
     selectionActive(instance, x1, y1, x2, y2) {
       this.row = y1;
       this.col = x1;
+
       if (this.col === 0) {
         this.jExcelObj.updateSelectionFromCoords(1, this.row, 1, this.row);
       }
+
+      document.documentElement.style.setProperty("--primary-color", "blue");
+
       var cellsWithselectCross = document.getElementsByClassName("selectCross");
       while (cellsWithselectCross.length)
         cellsWithselectCross[0].classList.remove("selectCross");
@@ -823,6 +833,7 @@ export default {
       var cellsWithUserEditClass = document.getElementsByClassName(
         "userEditCell"
       );
+
       while (cellsWithUserEditClass.length)
         cellsWithUserEditClass[0].classList.remove("userEditCell");
 
@@ -905,7 +916,8 @@ export default {
         this.setOptObj(); //assigns value to opdata
         var checkNull = this.checkProperties(this.optData);
         if (checkNull === false) {
-          this.reCalcOpt(this.optData);
+          this.reCalcOpt(this.optData, this.col);
+          console.log("data sent");
         }
       } //end of initial startup
       if (this.row === this.keyRow("Spot")) {
@@ -913,7 +925,7 @@ export default {
       }
       if (this.row == this.keyRow("Call_Put")) {
         Object.assign(this.optData, { call_put: this.keyVal("Call_Put") });
-        this.reCalcOpt(this.optData);
+        this.reCalcOpt(this.optData, this.col);
       }
       if (this.row == this.keyRow("PremiumType")) {
         var userInput = this.keyVal("PremiumType");
@@ -932,7 +944,7 @@ export default {
         Object.assign(this.optData, {
           premiumType: userInput
         });
-        this.reCalcOpt(this.optData);
+        this.reCalcOpt(this.optData, this.col);
       }
       if (this.row == this.keyRow("UserVol")) {
         var userInput = this.keyVal("UserVol");
@@ -1141,7 +1153,9 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+$primary: var(--primary-color);
+
 .jexcel > thead > tr > td {
   font-family: Arial;
   font-size: 0.65rem;
@@ -1168,6 +1182,7 @@ export default {
 .jexcel > tbody > tr > td.userEditCell {
   color: black !important;
   background-color: #ffffcc !important;
+  // background-color: $primary !important;
 }
 .jexcel > tbody > tr > td.dropDownCells::after {
   content: "\25bc";
@@ -1178,7 +1193,6 @@ export default {
   content: "spacebar to select cross";
   font-size: 0.65rem;
   padding-left: 0.5em;
-  color: black;
 }
 .jexcel > tbody > tr > td.volGo:before {
   content: "\2705";

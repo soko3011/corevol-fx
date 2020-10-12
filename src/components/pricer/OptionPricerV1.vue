@@ -199,9 +199,14 @@ export default {
       );
       while (cellsWithUserEditClass.length)
         cellsWithUserEditClass[0].classList.remove("userEditCell");
-      if (this.userEditableCells.indexOf(this.row) !== -1) {
+      if (
+        this.userEditableCells.indexOf(this.row) !== -1 &&
+        this.keyVal("Cross") !== "" &&
+        this.col !== 0
+      ) {
         var cell = this.getCell(x1, y1);
         cell.classList.add("userEditCell");
+        cell.classList.add("drop");
       }
     },
     setPricerKeys() {
@@ -1137,6 +1142,11 @@ export default {
 .jexcel > tbody > tr > td.userEditCell {
   color: black !important;
   background-color: #ffffcc !important;
+}
+
+.jexcel > tbody > tr > td.drop::after {
+  content: "\2193";
+  color: black;
 }
 
 .jexcel > tbody > tr > td.volGo:before {

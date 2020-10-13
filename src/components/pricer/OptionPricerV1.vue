@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-btn @click="dev" />
+    <!-- <v-btn @click="dev" /> -->
     <v-progress-linear
       active
       :indeterminate="loading"

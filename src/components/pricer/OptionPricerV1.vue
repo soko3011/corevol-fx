@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-btn @click="dev" />
     <v-progress-linear
       active
       :indeterminate="loading"
@@ -165,35 +166,61 @@ export default {
       arr.push(this.keyRow("Cross"), this.keyRow("PremiumType"));
       return arr;
     },
-    baseUnitsList() {
+    AlwaysBaseUnitsList() {
       let arr = [];
-      if (this.keyVal("PremiumType") === "Base_pct") {
-        arr.push(this.keyRow("Vega"));
-      }
+      arr.push(
+        this.keyRow("Delta"),
+        this.keyRow("Fwd_Delta"),
+        this.keyRow("DeltaAmt"),
+        this.keyRow("Fwd_DeltaAmt"),
+        this.keyRow("Gamma"),
+        this.keyRow("GammaAmt"),
+        this.keyRow("SDelta"),
+        this.keyRow("Fwd_SDelta"),
+        this.keyRow("SDeltaAmt"),
+        this.keyRow("Fwd_SDeltaAmt"),
+        this.keyRow("SGamma"),
+        this.keyRow("SGammaAmt"),
+        this.keyRow("ForDepo"),
+        this.keyRow("Rho_For"),
+        this.keyRow("Rho_ForAmt"),
+        this.keyRow("DfForExp"),
+        this.keyRow("DfForDel")
+      );
+
       return arr;
     }
   },
   methods: {
-    selectionActive(instance, x1, y1, x2, y2) {
-      this.row = y1;
-      this.col = x1;
+    dev() {
+      var cellsWithBaseUnitsClass = document.getElementsByClassName("bunit");
+      while (cellsWithBaseUnitsClass.length)
+        cellsWithBaseUnitsClass[0].classList.remove("bunit");
+    },
+    AppendBaseUnitsToCells(cross, col) {
+      var cellsWithBaseUnitsClass = document.getElementsByClassName("bunit");
+      while (cellsWithBaseUnitsClass.length)
+        cellsWithBaseUnitsClass[0].classList.remove("bunit");
 
-      console.log(this.baseUnitsList);
-      var cell = this.getCell(x1, this.keyRow("Vega"));
-      cell.classList.add("baseUnitsClass");
-
-      if (this.col === 0) {
-        this.jExcelObj.updateSelectionFromCoords(1, this.row, 1, this.row);
-      }
-
-      const baseUnits = this.keyVal("Cross")
-        .slice(0, 3)
-        .toLowerCase();
+      const baseUnits = cross.slice(0, 3).toLowerCase();
 
       document.documentElement.style.setProperty(
         "--base-units",
         `"${baseUnits}"`
       );
+
+      this.AlwaysBaseUnitsList.forEach(element => {
+        const cell = this.getCell(col, element);
+        cell.classList.add("bunit");
+      });
+    },
+    selectionActive(instance, x1, y1, x2, y2) {
+      this.row = y1;
+      this.col = x1;
+
+      if (this.col === 0) {
+        this.jExcelObj.updateSelectionFromCoords(1, this.row, 1, this.row);
+      }
 
       var cellsWithselectCross = document.getElementsByClassName("selectCross");
       while (cellsWithselectCross.length)
@@ -225,12 +252,6 @@ export default {
         ) {
           var cell = this.getCell(x1, y1);
           cell.classList.add("dropDownCells");
-        }
-
-        if (this.baseUnitsList.indexOf(this.row) !== -1) {
-          var cell = this.getCell(x1, y1);
-          cell.classList.add("baseUnitsClass");
-          console.log(this.baseUnitsList);
         }
 
         if (this.nonReadOnlyList.indexOf(this.row) !== -1) {
@@ -1172,6 +1193,9 @@ export default {
       if (!val) return;
 
       setTimeout(() => (this.loading = false), 5000);
+    },
+    col() {
+      this.AppendBaseUnitsToCells(this.keyVal("Cross"), this.col);
     }
   }
 };
@@ -1214,11 +1238,10 @@ $termUnits: var(--terms-units);
   padding-left: 0.5em;
   color: black;
 }
-.jexcel > tbody > tr > td.baseUnitsClass::after {
+
+.jexcel > tbody > tr > td.bunit::after {
   content: $baseUnits;
   padding-left: 0.5em;
-  color: black;
-  // background-color: $baseUnits !important;
 }
 .jexcel > tbody > tr > td.selectCross::after {
   content: "spacebar to select cross";

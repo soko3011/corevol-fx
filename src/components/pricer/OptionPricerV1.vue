@@ -1,5 +1,6 @@
 <template>
   <div>
+    <v-btn @click="dev" />
     <v-progress-linear
       active
       :indeterminate="loading"
@@ -167,70 +168,66 @@ export default {
     AlwaysBaseUnitsList() {
       let arr = [];
       arr.push(
-        this.keyRow("Delta"),
-        this.keyRow("Fwd_Delta"),
-        this.keyRow("DeltaAmt"),
-        this.keyRow("Fwd_DeltaAmt"),
-        this.keyRow("Gamma"),
-        this.keyRow("GammaAmt"),
-        this.keyRow("SDelta"),
-        this.keyRow("Fwd_SDelta"),
-        this.keyRow("SDeltaAmt"),
-        this.keyRow("Fwd_SDeltaAmt"),
-        this.keyRow("SGamma"),
-        this.keyRow("SGammaAmt"),
-        this.keyRow("ForDepo"),
-        this.keyRow("DfForExp"),
-        this.keyRow("DfForDel")
+        "Delta",
+        "Fwd_Delta",
+        "DeltaAmt",
+        "Fwd_DeltaAmt",
+        "Gamma",
+        "GammaAmt",
+        "SDelta",
+        "Fwd_SDelta",
+        "SDeltaAmt",
+        "Fwd_SDeltaAmt",
+        "SGamma",
+        "SGammaAmt",
+        "ForDepo",
+        "DfForExp",
+        "DfForDel"
       );
 
       return arr;
     },
     AlwaysTermsUnitsList() {
       let arr = [];
-      arr.push(
-        this.keyRow("DomDepo"),
-        this.keyRow("DfDomExp"),
-        this.keyRow("DfDomDel")
-      );
+      arr.push("DomDepo", "DfDomExp", "DfDomDel");
 
       return arr;
     },
     variableUnits() {
       let arr = [];
       arr.push(
-        this.keyRow("Price"),
-        this.keyRow("Fwd_Price"),
-        this.keyRow("Vega"),
-        this.keyRow("Theta"),
-        this.keyRow("Vanna"),
-        this.keyRow("Volga"),
-        this.keyRow("SVega"),
-        this.keyRow("SVolga"),
-        this.keyRow("SVanna"),
-        this.keyRow("STheta"),
-        this.keyRow("PremiumAmt"),
-        this.keyRow("Fwd_PremiumAmt"),
-        this.keyRow("VegaAmt"),
-        this.keyRow("ThetaAmt"),
-        this.keyRow("SVegaAmt"),
-        this.keyRow("SThetaAmt"),
-        this.keyRow("VannaAmt"),
-        this.keyRow("VolgaAmt"),
-        this.keyRow("SVannaAmt"),
-        this.keyRow("SVolgaAmt"),
-        this.keyRow("Rega25"),
-        this.keyRow("Rega10"),
-        this.keyRow("Sega25"),
-        this.keyRow("Sega10"),
-        this.keyRow("Rega25Amt"),
-        this.keyRow("Rega10Amt"),
-        this.keyRow("Sega25Amt"),
-        this.keyRow("Sega10Amt"),
-        this.keyRow("Rho_Dom"),
-        this.keyRow("Rho_DomAmt"),
-        this.keyRow("Rho_For"),
-        this.keyRow("Rho_ForAmt")
+        "Price",
+        "Fwd_Price",
+        "Vega",
+        "Theta",
+        "Vanna",
+        "Volga",
+        "SVega",
+        "SVolga",
+        "SVanna",
+        "STheta",
+        "PremiumAmt",
+        "Fwd_PremiumAmt",
+        "VegaAmt",
+        "ThetaAmt",
+        "SVegaAmt",
+        "SThetaAmt",
+        "VannaAmt",
+        "VolgaAmt",
+        "SVannaAmt",
+        "SVolgaAmt",
+        "Rega25",
+        "Rega10",
+        "Sega25",
+        "Sega10",
+        "Rega25Amt",
+        "Rega10Amt",
+        "Sega25Amt",
+        "Sega10Amt",
+        "Rho_Dom",
+        "Rho_DomAmt",
+        "Rho_For",
+        "Rho_ForAmt"
       );
 
       return arr;
@@ -238,9 +235,8 @@ export default {
   },
   methods: {
     dev() {
-      var cellsWithBaseUnitsClass = document.getElementsByClassName("bunit");
-      while (cellsWithBaseUnitsClass.length)
-        cellsWithBaseUnitsClass[0].classList.remove("bunit");
+      // console.log(this.setPricerKeys());
+      console.log(this.pricerKeys);
     },
     clearUnitsClasses() {
       var cellsWithBaseUnitsClass = document.getElementsByClassName("baseUnit");
@@ -269,14 +265,18 @@ export default {
     },
     appendBaseUnitsToCells(col) {
       this.AlwaysBaseUnitsList.forEach(element => {
-        const cell = this.getCell(col, element);
-        cell.classList.add("baseUnit");
+        if (this.pricerKeys.indexOf(element) > -1) {
+          const cell = this.getCell(col, this.keyRow(element));
+          cell.classList.add("baseUnit");
+        }
       });
     },
     appendTermsUnitsToCells(col) {
       this.AlwaysTermsUnitsList.forEach(element => {
-        const cell = this.getCell(col, element);
-        cell.classList.add("termsUnit");
+        if (this.pricerKeys.indexOf(element) > -1) {
+          const cell = this.getCell(col, this.keyRow(element));
+          cell.classList.add("termsUnit");
+        }
       });
     },
     appendVariableUnitsToCells(col, premiumType) {
@@ -288,8 +288,10 @@ export default {
       }
 
       this.variableUnits.forEach(element => {
-        const cell = this.getCell(col, element);
-        cell.classList.add(classType);
+        if (this.pricerKeys.indexOf(element) > -1) {
+          const cell = this.getCell(col, this.keyRow(element));
+          cell.classList.add(classType);
+        }
       });
     },
     setAppendUnitsToCells(cross, premiumType) {

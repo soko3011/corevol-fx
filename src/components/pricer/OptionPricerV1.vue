@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-btn @click="dev" />
     <v-progress-linear
       active
       :indeterminate="loading"
@@ -113,17 +112,16 @@ export default {
     crossListData() {
       return this.$store.state.crossList;
     },
+
     nonReadOnlyList() {
       let arr = [];
       arr.push(
-        //this.keyRow("Cross"),
         this.keyRow("Spot"),
         this.keyRow("ExpiryText"),
         this.keyRow("StrikeText"),
         this.keyRow("Call_Put"),
         this.keyRow("Notional"),
         this.keyRow("UserVol"),
-        // this.keyRow("PremiumType"),
         this.keyRow("AtmVol"),
         this.keyRow("Rr"),
         this.keyRow("Fly"),
@@ -182,10 +180,57 @@ export default {
         this.keyRow("SGamma"),
         this.keyRow("SGammaAmt"),
         this.keyRow("ForDepo"),
-        this.keyRow("Rho_For"),
-        this.keyRow("Rho_ForAmt"),
         this.keyRow("DfForExp"),
         this.keyRow("DfForDel")
+      );
+
+      return arr;
+    },
+    AlwaysTermsUnitsList() {
+      let arr = [];
+      arr.push(
+        this.keyRow("DomDepo"),
+        this.keyRow("DfDomExp"),
+        this.keyRow("DfDomDel")
+      );
+
+      return arr;
+    },
+    variableUnits() {
+      let arr = [];
+      arr.push(
+        this.keyRow("Price"),
+        this.keyRow("Fwd_Price"),
+        this.keyRow("Vega"),
+        this.keyRow("Theta"),
+        this.keyRow("Vanna"),
+        this.keyRow("Volga"),
+        this.keyRow("SVega"),
+        this.keyRow("SVolga"),
+        this.keyRow("SVanna"),
+        this.keyRow("STheta"),
+        this.keyRow("PremiumAmt"),
+        this.keyRow("Fwd_PremiumAmt"),
+        this.keyRow("VegaAmt"),
+        this.keyRow("ThetaAmt"),
+        this.keyRow("SVegaAmt"),
+        this.keyRow("SThetaAmt"),
+        this.keyRow("VannaAmt"),
+        this.keyRow("VolgaAmt"),
+        this.keyRow("SVannaAmt"),
+        this.keyRow("SVolgaAmt"),
+        this.keyRow("Rega25"),
+        this.keyRow("Rega10"),
+        this.keyRow("Sega25"),
+        this.keyRow("Sega10"),
+        this.keyRow("Rega25Amt"),
+        this.keyRow("Rega10Amt"),
+        this.keyRow("Sega25Amt"),
+        this.keyRow("Sega10Amt"),
+        this.keyRow("Rho_Dom"),
+        this.keyRow("Rho_DomAmt"),
+        this.keyRow("Rho_For"),
+        this.keyRow("Rho_ForAmt")
       );
 
       return arr;
@@ -197,22 +242,62 @@ export default {
       while (cellsWithBaseUnitsClass.length)
         cellsWithBaseUnitsClass[0].classList.remove("bunit");
     },
-    AppendBaseUnitsToCells(cross, col) {
-      var cellsWithBaseUnitsClass = document.getElementsByClassName("bunit");
+    clearUnitsClasses() {
+      var cellsWithBaseUnitsClass = document.getElementsByClassName("baseUnit");
       while (cellsWithBaseUnitsClass.length)
-        cellsWithBaseUnitsClass[0].classList.remove("bunit");
+        cellsWithBaseUnitsClass[0].classList.remove("baseUnit");
 
+      var cellsWithBaseUnitsClass = document.getElementsByClassName(
+        "termsUnit"
+      );
+      while (cellsWithBaseUnitsClass.length)
+        cellsWithBaseUnitsClass[0].classList.remove("termsUnit");
+    },
+    setBaseAndTermsUnits(cross) {
       const baseUnits = cross.slice(0, 3).toLowerCase();
+      const termsUnits = cross.slice(-3).toLowerCase();
 
       document.documentElement.style.setProperty(
         "--base-units",
         `"${baseUnits}"`
       );
 
+      document.documentElement.style.setProperty(
+        "--terms-units",
+        `"${termsUnits}"`
+      );
+    },
+    appendBaseUnitsToCells(col) {
       this.AlwaysBaseUnitsList.forEach(element => {
         const cell = this.getCell(col, element);
-        cell.classList.add("bunit");
+        cell.classList.add("baseUnit");
       });
+    },
+    appendTermsUnitsToCells(col) {
+      this.AlwaysTermsUnitsList.forEach(element => {
+        const cell = this.getCell(col, element);
+        cell.classList.add("termsUnit");
+      });
+    },
+    appendVariableUnitsToCells(col, premiumType) {
+      let classType = "";
+      if (premiumType === "Base_Pct" || premiumType === "Base_Pips") {
+        classType = "baseUnit";
+      } else {
+        classType = "termsUnit";
+      }
+
+      this.variableUnits.forEach(element => {
+        const cell = this.getCell(col, element);
+        cell.classList.add(classType);
+      });
+    },
+    setAppendUnitsToCells(cross, premiumType) {
+      this.clearUnitsClasses();
+      this.setBaseAndTermsUnits(cross);
+      this.appendBaseUnitsToCells(this.col);
+      this.appendTermsUnitsToCells(this.col);
+      this.appendVariableUnitsToCells(this.col, premiumType);
     },
     selectionActive(instance, x1, y1, x2, y2) {
       this.row = y1;
@@ -313,7 +398,6 @@ export default {
         var checkNull = this.checkProperties(this.optData);
         if (checkNull === false) {
           this.reCalcOpt(this.optData, this.col);
-          console.log("data sent");
         }
       } //end of initial startup
       if (this.row === this.keyRow("Spot")) {
@@ -345,7 +429,8 @@ export default {
       if (this.row == this.keyRow("UserVol")) {
         var userInput = this.keyVal("UserVol");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "UserVol", 100);
+          this.dynamicFormat(this.optData, "UserVol", 100, activeCol);
+
           return;
         }
 
@@ -357,12 +442,12 @@ export default {
           return;
         }
 
-        this.dynamicFormat(this.optData, "UserVol", 100);
+        this.dynamicFormat(this.optData, "UserVol", 100, activeCol);
       }
       if (this.row == this.keyRow("AtmVol")) {
         var userInput = this.keyVal("AtmVol");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "AtmVol", 100);
+          this.dynamicFormat(this.optData, "AtmVol", 100, activeCol);
           return;
         }
 
@@ -377,12 +462,12 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "AtmVol", 100);
+        this.dynamicFormat(this.optData, "AtmVol", 100, activeCol);
       }
       if (this.row == this.keyRow("Rr")) {
         var userInput = this.keyVal("Rr");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "Rr", 100);
+          this.dynamicFormat(this.optData, "Rr", 100, activeCol);
           return;
         }
 
@@ -397,12 +482,12 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "Rr", 100);
+        this.dynamicFormat(this.optData, "Rr", 100, activeCol);
       }
       if (this.row == this.keyRow("Fly")) {
         var userInput = this.keyVal("Fly");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "Fly", 100);
+          this.dynamicFormat(this.optData, "Fly", 100, activeCol);
           return;
         }
 
@@ -413,12 +498,12 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "Fly", 100);
+        this.dynamicFormat(this.optData, "Fly", 100, activeCol);
       }
       if (this.row == this.keyRow("RrMult")) {
         var userInput = this.keyVal("RrMult");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "RrMult", 1);
+          this.dynamicFormat(this.optData, "RrMult", 1, activeCol);
           return;
         }
 
@@ -429,12 +514,12 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "RrMult", 1);
+        this.dynamicFormat(this.optData, "RrMult", 1, activeCol);
       }
       if (this.row == this.keyRow("SmileFlyMult")) {
         var userInput = this.keyVal("SmileFlyMult");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "SmileFlyMult", 1);
+          this.dynamicFormat(this.optData, "SmileFlyMult", 1, activeCol);
           return;
         }
 
@@ -445,12 +530,12 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "SmileFlyMult", 1);
+        this.dynamicFormat(this.optData, "SmileFlyMult", 1, activeCol);
       }
       if (this.row == this.keyRow("FwdPts")) {
         var userInput = this.keyVal("FwdPts");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "FwdPts", 1);
+          this.dynamicFormat(this.optData, "FwdPts", 1, activeCol);
           return;
         }
 
@@ -465,12 +550,12 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "FwdPts", 1);
+        this.dynamicFormat(this.optData, "FwdPts", 1, activeCol);
       }
       if (this.row == this.keyRow("FwdOutRight")) {
         var userInput = this.keyVal("FwdOutRight");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "FwdOutRight", 1);
+          this.dynamicFormat(this.optData, "FwdOutRight", 1, activeCol);
           return;
         }
 
@@ -481,12 +566,12 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "FwdOutRight", 1);
+        this.dynamicFormat(this.optData, "FwdOutRight", 1, activeCol);
       }
       if (this.row == this.keyRow("ForDepo")) {
         var userInput = this.keyVal("ForDepo");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "ForDepo", 100);
+          this.dynamicFormat(this.optData, "ForDepo", 100, activeCol);
           return;
         }
 
@@ -497,12 +582,12 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "ForDepo", 100);
+        this.dynamicFormat(this.optData, "ForDepo", 100, activeCol);
       }
       if (this.row == this.keyRow("DomDepo")) {
         var userInput = this.keyVal("DomDepo");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "DomDepo", 100);
+          this.dynamicFormat(this.optData, "DomDepo", 100, activeCol);
           return;
         }
 
@@ -513,12 +598,12 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "DomDepo", 100);
+        this.dynamicFormat(this.optData, "DomDepo", 100, activeCol);
       }
       if (this.row == this.keyRow("Notional")) {
         var userInput = this.keyVal("Notional");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "Notional", 1);
+          this.dynamicFormat(this.optData, "Notional", 1, activeCol);
           return;
         }
 
@@ -529,7 +614,7 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "Notional", 1);
+        this.dynamicFormat(this.optData, "Notional", 1, activeCol);
       }
     },
     copyObj(src) {
@@ -554,7 +639,7 @@ export default {
       this.formatComplete();
       this.selectCell(1, 1);
     },
-    dynamicFormat(optData, key, pct) {
+    dynamicFormat(optData, key, pct, col) {
       var val = [];
       if (this.keyVal(key).length === 0) {
         this.resetCellFormat(this.redObj, key);
@@ -564,7 +649,8 @@ export default {
         val = this.keyVal(key) / pct;
         optData[key] = val.toString();
       }
-      this.reCalcOpt(optData);
+
+      this.reCalcOpt(optData, col);
     },
     setRed(key) {
       var x = this.col;
@@ -586,9 +672,14 @@ export default {
           var index = singleOpt.findIndex(p => p.Key == cell);
           optValues.push(singleOpt[index].Value);
         }
+
         this.replaceSingleOpt(optValues, col);
         this.formatComplete();
         this.emptyCol();
+        this.setAppendUnitsToCells(
+          this.keyVal("Cross"),
+          this.keyVal("PremiumType")
+        );
 
         this.jExcelObj.updateSelectionFromCoords(
           this.col,
@@ -1131,6 +1222,7 @@ export default {
       for (var i = 0; i < newOpt.length; i++) {
         newList[i][col] = newOpt[i];
       }
+
       this.jExcelObj.setData(newList);
 
       this.returnCurrent();
@@ -1195,15 +1287,18 @@ export default {
       setTimeout(() => (this.loading = false), 5000);
     },
     col() {
-      this.AppendBaseUnitsToCells(this.keyVal("Cross"), this.col);
+      this.setAppendUnitsToCells(
+        this.keyVal("Cross"),
+        this.keyVal("PremiumType")
+      );
     }
   }
 };
 </script>
 
 <style lang="scss">
+$termsUnits: var(--terms-units);
 $baseUnits: var(--base-units);
-$termUnits: var(--terms-units);
 
 .jexcel > thead > tr > td {
   font-family: Arial;
@@ -1239,9 +1334,16 @@ $termUnits: var(--terms-units);
   color: black;
 }
 
-.jexcel > tbody > tr > td.bunit::after {
+.jexcel > tbody > tr > td.baseUnit::after {
   content: $baseUnits;
   padding-left: 0.5em;
+  font-size: 0.675rem;
+}
+
+.jexcel > tbody > tr > td.termsUnit::after {
+  content: $termsUnits;
+  padding-left: 0.5em;
+  font-size: 0.675rem;
 }
 .jexcel > tbody > tr > td.selectCross::after {
   content: "spacebar to select cross";

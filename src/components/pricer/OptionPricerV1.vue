@@ -360,10 +360,17 @@ export default {
         }
       }
     },
-    async updateOption() {
-      const crossVal = this.keyVal("Cross").toUpperCase();
-      const activeCol = this.col;
-
+    setOptObj() {
+      Object.assign(this.optData, {
+        cross: this.keyVal("Cross"),
+        spot: this.keyVal("Spot").toString(),
+        expiryText: this.keyVal("ExpiryText"),
+        strikeText: this.keyVal("StrikeText"),
+        call_put: this.keyVal("Call_Put"),
+        userName: this.$store.state.currentUser
+      });
+    },
+    initializeFxOpt() {
       var newOpt = { name: this.col.toString() }; //create new opt object
       var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
       if (index === -1) {
@@ -371,7 +378,11 @@ export default {
         index = this.optContainer.findIndex(x => x.name == newOpt.name);
       }
       this.optData = this.optContainer[index]; //set current option from container.
-
+      Object.assign(this.optData, {
+        userName: this.$store.state.currentUser
+      });
+    },
+    async validateCrossAndSetSpot(activeCol, crossVal) {
       if (this.row == this.keyRow("Cross")) {
         if (this.crossListData.indexOf(crossVal) === -1) {
           this.$store.dispatch("setSnackbar", {
@@ -382,40 +393,74 @@ export default {
         }
 
         await this.getSurfaceUpdateTime(activeCol, crossVal);
-        this.getSpot(activeCol, crossVal);
+        await this.getSpot(activeCol, crossVal);
+
+        Object.assign(this.optData, {
+          cross: this.keyVal("Cross"),
+          spot: this.keyVal("Spot").toString()
+        });
+
         this.recordCellPosition(this.pricerName);
       }
-      if (
-        this.row == this.keyRow("Spot") ||
-        this.row == this.keyRow("ExpiryText") ||
-        this.row == this.keyRow("StrikeText")
-      ) {
-        if (this.keyVal("Spot").length === 0) {
-          this.resetCellFormat(this.redObj, "Spot");
-          await this.getSpot(activeCol, crossVal);
+    },
+
+    validateBaseConditionsForOptCalc() {
+      const essentialKeys = [
+        "cross",
+        "spot",
+        "expiryText",
+        "strikeText",
+        "call_put",
+        "userName"
+      ];
+
+      for (const key of essentialKeys) {
+        if (!this.optData.hasOwnProperty(key)) {
+          return false;
         }
-        const checkSpot = this.keyVal("Spot");
-        if (!/^[0-9]+([,.][0-9]+)?$/.test(checkSpot)) {
+      }
+
+      return true;
+    },
+    async sendToServerForCalc(optData, col) {
+      if (this.validateBaseConditionsForOptCalc()) {
+        this.loading = true;
+        try {
+          let response = await PricerApi.ReCalcOpt(optData);
+
+          let singleOpt = JSON.parse(response.data.result);
+
+          var optValues = [];
+          for (var cell of this.pricerKeys) {
+            var index = singleOpt.findIndex(p => p.Key == cell);
+            optValues.push(singleOpt[index].Value);
+          }
+
+          this.replaceSingleOpt(optValues, col);
+          this.formatComplete();
+          this.emptyCol();
+          this.setAppendUnitsToCells(
+            this.keyVal("Cross"),
+            this.keyVal("PremiumType")
+          );
+
+          this.jExcelObj.updateSelectionFromCoords(
+            this.col,
+            this.row,
+            this.col,
+            this.row
+          );
+
+          this.loading = false;
+        } catch (err) {
           this.$store.dispatch("setSnackbar", {
-            text: `${checkSpot} is not valid. Please enter a number`,
+            text: `${err}  source:OptCalculation`,
             top: true
           });
-          return;
         }
-        this.setOptObj(); //assigns value to opdata
-        var checkNull = this.checkProperties(this.optData);
-        if (checkNull === false) {
-          this.reCalcOpt(this.optData, this.col);
-        }
-      } //end of initial startup
-      if (this.row === this.keyRow("Spot")) {
-        console.log("wtf");
-        this.setRed("Spot");
       }
-      if (this.row == this.keyRow("Call_Put")) {
-        Object.assign(this.optData, { call_put: this.keyVal("Call_Put") });
-        this.reCalcOpt(this.optData, this.col);
-      }
+    },
+    userUpdatePremiumType(activeCol) {
       if (this.row == this.keyRow("PremiumType")) {
         var userInput = this.keyVal("PremiumType");
         if (
@@ -433,8 +478,10 @@ export default {
         Object.assign(this.optData, {
           premiumType: userInput
         });
-        this.reCalcOpt(this.optData, this.col);
+        this.sendToServerForCalc(this.optData, activeCol);
       }
+    },
+    userUpdateUserVol(activeCol) {
       if (this.row == this.keyRow("UserVol")) {
         var userInput = this.keyVal("UserVol");
         if (userInput === "") {
@@ -453,6 +500,8 @@ export default {
 
         this.dynamicFormat(this.optData, "UserVol", 100, activeCol);
       }
+    },
+    userUpdateAtmVol(activeCol) {
       if (this.row == this.keyRow("AtmVol")) {
         var userInput = this.keyVal("AtmVol");
         if (userInput === "") {
@@ -473,6 +522,8 @@ export default {
         }
         this.dynamicFormat(this.optData, "AtmVol", 100, activeCol);
       }
+    },
+    userUpdateRr(activeCol) {
       if (this.row == this.keyRow("Rr")) {
         var userInput = this.keyVal("Rr");
         if (userInput === "") {
@@ -493,6 +544,8 @@ export default {
         }
         this.dynamicFormat(this.optData, "Rr", 100, activeCol);
       }
+    },
+    userUpdateFly(activeCol) {
       if (this.row == this.keyRow("Fly")) {
         var userInput = this.keyVal("Fly");
         if (userInput === "") {
@@ -509,6 +562,8 @@ export default {
         }
         this.dynamicFormat(this.optData, "Fly", 100, activeCol);
       }
+    },
+    userUpdateRrMult(activeCol) {
       if (this.row == this.keyRow("RrMult")) {
         var userInput = this.keyVal("RrMult");
         if (userInput === "") {
@@ -525,6 +580,8 @@ export default {
         }
         this.dynamicFormat(this.optData, "RrMult", 1, activeCol);
       }
+    },
+    userUpdateSmileFlyMult(activeCol) {
       if (this.row == this.keyRow("SmileFlyMult")) {
         var userInput = this.keyVal("SmileFlyMult");
         if (userInput === "") {
@@ -541,6 +598,8 @@ export default {
         }
         this.dynamicFormat(this.optData, "SmileFlyMult", 1, activeCol);
       }
+    },
+    userUpdateFwdPts(activeCol) {
       if (this.row == this.keyRow("FwdPts")) {
         var userInput = this.keyVal("FwdPts");
         if (userInput === "") {
@@ -561,6 +620,8 @@ export default {
         }
         this.dynamicFormat(this.optData, "FwdPts", 1, activeCol);
       }
+    },
+    userUpdateFwdOutRight(activeCol) {
       if (this.row == this.keyRow("FwdOutRight")) {
         var userInput = this.keyVal("FwdOutRight");
         if (userInput === "") {
@@ -577,6 +638,8 @@ export default {
         }
         this.dynamicFormat(this.optData, "FwdOutRight", 1, activeCol);
       }
+    },
+    userUpdateForDepo(activeCol) {
       if (this.row == this.keyRow("ForDepo")) {
         var userInput = this.keyVal("ForDepo");
         if (userInput === "") {
@@ -597,6 +660,8 @@ export default {
         }
         this.dynamicFormat(this.optData, "ForDepo", 100, activeCol);
       }
+    },
+    userUpateDomDepo(activeCol) {
       if (this.row == this.keyRow("DomDepo")) {
         var userInput = this.keyVal("DomDepo");
         if (userInput === "") {
@@ -617,6 +682,8 @@ export default {
         }
         this.dynamicFormat(this.optData, "DomDepo", 100, activeCol);
       }
+    },
+    userUpdateNotional(activeCol) {
       if (this.row == this.keyRow("Notional")) {
         var userInput = this.keyVal("Notional");
         if (userInput === "") {
@@ -633,6 +700,72 @@ export default {
         }
         this.dynamicFormat(this.optData, "Notional", 1, activeCol);
       }
+    },
+    userUpdateExpiryText(activeCol) {
+      if (this.row == this.keyRow("ExpiryText")) {
+        Object.assign(this.optData, { expiryText: this.keyVal("ExpiryText") });
+        this.sendToServerForCalc(this.optData, activeCol);
+      }
+    },
+    userUpdateStrikeText(activeCol) {
+      if (this.row == this.keyRow("StrikeText")) {
+        Object.assign(this.optData, { strikeText: this.keyVal("StrikeText") });
+        this.sendToServerForCalc(this.optData, activeCol);
+      }
+    },
+    userUpdateCallPut(activeCol) {
+      if (this.row == this.keyRow("Call_Put")) {
+        Object.assign(this.optData, { call_put: this.keyVal("Call_Put") });
+        this.sendToServerForCalc(this.optData, activeCol);
+      }
+    },
+    async userUpdateSpot(activeCol, crossVal) {
+      if (this.row === this.keyRow("Spot")) {
+        if (this.keyVal("Spot").length === 0) {
+          this.resetCellFormat(this.redObj, "Spot");
+          await this.getSpot(activeCol, crossVal);
+          Object.assign(this.optData, { spot: this.keyVal("Spot") });
+          console.log(this.optData);
+          this.sendToServerForCalc(this.optData, activeCol);
+        } else {
+          const checkSpot = this.keyVal("Spot");
+          if (!/^[0-9]+([,.][0-9]+)?$/.test(checkSpot)) {
+            this.$store.dispatch("setSnackbar", {
+              text: `${checkSpot} is not valid. Please enter a number`,
+              top: true
+            });
+            return;
+          }
+
+          this.setRed("Spot");
+          Object.assign(this.optData, { spot: this.keyVal("Spot") });
+          this.sendToServerForCalc(this.optData, activeCol);
+        }
+      }
+    },
+
+    async updateOption() {
+      const crossVal = this.keyVal("Cross").toUpperCase();
+      const activeCol = this.col;
+
+      this.initializeFxOpt();
+      this.validateCrossAndSetSpot(activeCol, crossVal);
+      this.userUpdateSpot(activeCol, crossVal);
+      this.userUpdateExpiryText(activeCol);
+      this.userUpdateStrikeText(activeCol);
+      this.userUpdateCallPut(activeCol);
+      this.userUpdatePremiumType(activeCol);
+      this.userUpdateUserVol(activeCol);
+      this.userUpdateAtmVol(activeCol);
+      this.userUpdateRr(activeCol);
+      this.userUpdateFly(activeCol);
+      this.userUpdateRrMult(activeCol);
+      this.userUpdateSmileFlyMult(activeCol);
+      this.userUpdateFwdPts(activeCol);
+      this.userUpdateFwdOutRight(activeCol);
+      this.userUpdateForDepo(activeCol);
+      this.userUpateDomDepo(activeCol);
+      this.userUpdateNotional(activeCol);
     },
     copyObj(src) {
       return Object.assign({}, src);
@@ -667,7 +800,7 @@ export default {
         optData[key] = val.toString();
       }
 
-      this.reCalcOpt(optData, col);
+      this.sendToServerForCalc(optData, col);
     },
     setRed(key) {
       var x = this.col;
@@ -677,40 +810,7 @@ export default {
       this.redObj.push(id);
       this.redObj = [...new Set(this.redObj)];
     },
-    async reCalcOpt(optData, col) {
-      this.loading = true;
-      try {
-        let response = await PricerApi.ReCalcOpt(optData);
-        this.loading = false;
-        let singleOpt = JSON.parse(response.data.result);
 
-        var optValues = [];
-        for (var cell of this.pricerKeys) {
-          var index = singleOpt.findIndex(p => p.Key == cell);
-          optValues.push(singleOpt[index].Value);
-        }
-
-        this.replaceSingleOpt(optValues, col);
-        this.formatComplete();
-        this.emptyCol();
-        this.setAppendUnitsToCells(
-          this.keyVal("Cross"),
-          this.keyVal("PremiumType")
-        );
-
-        this.jExcelObj.updateSelectionFromCoords(
-          this.col,
-          this.row,
-          this.col,
-          this.row
-        );
-      } catch (err) {
-        this.$store.dispatch("setSnackbar", {
-          text: `${err}  -method: RecalcOpt`,
-          top: true
-        });
-      }
-    },
     setCellPosition() {
       var setCellPos = this.cellPosContainer.find(
         x => x.pricer === this.pricerName
@@ -992,7 +1092,7 @@ export default {
         var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
         if (index != -1) {
           this.optData = this.optContainer[index]; //set current option from container.
-          this.reCalcOpt(this.optData, this.col);
+          this.sendToServerForCalc(this.optData, this.col);
         }
       }
       if (
@@ -1099,16 +1199,7 @@ export default {
         });
       }
     },
-    setOptObj() {
-      Object.assign(this.optData, {
-        cross: this.keyVal("Cross"),
-        spot: this.keyVal("Spot").toString(),
-        expiryText: this.keyVal("ExpiryText"),
-        strikeText: this.keyVal("StrikeText"),
-        call_put: this.keyVal("Call_Put"),
-        userName: this.$store.state.currentUser
-      });
-    },
+
     setVolStatus(lastUpdate) {
       var currenttime = new Date();
       var status = currenttime - lastUpdate;

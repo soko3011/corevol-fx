@@ -371,6 +371,7 @@ export default {
         index = this.optContainer.findIndex(x => x.name == newOpt.name);
       }
       this.optData = this.optContainer[index]; //set current option from container.
+
       if (this.row == this.keyRow("Cross")) {
         if (this.crossListData.indexOf(crossVal) === -1) {
           this.$store.dispatch("setSnackbar", {

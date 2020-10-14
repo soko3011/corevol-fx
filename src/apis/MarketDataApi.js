@@ -4,6 +4,7 @@ export default {
   GetSpotRates(body) {
     return Api.post("SpotRates", body);
   },
+  
   CurrentInterfaces(body) {
     return Api.post("CurrentInterfaces", body);
   },

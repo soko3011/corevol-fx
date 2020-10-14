@@ -31,6 +31,9 @@ export default {
   GetSingleSpot(body) {
     return Api.post("GetSingleSpot", body);
   },
+  getSingleSpotLiveForce(body) {
+    return Api.post("GetSingleSpotLiveForce", body);
+  },
   SavePricerSetup(body) {
     return Api.post("SavePricerSetup", body);
   },

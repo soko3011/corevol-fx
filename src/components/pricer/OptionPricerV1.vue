@@ -316,7 +316,6 @@ export default {
       var cellsWithUserEditClass = document.getElementsByClassName(
         "userEditCell"
       );
-
       while (cellsWithUserEditClass.length)
         cellsWithUserEditClass[0].classList.remove("userEditCell");
 
@@ -329,28 +328,36 @@ export default {
 
       if (this.keyVal("Cross") !== "") {
         if (this.userEditableCells.indexOf(this.row) !== -1) {
-          var cell = this.getCell(x1, y1);
-          cell.classList.add("userEditCell");
+          if (x1 > 0) {
+            var cell = this.getCell(x1, y1);
+            cell.classList.add("userEditCell");
+          }
         }
 
         if (
           this.dropDownCells.indexOf(this.row) !== -1 &&
           this.keyVal("PremiumType") !== ""
         ) {
-          var cell = this.getCell(x1, y1);
-          cell.classList.add("dropDownCells");
+          if (x1 > 0) {
+            var cell = this.getCell(x1, y1);
+            cell.classList.add("dropDownCells");
+          }
         }
 
         if (this.nonReadOnlyList.indexOf(this.row) !== -1) {
-          var cell = this.getCell(x1, y1);
-          cell.classList.remove("readonly");
+          if (x1 > 0) {
+            var cell = this.getCell(x1, y1);
+            cell.classList.remove("readonly");
+          }
         }
       }
 
       if (this.row === this.keyRow("Cross") && this.keyVal("Cross") === "") {
-        var cell = this.getCell(x1, y1);
-        cell.classList.add("userEditCell");
-        cell.classList.add("selectCross");
+        if (x1 > 0) {
+          var cell = this.getCell(x1, y1);
+          cell.classList.add("userEditCell");
+          cell.classList.add("selectCross");
+        }
       }
     },
     async updateOption() {
@@ -370,7 +377,6 @@ export default {
             text: `${this.keyVal("Cross")} is not a valid Cross `,
             centered: true
           });
-
           return;
         }
 
@@ -383,12 +389,11 @@ export default {
         this.row == this.keyRow("ExpiryText") ||
         this.row == this.keyRow("StrikeText")
       ) {
-        const checkSpot = this.keyVal("Spot");
-        if (checkSpot === "") {
+        if (this.keyVal("Spot").length === 0) {
           this.resetCellFormat(this.redObj, "Spot");
-          this.getSpot(activeCol, crossVal);
-          return;
+          await this.getSpot(activeCol, crossVal);
         }
+        const checkSpot = this.keyVal("Spot");
         if (!/^[0-9]+([,.][0-9]+)?$/.test(checkSpot)) {
           this.$store.dispatch("setSnackbar", {
             text: `${checkSpot} is not valid. Please enter a number`,
@@ -403,6 +408,7 @@ export default {
         }
       } //end of initial startup
       if (this.row === this.keyRow("Spot")) {
+        console.log("wtf");
         this.setRed("Spot");
       }
       if (this.row == this.keyRow("Call_Put")) {
@@ -577,7 +583,11 @@ export default {
           return;
         }
 
-        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+        if (
+          !/^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/.test(
+            userInput
+          )
+        ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
             top: true
@@ -593,7 +603,11 @@ export default {
           return;
         }
 
-        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+        if (
+          !/^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/.test(
+            userInput
+          )
+        ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
             top: true
@@ -738,11 +752,14 @@ export default {
       var x = this.col;
       var y = this.keyRow(key);
       var id = jexcel.getColumnNameFromId([x, y]);
-      //var id = x + "-" + y;
+      console.log(arr);
+      console.log(id);
+      console.log(key);
       var index = arr.indexOf(id);
       if (index > -1) {
         arr.splice(index, 1);
       }
+      console.log(arr);
     },
     emptyCol() {
       var data = [];
@@ -754,23 +771,27 @@ export default {
     },
     async getSpot(col, cross) {
       try {
-        let response = await PricerApi.GetSingleSpot({
-          cross: cross
+        let response = await PricerApi.getSingleSpotLiveForce({
+          cross: cross,
+          UserName: this.$store.state.currentUser
         });
-        let spotData = JSON.parse(response.data.singleSpot);
+        const spotData = JSON.parse(response.data.singleSpot);
+        this.jExcelObj.ignoreEvents = true;
         this.jExcelObj.setValueFromCoords(
           col,
           this.keyRow("Spot"),
           [spotData],
           true
         );
-
+        this.jExcelObj.ignoreEvents = false;
         this.jExcelObj.updateSelectionFromCoords(
           col,
           this.keyRow("ExpiryText"),
           col,
           this.keyRow("ExpiryText")
         );
+
+        return;
       } catch (error) {}
     },
     async getSurfaceUpdateTime(col, cross) {

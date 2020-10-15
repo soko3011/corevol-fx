@@ -4,7 +4,7 @@ export function getCellFromCoords(obj, x, y) {
   return obj.records[y][x];
 }
 
-export function openEditor(obj, cell, empty, type, source,test, eventListeners) {
+export function openEditor(obj, cell, empty, type, source) {
   // Get cell position
   var y = cell.getAttribute("data-y");
   var x = cell.getAttribute("data-x");
@@ -83,7 +83,6 @@ export function openEditor(obj, cell, empty, type, source,test, eventListeners) 
         onclose: function() {
           closeEditor(obj, type, cell, true);
           cell.classList.add("readonly");
-          document.addEventListener("keydown", eventListeners);
         }
       };
       // if (options && options.type) {

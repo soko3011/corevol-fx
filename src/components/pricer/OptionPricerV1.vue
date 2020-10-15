@@ -22,6 +22,7 @@ import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unus
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as cellElements from "@/externaljs/cellElements.js"; // eslint-disable-line no-unused-vars
+import * as dropDownList from "@/externaljs/dropDownList.js"; // eslint-disable-line no-unused-vars
 import PricerApi from "@/apis/PricerApi";
 import alphabetJson from "./Alphabet.json";
 import PricerSetup from "@/components/pricer/PricerSetup.vue";
@@ -35,8 +36,6 @@ export default {
   },
   created() {
     document.addEventListener("keydown", this.eventListeners);
-    document.addEventListener("keydown", this.userCrossInputIgniter);
-
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;
   },
   destroyed() {
@@ -48,6 +47,7 @@ export default {
   },
   data() {
     return {
+      eventListenerToggle: true,
       loading: false,
       pricerSettingsObj: [],
       initialData: [],
@@ -301,6 +301,7 @@ export default {
     selectionActive(instance, x1, y1, x2, y2) {
       this.row = y1;
       this.col = x1;
+      this.eventListenerToggle = true;
 
       if (this.col === 0) {
         this.jExcelObj.updateSelectionFromCoords(1, this.row, 1, this.row);
@@ -711,7 +712,7 @@ export default {
           this.resetCellFormat(this.redObj, "Spot");
           await this.getSpot(activeCol, crossVal);
           Object.assign(this.optData, { spot: this.keyVal("Spot").toString() });
-          console.log(this.optData);
+
           this.sendToServerForCalc(this.optData, activeCol);
         } else {
           const checkSpot = this.keyVal("Spot");
@@ -725,7 +726,7 @@ export default {
 
           this.setRed("Spot");
           Object.assign(this.optData, { spot: this.keyVal("Spot") });
-          console.log(this.optData);
+
           this.sendToServerForCalc(this.optData, activeCol);
         }
       }
@@ -832,14 +833,11 @@ export default {
       var x = this.col;
       var y = this.keyRow(key);
       var id = jexcel.getColumnNameFromId([x, y]);
-      console.log(arr);
-      console.log(id);
-      console.log(key);
+
       var index = arr.indexOf(id);
       if (index > -1) {
         arr.splice(index, 1);
       }
-      console.log(arr);
     },
     emptyCol() {
       var data = [];
@@ -1026,33 +1024,26 @@ export default {
       }
     },
     userCrossInputIgniter() {
-      if (this.row === this.keyRow("Cross")) {
-        const getUserSelection = new Promise((resolve, reject) => {
-          setTimeout(() => {
-            var elements = document.getElementsByClassName(
-              "jdropdown-description"
-            );
-
-            if (elements.length === 1) {
-              resolve(elements[0].innerText);
-            }
-          }, 500);
-        });
-
-        getUserSelection.then(result => {
-          const cell = cellElements.getCellFromCoords(
-            this.jExcelObj,
-            this.col,
-            this.row
+      const getUserSelection = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          var elements = document.getElementsByClassName(
+            "jdropdown-description"
           );
-          cellElements.closeEditor(this.jExcelObj, "dropdown", cell, true);
-          this.jExcelObj.setValue(cell, result);
-          cell.classList.add("readonly");
-        });
-      }
+
+          if (elements.length === 1) {
+            resolve(elements[0].innerText);
+          }
+        }, 500);
+      });
+
+      getUserSelection.then(result => {
+        const cell = this.getCell(this.col, this.row);
+        dropDownList.closeEditor(this.jExcelObj, cell);
+        this.jExcelObj.setValue(cell, result);
+      });
     },
     eventListeners(event) {
-       const isLetter = /^[a-z]$/i.test(event.key)
+      const isLetter = /^[a-z]$/i.test(event.key);
       if (event.code == "KeyP" && event.ctrlKey) {
         event.preventDefault();
 
@@ -1075,58 +1066,39 @@ export default {
           this.sendToServerForCalc(this.optData, this.col);
         }
       }
-      if (
-        isLetter &&
-        this.row === this.keyRow("Cross") &&
-        this.col != 0
-      ) {
-         document.removeEventListener("keydown", this.eventListeners);
+      if (isLetter && this.row === this.keyRow("Cross") && this.col != 0) {
         event.preventDefault();
+        const firstLetter = event.key;
+        this.eventListenerToggle = false;
+        document.addEventListener("keydown", this.userCrossInputIgniter);
 
         if (this.keyVal("Cross") !== "") {
           this.delOpt(this.col, 0);
         }
-        var cell = cellElements.getCellFromCoords(
-          this.jExcelObj,
-          this.col,
-          this.row
-        );
-
+        const cell = this.getCell(this.col, this.row);
         cell.classList.remove("selectCross");
-        cell.classList.remove("readonly");
-        cellElements.openEditor(
+        dropDownList.addDowpDown(
           this.jExcelObj,
           cell,
-          "empty",
-          "dropdown",
           this.crossListData,
-          // this.col,
-          // this.row,
-          // this.eventListeners
+          firstLetter.toUpperCase()
         );
-      
       }
       if (
-        event.code === "Space" &&
+        isLetter &&
         this.row === this.keyRow("PremiumType") &&
         this.col != 0
       ) {
         event.preventDefault();
-        cell = cellElements.getCellFromCoords(
-          this.jExcelObj,
-          this.col,
-          this.row
-        );
-        cellElements.openEditor(
-          this.jExcelObj,
-          cell,
-          "empty",
-          "dropdown",
-          ["Base_Pct", "Terms_Pips", "Base_Pips", "Terms_Pct"],
-          this.col,
-          this.row
-        );
-        cell.classList.remove("readonly");
+        this.eventListenerToggle = false;
+        document.addEventListener("keydown", this.userCrossInputIgniter);
+        const cell = this.getCell(this.col, this.row);
+        dropDownList.addDowpDown(this.jExcelObj, cell, [
+          "Base_Pct",
+          "Terms_Pips",
+          "Base_Pips",
+          "Terms_Pct"
+        ]);
       }
       if (
         event.code === "Space" &&
@@ -1372,7 +1344,6 @@ export default {
   watch: {
     loading(val) {
       if (!val) return;
-
       setTimeout(() => (this.loading = false), 5000);
     },
     col() {
@@ -1380,6 +1351,14 @@ export default {
         this.keyVal("Cross"),
         this.keyVal("PremiumType")
       );
+    },
+    eventListenerToggle() {
+      if (this.eventListenerToggle === true) {
+        document.addEventListener("keydown", this.eventListeners);
+        document.removeEventListener("keydown", this.userCrossInputIgniter);
+      } else {
+        document.removeEventListener("keydown", this.eventListeners);
+      }
     }
   }
 };

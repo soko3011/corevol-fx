@@ -307,10 +307,6 @@ export default {
         this.jExcelObj.updateSelectionFromCoords(1, this.row, 1, this.row);
       }
 
-      var cellsWithselectCross = document.getElementsByClassName("selectCross");
-      while (cellsWithselectCross.length)
-        cellsWithselectCross[0].classList.remove("selectCross");
-
       var cellsWithUserEditClass = document.getElementsByClassName(
         "userEditCell"
       );
@@ -354,7 +350,6 @@ export default {
         if (x1 > 0) {
           var cell = this.getCell(x1, y1);
           cell.classList.add("userEditCell");
-          cell.classList.add("selectCross");
         }
       }
     },
@@ -1023,7 +1018,7 @@ export default {
         }
       }
     },
-    userCrossInputIgniter() {
+    autoFillCell() {
       const getUserSelection = new Promise((resolve, reject) => {
         setTimeout(() => {
           var elements = document.getElementsByClassName(
@@ -1035,7 +1030,6 @@ export default {
           }
         }, 500);
       });
-
       getUserSelection.then(result => {
         const cell = this.getCell(this.col, this.row);
         dropDownList.closeEditor(this.jExcelObj, cell);
@@ -1070,18 +1064,17 @@ export default {
         event.preventDefault();
         const firstLetter = event.key;
         this.eventListenerToggle = false;
-        document.addEventListener("keydown", this.userCrossInputIgniter);
+        document.addEventListener("keydown", this.autoFillCell);
 
         if (this.keyVal("Cross") !== "") {
           this.delOpt(this.col, 0);
         }
-        const cell = this.getCell(this.col, this.row);
-        cell.classList.remove("selectCross");
+
         dropDownList.addDowpDown(
           this.jExcelObj,
-          cell,
+          this.getCell(this.col, this.row),
           this.crossListData,
-          firstLetter.toUpperCase()
+          firstLetter
         );
       }
       if (
@@ -1091,7 +1084,7 @@ export default {
       ) {
         event.preventDefault();
         this.eventListenerToggle = false;
-        document.addEventListener("keydown", this.userCrossInputIgniter);
+        document.addEventListener("keydown", this.autoFillCell);
         const cell = this.getCell(this.col, this.row);
         dropDownList.addDowpDown(this.jExcelObj, cell, [
           "Base_Pct",
@@ -1347,15 +1340,17 @@ export default {
       setTimeout(() => (this.loading = false), 5000);
     },
     col() {
-      this.setAppendUnitsToCells(
-        this.keyVal("Cross"),
-        this.keyVal("PremiumType")
-      );
+      if (this.keyVal("SystemVol") !== "") {
+        this.setAppendUnitsToCells(
+          this.keyVal("Cross"),
+          this.keyVal("PremiumType")
+        );
+      }
     },
     eventListenerToggle() {
       if (this.eventListenerToggle === true) {
         document.addEventListener("keydown", this.eventListeners);
-        document.removeEventListener("keydown", this.userCrossInputIgniter);
+        document.removeEventListener("keydown", this.autoFillCell);
       } else {
         document.removeEventListener("keydown", this.eventListeners);
       }
@@ -1401,22 +1396,15 @@ $baseUnits: var(--base-units);
   padding-left: 0.5em;
   color: black;
 }
-
 .jexcel > tbody > tr > td.baseUnit::after {
   content: $baseUnits;
   padding-left: 0.5em;
   font-size: 0.675rem;
 }
-
 .jexcel > tbody > tr > td.termsUnit::after {
   content: $termsUnits;
   padding-left: 0.5em;
   font-size: 0.675rem;
-}
-.jexcel > tbody > tr > td.selectCross::after {
-  content: "spacebar to select cross";
-  font-size: 0.65rem;
-  padding-left: 0.5em;
 }
 .jexcel > tbody > tr > td.volGo:before {
   content: "\2705";

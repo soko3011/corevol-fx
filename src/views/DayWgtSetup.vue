@@ -72,7 +72,7 @@
         >
           <v-spacer></v-spacer>
           <v-toolbar-title class="text-subtitle-2"
-            >Save Setup To Databaset</v-toolbar-title
+            >Save Setup To Database</v-toolbar-title
           >
           <v-spacer></v-spacer>
           <v-btn icon>

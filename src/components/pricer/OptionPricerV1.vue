@@ -30,7 +30,6 @@ import { mapState } from "vuex";
 
 export default {
   name: "optionPricer",
-
   components: {
     PricerSetup
   },
@@ -113,7 +112,6 @@ export default {
     crossListData() {
       return this.$store.state.crossList;
     },
-
     nonReadOnlyList() {
       let arr = [];
       arr.push(
@@ -126,7 +124,7 @@ export default {
         this.keyRow("AtmVol"),
         this.keyRow("Rr"),
         this.keyRow("Fly"),
-        this.keyRow("Sfly"),
+
         this.keyRow("RrMult"),
         this.keyRow("FlyMult"),
         this.keyRow("ForDepo"),
@@ -150,7 +148,6 @@ export default {
         this.keyRow("AtmVol"),
         this.keyRow("Rr"),
         this.keyRow("Fly"),
-        this.keyRow("Sfly"),
         this.keyRow("RrMult"),
         this.keyRow("FlyMult"),
         this.keyRow("ForDepo"),
@@ -360,16 +357,6 @@ export default {
         }
       }
     },
-    setOptObj() {
-      Object.assign(this.optData, {
-        cross: this.keyVal("Cross"),
-        spot: this.keyVal("Spot").toString(),
-        expiryText: this.keyVal("ExpiryText"),
-        strikeText: this.keyVal("StrikeText"),
-        call_put: this.keyVal("Call_Put"),
-        userName: this.$store.state.currentUser
-      });
-    },
     initializeFxOpt() {
       var newOpt = { name: this.col.toString() }; //create new opt object
       var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
@@ -403,7 +390,6 @@ export default {
         this.recordCellPosition(this.pricerName);
       }
     },
-
     validateBaseConditionsForOptCalc() {
       const essentialKeys = [
         "cross",
@@ -582,10 +568,10 @@ export default {
       }
     },
     userUpdateSmileFlyMult(activeCol) {
-      if (this.row == this.keyRow("SmileFlyMult")) {
-        var userInput = this.keyVal("SmileFlyMult");
+      if (this.row == this.keyRow("FlyMult")) {
+        var userInput = this.keyVal("FlyMult");
         if (userInput === "") {
-          this.dynamicFormat(this.optData, "SmileFlyMult", 1, activeCol);
+          this.dynamicFormat(this.optData, "FlyMult", 1, activeCol);
           return;
         }
 
@@ -596,7 +582,7 @@ export default {
           });
           return;
         }
-        this.dynamicFormat(this.optData, "SmileFlyMult", 1, activeCol);
+        this.dynamicFormat(this.optData, "FlyMult", 1, activeCol);
       }
     },
     userUpdateFwdPts(activeCol) {
@@ -724,7 +710,7 @@ export default {
         if (this.keyVal("Spot").length === 0) {
           this.resetCellFormat(this.redObj, "Spot");
           await this.getSpot(activeCol, crossVal);
-          Object.assign(this.optData, { spot: this.keyVal("Spot") });
+          Object.assign(this.optData, { spot: this.keyVal("Spot").toString() });
           console.log(this.optData);
           this.sendToServerForCalc(this.optData, activeCol);
         } else {
@@ -739,11 +725,11 @@ export default {
 
           this.setRed("Spot");
           Object.assign(this.optData, { spot: this.keyVal("Spot") });
+          console.log(this.optData);
           this.sendToServerForCalc(this.optData, activeCol);
         }
       }
     },
-
     async updateOption() {
       const crossVal = this.keyVal("Cross").toUpperCase();
       const activeCol = this.col;
@@ -810,7 +796,6 @@ export default {
       this.redObj.push(id);
       this.redObj = [...new Set(this.redObj)];
     },
-
     setCellPosition() {
       var setCellPos = this.cellPosContainer.find(
         x => x.pricer === this.pricerName
@@ -820,12 +805,6 @@ export default {
       } else {
         this.selectCell(0, setCellPos.col);
       }
-    },
-    checkProperties(obj) {
-      for (var key in obj) {
-        if (obj[key] === "") return true;
-      }
-      return false;
     },
     keyRow(key) {
       var rowNum = this.pricerKeys.indexOf(key);
@@ -1073,6 +1052,7 @@ export default {
       }
     },
     eventListeners(event) {
+       const isLetter = /^[a-z]$/i.test(event.key)
       if (event.code == "KeyP" && event.ctrlKey) {
         event.preventDefault();
 
@@ -1096,10 +1076,11 @@ export default {
         }
       }
       if (
-        event.code === "Space" &&
+        isLetter &&
         this.row === this.keyRow("Cross") &&
         this.col != 0
       ) {
+         document.removeEventListener("keydown", this.eventListeners);
         event.preventDefault();
 
         if (this.keyVal("Cross") !== "") {
@@ -1119,9 +1100,11 @@ export default {
           "empty",
           "dropdown",
           this.crossListData,
-          this.col,
-          this.row
+          // this.col,
+          // this.row,
+          // this.eventListeners
         );
+      
       }
       if (
         event.code === "Space" &&
@@ -1199,7 +1182,6 @@ export default {
         });
       }
     },
-
     setVolStatus(lastUpdate) {
       var currenttime = new Date();
       var status = currenttime - lastUpdate;
@@ -1221,14 +1203,6 @@ export default {
     resetCellPosition(oldVal, newVal) {
       this.recordCellPosition(oldVal);
       this.setCellPosition(newVal);
-    },
-    pushToArray(arr, obj) {
-      const index = arr.findIndex(item => item.id === obj.id);
-      if (index > -1) {
-        arr[index] = obj;
-      } else {
-        arr.push(obj);
-      }
     },
     formatComplete() {
       for (const keyGroup of this.pricerSettingsObj) {

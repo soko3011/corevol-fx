@@ -632,7 +632,7 @@ export default {
 
 .fade-enter-active {
   /* entering style */
-  transition: opacity 0.75s ease-out;
+  transition: opacity 0.25s ease-out;
 }
 
 /* Enter and leave animations can use different */

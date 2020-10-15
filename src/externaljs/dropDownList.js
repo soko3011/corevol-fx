@@ -18,16 +18,20 @@ function createEditor(type, cell) {
   return editor;
 }
 
-export function closeEditor(obj, cell) {
+export function closeEditor(obj, cell, autoFill) {
   var x = parseInt(cell.getAttribute("data-x"));
   var y = parseInt(cell.getAttribute("data-y"));
+  var value = "";
+  if (cell.children[0] !== undefined) {
+    if (cell.children[0].dropdown !== undefined) {
+      var value = cell.children[0].dropdown.close(true);
+    }
+  }
 
-  var value = cell.children[0].dropdown.close(true);
-
-  if (obj.options.data[y][x] == value) {
-    cell.innerHTML = obj.edition[1];
-  } else {
+  if (autoFill === undefined) {
     obj.setValue(cell, value);
+  } else {
+    obj.setValue(cell, autoFill);
   }
 
   // On edition end
@@ -38,6 +42,7 @@ export function closeEditor(obj, cell) {
   }
   // Remove editor class
   cell.classList.remove("editor");
+  cell.classList.add("readonly");
 
   // Finish edition
   obj.edition = null;
@@ -84,14 +89,13 @@ export function addDowpDown(obj, cell, source, firstLetter) {
       obj.options.tableOverflow == true || obj.options.fullscreen == true
     ),
     type: "autocomplete",
-    onclose: function() {
+    onclose() {
       closeEditor(obj, cell);
-      cell.classList.add("readonly");
     }
   };
 
   jSuites.dropdown(editor, options);
-  document.getElementsByClassName("jdropdown-header")[0].value = firstLetter;
+  if (firstLetter !== undefined) {
+    document.getElementsByClassName("jdropdown-header")[0].value = firstLetter;
+  }
 }
-
-//jdropdown-header input

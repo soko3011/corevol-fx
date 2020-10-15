@@ -21,8 +21,8 @@
 import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
-import * as cellElements from "@/externaljs/cellElements.js"; // eslint-disable-line no-unused-vars
 import * as dropDownList from "@/externaljs/dropDownList.js"; // eslint-disable-line no-unused-vars
+import * as calendar from "@/externaljs/calendar.js"; // eslint-disable-line no-unused-vars
 import PricerApi from "@/apis/PricerApi";
 import alphabetJson from "./Alphabet.json";
 import PricerSetup from "@/components/pricer/PricerSetup.vue";
@@ -368,10 +368,6 @@ export default {
     async validateCrossAndSetSpot(activeCol, crossVal) {
       if (this.row == this.keyRow("Cross")) {
         if (this.crossListData.indexOf(crossVal) === -1) {
-          this.$store.dispatch("setSnackbar", {
-            text: `${this.keyVal("Cross")} is not a valid Cross `,
-            centered: true
-          });
           return;
         }
 
@@ -1018,49 +1014,13 @@ export default {
         }
       }
     },
-    autoFillCell() {
-      const getUserSelection = new Promise((resolve, reject) => {
-        setTimeout(() => {
-          var elements = document.getElementsByClassName(
-            "jdropdown-description"
-          );
-
-          if (elements.length === 1) {
-            resolve(elements[0].innerText);
-          }
-        }, 500);
-      });
-      getUserSelection.then(result => {
-        const cell = this.getCell(this.col, this.row);
-        dropDownList.closeEditor(this.jExcelObj, cell);
-        this.jExcelObj.setValue(cell, result);
-      });
-    },
-    eventListeners(event) {
+    crossDropDown(event) {
       const isLetter = /^[a-z]$/i.test(event.key);
-      if (event.code == "KeyP" && event.ctrlKey) {
-        event.preventDefault();
-
-        this.copyOpt(this.col);
-      }
-      if (event.code == "KeyD" && event.ctrlKey) {
-        event.preventDefault();
-        this.clearAll();
-      }
-      if (event.code == "KeyQ" && event.ctrlKey) {
-        event.preventDefault();
-        this.delOpt(this.col, 1);
-      }
-      if (event.code == "KeyR" && event.ctrlKey) {
-        event.preventDefault();
-        var newOpt = { name: this.col.toString() }; //create new opt object
-        var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
-        if (index != -1) {
-          this.optData = this.optContainer[index]; //set current option from container.
-          this.sendToServerForCalc(this.optData, this.col);
-        }
-      }
-      if (isLetter && this.row === this.keyRow("Cross") && this.col != 0) {
+      if (
+        this.row === this.keyRow("Cross") &&
+        (event.code === "Space" || isLetter) &&
+        this.col != 0
+      ) {
         event.preventDefault();
         const firstLetter = event.key;
         this.eventListenerToggle = false;
@@ -1077,64 +1037,77 @@ export default {
           firstLetter
         );
       }
+    },
+    premiumTypeDropDown(event) {
       if (
-        isLetter &&
+        event.code === "Space" &&
         this.row === this.keyRow("PremiumType") &&
         this.col != 0
       ) {
         event.preventDefault();
-        this.eventListenerToggle = false;
-        document.addEventListener("keydown", this.autoFillCell);
-        const cell = this.getCell(this.col, this.row);
-        dropDownList.addDowpDown(this.jExcelObj, cell, [
-          "Base_Pct",
-          "Terms_Pips",
-          "Base_Pips",
-          "Terms_Pct"
-        ]);
+
+        dropDownList.addDowpDown(
+          this.jExcelObj,
+          this.getCell(this.col, this.row),
+          ["Base_Pct", "Terms_Pips", "Base_Pips", "Terms_Pct"]
+        );
       }
+    },
+    callPutDropDown(event) {
       if (
         event.code === "Space" &&
         this.row === this.keyRow("Call_Put") &&
         this.col != 0
       ) {
         event.preventDefault();
-        cell = cellElements.getCellFromCoords(
+        dropDownList.addDowpDown(
           this.jExcelObj,
-          this.col,
-          this.row
-        );
-        cellElements.openEditor(
-          this.jExcelObj,
-          cell,
-          "empty",
-          "dropdown",
-          ["CALL", "PUT"],
-          this.col,
-          this.row
+          this.getCell(this.col, this.row),
+          ["CALL", "PUT"]
         );
       }
+    },
+    expiryCalendar(event) {
       if (
         event.code === "Space" &&
         this.row === this.keyRow("ExpiryText") &&
         this.col != 0
       ) {
         event.preventDefault();
-        cell = cellElements.getCellFromCoords(
-          this.jExcelObj,
-          this.col,
-          this.row
-        );
-        cellElements.openEditor(
-          this.jExcelObj,
-          cell,
-          "empty",
-          "calendar",
-          this.crossListData,
-          this.col,
-          this.row
-        );
+
+        calendar.addCalendar(this.jExcelObj, this.getCell(this.col, this.row));
       }
+    },
+    copyOptEvent(event) {
+      if (event.code == "KeyP" && event.ctrlKey) {
+        event.preventDefault();
+        this.copyOpt(this.col);
+      }
+    },
+    deleteAllOptsEvent(event) {
+      if (event.code == "KeyD" && event.ctrlKey) {
+        event.preventDefault();
+        this.clearAll();
+      }
+    },
+    deleteSingleOptEvent(event) {
+      if (event.code == "KeyQ" && event.ctrlKey) {
+        event.preventDefault();
+        this.delOpt(this.col, 1);
+      }
+    },
+    refreshSingleOptEvent(event) {
+      if (event.code == "KeyR" && event.ctrlKey) {
+        event.preventDefault();
+        var newOpt = { name: this.col.toString() }; //create new opt object
+        var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
+        if (index != -1) {
+          this.optData = this.optContainer[index]; //set current option from container.
+          this.sendToServerForCalc(this.optData, this.col);
+        }
+      }
+    },
+    spaceBarToDvi(event) {
       if (
         event.code === "Space" &&
         this.row === this.keyRow("UserVol") &&
@@ -1146,6 +1119,34 @@ export default {
           params: { ccyPair: this.keyVal("Cross") }
         });
       }
+    },
+    eventListeners(event) {
+      this.copyOptEvent(event); // ctrl P
+      this.deleteAllOptsEvent(event); //ctrl D
+      this.deleteSingleOptEvent(event); //ctrl Q
+      this.refreshSingleOptEvent(event); //ctrl R
+      this.crossDropDown(event); // any lettter
+      this.premiumTypeDropDown(event); // any letter
+      this.spaceBarToDvi(event); //space bar
+      this.callPutDropDown(event); //any letter
+      this.expiryCalendar(event); //space bar
+    },
+    autoFillCell() {
+      const getUserSelection = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          var elements = document.getElementsByClassName(
+            "jdropdown-description"
+          );
+
+          if (elements.length === 1) {
+            resolve(elements[0].innerText);
+          }
+        }, 500);
+      });
+      getUserSelection.then(result => {
+        const cell = this.getCell(this.col, this.row);
+        dropDownList.closeEditor(this.jExcelObj, cell, result);
+      });
     },
     setVolStatus(lastUpdate) {
       var currenttime = new Date();
@@ -1388,7 +1389,7 @@ $baseUnits: var(--base-units);
 }
 .jexcel > tbody > tr > td.userEditCell {
   color: black !important;
-  background-color: #ffffcc !important;
+  background-color: #78ffb7 !important;
   // background-color: $primary !important;
 }
 .jexcel > tbody > tr > td.dropDownCells::after {

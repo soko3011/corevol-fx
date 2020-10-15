@@ -85,10 +85,10 @@ import { mapState } from "vuex";
 export default {
   components: {
     draggable,
-    Swatches,
+    Swatches
   },
   props: {
-    activekeyGroups: { type: Array },
+    activekeyGroups: { type: Array }
   },
 
   data() {
@@ -104,19 +104,19 @@ export default {
         ["#e8ebe4", "#d2d5dd", "#b8bacf", "#999ac6", "#798071"],
         ["#fefeff", "#d6efff", "#fed18c", "#fed99b", "#fe654f"],
         ["#d1d7ff", "#d2e3ff", "#d2f1ff", "#d7f4ff", "#ecf7ff"],
-        ["#d7fff1", "#aafcb8", "#8cd790", "#77af9c", "#285943"],
-      ],
+        ["#d7fff1", "#aafcb8", "#8cd790", "#77af9c", "#285943"]
+      ]
     };
   },
   computed: {
     ...mapState({
-      pricerSetupToggle: (state) => state.pricerSetupToggle,
-    }),
+      pricerSetupToggle: state => state.pricerSetupToggle
+    })
   },
 
   methods: {
     async saveLayout() {
-      // await this.$store.dispatch("saveDefaultTraderLayout", this.keyGroups);
+      //await this.$store.dispatch("saveDefaultTraderLayout", this.keyGroups);
       await this.$store.dispatch(
         "saveUserPricerLayoutPrefs",
         this.$store.state.userPricerLayoutPrefs
@@ -128,14 +128,13 @@ export default {
     close() {
       this.$store.dispatch("togglePricerSetupPage", "setupClosed");
       this.$nextTick(() => {});
-    },
+    }
   },
   watch: {
     pricerSetupToggle() {
       this.dialog = this.pricerSetupToggle;
       this.keyGroups = this.activekeyGroups;
-    },
-  },
+    }
+  }
 };
 </script>
-

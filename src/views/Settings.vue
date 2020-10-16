@@ -27,17 +27,25 @@
       <div class="d-flex flex-row flex-nowrap align-start justify-start">
         <v-card
           min-width="225"
-          :height="window.height - 100"
-          shaped
-          class="mr-5"
+          :height="window.height"
+          class="mr-3 d-flex flex-column"
         >
-          <TreeView
-            :inputData="{
-              list: this.settingHeaders,
-              listName: 'Corevolfx Options',
-            }"
-            v-on:selection="ChangeSettings"
-          />
+          <v-list dense>
+            <v-subheader>COREVOLFX OPTIONS</v-subheader>
+            <v-list-item
+              @click="ChangeSettings(item)"
+              v-for="item in this.settingHeaders"
+              :key="item"
+              ripple
+            >
+              <v-list-item-action>
+                <v-icon color="green darken-3">mdi-dots-hexagon</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>{{ item }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
         </v-card>
 
         <div v-bind:style="zoomLevel" class="divCol">

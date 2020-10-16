@@ -100,13 +100,7 @@
               </v-list-item-content>
             </v-list-item>
           </v-list>
-
-          <v-list dense class="mb-10">
-            <v-subheader>PRICER LAYOUT</v-subheader>
-            <v-list-item>
-              <PricerSetupInterface class="mb-10" />
-            </v-list-item>
-          </v-list>
+          <PricerSetupInterface />
         </v-card>
 
         <OptionPricer

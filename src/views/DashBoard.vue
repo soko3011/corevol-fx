@@ -1,51 +1,46 @@
 <template>
-  <v-container fluid class="overallContainer">
-    <div>
-      <div class="d-flex flex-row mb-2 flex-nowrap justify-end">
-        <v-menu
-          v-model="menu"
-          :close-on-content-click="false"
-          bottom
-          origin="center center"
-          transition="scale-transition"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              class="mt-5 mr-10"
-              small
-              fab
-              color="pink"
-              elevation="24"
-              dark
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon>mdi-cog-outline</v-icon>
-            </v-btn>
-          </template>
-          <v-card>
-            <v-list>
-              <v-list-item v-for="item in surfs" :key="item.Cross">
-                <v-list-item-action>
-                  <v-switch
-                    v-model="item.Show"
-                    color="green lighten-2"
-                  ></v-switch>
-                </v-list-item-action>
-                <v-list-item-title>{{ item.Cross }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-            <v-card-actions>
-              <v-spacer></v-spacer>
+<div>
+     <v-toolbar dark dense color="#126496"> 
+          <v-icon>mdi-dots-hexagon</v-icon>
+          <v-toolbar-title class="ml-3">DASHBOARD</v-toolbar-title>
+          <v-spacer></v-spacer>
 
-              <v-btn text @click="menu = false">Cancel</v-btn>
-              <v-btn color="primary" text @click="saveSetup">Save</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-menu>
-      </div>
+          <v-menu
+            v-model="menu"
+            :close-on-content-click="false"
+            bottom
+            origin="center center"
+            transition="scale-transition"
+          >
+            <template v-slot:activator="{ on, attrs }">
+           
+                <v-icon  v-bind="attrs"
+                v-on="on">mdi-dots-vertical</v-icon>
+              </v-btn>
+            </template>
+            <v-card>
+              <v-list>
+                <v-list-item v-for="item in surfs" :key="item.Cross">
+                  <v-list-item-action>
+                    <v-switch
+                      v-model="item.Show"
+                      color="green lighten-2"
+                    ></v-switch>
+                  </v-list-item-action>
+                  <v-list-item-title>{{ item.Cross }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+              <v-card-actions>
+                <v-spacer></v-spacer>
 
-      <div class="d-flex flex-row flex-nowrap">
+                <v-btn text @click="menu = false">Cancel</v-btn>
+                <v-btn color="primary" text @click="saveSetup">Save</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-menu>
+        </v-toolbar>
+
+      <div class="d-flex flex-row flex-nowrap overallContainer mt-7">
         <Draggable
           :style="zoomLevel"
           class="d-flex flex-wrap justify-start"
@@ -88,8 +83,8 @@
           </v-card>
         </Draggable>
       </div>
-    </div>
-  </v-container>
+  
+  </div>
 </template>
 
 <script>

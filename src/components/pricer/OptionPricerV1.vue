@@ -1107,6 +1107,25 @@ export default {
         }
       }
     },
+    hardCodeStrike(event){
+        if (
+        event.code === "Space" &&
+        this.row === this.keyRow("StrikeText") &&
+        this.col != 0
+      ) {
+        event.preventDefault();
+       
+        this.jExcelObj.setValueFromCoords(
+          this.col,
+          this.keyRow("StrikeText"),
+          this.keyVal("K"),
+          true
+        );
+        
+        
+      }
+      
+    },
     spaceBarToDvi(event) {
       if (
         event.code === "Space" &&
@@ -1126,10 +1145,11 @@ export default {
       this.deleteSingleOptEvent(event); //ctrl Q
       this.refreshSingleOptEvent(event); //ctrl R
       this.crossDropDown(event); // any lettter
-      this.premiumTypeDropDown(event); // any letter
+      this.premiumTypeDropDown(event); // space bar
       this.spaceBarToDvi(event); //space bar
-      this.callPutDropDown(event); //any letter
+      this.callPutDropDown(event); //space bar
       this.expiryCalendar(event); //space bar
+      this.hardCodeStrike(event);
     },
     autoFillCell() {
       const getUserSelection = new Promise((resolve, reject) => {

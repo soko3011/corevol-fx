@@ -32,7 +32,7 @@
         :height="mainWindowHeight"
         shaped
         class="mr-3 mt-8"
-        v-bind:style="zoomLevel"
+       
       >
         <TreeView
           :inputData="{
@@ -85,16 +85,17 @@ export default {
 
   computed: {
     zoomLevel() {
-      var level = window.innerWidth > 1700 ? "100%" : "100%";
+      var level = window.innerWidth > 1700 ? "100%" : "95%";
       return {
         zoom: level
+        
       };
     },
     mainWindowHeight() {
-      return window.innerHeight - 250;
+      return window.innerHeight - 120;
     },
     mainWindowWidth() {
-      return window.innerWidth - 10;
+      return window.innerWidth - 30;
     },
     containerStyle() {
       return ` display: flex;
@@ -103,7 +104,8 @@ export default {
             padding-right: 0px;
             width: ${this.mainWindowWidth}px;
             height: ${this.mainWindowHeight}px;`;
-    }
+    },
+    
   },
 
   methods: {

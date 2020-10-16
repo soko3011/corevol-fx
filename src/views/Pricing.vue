@@ -39,67 +39,74 @@
           <v-spacer></v-spacer>
         </v-toolbar>
       </div>
-
       <div class="d-flex flex-row flex-nowrap">
         <v-card
           v-if="showSideControl"
           min-width="225"
-          shaped
+          :height="window.height"
           class="mr-3 d-flex flex-column"
-          v-bind:style="zoomLevel"
         >
-          <TreeView
-            :inputData="{
-              list: this.activePricers,
-              listName: 'Active Pricers',
-            }"
-            v-on:selection="ReloadPricer"
-          />
-          <v-spacer />
-          <PricerSetupInterface class="mb-10" />
-          <div class="mt-10" />
-
-          <div>
-            <v-btn
-              class="mb-10"
-              absolute
-              small
-              fab
-              bottom
-              left
-              color="pink"
-              elevation="12"
+          <v-list dense>
+            <v-subheader>ACTIVE PRICERS</v-subheader>
+            <v-list-item
+              @click="ReloadPricer(item)"
+              v-for="item in activePricers"
+              :key="item"
+              ripple
             >
-              <PopUpInput
-                :icon="'mdi-expand-all'"
-                :label="'Pricer Name'"
-                :color="'white'"
-                :title="'corevolFx Pricer'"
-                :large="false"
-                v-on:selection="UserAddPricer"
-              />
-            </v-btn>
+              <v-list-item-action>
+                <v-icon color="green darken-3">mdi-dots-grid</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>{{ item }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
 
-            <v-btn
-              class="mb-10"
-              absolute
-              small
-              fab
-              bottom
-              right
-              color="blue-grey"
-              elevation="12"
-            >
-              <PopUpModal
-                :inputData="this.activePricers"
-                :icon="'mdi-delete'"
-                :color="'white'"
-                :large="false"
-                :title="'REMOVE VIEW'"
-                v-on:selection="RemoveTab"
-              />
-            </v-btn>
-          </div>
+          <v-list dense>
+            <v-subheader>ACTIONS</v-subheader>
+            <v-list-item>
+              <v-list-item-action>
+                <v-btn icon x-small>
+                  <PopUpInput
+                    :icon="'mdi-expand-all'"
+                    :label="'Pricer Name'"
+                    :color="'blue'"
+                    :title="'corevolFx Pricer'"
+                    :large="false"
+                    v-on:selection="UserAddPricer"
+                  />
+                </v-btn>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>ADD NEW</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-action>
+                <v-btn icon x-small>
+                  <PopUpModal
+                    :inputData="this.activePricers"
+                    :icon="'mdi-delete'"
+                    :color="'grey'"
+                    :large="false"
+                    :title="'REMOVE DVI'"
+                    v-on:selection="RemoveTab"
+                  />
+                </v-btn>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>DELETE</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+
+          <v-list dense class="mb-10">
+            <v-subheader>PRICER LAYOUT</v-subheader>
+            <v-list-item>
+              <PricerSetupInterface class="mb-10" />
+            </v-list-item>
+          </v-list>
         </v-card>
 
         <OptionPricer

@@ -3,16 +3,6 @@
     <RightNavDrawer v-bind:style="zoomLevel" />
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
-        <transition name="slide-fade">
-          <v-progress-linear
-            v-if="!dataReturned"
-            color="blue accent-4"
-            indeterminate
-            rounded
-            height="3"
-          ></v-progress-linear>
-        </transition>
-
         <v-toolbar color="#385F73" min-width="300" collapse>
           <v-btn icon>
             <v-icon
@@ -47,9 +37,9 @@
         <v-spacer />
         <v-btn
           v-if="!this.$store.state.rightSideNav"
-          class="mt-10 mr-5"
+          class="mt-10"
           absolute
-          small
+          x-small
           fab
           top
           right
@@ -61,86 +51,115 @@
           <v-icon>mdi-chevron-left</v-icon>
         </v-btn>
       </div>
-
+      <div class="d-flex flex-row flex-nowrap">
+        <v-progress-linear
+          :indeterminate="!dataReturned"
+          color="blue accent-4"
+          rounded
+          height="3"
+          bottom
+          background-opacity="0"
+        ></v-progress-linear>
+      </div>
       <transition name="fade">
         <div class="d-flex flex-row flex-nowrap" v-if="dataReturned">
           <div class="d-flex flex-column dviCol">
             <v-card
               v-if="showSideControl"
               min-width="225"
-              :height="window.height - 100"
-              shaped
+              :height="window.height"
               class="mr-3 d-flex flex-column"
             >
-              <TreeView
-                :inputData="{ list: this.activeDvis, listName: 'Active Dvi' }"
-                v-on:selection="ReloadDvi"
-              />
+              <v-spacer />
+              <v-list dense>
+                <v-subheader>ACTIVE DVI</v-subheader>
+                <v-list-item
+                  @click="ReloadDvi(item)"
+                  v-for="item in activeDvis"
+                  :key="item"
+                  ripple
+                >
+                  <v-list-item-action>
+                    <v-icon color="green darken-3">mdi-dots-grid</v-icon>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ item }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+              <v-spacer />
+              <v-list dense>
+                <v-subheader>ACTIONS</v-subheader>
+                <v-list-item>
+                  <v-list-item-action>
+                    <v-btn icon x-small>
+                      <PopUpModal
+                        :inputData="this.$store.state.crossList"
+                        :icon="'mdi-expand-all'"
+                        :color="'blue'"
+                        :large="false"
+                        :title="'ADD DVI'"
+                        v-on:selection="ReloadDvi"
+                      />
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>ADD NEW</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-action>
+                    <v-btn icon x-small>
+                      <PopUpModal
+                        :inputData="this.activeDvis"
+                        :icon="'mdi-delete'"
+                        :color="'grey'"
+                        :large="false"
+                        :title="'REMOVE DVI'"
+                        v-on:selection="RemoveTab"
+                      />
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>DELETE</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
+
               <v-spacer></v-spacer>
-              <v-card flat>
-                <v-switch
-                  :disabled="!this.$store.state.isAdmin"
-                  class="ml-3"
-                  color="success"
-                  inset
-                  v-model="autoSaveSwitch"
-                  :label="`AUTOSAVE ${autoSaveStatus}`"
-                ></v-switch>
-                <v-switch
-                  class="ml-3"
-                  color="indigo"
-                  inset
-                  v-model="dayWgtRangesSwitch"
-                  :label="`DAY WGT RANGES`"
-                ></v-switch>
-                <v-switch
-                  class="ml-3"
-                  color="#2E5266"
-                  v-if="ipvHasData"
-                  v-model="ipvSwitch"
-                  inset
-                  :label="`IPV VOLS`"
-                ></v-switch>
-              </v-card>
-              <v-card class="mb-10" rounded flat height="100" />
-              <v-btn
-                class="mb-10"
-                absolute
-                small
-                fab
-                bottom
-                left
-                color="pink"
-                elevation="21"
-              >
-                <PopUpModal
-                  :inputData="this.$store.state.crossList"
-                  :icon="'mdi-expand-all'"
-                  :color="'white'"
-                  :large="false"
-                  :title="'ADD DVI'"
-                  v-on:selection="ReloadDvi"
-                />
-              </v-btn>
-              <v-btn
-                class="mb-10"
-                absolute
-                small
-                fab
-                bottom
-                right
-                color="blue-grey"
-                elevation="21"
-              >
-                <PopUpModal
-                  :inputData="this.activeDvis"
-                  :icon="'mdi-delete'"
-                  :color="'white'"
-                  :large="false"
-                  :title="'REMOVE DVI'"
-                  v-on:selection="RemoveTab"
-                />
-              </v-btn>
+              <v-list dense>
+                <v-subheader>SETTINGS</v-subheader>
+                <v-list-item>
+                  <v-switch
+                    dense
+                    :disabled="!this.$store.state.isAdmin"
+                    color="success"
+                    inset
+                    v-model="autoSaveSwitch"
+                    :label="`AUTOSAVE ${autoSaveStatus}`"
+                  ></v-switch>
+                </v-list-item>
+
+                <v-list-item>
+                  <v-switch
+                    dense
+                    color="#126496"
+                    inset
+                    v-model="dayWgtRangesSwitch"
+                    :label="`DAY WGT RANGES`"
+                  ></v-switch>
+                </v-list-item>
+                <v-list-item>
+                  <v-switch
+                    dense
+                    color="#2E5266"
+                    v-if="ipvHasData"
+                    v-model="ipvSwitch"
+                    inset
+                    :label="`IPV VOLS`"
+                  ></v-switch>
+                </v-list-item>
+              </v-list>
             </v-card>
           </div>
 
@@ -247,7 +266,6 @@
               <IpvSurf v-if="ipvSwitch === true" class="ma-0" />
             </div>
           </div>
-
           <div class="d-flex flex-column dviCol">
             <DviTable />
           </div>
@@ -339,6 +357,10 @@ export default {
     };
   },
   computed: {
+    progressDelay() {
+      setTimeout(() => {}, 500);
+      return !dataReturned;
+    },
     autoSaveStatus() {
       return this.autoSaveSwitch === true ? "ON" : "OFF";
     },
@@ -643,6 +665,9 @@ $mainWidth: var(--main-width);
   display: flex;
   overflow-y: scroll;
   height: $mainHeight;
+}
+
+.topFixed {
 }
 
 .fade-enter {

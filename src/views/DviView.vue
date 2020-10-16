@@ -68,7 +68,7 @@
             <v-card
               v-if="showSideControl"
               min-width="225"
-              :height="window.height - 30"
+              :height="window.height - 100"
               shaped
               class="mr-3 d-flex flex-column"
             >
@@ -633,18 +633,16 @@ $mainWidth: var(--main-width);
 
 .overallContainer {
   display: flex;
-  overflow-x: scroll;
+  overflow: scroll;
   padding-left: 0px;
   padding-right: 0px;
   height: $mainHeight;
   width: $mainWidth;
 }
-.dviCol {
-  // float: left;
-  //   background: red;
-  //   height: 100%;
-
-  //   overflow: scroll;
+.overallContainer .dviCol {
+  display: flex;
+  overflow-y: scroll;
+  height: $mainHeight;
 }
 
 .fade-enter {

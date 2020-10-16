@@ -1,109 +1,113 @@
 <template>
-  <div>
-    <v-toolbar
-      class="ma-5"
-      color="#385F73"
-      min-width="300"
-      collapse
-      v-bind:style="zoomLevel"
-    >
-      <v-btn icon>
-        <v-icon
-          @click="showSideControl = !showSideControl"
-          color="blue lighten-2"
-          >{{ showSideControl ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon
+  <div class="overallContainer ml-5">
+    <div>
+      <div class="d-flex flex-row mb-5 flex-nowrap">
+        <v-toolbar
+          color="#385F73"
+          min-width="300"
+          collapse
+          v-bind:style="zoomLevel"
         >
-      </v-btn>
+          <v-btn icon>
+            <v-icon
+              @click="showSideControl = !showSideControl"
+              color="blue lighten-2"
+              >{{
+                showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
+              }}</v-icon
+            >
+          </v-btn>
 
-      <v-spacer></v-spacer>
-      <div class="d-flex flex-column">
-        <h4
-          class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-        >
-          corevolFX Pricer
-          <v-icon small color="green lighten-3" class="mb-4"
-            >mdi-cog-outline</v-icon
-          >
-        </h4>
-        <h6
-          class="font-weight-light text-center text-uppercase green--text text--lighten-3"
-          align="center"
-          justify="center"
-        >
-          {{ viewName }}
-        </h6>
+          <v-spacer></v-spacer>
+          <div class="d-flex flex-column">
+            <h4
+              class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+            >
+              corevolFX Pricer
+              <v-icon small color="green lighten-3" class="mb-4"
+                >mdi-cog-outline</v-icon
+              >
+            </h4>
+            <h6
+              class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+              align="center"
+              justify="center"
+            >
+              {{ viewName }}
+            </h6>
+          </div>
+          <v-spacer></v-spacer>
+        </v-toolbar>
       </div>
-      <v-spacer></v-spacer>
-    </v-toolbar>
-    <v-spacer />
 
-    <div class="d-flex flex-nowrap ma-5">
-      <v-card
-        v-if="showSideControl"
-        min-width="225"
-        shaped
-        class="mr-3 d-flex flex-column"
-        v-bind:style="zoomLevel"
-      >
-        <TreeView
-          :inputData="{
-            list: this.activePricers,
-            listName: 'Active Pricers'
-          }"
-          v-on:selection="ReloadPricer"
+      <div class="d-flex flex-row flex-nowrap">
+        <v-card
+          v-if="showSideControl"
+          min-width="225"
+          shaped
+          class="mr-3 d-flex flex-column"
+          v-bind:style="zoomLevel"
+        >
+          <TreeView
+            :inputData="{
+              list: this.activePricers,
+              listName: 'Active Pricers',
+            }"
+            v-on:selection="ReloadPricer"
+          />
+          <v-spacer />
+          <PricerSetupInterface class="mb-10" />
+          <div class="mt-10" />
+
+          <div>
+            <v-btn
+              class="mb-10"
+              absolute
+              small
+              fab
+              bottom
+              left
+              color="pink"
+              elevation="12"
+            >
+              <PopUpInput
+                :icon="'mdi-expand-all'"
+                :label="'Pricer Name'"
+                :color="'white'"
+                :title="'corevolFx Pricer'"
+                :large="false"
+                v-on:selection="UserAddPricer"
+              />
+            </v-btn>
+
+            <v-btn
+              class="mb-10"
+              absolute
+              small
+              fab
+              bottom
+              right
+              color="blue-grey"
+              elevation="12"
+            >
+              <PopUpModal
+                :inputData="this.activePricers"
+                :icon="'mdi-delete'"
+                :color="'white'"
+                :large="false"
+                :title="'REMOVE VIEW'"
+                v-on:selection="RemoveTab"
+              />
+            </v-btn>
+          </div>
+        </v-card>
+
+        <OptionPricer
+          :pricerName="viewName"
+          v-bind:style="zoomLevel"
+          :key="componentKey"
         />
-        <v-spacer />
-        <PricerSetupInterface class="mb-10" />
-        <div class="mt-10" />
-
-        <div>
-          <v-btn
-            class="mb-10"
-            absolute
-            small
-            fab
-            bottom
-            left
-            color="pink"
-            elevation="12"
-          >
-            <PopUpInput
-              :icon="'mdi-expand-all'"
-              :label="'Pricer Name'"
-              :color="'white'"
-              :title="'corevolFx Pricer'"
-              :large="false"
-              v-on:selection="UserAddPricer"
-            />
-          </v-btn>
-
-          <v-btn
-            class="mb-10"
-            absolute
-            small
-            fab
-            bottom
-            right
-            color="blue-grey"
-            elevation="12"
-          >
-            <PopUpModal
-              :inputData="this.activePricers"
-              :icon="'mdi-delete'"
-              :color="'white'"
-              :large="false"
-              :title="'REMOVE VIEW'"
-              v-on:selection="RemoveTab"
-            />
-          </v-btn>
-        </div>
-      </v-card>
-
-      <OptionPricer
-        :pricerName="viewName"
-        v-bind:style="zoomLevel"
-        :key="componentKey"
-      />
+      </div>
     </div>
   </div>
 </template>
@@ -116,7 +120,6 @@ import PopUpModal from "@/components/common/PopUpModal.vue";
 import PopUpInput from "@/components/common/PopUpInput.vue";
 import PricerSetupInterface from "@/components/pricer/PricerSetupInterface.vue";
 import { mapState } from "vuex";
-import { stat } from "fs";
 
 export default {
   name: "PricerView",
@@ -126,7 +129,7 @@ export default {
     TreeView,
     PopUpModal,
     PopUpInput,
-    PricerSetupInterface
+    PricerSetupInterface,
   },
 
   data() {
@@ -135,15 +138,22 @@ export default {
       activePricers: [],
       modalToggle: false,
       viewName: this.$route.params.viewName,
-      showSideControl: false
+      showSideControl: false,
+      window: {
+        width: 0,
+        height: 0,
+      },
     };
   },
   async created() {
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
+
     this.$store.dispatch("refreshCrossList");
 
     try {
       let response = await PricerApi.GetListOfActivePricers({
-        userName: this.currentUser
+        userName: this.currentUser,
       });
 
       this.activePricers = JSON.parse(response.data.activePricers);
@@ -153,45 +163,45 @@ export default {
     } catch (err) {
       this.$store.dispatch("setSnackbar", {
         text: `${err}  -method: Pricing(created)`,
-        top: true
+        top: true,
       });
     }
   },
 
   destroyed() {
     this.$store.dispatch("setPricerTab", this.viewName);
+    window.removeEventListener("resize", this.handleResize);
   },
   computed: {
     ...mapState({
-      crossList: state => state.crossList,
-      currentUser: state => state.currentUser,
-      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
-      pricerSetupClosed: state => state.pricerSetupClosed
+      crossList: (state) => state.crossList,
+      currentUser: (state) => state.currentUser,
+      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
+      pricerSetupClosed: (state) => state.pricerSetupClosed,
     }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level
+        zoom: level,
       };
     },
-    mainWindowHeight() {
-      return window.innerHeight - 125;
-    },
-    mainWindowWidth() {
-      return window.innerWidth - 10;
-    },
-    divStyle() {
-      return;
-      ` display: flex;
-        overflow-x: scroll;
-        padding-left: 0px;
-        padding-right: 0px;
-        width: ${this.mainWindowWidth}px;
-        height: ${this.mainWindowHeight}px;`;
-    }
   },
 
   methods: {
+    handleResize() {
+      this.window.width = window.innerWidth;
+      this.window.height = window.innerHeight - 65;
+
+      document.documentElement.style.setProperty(
+        "--main-width",
+        `${this.window.width}px`
+      );
+
+      document.documentElement.style.setProperty(
+        "--main-height",
+        `${this.window.height}px`
+      );
+    },
     UserAddPricer(value) {
       if (this.activePricers.indexOf(value) === -1) {
         this.AddNewPricer(value.toUpperCase());
@@ -219,7 +229,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `Must have at least one Pricer. Add a new one before deleting ${this.viewName}`,
-          top: true
+          top: true,
         });
 
         return;
@@ -234,19 +244,19 @@ export default {
       try {
         let response = await PricerApi.RemovePricerFromUse({
           userName: this.currentUser,
-          PricerData: { PricerTitle: item }
+          PricerData: { PricerTitle: item },
         });
 
         this.activePricers = JSON.parse(response.data.listOfActivePricers);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  -method: RemoveTab`,
-          top: true
+          top: true,
         });
       }
 
       this.ReloadPricer(redirectTo);
-    }
+    },
   },
   watch: {
     crossList() {
@@ -260,12 +270,15 @@ export default {
 
     activePricerLayoutTitle() {
       this.componentKey += 1;
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style>
+<style lang="scss">
+$mainHeight: var(--main-height);
+$mainWidth: var(--main-width);
+
 span {
   cursor: pointer;
 }
@@ -276,5 +289,14 @@ span {
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+
+.overallContainer {
+  display: flex;
+  overflow: scroll;
+  padding-left: 0px;
+  padding-right: 0px;
+  height: $mainHeight;
+  width: $mainWidth;
 }
 </style>

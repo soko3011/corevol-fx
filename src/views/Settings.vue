@@ -1,50 +1,46 @@
 <template>
-  <div class="d-flex flex-column">
+  <v-container fluid class="overallContainer">
     <div>
-      <v-toolbar color="#126496" min-width="300" collapse>
-        <v-spacer></v-spacer>
-        <div class="d-flex flex-column">
-          <h4
-            class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-          >
-            Corevolfx
-            <v-icon small color="green lighten-3" class="mb-4"
-              >mdi-cog-outline</v-icon
+      <div class="d-flex flex-row mb-5 flex-nowrap">
+        <v-toolbar color="#126496" min-width="300" collapse>
+          <v-spacer></v-spacer>
+          <div class="d-flex flex-column">
+            <h4
+              class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
             >
-          </h4>
-          <h6
-            class="font-weight-light text-center text-uppercase green--text text--lighten-3"
-            align="center"
-            justify="center"
-          >
-            settings
-          </h6>
-        </div>
-        <v-spacer></v-spacer>
-      </v-toolbar>
-    </div>
-    <div
-      class="d-flex flex-nowrap align-start justify-start"
-      v-bind:style="zoomLevel"
-    >
-      <v-card
-        min-width="225"
-        :height="mainWindowHeight"
-        shaped
-        class="mr-3 mt-8"
-       
-      >
-        <TreeView
-          :inputData="{
-            list: this.settingHeaders,
-            listName: 'Corevolfx Options'
-          }"
-          v-on:selection="ChangeSettings"
-        />
-      </v-card>
+              Corevolfx
+              <v-icon small color="green lighten-3" class="mb-4"
+                >mdi-cog-outline</v-icon
+              >
+            </h4>
+            <h6
+              class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+              align="center"
+              justify="center"
+            >
+              settings
+            </h6>
+          </div>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+      </div>
+      <div class="d-flex flex-row flex-nowrap align-start justify-start">
+        <v-card
+          min-width="225"
+          :height="window.height - 100"
+          shaped
+          class="mr-5"
+        >
+          <TreeView
+            :inputData="{
+              list: this.settingHeaders,
+              listName: 'Corevolfx Options',
+            }"
+            v-on:selection="ChangeSettings"
+          />
+        </v-card>
 
-      <v-container :style="containerStyle">
-        <div v-bind:style="zoomLevel" class="mt-5">
+        <div v-bind:style="zoomLevel" class="divCol">
           <transition name="slide">
             <DviSetup v-if="settingSelection === 'Dvi Settings'" />
           </transition>
@@ -55,9 +51,9 @@
             <CcySetup v-if="settingSelection === 'Ccy Settings'" />
           </transition>
         </div>
-      </v-container>
+      </div>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -70,9 +66,20 @@ import TreeView from "@/components/common/TreeView.vue";
 
 export default {
   name: "Setup",
+  created() {
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
+  },
+  destroyed() {
+    window.removeEventListener("resize", this.handleResize);
+  },
   data: () => ({
     settingHeaders: ["Dvi Settings", "Cross Settings", "Ccy Settings"],
-    settingSelection: "Dvi Settings"
+    settingSelection: "Dvi Settings",
+    window: {
+      width: 0,
+      height: 0,
+    },
   }),
 
   components: {
@@ -80,43 +87,59 @@ export default {
     CrossSetup,
     CcySetup,
     PopUpModal,
-    TreeView
+    TreeView,
   },
 
   computed: {
     zoomLevel() {
-      var level = window.innerWidth > 1700 ? "100%" : "95%";
+      var level = window.innerWidth > 1700 ? "100%" : "90%";
       return {
-        zoom: level
-        
+        zoom: level,
       };
     },
-    mainWindowHeight() {
-      return window.innerHeight - 120;
-    },
-    mainWindowWidth() {
-      return window.innerWidth - 30;
-    },
-    containerStyle() {
-      return ` display: flex;
-            overflow-x: scroll;
-            padding-left: 0px;
-            padding-right: 0px;
-            width: ${this.mainWindowWidth}px;
-            height: ${this.mainWindowHeight}px;`;
-    },
-    
   },
 
   methods: {
     ChangeSettings(setting) {
       this.settingSelection = setting;
-    }
-  }
+    },
+    handleResize() {
+      this.window.width = window.innerWidth;
+      this.window.height = window.innerHeight - 65;
+
+      document.documentElement.style.setProperty(
+        "--main-width",
+        `${this.window.width}px`
+      );
+
+      document.documentElement.style.setProperty(
+        "--main-height",
+        `${this.window.height}px`
+      );
+    },
+  },
 };
 </script>
 
-<style>
+
+<style lang="scss">
+$mainHeight: var(--main-height);
+$mainWidth: var(--main-width);
+
+.overallContainer {
+  display: flex;
+  overflow: scroll;
+  padding-left: 0px;
+  padding-right: 0px;
+  height: $mainHeight;
+  width: $mainWidth;
+}
+
+.overallContainer .dviCol {
+  display: flex;
+  overflow-y: scroll;
+}
+
 .slide-enter-active {
   transition: 0.75s;
 }

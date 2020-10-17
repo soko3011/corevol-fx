@@ -3,7 +3,7 @@
     <router-view :key="$route.fullPath"></router-view>
     <div class="text-center ma-2">
       <v-snackbar
-        class="mt-10 mb-10"
+        class=""
         rounded="pill"
         :centered="snackbar.centered"
         :bottom="snackbar.bottom"

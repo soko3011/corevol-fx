@@ -10,7 +10,7 @@
             >
               Corevolfx
               <v-icon small color="green lighten-3" class="mb-4"
-                >mdi-cog-outline</v-icon
+                >mdi-dots-hexagon</v-icon
               >
             </h4>
             <h6

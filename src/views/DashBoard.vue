@@ -17,23 +17,29 @@
         <template v-slot:activator="{ on, attrs }">
           <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
         </template>
-        <v-card>
-          <v-list>
-            <v-list-item-group mandatory color="indigo">
-              <Draggable :list="surfs">
-                <v-list-item v-for="item in surfs" :key="item.Cross">
-                  <v-list-item-action>
+        <v-card width="5000">
+          <v-row dense>
+            <v-col cols="3" v-for="(colMenu, index) in setupMenu" :key="index">
+              <v-card>
+                <draggable
+                  :list="colMenu"
+                  v-bind="dragOptions"
+                  :move="onMove"
+                  @start="isDragging = true"
+                  @end="isDragging = false"
+                >
+                  <v-card v-for="item in colMenu" :key="item.Cross">
                     <v-switch
                       v-model="item.Show"
+                      :label="item.Cross"
                       color="green lighten-2"
+                      @change="createMenuColumns()"
                     ></v-switch>
-                  </v-list-item-action>
-                  <v-list-item-title>{{ item.Cross }}</v-list-item-title>
-                </v-list-item>
-              </Draggable>
-            </v-list-item-group>
-          </v-list>
-
+                  </v-card>
+                </draggable>
+              </v-card>
+            </v-col>
+          </v-row>
           <v-card-actions>
             <v-spacer></v-spacer>
 
@@ -98,39 +104,6 @@ import Draggable from "vuedraggable";
 import TreeView from "@/components/common/TreeView.vue";
 
 export default {
-  data: () => ({
-    drag: false,
-    surfs: [],
-    menu: false,
-    window: {
-      width: 0,
-      height: 0,
-    },
-    firstWarningColor: "#2DCA61",
-    secondWarningColor: "#71B7F9",
-    thirdWarningColor: "#FC6949",
-  }),
-
-  components: {
-    DashBoardSurf,
-    Draggable,
-    TreeView,
-  },
-  computed: {
-    zoomLevel() {
-      var level = window.innerWidth > 1700 ? "90%" : "80%";
-      return {
-        zoom: level,
-      };
-    },
-    userPrefs() {
-      return this.$store.state.dashBoardPrefs;
-    },
-
-    activeSurfs() {
-      return this.surfs.filter((item) => item.Show === true);
-    },
-  },
   async created() {
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
@@ -158,12 +131,105 @@ export default {
         top: true,
       });
     }
+    this.createMenuColumns();
+    console.log(this.menu);
   },
   destroyed() {
     window.removeEventListener("resize", this.handleResize);
   },
 
+  data: () => ({
+    isDragging: false,
+    delayedDragging: false,
+    surfs: [],
+    menu: false,
+    window: {
+      width: 0,
+      height: 0,
+    },
+    firstWarningColor: "#2DCA61",
+    secondWarningColor: "#71B7F9",
+    thirdWarningColor: "#FC6949",
+    setupMenu: {
+      firstCol: [],
+      secondCol: [],
+      thirdCol: [],
+      inactive: [],
+    },
+  }),
+
+  components: {
+    DashBoardSurf,
+    Draggable,
+    TreeView,
+  },
+  computed: {
+    dragOptions() {
+      return {
+        animation: 0,
+        group: "description",
+        disabled: false,
+        ghostClass: "ghost",
+      };
+    },
+    zoomLevel() {
+      var level = window.innerWidth > 1700 ? "90%" : "80%";
+      return {
+        zoom: level,
+      };
+    },
+    userPrefs() {
+      return this.$store.state.dashBoardPrefs;
+    },
+
+    activeSurfs() {
+      return this.surfs.filter((item) => item.Show === true);
+    },
+  },
+
   methods: {
+    createMenuColumns() {
+      this.setupMenu.firstCol = [];
+      this.setupMenu.secondCol = [];
+      this.setupMenu.thirdCol = [];
+      this.setupMenu.inactive = [];
+
+      const active = this.surfs.filter((x) => x.Show === true);
+      for (let i = 0; i < active.length; i = i + 3) {
+        if (active[i] !== undefined) this.setupMenu.firstCol.push(active[i]);
+        if (active[i + 1] !== undefined)
+          this.setupMenu.secondCol.push(active[i + 1]);
+        if (active[i + 2] !== undefined)
+          this.setupMenu.thirdCol.push(active[i + 2]);
+      }
+      this.setupMenu.inactive = this.surfs.filter((x) => x.Show === false);
+    },
+    recombineSurfs() {
+      const maxArrLength = Math.max(
+        this.setupMenu.firstCol.length,
+        this.setupMenu.secondCol.length,
+        this.setupMenu.thirdCol.length
+      );
+      let combinedArray = [];
+      for (let i = 0; i < maxArrLength; i++) {
+        if (this.setupMenu.firstCol[i] !== undefined)
+          combinedArray.push(this.setupMenu.firstCol[i]);
+        if (this.setupMenu.secondCol[i] !== undefined)
+          combinedArray.push(this.setupMenu.secondCol[i]);
+        if (this.setupMenu.thirdCol[i] !== undefined)
+          combinedArray.push(this.setupMenu.thirdCol[i]);
+      }
+      combinedArray.push(...this.setupMenu.inactive);
+
+      return combinedArray;
+    },
+    onMove({ relatedContext, draggedContext }) {
+      const relatedElement = relatedContext.element;
+      const draggedElement = draggedContext.element;
+      return (
+        (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
+      );
+    },
     handleResize() {
       this.window.width = window.innerWidth;
       this.window.height = window.innerHeight - 65;
@@ -181,8 +247,10 @@ export default {
 
     async saveSetup() {
       try {
-        let prefs = this.surfs.map(({ Cross, Show }) => ({ Cross, Show }));
-        console.log(prefs);
+        let prefs = this.recombineSurfs().map(({ Cross, Show }) => ({
+          Cross,
+          Show,
+        }));
 
         let response = await DviApi.saveUserDashBoardPrefs({
           UserName: this.$store.state.currentUser,
@@ -273,7 +341,19 @@ export default {
       }
     },
   },
-  watch: {},
+  watch: {
+    isDragging(newValue) {
+      if (newValue) {
+        this.delayedDragging = true;
+        return;
+      }
+      this.$nextTick(() => {
+        this.delayedDragging = false;
+      });
+
+      this.surfs = this.recombineSurfs();
+    },
+  },
 };
 </script>
 

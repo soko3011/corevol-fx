@@ -20,12 +20,7 @@
         <v-card>
           <v-list>
             <v-list-item-group mandatory color="indigo">
-              <Draggable
-                :style="zoomLevel"
-                :list="surfs"
-                @start="drag = true"
-                @end="drag = false"
-              >
+              <Draggable :list="surfs">
                 <v-list-item v-for="item in surfs" :key="item.Cross">
                   <v-list-item-action>
                     <v-switch

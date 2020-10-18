@@ -113,8 +113,6 @@ export default {
       "--warning-color",
       `${this.warningColor}`
     );
-
-    console.log(this.warningColor);
   },
 };
 </script>

@@ -139,7 +139,7 @@ export default {
       activePricers: [],
       modalToggle: false,
       viewName: this.$route.params.viewName,
-      showSideControl: false,
+      showSideControl: true,
       window: {
         width: 0,
         height: 0,

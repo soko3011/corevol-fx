@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="overallContainer">
+  <div class="overallContainer ml-5">
     <RightNavDrawer v-bind:style="zoomLevel" />
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
@@ -276,7 +276,7 @@
         </div>
       </transition>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <script>

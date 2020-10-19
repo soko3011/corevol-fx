@@ -1,26 +1,41 @@
-
-
 <template>
   <div>
     <v-toolbar dark dense color="#126496" class="mb-6">
       <v-icon>mdi-dots-hexagon</v-icon>
       <v-toolbar-title class="ml-3">DASHBOARD</v-toolbar-title>
       <v-spacer></v-spacer>
-
-      <v-menu
+      <v-dialog
         v-model="menu"
-        :close-on-content-click="false"
-        bottom
-        origin="center center"
+        persistent
+        max-width="700"
         transition="scale-transition"
       >
         <template v-slot:activator="{ on, attrs }">
           <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
         </template>
-        <v-card width="5000">
-          <v-row dense>
-            <v-col cols="3" v-for="(colMenu, index) in setupMenu" :key="index">
-              <v-card>
+        <v-card color="grey lighten-1">
+          <v-container>
+            <v-row dense class="mr-5">
+              <v-col
+                cols="3"
+                v-for="(header, index) in menuColHeaders"
+                :key="index"
+              >
+                <h4
+                  class="ml-5 green--text text--darken-3"
+                  align="center"
+                  justify="center"
+                >
+                  {{ header }}
+                </h4>
+              </v-col>
+            </v-row>
+            <v-row dense class="mr-5">
+              <v-col
+                cols="3"
+                v-for="(colMenu, index) in setupMenu"
+                :key="index"
+              >
                 <draggable
                   :list="colMenu"
                   v-bind="dragOptions"
@@ -28,26 +43,33 @@
                   @start="isDragging = true"
                   @end="isDragging = false"
                 >
-                  <v-card v-for="item in colMenu" :key="item.Cross">
+                  <v-card
+                    v-for="item in colMenu"
+                    width="150"
+                    :key="item.Cross"
+                    class="ma-5"
+                    elevation="5"
+                  >
                     <v-switch
+                      class="ml-2"
                       v-model="item.Show"
                       :label="item.Cross"
-                      color="green lighten-2"
+                      color="#126496"
                       @change="createMenuColumns()"
                     ></v-switch>
                   </v-card>
                 </draggable>
-              </v-card>
-            </v-col>
-          </v-row>
+              </v-col>
+            </v-row>
+          </v-container>
           <v-card-actions>
             <v-spacer></v-spacer>
-
             <v-btn text @click="menu = false">Cancel</v-btn>
             <v-btn color="primary" text @click="saveSetup">Save</v-btn>
+            <v-spacer></v-spacer>
           </v-card-actions>
         </v-card>
-      </v-menu>
+      </v-dialog>
     </v-toolbar>
 
     <v-row no-gutters>
@@ -105,17 +127,15 @@ import TreeView from "@/components/common/TreeView.vue";
 
 export default {
   async created() {
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
     try {
       let response = await DviApi.GetDashBoardSurfs({
-        userName: this.$store.state.currentUser,
+        userName: this.$store.state.currentUser
       });
       let rawData = JSON.parse(response.data.dashBoardSurfs);
 
       if (this.userPrefs !== null) {
         for (var item of this.userPrefs) {
-          const rawSurf = rawData.find((x) => x.Cross === item.Cross);
+          const rawSurf = rawData.find(x => x.Cross === item.Cross);
           rawSurf.Show = rawSurf !== undefined ? item.Show : rawSurf.Show;
 
           this.surfs.push(rawSurf);
@@ -128,14 +148,10 @@ export default {
     } catch (error) {
       this.$store.dispatch("setSnackbar", {
         text: `${error} source: DashBoard.vue-created`,
-        top: true,
+        top: true
       });
     }
     this.createMenuColumns();
-    console.log(this.menu);
-  },
-  destroyed() {
-    window.removeEventListener("resize", this.handleResize);
   },
 
   data: () => ({
@@ -145,7 +161,7 @@ export default {
     menu: false,
     window: {
       width: 0,
-      height: 0,
+      height: 0
     },
     firstWarningColor: "#2DCA61",
     secondWarningColor: "#71B7F9",
@@ -154,14 +170,15 @@ export default {
       firstCol: [],
       secondCol: [],
       thirdCol: [],
-      inactive: [],
+      inactive: []
     },
+    menuColHeaders: ["COLUMN ONE", "COLUMN TWO", "COLUMN THREE", "INACTIVE"]
   }),
 
   components: {
     DashBoardSurf,
     Draggable,
-    TreeView,
+    TreeView
   },
   computed: {
     dragOptions() {
@@ -169,13 +186,13 @@ export default {
         animation: 0,
         group: "description",
         disabled: false,
-        ghostClass: "ghost",
+        ghostClass: "ghost"
       };
     },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "90%" : "80%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
     userPrefs() {
@@ -183,8 +200,8 @@ export default {
     },
 
     activeSurfs() {
-      return this.surfs.filter((item) => item.Show === true);
-    },
+      return this.surfs.filter(item => item.Show === true);
+    }
   },
 
   methods: {
@@ -194,7 +211,7 @@ export default {
       this.setupMenu.thirdCol = [];
       this.setupMenu.inactive = [];
 
-      const active = this.surfs.filter((x) => x.Show === true);
+      const active = this.surfs.filter(x => x.Show === true);
       for (let i = 0; i < active.length; i = i + 3) {
         if (active[i] !== undefined) this.setupMenu.firstCol.push(active[i]);
         if (active[i + 1] !== undefined)
@@ -202,7 +219,7 @@ export default {
         if (active[i + 2] !== undefined)
           this.setupMenu.thirdCol.push(active[i + 2]);
       }
-      this.setupMenu.inactive = this.surfs.filter((x) => x.Show === false);
+      this.setupMenu.inactive = this.surfs.filter(x => x.Show === false);
     },
     recombineSurfs() {
       const maxArrLength = Math.max(
@@ -230,40 +247,25 @@ export default {
         (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed
       );
     },
-    handleResize() {
-      this.window.width = window.innerWidth;
-      this.window.height = window.innerHeight - 65;
-
-      document.documentElement.style.setProperty(
-        "--main-width",
-        `${this.window.width}px`
-      );
-
-      document.documentElement.style.setProperty(
-        "--main-height",
-        `${this.window.height}px`
-      );
-    },
-
     async saveSetup() {
       try {
         let prefs = this.recombineSurfs().map(({ Cross, Show }) => ({
           Cross,
-          Show,
+          Show
         }));
 
         let response = await DviApi.saveUserDashBoardPrefs({
           UserName: this.$store.state.currentUser,
-          DashBoardUI: JSON.stringify(prefs),
+          DashBoardUI: JSON.stringify(prefs)
         });
         this.$store.dispatch("setSnackbar", {
           text: `DashBoard Layout Saved`,
-          centered: true,
+          centered: true
         });
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: DashBoard.vue-saveSetup`,
-          bottom: true,
+          bottom: true
         });
       }
       this.menu = false;
@@ -272,14 +274,14 @@ export default {
       this.$store.dispatch("setActivecross", item);
       this.$router.push({
         name: "Dvi",
-        params: { ccyPair: item.Cross },
+        params: { ccyPair: item.Cross }
       });
     },
     singleSurf(item) {
       var surf = [{}];
       surf = JSON.parse(item.Surface);
 
-      surf = surf.map((row) => {
+      surf = surf.map(row => {
         const {
           DK_EFF, // eslint-disable-line no-unused-vars
           IPV_ATM, // eslint-disable-line no-unused-vars
@@ -290,7 +292,7 @@ export default {
           ...rest // eslint-disable-line no-unused-vars
         } = row; // eslint-disable-line no-unused-vars
         return {
-          ...rest,
+          ...rest
         };
       });
 
@@ -339,7 +341,7 @@ export default {
       if (warningColor === this.thirdWarningColor) {
         return "mdi-battery-low";
       }
-    },
+    }
   },
   watch: {
     isDragging(newValue) {
@@ -352,22 +354,7 @@ export default {
       });
 
       this.surfs = this.recombineSurfs();
-    },
-  },
+    }
+  }
 };
 </script>
-
-
-<style lang="scss">
-$mainHeight: var(--main-height);
-$mainWidth: var(--main-width);
-
-.overallContainer {
-  display: flex;
-  overflow: scroll;
-  padding-left: 0px;
-  padding-right: 0px;
-  height: $mainHeight;
-  width: $mainWidth;
-}
-</style>

@@ -523,9 +523,10 @@ const actions = {
 const getters = {
   activeCrossGetter(state) {
     if (
-      state.activecross === null ||
-      !state.activecross === undefined ||
-      state.activecross === ""
+      (state.activecross === null ||
+        !state.activecross === undefined ||
+        state.activecross === "",
+      state.activecross.length !== 6)
     ) {
       return state.userPrefCross;
     } else return state.activecross;

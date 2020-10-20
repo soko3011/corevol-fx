@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <v-btn @click="dev" /> -->
+    <v-btn @click="dev" />
     <v-progress-linear
       active
       :indeterminate="loading"
@@ -33,7 +33,7 @@ import { mapState } from "vuex";
 export default {
   name: "optionPricer",
   components: {
-    PricerSetup,
+    PricerSetup
   },
   created() {
     window.addEventListener("resize", this.handleResize);
@@ -47,7 +47,7 @@ export default {
     window.removeEventListener("resize", this.handleResize);
   },
   props: {
-    pricerName: { type: String, default: "" },
+    pricerName: { type: String, default: "" }
   },
   data() {
     return {
@@ -67,15 +67,15 @@ export default {
       storedData: [],
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   computed: {
     ...mapState({
-      defaultPricerKeyGroups: (state) => state.defaultPricerKeyGroups,
-      userPricerLayoutPrefs: (state) => state.userPricerLayoutPrefs,
-      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
+      defaultPricerKeyGroups: state => state.defaultPricerKeyGroups,
+      userPricerLayoutPrefs: state => state.userPricerLayoutPrefs,
+      activePricerLayoutTitle: state => state.activePricerLayoutTitle
     }),
     combinedPricerLayouts() {
       const userLayouts = [];
@@ -106,7 +106,7 @@ export default {
         onchange: this.updateOption,
         freezeColumns: 2,
         tableWidth: `${this.window.width}px`,
-        tableHeight: `${this.window.height}px`,
+        tableHeight: `${this.window.height}px`
       };
     },
     crossListData() {
@@ -232,12 +232,47 @@ export default {
       );
 
       return arr;
-    },
+    }
   },
   methods: {
-    dev() {
-      // console.log(this.setPricerKeys());
-      console.log(this.pricerKeys);
+    async dev() {
+      this.loading = true;
+      try {
+        let response = await PricerApi.calculateSpread(this.optContainer);
+        console.log(this.optContainer);
+        console.log(this.optData);
+        let singleOpt = JSON.parse(response.data.result);
+
+        // var optValues = [];
+        // for (var cell of this.pricerKeys) {
+        //   var index = singleOpt.findIndex(p => p.Key == cell);
+        //   optValues.push(singleOpt[index].Value);
+        // }
+
+        // this.replaceSingleOpt(optValues, col);
+        // this.formatComplete();
+        // this.emptyCol();
+        // this.setAppendUnitsToCells(
+        //   this.keyVal("Cross"),
+        //   this.keyVal("PremiumType")
+        // );
+
+        // this.jExcelObj.updateSelectionFromCoords(
+        //   this.col,
+        //   this.row,
+        //   this.col,
+        //   this.row
+        // );
+
+        this.loading = false;
+      } catch (err) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${err}  source:SpreadCalculator`,
+          top: true
+        });
+      }
+
+      console.log(this.optContainer);
     },
     shadeColor(color, percent) {
       var R = parseInt(color.substring(1, 3), 16);
@@ -291,7 +326,7 @@ export default {
       );
     },
     appendBaseUnitsToCells(col) {
-      this.AlwaysBaseUnitsList.forEach((element) => {
+      this.AlwaysBaseUnitsList.forEach(element => {
         if (this.pricerKeys.indexOf(element) > -1) {
           const cell = this.getCell(col, this.keyRow(element));
           cell.classList.add("baseUnit");
@@ -299,7 +334,7 @@ export default {
       });
     },
     appendTermsUnitsToCells(col) {
-      this.AlwaysTermsUnitsList.forEach((element) => {
+      this.AlwaysTermsUnitsList.forEach(element => {
         if (this.pricerKeys.indexOf(element) > -1) {
           const cell = this.getCell(col, this.keyRow(element));
           cell.classList.add("termsUnit");
@@ -314,7 +349,7 @@ export default {
         classType = "termsUnit";
       }
 
-      this.variableUnits.forEach((element) => {
+      this.variableUnits.forEach(element => {
         if (this.pricerKeys.indexOf(element) > -1) {
           const cell = this.getCell(col, this.keyRow(element));
           cell.classList.add(classType);
@@ -386,15 +421,15 @@ export default {
       }
     },
     initializeFxOpt() {
-      var newOpt = { name: this.col.toString() }; //create new opt object
-      var index = this.optContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optContainer
+      var newOpt = { name: (this.col - 1).toString() }; //create new opt object
+      var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
       if (index === -1) {
         this.optContainer.push(newOpt);
-        index = this.optContainer.findIndex((x) => x.name == newOpt.name);
+        index = this.optContainer.findIndex(x => x.name == newOpt.name);
       }
       this.optData = this.optContainer[index]; //set current option from container.
       Object.assign(this.optData, {
-        userName: this.$store.state.currentUser,
+        userName: this.$store.state.currentUser
       });
     },
     async validateCrossAndSetSpot(activeCol, crossVal) {
@@ -408,7 +443,7 @@ export default {
 
         Object.assign(this.optData, {
           cross: this.keyVal("Cross"),
-          spot: this.keyVal("Spot").toString(),
+          spot: this.keyVal("Spot").toString()
         });
 
         this.recordCellPosition(this.pricerName);
@@ -421,7 +456,7 @@ export default {
         "expiryText",
         "strikeText",
         "call_put",
-        "userName",
+        "userName"
       ];
 
       for (const key of essentialKeys) {
@@ -442,7 +477,7 @@ export default {
 
           var optValues = [];
           for (var cell of this.pricerKeys) {
-            var index = singleOpt.findIndex((p) => p.Key == cell);
+            var index = singleOpt.findIndex(p => p.Key == cell);
             optValues.push(singleOpt[index].Value);
           }
 
@@ -465,7 +500,7 @@ export default {
         } catch (err) {
           this.$store.dispatch("setSnackbar", {
             text: `${err}  source:OptCalculation`,
-            top: true,
+            top: true
           });
         }
       }
@@ -481,12 +516,12 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a valid Premium Type`,
-            top: true,
+            top: true
           });
           return;
         }
         Object.assign(this.optData, {
-          premiumType: userInput,
+          premiumType: userInput
         });
         this.sendToServerForCalc(this.optData, activeCol);
       }
@@ -503,7 +538,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -526,7 +561,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -548,7 +583,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -566,7 +601,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -584,7 +619,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -602,7 +637,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -624,7 +659,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -642,7 +677,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -664,7 +699,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -686,7 +721,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -701,10 +736,14 @@ export default {
           return;
         }
 
-        if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
+        if (
+          !/^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/.test(
+            userInput
+          )
+        ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -742,7 +781,7 @@ export default {
           if (!/^[0-9]+([,.][0-9]+)?$/.test(checkSpot)) {
             this.$store.dispatch("setSnackbar", {
               text: `${checkSpot} is not valid. Please enter a number`,
-              top: true,
+              top: true
             });
             return;
           }
@@ -822,7 +861,7 @@ export default {
     },
     setCellPosition() {
       var setCellPos = this.cellPosContainer.find(
-        (x) => x.pricer === this.pricerName
+        x => x.pricer === this.pricerName
       );
       if (setCellPos === undefined) {
         this.selectCell(0, 1);
@@ -874,7 +913,7 @@ export default {
       try {
         let response = await PricerApi.getSingleSpotLiveForce({
           cross: cross,
-          UserName: this.$store.state.currentUser,
+          UserName: this.$store.state.currentUser
         });
         const spotData = JSON.parse(response.data.singleSpot);
         this.jExcelObj.ignoreEvents = true;
@@ -900,7 +939,7 @@ export default {
       try {
         let response = await PricerApi.GetSurfaceStatus({
           cross: cross,
-          userName: this.$store.state.currentUser,
+          userName: this.$store.state.currentUser
         });
 
         let lastUpdate = moment(
@@ -916,20 +955,20 @@ export default {
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: GetSurfaceStatus`,
-          top: true,
+          top: true
         });
         this.loading = false;
       }
     },
     setPricerKeys() {
       return this.pricerSettingsObj
-        .filter((item) => item.Show === true)
-        .map((group) => group.Keys)
+        .filter(item => item.Show === true)
+        .map(group => group.Keys)
         .flat();
     },
     setInitalData(keys) {
       let newArr = [];
-      keys.forEach((element) => {
+      keys.forEach(element => {
         newArr.push(["", element]);
       });
       return newArr;
@@ -938,8 +977,8 @@ export default {
       this.pricerSetupToggle = val;
     },
     updatePricerLayout(updatedSettings) {
-      var hiddenGroups = updatedSettings.filter((item) => item.Show !== true);
-      var shownGroups = updatedSettings.filter((item) => item.Show === true);
+      var hiddenGroups = updatedSettings.filter(item => item.Show !== true);
+      var shownGroups = updatedSettings.filter(item => item.Show === true);
 
       for (const keyGroup of hiddenGroups) {
         let keys = keyGroup.Keys;
@@ -1052,6 +1091,7 @@ export default {
         this.col > this.keyCol
       ) {
         event.preventDefault();
+
         const firstLetter = event.key;
         this.eventListenerToggle = false;
         document.addEventListener("keydown", this.autoFillCell);
@@ -1090,12 +1130,12 @@ export default {
         this.col > this.keyCol
       ) {
         event.preventDefault();
-        radio.addRadio(this.jExcelObj, this.getCell(this.col, this.row));
-        // dropDownList.addDowpDown(
-        //   this.jExcelObj,
-        //   this.getCell(this.col, this.row),
-        //   ["CALL", "PUT"]
-        // );
+
+        dropDownList.addDowpDown(
+          this.jExcelObj,
+          this.getCell(this.col, this.row),
+          ["CALL", "PUT"]
+        );
       }
     },
     expiryCalendar(event) {
@@ -1131,7 +1171,7 @@ export default {
       if (event.code == "KeyR" && event.ctrlKey) {
         event.preventDefault();
         var newOpt = { name: this.col.toString() }; //create new opt object
-        var index = this.optContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optContainer
+        var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
         if (index != -1) {
           this.optData = this.optContainer[index]; //set current option from container.
           this.sendToServerForCalc(this.optData, this.col);
@@ -1163,7 +1203,7 @@ export default {
         event.preventDefault();
         this.$router.push({
           name: "Dvi",
-          params: { ccyPair: this.keyVal("Cross") },
+          params: { ccyPair: this.keyVal("Cross") }
         });
       }
     },
@@ -1191,7 +1231,7 @@ export default {
           }
         }, 500);
       });
-      getUserSelection.then((result) => {
+      getUserSelection.then(result => {
         const cell = this.getCell(this.col, this.row);
         dropDownList.closeEditor(this.jExcelObj, cell, result);
       });
@@ -1282,12 +1322,12 @@ export default {
     },
     copyOpt(col) {
       var fxOptResult = this.jExcelObj.getColumnData(col);
-      var optObj = this.optContainer.filter(function (opt) {
-        return opt.name == col;
+      var optObj = this.optContainer.filter(function(opt) {
+        return opt.name == col - 1;
       });
       var newOpt = this.copyObj(optObj[0]);
-      newOpt.name = (col + 1).toString();
-      var index = this.optContainer.findIndex((x) => x.name == newOpt.name);
+      newOpt.name = col.toString();
+      var index = this.optContainer.findIndex(x => x.name == newOpt.name);
       if (index > 0) {
         this.optContainer[index] = newOpt;
       } else {
@@ -1300,10 +1340,10 @@ export default {
       this.formatComplete();
     },
     delOpt(col, offset) {
-      var optObj = this.optContainer.filter(function (opt) {
-        return opt.name == col;
+      var optObj = this.optContainer.filter(function(opt) {
+        return opt.name == col - 1;
       });
-      var index = this.optContainer.findIndex((x) => x.name == optObj[0].name);
+      var index = this.optContainer.findIndex(x => x.name == optObj[0].name);
       this.optContainer.splice(index, 1);
       this.removeRedCellsFromArray();
       this.replaceSingleOpt(this.emptyCol(), col);
@@ -1345,29 +1385,24 @@ export default {
           PricerTitle: this.pricerName,
           ActivePricerGridDataJSON: JSON.stringify(this.jExcelObj.getData()),
           UserOverwrittenInputsJSON: JSON.stringify(this.redObj),
-          ActiveOptionsContainerJSON: JSON.stringify(this.optContainer),
-        },
+          ActiveOptionsContainerJSON: JSON.stringify(this.optContainer)
+        }
       };
-      PricerApi.ReturnCurrentOpts(StoredActivePricerData).then((response) => {
-        console.log(response);
-        console.log(StoredActivePricerData);
-      });
+      PricerApi.ReturnCurrentOpts(StoredActivePricerData).then(response => {});
     },
     recordCellPosition() {
       var recordCellPos = {
         col: this.col,
-        pricer: this.pricerName,
+        pricer: this.pricerName
       };
-      var isDup = this.cellPosContainer.find(
-        (x) => x.pricer === this.pricerName
-      );
+      var isDup = this.cellPosContainer.find(x => x.pricer === this.pricerName);
       var index = this.cellPosContainer.indexOf(isDup);
       if (index === -1) {
         this.cellPosContainer.push(recordCellPos);
       } else {
         this.cellPosContainer[index] = recordCellPos;
       }
-    },
+    }
   },
   async mounted() {
     if (Object.keys(this.defaultPricerKeyGroups).length === 0) {
@@ -1377,9 +1412,9 @@ export default {
       "setPricerNew",
       this.pricerName
     );
-    console.log(this.storedData);
+
     this.pricerSettingsObj = this.combinedPricerLayouts.find(
-      (x) => x.title === this.activePricerLayoutTitle
+      x => x.title === this.activePricerLayoutTitle
     ).layout;
 
     this.pricerKeys = this.setPricerKeys();
@@ -1413,8 +1448,8 @@ export default {
       } else {
         document.removeEventListener("keydown", this.eventListeners);
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

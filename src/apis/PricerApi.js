@@ -22,6 +22,9 @@ export default {
   ReCalcOpt(body) {
     return Api.post("FxOpt", body);
   },
+  calculateSpread(body) {
+    return Api.post("CalculateSpread", body);
+  },
   GetSurfaceStatus(body) {
     return Api.post("GetSurfaceStatus", body);
   },

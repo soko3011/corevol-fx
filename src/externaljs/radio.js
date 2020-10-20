@@ -1,5 +1,57 @@
 import jSuites from "jsuites";
 
+export function createEditor(cell, value, obj) {
+  // Create dropdown
+  var editor = document.createElement("input");
+  editor.type = "radio";
+  editor.checked =
+    value == 1 || value == true || value == "true" ? true : false;
+  // Edit cell
+  cell.classList.add("editor");
+  cell.innerHTML = "";
+  cell.appendChild(editor);
+  obj.setValue(cell, this.checked);
+
+  editor.onclick = function() {
+    cell.classList.remove("readonly");
+    var editor = document.createElement("input");
+    editor.type = "radio";
+    editor.checked =
+      value == 1 || value == true || value == "true" ? true : false;
+    // Edit cell
+    cell.classList.add("editor");
+    cell.innerHTML = "";
+    cell.appendChild(editor);
+    obj.setValue(cell, this.checked);
+  };
+
+  return editor;
+}
+
+export function closeEditor(obj, cell) {
+  var x = parseInt(cell.getAttribute("data-x"));
+  var y = parseInt(cell.getAttribute("data-y"));
+  var value = "";
+
+  // On edition end
+  if (!obj.ignoreEvents) {
+    if (typeof obj.options.oneditionend === "function") {
+      obj.options.oneditionend(el, cell, x, y, value, true);
+    }
+  }
+
+  var value = !cell.children[0].checked;
+  console.log(value);
+  console.log("CUNT");
+  // Toogle value
+  obj.setValue(cell, value);
+
+  cell.classList.remove("editor");
+
+  // Finish edition
+  obj.edition = null;
+}
+
 export function addRadio(obj, cell) {
   // Get cell position
   var y = cell.getAttribute("data-y");

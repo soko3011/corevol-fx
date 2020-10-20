@@ -242,6 +242,7 @@ export default {
         console.log(this.optContainer);
         console.log(this.optData);
         let singleOpt = JSON.parse(response.data.result);
+        console.log(singleOpt);
 
         // var optValues = [];
         // for (var cell of this.pricerKeys) {

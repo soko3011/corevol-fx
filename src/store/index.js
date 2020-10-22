@@ -44,7 +44,8 @@ const state = {
   },
   activePricerLayoutTitle: "Trader",
   pricerSetupToggle: false,
-  pricerSetupClosed: false
+  pricerSetupClosed: false,
+  pricerShowTotalsToggle: false
 };
 
 const mutations = {
@@ -53,6 +54,9 @@ const mutations = {
     if (data === "setupClosed") {
       state.pricerSetupClosed = !state.pricerSetupClosed;
     }
+  },
+  SET_PRICER_SHOW_TOTALS(state) {
+    state.pricerShowTotalsToggle = !state.pricerShowTotalsToggle;
   },
   SET_ACTIVE_PRICERLAYOUT_TITLE(state, data) {
     state.activePricerLayoutTitle = data;
@@ -242,6 +246,9 @@ const actions = {
   },
   toggleRightNav({ commit }) {
     commit("TOGGLE_RIGHT_NAV");
+  },
+  togglePriceShowTotals({ commit }) {
+    commit("SET_PRICER_SHOW_TOTALS");
   },
   async getBrowserTimezone() {
     try {

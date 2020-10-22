@@ -67,6 +67,14 @@
             <v-subheader>ACTIONS</v-subheader>
             <v-list-item>
               <v-list-item-action>
+                <v-switch dense ripple v-model="totalsToggle"></v-switch>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>SHOW TOTALS</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-action>
                 <v-btn icon x-small>
                   <PopUpInput
                     :icon="'mdi-expand-all'"
@@ -105,6 +113,7 @@
 
         <OptionPricer
           :pricerName="viewName"
+          :totalsToggle="totalsToggle"
           v-bind:style="zoomLevel"
           :key="componentKey"
         />
@@ -135,6 +144,7 @@ export default {
 
   data() {
     return {
+      totalsToggle: false,
       componentKey: 0,
       activePricers: [],
       modalToggle: false,

@@ -283,6 +283,12 @@ export default {
 
         this.formatComplete();
 
+        this.setAppendUnitsToCells(
+          this.keyVal("Cross"),
+          this.keyVal("PremiumType"),
+          0
+        );
+
         this.jExcelObj.updateSelectionFromCoords(
           this.col,
           this.row,
@@ -380,13 +386,13 @@ export default {
         }
       });
     },
-    setAppendUnitsToCells(cross, premiumType) {
-      if (this.col > this.keyCol) {
+    setAppendUnitsToCells(cross, premiumType, col) {
+      if (col > this.keyCol || col === 0) {
         this.clearUnitsClasses();
         this.setBaseAndTermsUnits(cross);
-        this.appendBaseUnitsToCells(this.col);
-        this.appendTermsUnitsToCells(this.col);
-        this.appendVariableUnitsToCells(this.col, premiumType);
+        this.appendBaseUnitsToCells(col);
+        this.appendTermsUnitsToCells(col);
+        this.appendVariableUnitsToCells(col, premiumType);
       }
     },
     selectionActive(instance, x1, y1, x2, y2) {
@@ -509,7 +515,8 @@ export default {
           this.formatComplete();
           this.setAppendUnitsToCells(
             this.keyVal("Cross"),
-            this.keyVal("PremiumType")
+            this.keyVal("PremiumType"),
+            col
           );
 
           this.jExcelObj.updateSelectionFromCoords(
@@ -1201,6 +1208,22 @@ export default {
         }
       }
     },
+    flipNotional(event) {
+      if (
+        event.code === "Space" &&
+        this.row === this.keyRow("Notional") &&
+        this.col > this.keyCol
+      ) {
+        event.preventDefault();
+        console.log("cunt ");
+        this.jExcelObj.setValueFromCoords(
+          this.col,
+          this.keyRow("Notional"),
+          this.keyVal("Notional") * -1,
+          true
+        );
+      }
+    },
     hardCodeStrike(event) {
       if (
         event.code === "Space" &&
@@ -1208,7 +1231,6 @@ export default {
         this.col > this.keyCol
       ) {
         event.preventDefault();
-
         this.jExcelObj.setValueFromCoords(
           this.col,
           this.keyRow("StrikeText"),
@@ -1240,7 +1262,8 @@ export default {
       this.spaceBarToDvi(event); //space bar
       this.callPutDropDown(event); //space bar
       this.expiryCalendar(event); //space bar
-      this.hardCodeStrike(event);
+      this.hardCodeStrike(event); //spacebar
+      this.flipNotional(event); //spacebar
     },
     autoFillCell() {
       const getUserSelection = new Promise((resolve, reject) => {
@@ -1480,7 +1503,7 @@ export default {
     Object.assign(this, { jExcelObj });
     jExcelObj.hideIndex();
 
-    this.restorePricerData(this.storedData);
+    // this.restorePricerData(this.storedData);
     this.setCellPosition(this.pricerName);
     this.formatComplete();
   },
@@ -1493,7 +1516,8 @@ export default {
       if (this.keyVal("SystemVol") !== "") {
         this.setAppendUnitsToCells(
           this.keyVal("Cross"),
-          this.keyVal("PremiumType")
+          this.keyVal("PremiumType"),
+          this.col
         );
       }
     },

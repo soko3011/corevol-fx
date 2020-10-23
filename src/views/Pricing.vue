@@ -70,8 +70,8 @@
                 <v-switch
                   dense
                   ripple
-                  v-model="totalsToggle"
                   @change="toggleTotalsSwitch"
+                  v-model="totalsToggle"
                 ></v-switch>
               </v-list-item-action>
               <v-list-item-content>
@@ -118,7 +118,6 @@
 
         <OptionPricer
           :pricerName="viewName"
-          :totalsToggle="totalsToggle"
           v-bind:style="zoomLevel"
           :key="componentKey"
         />
@@ -144,7 +143,7 @@ export default {
     TreeView,
     PopUpModal,
     PopUpInput,
-    PricerSetupInterface
+    PricerSetupInterface,
   },
 
   data() {
@@ -157,8 +156,8 @@ export default {
       showSideControl: true,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   async created() {
@@ -169,7 +168,7 @@ export default {
 
     try {
       let response = await PricerApi.GetListOfActivePricers({
-        userName: this.currentUser
+        userName: this.currentUser,
       });
 
       this.activePricers = JSON.parse(response.data.activePricers);
@@ -179,7 +178,7 @@ export default {
     } catch (err) {
       this.$store.dispatch("setSnackbar", {
         text: `${err}  -method: Pricing(created)`,
-        top: true
+        top: true,
       });
     }
   },
@@ -190,18 +189,18 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: state => state.crossList,
-      currentUser: state => state.currentUser,
-      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
-      pricerSetupClosed: state => state.pricerSetupClosed,
-      totalsToggle: state => state.pricerShowTotalsToggle
+      crossList: (state) => state.crossList,
+      currentUser: (state) => state.currentUser,
+      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
+      pricerSetupClosed: (state) => state.pricerSetupClosed,
+      totalsToggle: (state) => state.pricerShowTotalsToggle,
     }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level
+        zoom: level,
       };
-    }
+    },
   },
 
   methods: {
@@ -249,7 +248,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `Must have at least one Pricer. Add a new one before deleting ${this.viewName}`,
-          top: true
+          top: true,
         });
 
         return;
@@ -264,19 +263,19 @@ export default {
       try {
         let response = await PricerApi.RemovePricerFromUse({
           userName: this.currentUser,
-          PricerData: { PricerTitle: item }
+          PricerData: { PricerTitle: item },
         });
 
         this.activePricers = JSON.parse(response.data.listOfActivePricers);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  -method: RemoveTab`,
-          top: true
+          top: true,
         });
       }
 
       this.ReloadPricer(redirectTo);
-    }
+    },
   },
   watch: {
     crossList() {
@@ -290,8 +289,8 @@ export default {
 
     activePricerLayoutTitle() {
       this.componentKey += 1;
-    }
-  }
+    },
+  },
 };
 </script>
 

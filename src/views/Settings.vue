@@ -58,6 +58,9 @@
           <transition name="slide">
             <CcySetup v-if="settingSelection === 'Ccy Settings'" />
           </transition>
+          <transition name="slide">
+            <UserSettings v-if="settingSelection === 'User Settings'" />
+          </transition>
         </div>
       </div>
     </div>
@@ -68,9 +71,9 @@
 import DviSetup from "@/components/settings/DviSetup.vue";
 import CrossSetup from "@/components/settings/CrossSetup.vue";
 import CcySetup from "@/components/settings/CcySetup.vue";
+import UserSettings from "@/components/settings/UserSettings.vue";
 import SettingsApi from "@/apis/SettingsApi";
 import PopUpModal from "@/components/common/PopUpModal.vue";
-import TreeView from "@/components/common/TreeView.vue";
 
 export default {
   name: "Setup",
@@ -82,12 +85,17 @@ export default {
     window.removeEventListener("resize", this.handleResize);
   },
   data: () => ({
-    settingHeaders: ["Dvi Settings", "Cross Settings", "Ccy Settings"],
+    settingHeaders: [
+      "Dvi Settings",
+      "Cross Settings",
+      "Ccy Settings",
+      "User Settings"
+    ],
     settingSelection: "Dvi Settings",
     window: {
       width: 0,
-      height: 0,
-    },
+      height: 0
+    }
   }),
 
   components: {
@@ -95,16 +103,16 @@ export default {
     CrossSetup,
     CcySetup,
     PopUpModal,
-    TreeView,
+    UserSettings
   },
 
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "90%";
       return {
-        zoom: level,
+        zoom: level
       };
-    },
+    }
   },
 
   methods: {
@@ -124,11 +132,10 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
-    },
-  },
+    }
+  }
 };
 </script>
-
 
 <style lang="scss">
 $mainHeight: var(--main-height);

@@ -120,6 +120,7 @@
           :pricerName="viewName"
           v-bind:style="zoomLevel"
           :key="componentKey"
+          :activePricers="activePricers"
         />
       </div>
     </div>
@@ -134,6 +135,7 @@ import PopUpModal from "@/components/common/PopUpModal.vue";
 import PopUpInput from "@/components/common/PopUpInput.vue";
 import PricerSetupInterface from "@/components/pricer/PricerSetupInterface.vue";
 import { mapState } from "vuex";
+import { statSync } from "fs";
 
 export default {
   name: "Pricer",
@@ -143,12 +145,12 @@ export default {
     TreeView,
     PopUpModal,
     PopUpInput,
-    PricerSetupInterface,
+    PricerSetupInterface
   },
 
   data() {
     return {
-      // totalsToggle: false,
+      totalsToggle: false,
       componentKey: 0,
       activePricers: [],
       modalToggle: false,
@@ -156,8 +158,8 @@ export default {
       showSideControl: true,
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   async created() {
@@ -168,7 +170,7 @@ export default {
 
     try {
       let response = await PricerApi.GetListOfActivePricers({
-        userName: this.currentUser,
+        userName: this.currentUser
       });
 
       this.activePricers = JSON.parse(response.data.activePricers);
@@ -178,7 +180,7 @@ export default {
     } catch (err) {
       this.$store.dispatch("setSnackbar", {
         text: `${err}  -method: Pricing(created)`,
-        top: true,
+        top: true
       });
     }
   },
@@ -189,18 +191,18 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: (state) => state.crossList,
-      currentUser: (state) => state.currentUser,
-      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
-      pricerSetupClosed: (state) => state.pricerSetupClosed,
-      totalsToggle: (state) => state.pricerShowTotalsToggle,
+      crossList: state => state.crossList,
+      currentUser: state => state.currentUser,
+      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
+      pricerSetupClosed: state => state.pricerSetupClosed,
+      totalsToggleStore: state => state.pricerShowTotalsToggle
     }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level,
+        zoom: level
       };
-    },
+    }
   },
 
   methods: {
@@ -220,6 +222,23 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
+    },
+    addStrategyView(strat) {
+      let stratName = `${strat.optData.cross}.${strat.strategy}`;
+      let checkindex = this.activePricers.indexOf(stratName.toUpperCase());
+
+      let i = 1;
+
+      while (checkindex > -1) {
+        stratName = `${strat.optData.cross}.${strat.strategy}.${i}`;
+        checkindex = this.activePricers.indexOf(stratName.toUpperCase());
+        i++;
+      }
+
+      this.$route.params.viewName = stratName.toUpperCase();
+      this.$router
+        .push({ name: this.$route.name, viewName: view })
+        .catch(() => {});
     },
     UserAddPricer(value) {
       if (this.activePricers.indexOf(value) === -1) {
@@ -248,7 +267,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `Must have at least one Pricer. Add a new one before deleting ${this.viewName}`,
-          top: true,
+          top: true
         });
 
         return;
@@ -263,19 +282,19 @@ export default {
       try {
         let response = await PricerApi.RemovePricerFromUse({
           userName: this.currentUser,
-          PricerData: { PricerTitle: item },
+          PricerData: { PricerTitle: item }
         });
 
         this.activePricers = JSON.parse(response.data.listOfActivePricers);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  -method: RemoveTab`,
-          top: true,
+          top: true
         });
       }
 
       this.ReloadPricer(redirectTo);
-    },
+    }
   },
   watch: {
     crossList() {
@@ -290,7 +309,10 @@ export default {
     activePricerLayoutTitle() {
       this.componentKey += 1;
     },
-  },
+    totalsToggleStore() {
+      this.totalsToggle = this.totalsToggleStore;
+    }
+  }
 };
 </script>
 

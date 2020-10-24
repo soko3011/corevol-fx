@@ -1,13 +1,5 @@
 import jexcel from "jexcel";
 
-export function setColWidths(numberOfColumns, width) {
-  var colWidths = [];
-  for (var c = 0; c < numberOfColumns; c++) {
-    colWidths.push(width);
-  }
-  return colWidths;
-}
-
 export function shadeColor(color, percent) {
   var R = parseInt(color.substring(1, 3), 16);
   var G = parseInt(color.substring(3, 5), 16);

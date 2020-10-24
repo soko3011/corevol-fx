@@ -23,12 +23,11 @@ import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as dropDownList from "@/externaljs/dropDownList.js"; // eslint-disable-line no-unused-vars
 import * as calendar from "@/externaljs/calendar.js"; // eslint-disable-line no-unused-vars
-import * as radio from "@/externaljs/radio.js"; // eslint-disable-line no-unused-vars
 import PricerApi from "@/apis/PricerApi";
 import alphabetJson from "./Alphabet.json";
-import * as utils from "./pricerUtils.js";
-import cssClassHelper from "./cssClassHelper.js";
-import eventHelper from "./eventHelper.js";
+import * as utils from "./helpers/pricerUtils.js";
+import cssClassHelper from "./helpers/cssClassHelper.js";
+import eventHelper from "./helpers/eventHelper.js";
 import PricerSetup from "@/components/pricer/PricerSetup.vue";
 import moment from "moment";
 import { mapState } from "vuex";
@@ -1017,59 +1016,7 @@ export default {
         }
       }
     },
-    crossDropDown(event) {
-      const isLetter = /^[a-z]$/i.test(event.key);
-      if (
-        this.row === this.keyRow("Cross") &&
-        (event.code === "Space" || isLetter) &&
-        this.col > this.keyCol
-      ) {
-        event.preventDefault();
 
-        const firstLetter = event.key;
-        this.eventListenerToggle = false;
-        document.addEventListener("keydown", this.autoFillCell);
-
-        if (this.keyVal("Cross") !== "") {
-          this.delOpt(this.col, 0);
-        }
-
-        dropDownList.addDowpDown(
-          this.jExcelObj,
-          utils.getCell(this.col, this.row, this.jExcelObj),
-          this.crossListData,
-          firstLetter
-        );
-      }
-    },
-
-    callPutDropDown(event) {
-      if (
-        event.code === "Space" &&
-        this.row === this.keyRow("Call_Put") &&
-        this.col > this.keyCol
-      ) {
-        event.preventDefault();
-
-        dropDownList.addDowpDown(
-          this.jExcelObj,
-          utils.getCell(this.col, this.row, this.jExcelObj),
-          ["CALL", "PUT"]
-        );
-      }
-    },
-    expiryCalendar(event) {
-      if (
-        event.code === "Space" &&
-        this.row === this.keyRow("ExpiryText") &&
-        this.col > this.keyCol
-      ) {
-        event.preventDefault();
-        const cell = utils.getCell(this.col, this.row, this.jExcelObj);
-
-        calendar.addCalendar(this.jExcelObj, cell);
-      }
-    },
     copyOptEvent(event) {
       if (event.code == "KeyP" && event.ctrlKey) {
         event.preventDefault();
@@ -1099,79 +1046,52 @@ export default {
         }
       }
     },
-    flipNotional(event) {
-      if (
-        event.code === "Space" &&
-        this.row === this.keyRow("Notional") &&
-        this.col > this.keyCol
-      ) {
-        event.preventDefault();
 
-        this.jExcelObj.setValueFromCoords(
-          this.col,
-          this.keyRow("Notional"),
-          this.keyVal("Notional") * -1,
-          true
-        );
-      }
-    },
-    showTotals(event) {
-      if (event.code == "KeyW" && event.ctrlKey) {
-        event.preventDefault();
-
-        this.$store.dispatch("togglePriceShowTotals");
-      }
-    },
-    hardCodeStrike(event) {
-      if (
-        event.code === "Space" &&
-        this.row === this.keyRow("StrikeText") &&
-        this.col > this.keyCol
-      ) {
-        event.preventDefault();
-        this.jExcelObj.setValueFromCoords(
-          this.col,
-          this.keyRow("StrikeText"),
-          this.keyVal("K"),
-          true
-        );
-      }
-    },
-    spaceBarToDvi(event) {
-      if (
-        event.code === "Space" &&
-        this.row === this.keyRow("UserVol") &&
-        this.col != 0
-      ) {
-        event.preventDefault();
-        this.$router.push({
-          name: "Dvi",
-          params: { ccyPair: this.keyVal("Cross") },
-        });
-      }
-    },
     eventListeners(event) {
-      let eventHelper = new eventHelper(
+      let helper = new eventHelper(
         event,
         this.pricerKeys,
         this.keyCol,
         this.jExcelObj
       );
 
-      eventHelper.premiumTypeDropDown(this.row, this.col); //spacebar
+      helper.premiumTypeDropDown(this.row, this.col); //spacebar
+      helper.callPutToggle(this.row, this.col, this.keyVal("Call_Put")); //spacebar
+      helper.flipNotional(this.row, this.col, this.keyVal("Notional")); //spacebar
+      helper.showTotals(); //ctrl w
+      helper.expiryCalendar(this.row, this.col); //spacebar
+      helper.hardCodeStrike(this.row, this.col, this.keyVal("K")); //spacebar
+      helper.spaceBarToDvi(this.row, this.col, this.keyVal("Cross")); //spacebar
+
+      this.crossDropDown(event);
       this.copyOptEvent(event); // ctrl P
       this.deleteAllOptsEvent(event); //ctrl D
       this.deleteSingleOptEvent(event); //ctrl Q
       this.refreshSingleOptEvent(event); //ctrl R
-      this.crossDropDown(event); // any lettter
-      this.spaceBarToDvi(event); //space bar
-      this.callPutDropDown(event); //space bar
-      this.expiryCalendar(event); //space bar
-      this.hardCodeStrike(event); //spacebar
-      this.flipNotional(event); //spacebar
-      this.showTotals(event); //ctrl w
     },
-    autoFillCell() {
+    crossDropDown(event) {
+      const isLetter = /^[a-z]$/i.test(event.key);
+      if (
+        this.row === this.keyRow("Cross") &&
+        (event.code === "Space" || isLetter) &&
+        this.col > this.keyCol
+      ) {
+        event.preventDefault();
+        const firstLetter = event.key;
+        this.eventListenerToggle = false;
+        document.addEventListener("keydown", this.autoFillCrossDropDownEvent);
+        if (this.keyVal("Cross") !== "") {
+          this.delOpt(this.col, 0);
+        }
+        dropDownList.addDowpDown(
+          this.jExcelObj,
+          this.getCell(this.col, this.row),
+          this.crossListData,
+          firstLetter
+        );
+      }
+    },
+    autoFillCrossDropDownEvent() {
       const getUserSelection = new Promise((resolve, reject) => {
         setTimeout(() => {
           var elements = document.getElementsByClassName(
@@ -1186,6 +1106,11 @@ export default {
       getUserSelection.then((result) => {
         const cell = utils.getCell(this.col, this.row, this.jExcelObj);
         dropDownList.closeEditor(this.jExcelObj, cell, result);
+        document.addEventListener("keydown", this.eventListeners);
+        document.removeEventListener(
+          "keydown",
+          this.autoFillCrossDropDownEvent
+        );
       });
     },
     setVolStatus(lastUpdate) {
@@ -1453,7 +1378,10 @@ export default {
     eventListenerToggle() {
       if (this.eventListenerToggle === true) {
         document.addEventListener("keydown", this.eventListeners);
-        document.removeEventListener("keydown", this.autoFillCell);
+        document.removeEventListener(
+          "keydown",
+          this.autoFillCrossDropDownEvent
+        );
       } else {
         document.removeEventListener("keydown", this.eventListeners);
       }

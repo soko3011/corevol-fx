@@ -26,6 +26,9 @@ import * as calendar from "@/externaljs/calendar.js"; // eslint-disable-line no-
 import * as radio from "@/externaljs/radio.js"; // eslint-disable-line no-unused-vars
 import PricerApi from "@/apis/PricerApi";
 import alphabetJson from "./Alphabet.json";
+import * as utils from "./pricerUtils.js";
+import cssClassHelper from "./cssClassHelper.js";
+import eventHelper from "./eventHelper.js";
 import PricerSetup from "@/components/pricer/PricerSetup.vue";
 import moment from "moment";
 import { mapState } from "vuex";
@@ -33,7 +36,7 @@ import { mapState } from "vuex";
 export default {
   name: "optionPricer",
   components: {
-    PricerSetup
+    PricerSetup,
   },
   created() {
     window.addEventListener("resize", this.handleResize);
@@ -48,7 +51,7 @@ export default {
   },
   props: {
     pricerName: { type: String, default: "" },
-    activePricers: { type: Array }
+    activePricers: { type: Array },
   },
   data() {
     return {
@@ -68,16 +71,17 @@ export default {
       storedData: [],
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   computed: {
     ...mapState({
-      defaultPricerKeyGroups: state => state.defaultPricerKeyGroups,
-      userPricerLayoutPrefs: state => state.userPricerLayoutPrefs,
-      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
-      totalsToggle: state => state.pricerShowTotalsToggle
+      defaultPricerKeyGroups: (state) => state.defaultPricerKeyGroups,
+      userPricerLayoutPrefs: (state) => state.userPricerLayoutPrefs,
+      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
+      totalsToggle: (state) => state.pricerShowTotalsToggle,
+      crossListData: (state) => state.crossList,
     }),
     combinedPricerLayouts() {
       const userLayouts = [];
@@ -102,17 +106,14 @@ export default {
         tableOverflow: true,
         columns: this.setReadOnly(),
         colHeaders: this.setHeaders(),
-        colWidths: this.setColWidths(),
+        colWidths: utils.setColWidths(50, 135),
         minDimensions: [50],
         onselection: this.selectionActive,
         onchange: this.updateOption,
         freezeColumns: 2,
         tableWidth: `${this.window.width}px`,
-        tableHeight: `${this.window.height}px`
+        tableHeight: `${this.window.height}px`,
       };
-    },
-    crossListData() {
-      return this.$store.state.crossList;
     },
     keyCol() {
       return this.setHeaders().indexOf("Key");
@@ -130,7 +131,6 @@ export default {
         this.keyRow("AtmVol"),
         this.keyRow("Rr"),
         this.keyRow("Fly"),
-
         this.keyRow("RrMult"),
         this.keyRow("FlyMult"),
         this.keyRow("ForDepo"),
@@ -168,77 +168,10 @@ export default {
       arr.push(this.keyRow("Cross"), this.keyRow("PremiumType"));
       return arr;
     },
-    AlwaysBaseUnitsList() {
-      let arr = [];
-      arr.push(
-        "Delta",
-        "Fwd_Delta",
-        "DeltaAmt",
-        "Fwd_DeltaAmt",
-        "Gamma",
-        "GammaAmt",
-        "SDelta",
-        "Fwd_SDelta",
-        "SDeltaAmt",
-        "Fwd_SDeltaAmt",
-        "SGamma",
-        "SGammaAmt",
-        "ForDepo",
-        "DfForExp",
-        "DfForDel"
-      );
-
-      return arr;
-    },
-    AlwaysTermsUnitsList() {
-      let arr = [];
-      arr.push("DomDepo", "DfDomExp", "DfDomDel");
-
-      return arr;
-    },
-    variableUnits() {
-      let arr = [];
-      arr.push(
-        "Price",
-        "Fwd_Price",
-        "Vega",
-        "Theta",
-        "Vanna",
-        "Volga",
-        "SVega",
-        "SVolga",
-        "SVanna",
-        "STheta",
-        "PremiumAmt",
-        "Fwd_PremiumAmt",
-        "VegaAmt",
-        "ThetaAmt",
-        "SVegaAmt",
-        "SThetaAmt",
-        "VannaAmt",
-        "VolgaAmt",
-        "SVannaAmt",
-        "SVolgaAmt",
-        "Rega25",
-        "Rega10",
-        "Sega25",
-        "Sega10",
-        "Rega25Amt",
-        "Rega10Amt",
-        "Sega25Amt",
-        "Sega10Amt",
-        "Rho_Dom",
-        "Rho_DomAmt",
-        "Rho_For",
-        "Rho_ForAmt"
-      );
-
-      return arr;
-    }
   },
   methods: {
     dev() {
-      console.log(this.optContainer);
+      this.createRR();
     },
     sendToServerForCalc(optData, col) {
       if (this.totalsToggle) {
@@ -259,7 +192,7 @@ export default {
 
         var optValues = [];
         for (var cell of this.pricerKeys) {
-          var index = totals.findIndex(x => x.Key === cell);
+          var index = totals.findIndex((x) => x.Key === cell);
 
           if (index > -1) {
             optValues.push(totals[index].Value);
@@ -268,13 +201,13 @@ export default {
 
         this.replaceSingleOpt(optValues, 0);
 
-        individuals.forEach(element => {
+        individuals.forEach((element) => {
           const colNum =
-            parseInt(element.filter(x => x.Key === "id")[0].Value) + 1;
+            parseInt(element.filter((x) => x.Key === "id")[0].Value) + 1;
 
           var optValues = [];
           for (var cell of this.pricerKeys) {
-            var index = element.findIndex(x => x.Key === cell);
+            var index = element.findIndex((x) => x.Key === cell);
 
             if (index > -1) {
               optValues.push(element[index].Value);
@@ -286,11 +219,16 @@ export default {
 
         this.formatComplete();
 
-        this.setAppendUnitsToCells(
+        let cssHelper = new cssClassHelper(
           this.keyVal("Cross"),
           this.keyVal("PremiumType"),
-          0
+          col,
+          this.keyCol,
+          this.pricerKeys,
+          this.jExcelObj
         );
+
+        cssHelper.setAppendUnitsToCells();
 
         this.jExcelObj.updateSelectionFromCoords(
           this.col,
@@ -302,7 +240,7 @@ export default {
         if (!this.isSingleCrossInPricer()) {
           this.$store.dispatch("setSnackbar", {
             text: "SINGLE CURRENCY REQUIRED FOR TOTALS",
-            top: true
+            top: true,
           });
 
           this.$store.dispatch("togglePriceShowTotals");
@@ -312,101 +250,16 @@ export default {
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  source:SpreadCalculator`,
-          top: true
+          top: true,
         });
       }
     },
-    shadeColor(color, percent) {
-      var R = parseInt(color.substring(1, 3), 16);
-      var G = parseInt(color.substring(3, 5), 16);
-      var B = parseInt(color.substring(5, 7), 16);
 
-      R = parseInt((R * (100 + percent)) / 100);
-      G = parseInt((G * (100 + percent)) / 100);
-      B = parseInt((B * (100 + percent)) / 100);
-
-      R = R < 255 ? R : 255;
-      G = G < 255 ? G : 255;
-      B = B < 255 ? B : 255;
-
-      var RR =
-        R.toString(16).length == 1 ? "0" + R.toString(16) : R.toString(16);
-      var GG =
-        G.toString(16).length == 1 ? "0" + G.toString(16) : G.toString(16);
-      var BB =
-        B.toString(16).length == 1 ? "0" + B.toString(16) : B.toString(16);
-
-      return "#" + RR + GG + BB;
-    },
     handleResize() {
       this.window.width = window.innerWidth - 100;
       this.window.height = window.innerHeight - 65;
     },
-    clearUnitsClasses() {
-      var cellsWithBaseUnitsClass = document.getElementsByClassName("baseUnit");
-      while (cellsWithBaseUnitsClass.length)
-        cellsWithBaseUnitsClass[0].classList.remove("baseUnit");
 
-      var cellsWithBaseUnitsClass = document.getElementsByClassName(
-        "termsUnit"
-      );
-      while (cellsWithBaseUnitsClass.length)
-        cellsWithBaseUnitsClass[0].classList.remove("termsUnit");
-    },
-    setBaseAndTermsUnits(cross) {
-      const baseUnits = cross.slice(0, 3).toLowerCase();
-      const termsUnits = cross.slice(-3).toLowerCase();
-
-      document.documentElement.style.setProperty(
-        "--base-units",
-        `"${baseUnits}"`
-      );
-
-      document.documentElement.style.setProperty(
-        "--terms-units",
-        `"${termsUnits}"`
-      );
-    },
-    appendBaseUnitsToCells(col) {
-      this.AlwaysBaseUnitsList.forEach(element => {
-        if (this.pricerKeys.indexOf(element) > -1) {
-          const cell = this.getCell(col, this.keyRow(element));
-          cell.classList.add("baseUnit");
-        }
-      });
-    },
-    appendTermsUnitsToCells(col) {
-      this.AlwaysTermsUnitsList.forEach(element => {
-        if (this.pricerKeys.indexOf(element) > -1) {
-          const cell = this.getCell(col, this.keyRow(element));
-          cell.classList.add("termsUnit");
-        }
-      });
-    },
-    appendVariableUnitsToCells(col, premiumType) {
-      let classType = "";
-      if (premiumType === "Base_Pct" || premiumType === "Base_Pips") {
-        classType = "baseUnit";
-      } else {
-        classType = "termsUnit";
-      }
-
-      this.variableUnits.forEach(element => {
-        if (this.pricerKeys.indexOf(element) > -1) {
-          const cell = this.getCell(col, this.keyRow(element));
-          cell.classList.add(classType);
-        }
-      });
-    },
-    setAppendUnitsToCells(cross, premiumType, col) {
-      if (col > this.keyCol || col === 0) {
-        this.clearUnitsClasses();
-        this.setBaseAndTermsUnits(cross);
-        this.appendBaseUnitsToCells(col);
-        this.appendTermsUnitsToCells(col);
-        this.appendVariableUnitsToCells(col, premiumType);
-      }
-    },
     selectionActive(instance, x1, y1, x2, y2) {
       this.row = y1;
       this.col = x1;
@@ -432,7 +285,7 @@ export default {
       if (this.keyVal("Cross") !== "") {
         if (this.userEditableCells.indexOf(this.row) !== -1) {
           if (x1 > 1) {
-            var cell = this.getCell(x1, y1);
+            var cell = utils.getCell(x1, y1, this.jExcelObj);
             cell.classList.add("userEditCell");
           }
         }
@@ -442,14 +295,14 @@ export default {
           this.keyVal("PremiumType") !== ""
         ) {
           if (x1 > 1) {
-            var cell = this.getCell(x1, y1);
+            var cell = utils.getCell(x1, y1, this.jExcelObj);
             cell.classList.add("dropDownCells");
           }
         }
 
         if (this.nonReadOnlyList.indexOf(this.row) !== -1) {
           if (x1 > 1) {
-            var cell = this.getCell(x1, y1);
+            var cell = utils.getCell(x1, y1, this.jExcelObj);
             cell.classList.remove("readonly");
           }
         }
@@ -457,21 +310,21 @@ export default {
 
       if (this.row === this.keyRow("Cross") && this.keyVal("Cross") === "") {
         if (x1 > 1) {
-          var cell = this.getCell(x1, y1);
+          var cell = utils.getCell(x1, y1, this.jExcelObj);
           cell.classList.add("userEditCell");
         }
       }
     },
     initializeFxOpt() {
       var newOpt = { name: (this.col - 1).toString() }; //create new opt object
-      var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
+      var index = this.optContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optContainer
       if (index === -1) {
         this.optContainer.push(newOpt);
-        index = this.optContainer.findIndex(x => x.name == newOpt.name);
+        index = this.optContainer.findIndex((x) => x.name == newOpt.name);
       }
       this.optData = this.optContainer[index]; //set current option from container.
       Object.assign(this.optData, {
-        userName: this.$store.state.currentUser
+        userName: this.$store.state.currentUser,
       });
     },
     async validateCrossAndSetSpot(activeCol, crossVal) {
@@ -485,7 +338,7 @@ export default {
 
         Object.assign(this.optData, {
           cross: this.keyVal("Cross"),
-          spot: this.keyVal("Spot").toString()
+          spot: this.keyVal("Spot").toString(),
         });
 
         this.recordCellPosition(this.pricerName);
@@ -498,7 +351,7 @@ export default {
         "expiryText",
         "strikeText",
         "call_put",
-        "userName"
+        "userName",
       ];
 
       for (const key of essentialKeys) {
@@ -519,17 +372,23 @@ export default {
 
           var optValues = [];
           for (var cell of this.pricerKeys) {
-            var index = singleOpt.findIndex(p => p.Key == cell);
+            var index = singleOpt.findIndex((p) => p.Key == cell);
             optValues.push(singleOpt[index].Value);
           }
 
           this.replaceSingleOpt(optValues, col);
           this.formatComplete();
-          this.setAppendUnitsToCells(
+
+          let cssHelper = new cssClassHelper(
             this.keyVal("Cross"),
             this.keyVal("PremiumType"),
-            col
+            col,
+            this.keyCol,
+            this.pricerKeys,
+            this.jExcelObj
           );
+
+          cssHelper.setAppendUnitsToCells();
 
           this.jExcelObj.updateSelectionFromCoords(
             this.col,
@@ -542,7 +401,7 @@ export default {
         } catch (err) {
           this.$store.dispatch("setSnackbar", {
             text: `${err}  source:OptCalculation`,
-            top: true
+            top: true,
           });
         }
       }
@@ -558,12 +417,12 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a valid Premium Type`,
-            top: true
+            top: true,
           });
           return;
         }
         Object.assign(this.optData, {
-          premiumType: userInput
+          premiumType: userInput,
         });
         this.sendToServerForCalc(this.optData, activeCol);
       }
@@ -580,7 +439,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -603,7 +462,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -625,7 +484,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -643,7 +502,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -661,7 +520,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -679,7 +538,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -701,7 +560,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -719,7 +578,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -741,7 +600,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -763,7 +622,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -785,7 +644,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -824,7 +683,7 @@ export default {
           if (!/^[0-9]+([,.][0-9]+)?$/.test(checkSpot)) {
             this.$store.dispatch("setSnackbar", {
               text: `${checkSpot} is not valid. Please enter a number`,
-              top: true
+              top: true,
             });
             return;
           }
@@ -877,8 +736,6 @@ export default {
         this.$router
           .push({ name: this.$route.name, viewName: view })
           .catch(() => {});
-
-        this.createRR();
       }
     },
     createRR() {
@@ -944,7 +801,7 @@ export default {
     },
     setCellPosition() {
       var setCellPos = this.cellPosContainer.find(
-        x => x.pricer === this.pricerName
+        (x) => x.pricer === this.pricerName
       );
       if (setCellPos === undefined) {
         this.selectCell(0, 1);
@@ -996,7 +853,7 @@ export default {
       try {
         let response = await PricerApi.getSingleSpotLiveForce({
           cross: cross,
-          UserName: this.$store.state.currentUser
+          UserName: this.$store.state.currentUser,
         });
         const spotData = JSON.parse(response.data.singleSpot);
         this.jExcelObj.ignoreEvents = true;
@@ -1022,7 +879,7 @@ export default {
       try {
         let response = await PricerApi.GetSurfaceStatus({
           cross: cross,
-          userName: this.$store.state.currentUser
+          userName: this.$store.state.currentUser,
         });
 
         let lastUpdate = moment(
@@ -1030,7 +887,7 @@ export default {
           "DD/MM/YYYY, h:mm:ss"
         ).toDate();
 
-        var cell = this.getCell(col, this.keyRow("Cross"));
+        var cell = utils.getCell(col, this.keyRow("Cross"), this.jExcelObj);
         cell.classList.remove("volGo", "volWarn", "volOld", "volNoGo");
         let statusClass = this.setVolStatus(lastUpdate);
         cell.classList.add(statusClass);
@@ -1038,20 +895,20 @@ export default {
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: GetSurfaceStatus`,
-          top: true
+          top: true,
         });
         this.loading = false;
       }
     },
     setPricerKeys() {
       return this.pricerSettingsObj
-        .filter(item => item.Show === true)
-        .map(group => group.Keys)
+        .filter((item) => item.Show === true)
+        .map((group) => group.Keys)
         .flat();
     },
     setInitalData(keys) {
       let newArr = [];
-      keys.forEach(element => {
+      keys.forEach((element) => {
         newArr.push(["", element]);
       });
       return newArr;
@@ -1060,14 +917,14 @@ export default {
       this.pricerSetupToggle = val;
     },
     updatePricerLayout(updatedSettings) {
-      var hiddenGroups = updatedSettings.filter(item => item.Show !== true);
-      var shownGroups = updatedSettings.filter(item => item.Show === true);
+      var hiddenGroups = updatedSettings.filter((item) => item.Show !== true);
+      var shownGroups = updatedSettings.filter((item) => item.Show === true);
 
       for (const keyGroup of hiddenGroups) {
         let keys = keyGroup.Keys;
         for (var key of keys) {
           for (var i = 0; i < this.columnCount; i++) {
-            var cell = this.getCell(i, this.keyRow(key));
+            var cell = utils.getCell(i, this.keyRow(key), this.jExcelObj);
 
             cell.classList.add("hideRow");
           }
@@ -1078,7 +935,7 @@ export default {
         let keys = keyGroup.Keys;
         for (var key of keys) {
           for (var i = 0; i < this.columnCount; i++) {
-            var cell = this.getCell(i, this.keyRow(key));
+            var cell = utils.getCell(i, this.keyRow(key), this.jExcelObj);
             cell.classList.remove("hideRow");
           }
         }
@@ -1095,13 +952,6 @@ export default {
         columns.push({ readOnly: true });
       }
       return columns;
-    },
-    setColWidths() {
-      var colWidths = [];
-      for (var c = 0; c < 50; c++) {
-        colWidths.push(135);
-      }
-      return colWidths;
     },
     clearGrid() {
       var cleanSlate = this.jExcelObj.getData()[0];
@@ -1137,7 +987,7 @@ export default {
             var gridRow = this.pricerKeys.indexOf(key);
             if (gridRow !== -1) {
               for (var i = 0; i < cols; i++) {
-                var cell = this.getCell(i, gridRow);
+                var cell = utils.getCell(i, gridRow, this.jExcelObj);
                 cell.classList.remove("readonly");
               }
               this.jExcelObj.ignoreEvents = true;
@@ -1145,7 +995,7 @@ export default {
               this.jExcelObj.ignoreEvents = false;
 
               for (var i = 0; i < cols; i++) {
-                var cell = this.getCell(i, gridRow);
+                var cell = utils.getCell(i, gridRow, this.jExcelObj);
                 cell.classList.add("readonly");
               }
             }
@@ -1186,27 +1036,13 @@ export default {
 
         dropDownList.addDowpDown(
           this.jExcelObj,
-          this.getCell(this.col, this.row),
+          utils.getCell(this.col, this.row, this.jExcelObj),
           this.crossListData,
           firstLetter
         );
       }
     },
-    premiumTypeDropDown(event) {
-      if (
-        event.code === "Space" &&
-        this.row === this.keyRow("PremiumType") &&
-        this.col > this.keyCol
-      ) {
-        event.preventDefault();
 
-        dropDownList.addDowpDown(
-          this.jExcelObj,
-          this.getCell(this.col, this.row),
-          ["Base_Pct", "Terms_Pips", "Base_Pips", "Terms_Pct"]
-        );
-      }
-    },
     callPutDropDown(event) {
       if (
         event.code === "Space" &&
@@ -1217,7 +1053,7 @@ export default {
 
         dropDownList.addDowpDown(
           this.jExcelObj,
-          this.getCell(this.col, this.row),
+          utils.getCell(this.col, this.row, this.jExcelObj),
           ["CALL", "PUT"]
         );
       }
@@ -1229,8 +1065,9 @@ export default {
         this.col > this.keyCol
       ) {
         event.preventDefault();
+        const cell = utils.getCell(this.col, this.row, this.jExcelObj);
 
-        calendar.addCalendar(this.jExcelObj, this.getCell(this.col, this.row));
+        calendar.addCalendar(this.jExcelObj, cell);
       }
     },
     copyOptEvent(event) {
@@ -1255,7 +1092,7 @@ export default {
       if (event.code == "KeyR" && event.ctrlKey) {
         event.preventDefault();
         var newOpt = { name: this.col.toString() }; //create new opt object
-        var index = this.optContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optContainer
+        var index = this.optContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optContainer
         if (index != -1) {
           this.optData = this.optContainer[index]; //set current option from container.
           this.sendToServerForCalc(this.optData, this.col);
@@ -1309,17 +1146,24 @@ export default {
         event.preventDefault();
         this.$router.push({
           name: "Dvi",
-          params: { ccyPair: this.keyVal("Cross") }
+          params: { ccyPair: this.keyVal("Cross") },
         });
       }
     },
     eventListeners(event) {
+      let eventHelper = new eventHelper(
+        event,
+        this.pricerKeys,
+        this.keyCol,
+        this.jExcelObj
+      );
+
+      eventHelper.premiumTypeDropDown(this.row, this.col); //spacebar
       this.copyOptEvent(event); // ctrl P
       this.deleteAllOptsEvent(event); //ctrl D
       this.deleteSingleOptEvent(event); //ctrl Q
       this.refreshSingleOptEvent(event); //ctrl R
       this.crossDropDown(event); // any lettter
-      this.premiumTypeDropDown(event); // space bar
       this.spaceBarToDvi(event); //space bar
       this.callPutDropDown(event); //space bar
       this.expiryCalendar(event); //space bar
@@ -1339,8 +1183,8 @@ export default {
           }
         }, 500);
       });
-      getUserSelection.then(result => {
-        const cell = this.getCell(this.col, this.row);
+      getUserSelection.then((result) => {
+        const cell = utils.getCell(this.col, this.row, this.jExcelObj);
         dropDownList.closeEditor(this.jExcelObj, cell, result);
       });
     },
@@ -1393,7 +1237,7 @@ export default {
     },
     formatTotalsColumn(cellName, keyGroup) {
       let textColor = keyGroup.TextColor;
-      const backgroundColor = this.shadeColor(keyGroup.BackgroundColor, -10);
+      const backgroundColor = utils.shadeColor(keyGroup.BackgroundColor, -10);
       if (
         keyGroup.Name === "SurfaceInputs" ||
         keyGroup.Name === "DatesInfo" ||
@@ -1457,12 +1301,12 @@ export default {
     },
     copyOpt(col) {
       var fxOptResult = this.jExcelObj.getColumnData(col);
-      var optObj = this.optContainer.filter(function(opt) {
+      var optObj = this.optContainer.filter(function (opt) {
         return opt.name == col - 1;
       });
       var newOpt = this.copyObj(optObj[0]);
       newOpt.name = col.toString();
-      var index = this.optContainer.findIndex(x => x.name == newOpt.name);
+      var index = this.optContainer.findIndex((x) => x.name == newOpt.name);
       if (index > 0) {
         this.optContainer[index] = newOpt;
       } else {
@@ -1478,10 +1322,10 @@ export default {
       }
     },
     delOpt(col, offset) {
-      var optObj = this.optContainer.filter(function(opt) {
+      var optObj = this.optContainer.filter(function (opt) {
         return opt.name == col - 1;
       });
-      var index = this.optContainer.findIndex(x => x.name == optObj[0].name);
+      var index = this.optContainer.findIndex((x) => x.name == optObj[0].name);
       this.optContainer.splice(index, 1);
       this.removeRedCellsFromArray();
       this.replaceSingleOpt(this.emptyCol(), col);
@@ -1527,17 +1371,21 @@ export default {
           PricerTitle: this.pricerName,
           ActivePricerGridDataJSON: JSON.stringify(this.jExcelObj.getData()),
           UserOverwrittenInputsJSON: JSON.stringify(this.redObj),
-          ActiveOptionsContainerJSON: JSON.stringify(this.optContainer)
-        }
+          ActiveOptionsContainerJSON: JSON.stringify(this.optContainer),
+        },
       };
-      PricerApi.ReturnCurrentOpts(StoredActivePricerData).then(response => {});
+      PricerApi.ReturnCurrentOpts(
+        StoredActivePricerData
+      ).then((response) => {});
     },
     recordCellPosition() {
       var recordCellPos = {
         col: this.col,
-        pricer: this.pricerName
+        pricer: this.pricerName,
       };
-      var isDup = this.cellPosContainer.find(x => x.pricer === this.pricerName);
+      var isDup = this.cellPosContainer.find(
+        (x) => x.pricer === this.pricerName
+      );
       var index = this.cellPosContainer.indexOf(isDup);
       if (index === -1) {
         this.cellPosContainer.push(recordCellPos);
@@ -1552,8 +1400,8 @@ export default {
           return index > 1 && element !== "";
         });
 
-      return rowData.every(e => e === rowData[0]);
-    }
+      return rowData.every((e) => e === rowData[0]);
+    },
   },
   async mounted() {
     if (Object.keys(this.defaultPricerKeyGroups).length === 0) {
@@ -1565,7 +1413,7 @@ export default {
     );
 
     this.pricerSettingsObj = this.combinedPricerLayouts.find(
-      x => x.title === this.activePricerLayoutTitle
+      (x) => x.title === this.activePricerLayoutTitle
     ).layout;
 
     this.pricerKeys = this.setPricerKeys();
@@ -1590,11 +1438,16 @@ export default {
     },
     col() {
       if (this.keyVal("SystemVol") !== "") {
-        this.setAppendUnitsToCells(
+        let cssHelper = new cssClassHelper(
           this.keyVal("Cross"),
           this.keyVal("PremiumType"),
-          this.col
+          this.col,
+          this.keyCol,
+          this.pricerKeys,
+          this.jExcelObj
         );
+
+        cssHelper.setAppendUnitsToCells();
       }
     },
     eventListenerToggle() {
@@ -1610,7 +1463,7 @@ export default {
         if (!this.isSingleCrossInPricer()) {
           this.$store.dispatch("setSnackbar", {
             text: "SINGLE CURRENCY REQUIRED FOR TOTALS",
-            top: true
+            top: true,
           });
 
           this.$store.dispatch("togglePriceShowTotals");
@@ -1621,8 +1474,8 @@ export default {
       } else {
         this.jExcelObj.hideColumn(0);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

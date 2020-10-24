@@ -169,7 +169,9 @@ export default {
   },
   methods: {
     dev() {
-      this.createRR();
+      console.log(this.optContainer);
+      const { userName } = this.optContainer[0];
+      console.log(userName);
     },
     //#region OPTIONSETUP
     initializeFxOpt() {
@@ -296,47 +298,47 @@ export default {
       }
     },
     async sendToServerForCalcSingle(optData, col) {
-      if (this.validateBaseConditionsForOptCalc()) {
-        this.loading = true;
-        try {
-          let response = await PricerApi.ReCalcOpt(optData);
+      if (!this.validateBaseConditionsForOptCalc()) {
+        return;
+      }
+      this.loading = true;
+      try {
+        let response = await PricerApi.ReCalcOpt(optData);
+        let singleOpt = JSON.parse(response.data.result);
 
-          let singleOpt = JSON.parse(response.data.result);
-
-          var optValues = [];
-          for (var cell of this.pricerKeys) {
-            var index = singleOpt.findIndex((p) => p.Key == cell);
-            optValues.push(singleOpt[index].Value);
-          }
-
-          this.replaceSingleOpt(optValues, col);
-          this.formatComplete();
-
-          let cssHelper = new cssClassHelper(
-            this.keyVal("Cross"),
-            this.keyVal("PremiumType"),
-            col,
-            this.keyCol,
-            this.pricerKeys,
-            this.jExcelObj
-          );
-
-          cssHelper.setAppendUnitsToCells();
-
-          this.jExcelObj.updateSelectionFromCoords(
-            this.col,
-            this.row,
-            this.col,
-            this.row
-          );
-
-          this.loading = false;
-        } catch (err) {
-          this.$store.dispatch("setSnackbar", {
-            text: `${err}  source:OptCalculation`,
-            top: true,
-          });
+        var optValues = [];
+        for (var cell of this.pricerKeys) {
+          var index = singleOpt.findIndex((p) => p.Key == cell);
+          optValues.push(singleOpt[index].Value);
         }
+
+        this.replaceSingleOpt(optValues, col);
+        this.formatComplete();
+
+        let cssHelper = new cssClassHelper(
+          this.keyVal("Cross"),
+          this.keyVal("PremiumType"),
+          col,
+          this.keyCol,
+          this.pricerKeys,
+          this.jExcelObj
+        );
+
+        cssHelper.setAppendUnitsToCells();
+
+        this.jExcelObj.updateSelectionFromCoords(
+          this.col,
+          this.row,
+          this.col,
+          this.row
+        );
+
+        this.loading = false;
+      } catch (err) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${err}  source:OptCalculation`,
+          top: true,
+        });
       }
     },
     async getSpot(col, cross) {
@@ -390,7 +392,7 @@ export default {
         this.loading = false;
       }
     },
-    returnCurrent() {
+    sendAllPricerDataToServer() {
       var StoredActivePricerData = {
         UserName: this.$store.state.currentUser,
         PricerData: {
@@ -400,13 +402,94 @@ export default {
           ActiveOptionsContainerJSON: JSON.stringify(this.optContainer),
         },
       };
+
       PricerApi.ReturnCurrentOpts(
         StoredActivePricerData
       ).then((response) => {});
     },
 
     //#endregion API
-    //#region UPDATEOPTION
+    //#region ON_CELL_SELECTION
+    selectionActive(instance, x1, y1, x2, y2) {
+      this.row = y1;
+      this.col = x1;
+      this.eventListenerToggle = true;
+
+      // if (this.col === 1) {
+      //   this.jExcelObj.updateSelectionFromCoords(2, this.row, 2, this.row);
+      // }
+
+      var cellsWithUserEditClass = document.getElementsByClassName(
+        "userEditCell"
+      );
+      while (cellsWithUserEditClass.length)
+        cellsWithUserEditClass[0].classList.remove("userEditCell");
+
+      while (cellsWithUserEditClass.length)
+        cellsWithUserEditClass[0].classList.add("readonly");
+
+      var cellsWithDropDown = document.getElementsByClassName("dropDownCells");
+      while (cellsWithDropDown.length)
+        cellsWithDropDown[0].classList.remove("dropDownCells");
+
+      if (this.keyVal("Cross") !== "") {
+        if (this.userEditableCells.indexOf(this.row) !== -1) {
+          if (x1 > 1) {
+            var cell = utils.getCell(x1, y1, this.jExcelObj);
+            cell.classList.add("userEditCell");
+          }
+        }
+
+        if (
+          this.dropDownCells.indexOf(this.row) !== -1 &&
+          this.keyVal("PremiumType") !== ""
+        ) {
+          if (x1 > 1) {
+            var cell = utils.getCell(x1, y1, this.jExcelObj);
+            cell.classList.add("dropDownCells");
+          }
+        }
+
+        if (this.nonReadOnlyList.indexOf(this.row) !== -1) {
+          if (x1 > 1) {
+            var cell = utils.getCell(x1, y1, this.jExcelObj);
+            cell.classList.remove("readonly");
+          }
+        }
+      }
+
+      if (this.row === this.keyRow("Cross") && this.keyVal("Cross") === "") {
+        if (x1 > 1) {
+          var cell = utils.getCell(x1, y1, this.jExcelObj);
+          cell.classList.add("userEditCell");
+        }
+      }
+    },
+
+    //#endregion ON_CELL_SELECTION
+    //#region USER_UPDATEOPTION
+    async updateOption() {
+      const crossVal = this.keyVal("Cross").toUpperCase();
+      const activeCol = this.col;
+      this.initializeFxOpt();
+      this.validateCrossAndSetSpot(activeCol, crossVal);
+      this.userUpdateSpot(activeCol, crossVal);
+      this.userUpdateExpiryText(activeCol);
+      this.userUpdateStrikeText(activeCol);
+      this.userUpdateCallPut(activeCol);
+      this.userUpdatePremiumType(activeCol);
+      this.userUpdateUserVol(activeCol);
+      this.userUpdateAtmVol(activeCol);
+      this.userUpdateRr(activeCol);
+      this.userUpdateFly(activeCol);
+      this.userUpdateRrMult(activeCol);
+      this.userUpdateSmileFlyMult(activeCol);
+      this.userUpdateFwdPts(activeCol);
+      this.userUpdateFwdOutRight(activeCol);
+      this.userUpdateForDepo(activeCol);
+      this.userUpateDomDepo(activeCol);
+      this.userUpdateNotional(activeCol);
+    },
     async validateCrossAndSetSpot(activeCol, crossVal) {
       if (this.row == this.keyRow("Cross")) {
         if (this.crossListData.indexOf(crossVal) === -1) {
@@ -731,29 +814,7 @@ export default {
         }
       }
     },
-    async updateOption() {
-      const crossVal = this.keyVal("Cross").toUpperCase();
-      const activeCol = this.col;
-      this.initializeFxOpt();
-      this.validateCrossAndSetSpot(activeCol, crossVal);
-      this.userUpdateSpot(activeCol, crossVal);
-      this.userUpdateExpiryText(activeCol);
-      this.userUpdateStrikeText(activeCol);
-      this.userUpdateCallPut(activeCol);
-      this.userUpdatePremiumType(activeCol);
-      this.userUpdateUserVol(activeCol);
-      this.userUpdateAtmVol(activeCol);
-      this.userUpdateRr(activeCol);
-      this.userUpdateFly(activeCol);
-      this.userUpdateRrMult(activeCol);
-      this.userUpdateSmileFlyMult(activeCol);
-      this.userUpdateFwdPts(activeCol);
-      this.userUpdateFwdOutRight(activeCol);
-      this.userUpdateForDepo(activeCol);
-      this.userUpateDomDepo(activeCol);
-      this.userUpdateNotional(activeCol);
-    },
-    //#endregion UPDATEOPTION
+    //#endregion USER_UPDATEOPTION
     //#region STRATEGIES
     createStrategy(strat) {
       if (this.keyVal("StrikeText") === strat) {
@@ -827,7 +888,6 @@ export default {
     },
     setReadOnly() {
       var columns = [];
-
       for (var c = 0; c < 50; c++) {
         columns.push({ readOnly: true });
       }
@@ -840,6 +900,7 @@ export default {
         const cols = this.jExcelObj.getData()[0].length;
         if (data !== null) {
           data = JSON.parse(data);
+          console.log(data);
 
           for (var row of data) {
             var key = row[this.keyCol];
@@ -852,7 +913,6 @@ export default {
               this.jExcelObj.ignoreEvents = true;
               this.jExcelObj.setRowData(gridRow, row);
               this.jExcelObj.ignoreEvents = false;
-
               for (var i = 0; i < cols; i++) {
                 var cell = utils.getCell(i, gridRow, this.jExcelObj);
                 cell.classList.add("readonly");
@@ -876,7 +936,6 @@ export default {
         }
       }
     },
-
     //#endregion INITIALIZE_SHEET
     //#region EVENTS
     eventListeners(event) {
@@ -930,7 +989,6 @@ export default {
         }
       }
     },
-
     crossDropDown(event) {
       const isLetter = /^[a-z]$/i.test(event.key);
       if (
@@ -1072,7 +1130,6 @@ export default {
         this.jExcelObj.setStyle(this.redObj[i], "color", "white");
       }
     },
-
     setRed(key) {
       var x = this.col;
       var y = this.keyRow(key);
@@ -1113,14 +1170,12 @@ export default {
 
       this.sendToServerForCalc(optData, col);
     },
-
     //#endregion FORMAT
     //#region UTILITIES
     handleResize() {
       this.window.width = window.innerWidth - 100;
       this.window.height = window.innerHeight - 65;
     },
-
     getCell(col, row) {
       var id = jexcel.getColumnNameFromId([col, row]);
       var cell = this.jExcelObj.getCell([id]);
@@ -1147,28 +1202,6 @@ export default {
     selectCell(row, col) {
       this.jExcelObj.updateSelectionFromCoords(col, row, col, row);
     },
-    copyObj(src) {
-      return Object.assign({}, src);
-    },
-    clearAll() {
-      this.optContainer = [];
-      this.redObj = [];
-      var cleanSlate = this.jExcelObj.getData()[0];
-      var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
-      var newOpt = this.emptyCol();
-      cleanSlate.forEach(myFunction);
-      function myFunction(item, index) {
-        if (item != "" && index != 1) {
-          for (var i = 0; i < newOpt.length; i++) {
-            newList[i][index] = newOpt[i];
-          }
-        }
-      }
-      this.jExcelObj.setData(newList);
-      this.returnCurrent();
-      this.formatComplete();
-      this.selectCell(1, 2);
-    },
     setCellPosition() {
       var setCellPos = this.cellPosContainer.find(
         (x) => x.pricer === this.pricerName
@@ -1178,22 +1211,6 @@ export default {
       } else {
         this.selectCell(0, setCellPos.col);
       }
-    },
-    clearGrid() {
-      var cleanSlate = this.jExcelObj.getData()[0];
-      var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
-      var newOpt = this.emptyCol();
-      cleanSlate.forEach(myFunction);
-      function myFunction(item, index) {
-        if (item != "" && index != 1) {
-          for (var i = 0; i < newOpt.length; i++) {
-            newList[i][index] = newOpt[i];
-          }
-        }
-      }
-      this.jExcelObj.setData(newList);
-      this.redObj = [];
-      this.optContainer = [];
     },
 
     //#endregion UTILITIES
@@ -1231,63 +1248,7 @@ export default {
       //location.reload();
     },
     //#endregion LAYOUT
-    //#region MANIPULATE_GRID
-    selectionActive(instance, x1, y1, x2, y2) {
-      this.row = y1;
-      this.col = x1;
-      this.eventListenerToggle = true;
-
-      // if (this.col === 1) {
-      //   this.jExcelObj.updateSelectionFromCoords(2, this.row, 2, this.row);
-      // }
-
-      var cellsWithUserEditClass = document.getElementsByClassName(
-        "userEditCell"
-      );
-      while (cellsWithUserEditClass.length)
-        cellsWithUserEditClass[0].classList.remove("userEditCell");
-
-      while (cellsWithUserEditClass.length)
-        cellsWithUserEditClass[0].classList.add("readonly");
-
-      var cellsWithDropDown = document.getElementsByClassName("dropDownCells");
-      while (cellsWithDropDown.length)
-        cellsWithDropDown[0].classList.remove("dropDownCells");
-
-      if (this.keyVal("Cross") !== "") {
-        if (this.userEditableCells.indexOf(this.row) !== -1) {
-          if (x1 > 1) {
-            var cell = utils.getCell(x1, y1, this.jExcelObj);
-            cell.classList.add("userEditCell");
-          }
-        }
-
-        if (
-          this.dropDownCells.indexOf(this.row) !== -1 &&
-          this.keyVal("PremiumType") !== ""
-        ) {
-          if (x1 > 1) {
-            var cell = utils.getCell(x1, y1, this.jExcelObj);
-            cell.classList.add("dropDownCells");
-          }
-        }
-
-        if (this.nonReadOnlyList.indexOf(this.row) !== -1) {
-          if (x1 > 1) {
-            var cell = utils.getCell(x1, y1, this.jExcelObj);
-            cell.classList.remove("readonly");
-          }
-        }
-      }
-
-      if (this.row === this.keyRow("Cross") && this.keyVal("Cross") === "") {
-        if (x1 > 1) {
-          var cell = utils.getCell(x1, y1, this.jExcelObj);
-          cell.classList.add("userEditCell");
-        }
-      }
-    },
-
+    //#region COPY_DEL_REPLACE
     recordCellPosition() {
       var recordCellPos = {
         col: this.col,
@@ -1309,13 +1270,13 @@ export default {
     },
     copyOpt(col) {
       var fxOptResult = this.jExcelObj.getColumnData(col);
-      var optObj = this.optContainer.filter(function (opt) {
-        return opt.name == col - 1;
+      var optObj = this.optContainer.filter((opt) => {
+        opt.name == col - 1;
       });
-      var newOpt = this.copyObj(optObj[0]);
+      let newOpt = { ...optObj[0] };
       newOpt.name = col.toString();
       var index = this.optContainer.findIndex((x) => x.name == newOpt.name);
-      if (index > 0) {
+      if (index > -1) {
         this.optContainer[index] = newOpt;
       } else {
         this.optContainer.push(newOpt);
@@ -1323,15 +1284,15 @@ export default {
       this.addRedCellsToArray();
       this.replaceSingleOpt(fxOptResult, col + 1);
       this.selectCell(this.row, this.col + 1);
-      this.returnCurrent();
+      this.sendAllPricerDataToServer();
       this.formatComplete();
       if (this.totalsToggle) {
         this.sendToServerForCalc();
       }
     },
     delOpt(col, offset) {
-      var optObj = this.optContainer.filter(function (opt) {
-        return opt.name == col - 1;
+      var optObj = this.optContainer.filter((opt) => {
+        opt.name == col - 1;
       });
       var index = this.optContainer.findIndex((x) => x.name == optObj[0].name);
       this.optContainer.splice(index, 1);
@@ -1340,25 +1301,49 @@ export default {
       if (col != 1) {
         this.selectCell(this.row, col - offset);
       }
-      this.returnCurrent();
+      this.sendAllPricerDataToServer();
       this.formatComplete();
       if (this.totalsToggle) {
         this.sendToServerForCalc();
       }
     },
-    replaceSingleOpt(newOpt, col) {
-      var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
-
-      for (var i = 0; i < newOpt.length; i++) {
-        newList[i][col] = newOpt[i];
+    replaceSingleOpt(optValues, col) {
+      for (var i = 0; i < optValues.length; i++) {
+        var cell = utils.getCell(col, i, this.jExcelObj);
+        cell.classList.remove("readonly");
       }
+      this.jExcelObj.ignoreEvents = true;
+      this.jExcelObj.setColumnData(col, optValues);
 
-      this.jExcelObj.setData(newList);
-
-      this.returnCurrent();
+      this.jExcelObj.ignoreEvents = false;
+      for (var i = 0; i < optValues.length; i++) {
+        var cell = utils.getCell(col, i, this.jExcelObj);
+        cell.classList.add("readonly");
+      }
+      this.sendAllPricerDataToServer();
     },
-
-    //#endregion MANIPULATE_GRID
+    clearGrid() {
+      var cleanSlate = this.jExcelObj.getData()[0];
+      var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
+      var newOpt = this.emptyCol();
+      cleanSlate.forEach((item, index) => {
+        if (item != "" && index != this.keyCol) {
+          for (var i = 0; i < newOpt.length; i++) {
+            newList[i][index] = newOpt[i];
+          }
+        }
+      });
+      this.jExcelObj.setData(newList);
+      this.redObj = [];
+      this.optContainer = [];
+    },
+    clearAll() {
+      this.clearGrid();
+      this.sendAllPricerDataToServer();
+      this.formatComplete();
+      this.selectCell(1, 2);
+    },
+    //#endregion COPY_DEL_REPLACE
   },
   async mounted() {
     if (Object.keys(this.defaultPricerKeyGroups).length === 0) {
@@ -1373,16 +1358,10 @@ export default {
     ).layout;
     this.pricerKeys = this.setPricerKeys();
     this.initialData = this.setInitalData(this.pricerKeys);
-
     const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.config);
     Object.assign(this, { jExcelObj });
     jExcelObj.hideIndex();
-
-    let data = this.storedData.ActivePricerGridDataJSON;
-
-    if (data !== null) {
-      this.restorePricerData(this.storedData);
-    }
+    this.restorePricerData(this.storedData);
     this.setCellPosition(this.pricerName);
     this.formatComplete();
   },

@@ -34,7 +34,6 @@ export default class eventHelper {
       );
     }
   }
-
   callPutToggle(row, col, keyValCallPut) {
     if (
       this.event.code === "Space" &&
@@ -51,7 +50,6 @@ export default class eventHelper {
       );
     }
   }
-
   flipNotional(row, col, keyValNotional) {
     if (
       this.event.code === "Space" &&
@@ -68,14 +66,12 @@ export default class eventHelper {
       );
     }
   }
-
   showTotals() {
     if (this.event.code == "KeyW" && this.event.ctrlKey) {
       this.event.preventDefault();
       store.dispatch("togglePriceShowTotals");
     }
   }
-
   expiryCalendar(row, col) {
     if (
       this.event.code === "Space" &&
@@ -88,7 +84,6 @@ export default class eventHelper {
       calendar.addCalendar(this.jExcelObj, cell);
     }
   }
-
   hardCodeStrike(row, col, keyValK) {
     if (
       this.event.code === "Space" &&

@@ -1272,7 +1272,6 @@ export default {
     this.initialData = this.setInitalData(this.pricerKeys);
     const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.config);
     Object.assign(this, { jExcelObj });
-
     this.restorePricerData(this.storedData);
     this.setCellPosition(this.pricerName);
     this.formatComplete();

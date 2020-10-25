@@ -8,7 +8,7 @@
       color="green accent-4"
       rounded
     ></v-progress-linear>
-    <v-btn @click="dev" color="blue">DEV</v-btn>
+    <!-- <v-btn @click="dev" color="blue">DEV</v-btn> -->
     <div ref="jexcelPricer"></div>
     <PricerSetup
       :activekeyGroups="pricerSettingsObj"

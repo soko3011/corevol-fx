@@ -28,6 +28,7 @@ import alphabetJson from "./Alphabet.json";
 import * as utils from "./helpers/pricerUtils.js";
 import cssClassHelper from "./helpers/cssClassHelper.js";
 import eventHelper from "./helpers/eventHelper.js";
+import optCalcHelper from "./helpers/optCalcHelper.js";
 import PricerSetup from "@/components/pricer/PricerSetup.vue";
 import moment from "moment";
 import { mapState } from "vuex";
@@ -50,7 +51,6 @@ export default {
   },
   props: {
     pricerName: { type: String, default: "" },
-    activePricers: { type: Array },
   },
   data() {
     return {
@@ -65,7 +65,7 @@ export default {
       col: [],
       redObj: [],
       optData: {},
-      optContainer: [],
+      optsContainer: [],
       alphabet: alphabetJson.alphabet,
       storedData: [],
       window: {
@@ -81,6 +81,8 @@ export default {
       activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
       totalsToggle: (state) => state.pricerShowTotalsToggle,
       crossListData: (state) => state.crossList,
+      pricerStrategy: (state) => state.pricerStrategy,
+      currentUser: (state) => state.currentUser,
     }),
     combinedPricerLayouts() {
       const userLayouts = [];
@@ -168,23 +170,97 @@ export default {
     },
   },
   methods: {
-    dev() {
-      console.log(this.optContainer);
-      const { userName } = this.optContainer[0];
-      console.log(userName);
+    dev() {},
+    //#region INITIALIZE_SHEET
+    setHeaders() {
+      var headers = [];
+      headers.push("TOTALS");
+      headers.push("Key");
+      for (var c = 1; c < 50; c++) {
+        headers.push(c);
+      }
+      return headers;
     },
+    setColWidths(numberOfColumns, width) {
+      var colWidths = [];
+      for (var c = 0; c < numberOfColumns; c++) {
+        colWidths.push(width);
+      }
+      return colWidths;
+    },
+    setPricerKeys() {
+      return this.pricerSettingsObj
+        .filter((item) => item.Show === true)
+        .map((group) => group.Keys)
+        .flat();
+    },
+    setInitalData(keys) {
+      let newArr = [];
+      keys.forEach((element) => {
+        newArr.push(["", element]);
+      });
+      return newArr;
+    },
+    setReadOnly() {
+      var columns = [];
+      for (var c = 0; c < 50; c++) {
+        columns.push({ readOnly: true });
+      }
+      return columns;
+    },
+    restorePricerData(storedData) {
+      this.clearGrid();
+      if (storedData !== null) {
+        let data = storedData.ActivePricerGridDataJSON;
+        const cols = this.jExcelObj.getData()[0].length;
+        if (data !== null) {
+          data = JSON.parse(data);
+
+          for (var row of data) {
+            var key = row[this.keyCol];
+            var gridRow = this.pricerKeys.indexOf(key);
+            if (gridRow !== -1) {
+              for (var i = 0; i < cols; i++) {
+                var cell = utils.getCell(i, gridRow, this.jExcelObj);
+                cell.classList.remove("readonly");
+              }
+              this.jExcelObj.ignoreEvents = true;
+              this.jExcelObj.setRowData(gridRow, row);
+              this.jExcelObj.ignoreEvents = false;
+              for (var i = 0; i < cols; i++) {
+                var cell = utils.getCell(i, gridRow, this.jExcelObj);
+                cell.classList.add("readonly");
+              }
+            }
+          }
+        }
+        let optData = storedData.ActiveOptionsContainerJSON;
+        if (optData !== null) {
+          optData = JSON.parse(optData);
+          for (var item of optData) {
+            this.optsContainer.push(item);
+          }
+        }
+        let redData = storedData.UserOverwrittenInputsJSON;
+        if (redData !== null) {
+          redData = JSON.parse(redData);
+          for (item of redData) {
+            this.redObj.push(item);
+          }
+        }
+      }
+    },
+    //#endregion INITIALIZE_SHEET
     //#region OPTIONSETUP
     initializeFxOpt() {
-      var newOpt = { name: (this.col - 1).toString() }; //create new opt object
-      var index = this.optContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optContainer
+      let optID = (this.col - 1).toString();
+      var index = this.optsContainer.findIndex((x) => x.name == optID);
       if (index === -1) {
-        this.optContainer.push(newOpt);
-        index = this.optContainer.findIndex((x) => x.name == newOpt.name);
+        this.optData = { name: optID, userName: this.currentUser };
+        this.optsContainer.push(this.optData);
+      } else {
+        this.optData = this.optsContainer[index];
       }
-      this.optData = this.optContainer[index]; //set current option from container.
-      Object.assign(this.optData, {
-        userName: this.$store.state.currentUser,
-      });
     },
     setVolStatus(lastUpdate) {
       var currenttime = new Date();
@@ -213,133 +289,54 @@ export default {
 
       return rowData.every((e) => e === rowData[0]);
     },
-
+    validateTotalsColumnCondition() {
+      if (!this.isSingleCrossInPricer()) {
+        this.$store.dispatch("setSnackbar", {
+          text: "SINGLE CURRENCY REQUIRED FOR TOTALS",
+          top: true,
+        });
+        this.$store.dispatch("togglePriceShowTotals", false);
+      }
+    },
     //#endregion OPTIONSETUP
     //#region API
-    sendToServerForCalc(optData, col) {
-      if (this.totalsToggle) {
-        this.sendToServerForCalcTotals(this.optContainer);
-      } else {
-        this.sendToServerForCalcSingle(optData, col);
-      }
-    },
-    async sendToServerForCalcTotals(container) {
-      if (!this.validateBaseConditionsForOptCalc()) {
+    async sendToServerForCalc() {
+      let calcHelper = new optCalcHelper(
+        this.optsContainer,
+        this.optData,
+        this.pricerKeys
+      );
+      if (!calcHelper.baseConditionsIsValidated()) {
         return;
       }
       this.loading = true;
-      try {
-        let response = await PricerApi.calculateSpread(container);
-        let totals = JSON.parse(response.data.totals);
-        let individuals = JSON.parse(response.data.individuals);
+      let calcedAndOrderdContainer = this.totalsToggle
+        ? await calcHelper.sendContainerToServerForCalcs()
+        : await calcHelper.sendSingleOptionToServerForCalcs();
 
-        var optValues = [];
-        for (var cell of this.pricerKeys) {
-          var index = totals.findIndex((x) => x.Key === cell);
+      this.addContainerToGrid(calcedAndOrderdContainer);
+      this.formatComplete();
 
-          if (index > -1) {
-            optValues.push(totals[index].Value);
-          }
-        }
+      let cssHelper = new cssClassHelper(
+        this.keyVal("Cross"),
+        this.keyVal("PremiumType"),
+        this.col,
+        this.keyCol,
+        this.pricerKeys,
+        this.jExcelObj
+      );
 
-        this.replaceSingleOpt(optValues, 0);
+      cssHelper.setAppendUnitsToCells();
 
-        individuals.forEach((element) => {
-          const colNum =
-            parseInt(element.filter((x) => x.Key === "id")[0].Value) + 1;
+      this.jExcelObj.updateSelectionFromCoords(
+        this.col,
+        this.row,
+        this.col,
+        this.row
+      );
 
-          var optValues = [];
-          for (var cell of this.pricerKeys) {
-            var index = element.findIndex((x) => x.Key === cell);
-
-            if (index > -1) {
-              optValues.push(element[index].Value);
-            }
-          }
-
-          this.replaceSingleOpt(optValues, colNum);
-        });
-
-        this.formatComplete();
-
-        let cssHelper = new cssClassHelper(
-          this.keyVal("Cross"),
-          this.keyVal("PremiumType"),
-          this.col,
-          this.keyCol,
-          this.pricerKeys,
-          this.jExcelObj
-        );
-
-        cssHelper.setAppendUnitsToCells();
-
-        this.jExcelObj.updateSelectionFromCoords(
-          this.col,
-          this.row,
-          this.col,
-          this.row
-        );
-
-        if (!this.isSingleCrossInPricer()) {
-          this.$store.dispatch("setSnackbar", {
-            text: "SINGLE CURRENCY REQUIRED FOR TOTALS",
-            top: true,
-          });
-
-          this.$store.dispatch("togglePriceShowTotals");
-        }
-
-        this.loading = false;
-      } catch (err) {
-        this.$store.dispatch("setSnackbar", {
-          text: `${err}  source:SpreadCalculator`,
-          top: true,
-        });
-      }
-    },
-    async sendToServerForCalcSingle(optData, col) {
-      if (!this.validateBaseConditionsForOptCalc()) {
-        return;
-      }
-      this.loading = true;
-      try {
-        let response = await PricerApi.ReCalcOpt(optData);
-        let singleOpt = JSON.parse(response.data.result);
-
-        var optValues = [];
-        for (var cell of this.pricerKeys) {
-          var index = singleOpt.findIndex((p) => p.Key == cell);
-          optValues.push(singleOpt[index].Value);
-        }
-
-        this.replaceSingleOpt(optValues, col);
-        this.formatComplete();
-
-        let cssHelper = new cssClassHelper(
-          this.keyVal("Cross"),
-          this.keyVal("PremiumType"),
-          col,
-          this.keyCol,
-          this.pricerKeys,
-          this.jExcelObj
-        );
-
-        cssHelper.setAppendUnitsToCells();
-
-        this.jExcelObj.updateSelectionFromCoords(
-          this.col,
-          this.row,
-          this.col,
-          this.row
-        );
-
-        this.loading = false;
-      } catch (err) {
-        this.$store.dispatch("setSnackbar", {
-          text: `${err}  source:OptCalculation`,
-          top: true,
-        });
-      }
+      this.sendAllPricerDataToServer();
+      this.loading = false;
     },
     async getSpot(col, cross) {
       try {
@@ -399,15 +396,17 @@ export default {
           PricerTitle: this.pricerName,
           ActivePricerGridDataJSON: JSON.stringify(this.jExcelObj.getData()),
           UserOverwrittenInputsJSON: JSON.stringify(this.redObj),
-          ActiveOptionsContainerJSON: JSON.stringify(this.optContainer),
+          ActiveOptionsContainerJSON: JSON.stringify(this.optsContainer),
         },
       };
 
-      PricerApi.ReturnCurrentOpts(
-        StoredActivePricerData
-      ).then((response) => {});
+      PricerApi.ReturnCurrentOpts(StoredActivePricerData).catch((err) => {
+        store.dispatch("setSnackbar", {
+          text: `${err}  source:sendSingleOptionToServerForCalcs`,
+          top: true,
+        });
+      });
     },
-
     //#endregion API
     //#region ON_CELL_SELECTION
     selectionActive(instance, x1, y1, x2, y2) {
@@ -505,6 +504,10 @@ export default {
         });
 
         this.recordCellPosition(this.pricerName);
+
+        if (this.totalsToggle) {
+          this.validateTotalsColumnCondition();
+        }
       }
     },
     validateBaseConditionsForOptCalc() {
@@ -513,7 +516,7 @@ export default {
         "spot",
         "expiryText",
         "strikeText",
-        "call_put",
+        // "call_put",
         "userName",
       ];
 
@@ -543,7 +546,7 @@ export default {
         Object.assign(this.optData, {
           premiumType: userInput,
         });
-        this.sendToServerForCalc(this.optData, activeCol);
+        this.sendToServerForCalc();
       }
     },
     userUpdateUserVol(activeCol) {
@@ -773,20 +776,20 @@ export default {
     userUpdateExpiryText(activeCol) {
       if (this.row == this.keyRow("ExpiryText")) {
         Object.assign(this.optData, { expiryText: this.keyVal("ExpiryText") });
-        this.sendToServerForCalc(this.optData, activeCol);
+        this.sendToServerForCalc();
       }
     },
     userUpdateStrikeText(activeCol) {
       if (this.row == this.keyRow("StrikeText")) {
         Object.assign(this.optData, { strikeText: this.keyVal("StrikeText") });
         this.createStrategy("rr25");
-        this.sendToServerForCalc(this.optData, activeCol);
+        this.sendToServerForCalc();
       }
     },
     userUpdateCallPut(activeCol) {
       if (this.row == this.keyRow("Call_Put")) {
         Object.assign(this.optData, { call_put: this.keyVal("Call_Put") });
-        this.sendToServerForCalc(this.optData, activeCol);
+        this.sendToServerForCalc();
       }
     },
     async userUpdateSpot(activeCol, crossVal) {
@@ -796,7 +799,7 @@ export default {
           await this.getSpot(activeCol, crossVal);
           Object.assign(this.optData, { spot: this.keyVal("Spot").toString() });
 
-          this.sendToServerForCalc(this.optData, activeCol);
+          this.sendToServerForCalc();
         } else {
           const checkSpot = this.keyVal("Spot");
           if (!/^[0-9]+([,.][0-9]+)?$/.test(checkSpot)) {
@@ -810,133 +813,11 @@ export default {
           this.setRed("Spot");
           Object.assign(this.optData, { spot: this.keyVal("Spot") });
 
-          this.sendToServerForCalc(this.optData, activeCol);
+          this.sendToServerForCalc();
         }
       }
     },
     //#endregion USER_UPDATEOPTION
-    //#region STRATEGIES
-    createStrategy(strat) {
-      if (this.keyVal("StrikeText") === strat) {
-        let stratName = `${this.optData.cross}.${strat}`;
-        let checkindex = this.activePricers.indexOf(stratName.toUpperCase());
-
-        let i = 1;
-
-        while (checkindex > -1) {
-          stratName = `${this.optData.cross}.${strat}.${i}`;
-          checkindex = this.activePricers.indexOf(stratName.toUpperCase());
-          i++;
-        }
-
-        const view = stratName.toUpperCase();
-        this.$route.params.viewName = view;
-        this.$router
-          .push({ name: this.$route.name, viewName: view })
-          .catch(() => {});
-      }
-    },
-    createRR() {
-      let leg1 = { ...this.optData };
-      leg1.call_put = "PUT";
-      leg1.strikeText = "25D";
-      leg1.name = "1";
-
-      let leg2 = { ...leg1 };
-      leg2.call_put = "CALL";
-      leg2.name = "2";
-      leg2.notional = "-100";
-
-      let stratContainer = [];
-      stratContainer.push(leg1, leg2);
-
-      setTimeout(() => {
-        this.sendToServerForCalcTotals(stratContainer);
-      }, 3000);
-    },
-
-    //#endregion STRATEGIES
-    //#region INITIALIZE_SHEET
-    setHeaders() {
-      var headers = [];
-      headers.push("TOTALS");
-      headers.push("Key");
-      for (var c = 1; c < 50; c++) {
-        headers.push(c);
-      }
-      return headers;
-    },
-    setColWidths(numberOfColumns, width) {
-      var colWidths = [];
-      for (var c = 0; c < numberOfColumns; c++) {
-        colWidths.push(width);
-      }
-      return colWidths;
-    },
-    setPricerKeys() {
-      return this.pricerSettingsObj
-        .filter((item) => item.Show === true)
-        .map((group) => group.Keys)
-        .flat();
-    },
-    setInitalData(keys) {
-      let newArr = [];
-      keys.forEach((element) => {
-        newArr.push(["", element]);
-      });
-      return newArr;
-    },
-    setReadOnly() {
-      var columns = [];
-      for (var c = 0; c < 50; c++) {
-        columns.push({ readOnly: true });
-      }
-      return columns;
-    },
-    restorePricerData(storedData) {
-      this.clearGrid();
-      if (storedData !== null) {
-        let data = storedData.ActivePricerGridDataJSON;
-        const cols = this.jExcelObj.getData()[0].length;
-        if (data !== null) {
-          data = JSON.parse(data);
-          console.log(data);
-
-          for (var row of data) {
-            var key = row[this.keyCol];
-            var gridRow = this.pricerKeys.indexOf(key);
-            if (gridRow !== -1) {
-              for (var i = 0; i < cols; i++) {
-                var cell = utils.getCell(i, gridRow, this.jExcelObj);
-                cell.classList.remove("readonly");
-              }
-              this.jExcelObj.ignoreEvents = true;
-              this.jExcelObj.setRowData(gridRow, row);
-              this.jExcelObj.ignoreEvents = false;
-              for (var i = 0; i < cols; i++) {
-                var cell = utils.getCell(i, gridRow, this.jExcelObj);
-                cell.classList.add("readonly");
-              }
-            }
-          }
-        }
-        let optData = storedData.ActiveOptionsContainerJSON;
-        if (optData !== null) {
-          optData = JSON.parse(optData);
-          for (var item of optData) {
-            this.optContainer.push(item);
-          }
-        }
-        let redData = storedData.UserOverwrittenInputsJSON;
-        if (redData !== null) {
-          redData = JSON.parse(redData);
-          for (item of redData) {
-            this.redObj.push(item);
-          }
-        }
-      }
-    },
-    //#endregion INITIALIZE_SHEET
     //#region EVENTS
     eventListeners(event) {
       let helper = new eventHelper(
@@ -949,7 +830,7 @@ export default {
       helper.premiumTypeDropDown(this.row, this.col); //spacebar
       helper.callPutToggle(this.row, this.col, this.keyVal("Call_Put")); //spacebar
       helper.flipNotional(this.row, this.col, this.keyVal("Notional")); //spacebar
-      helper.showTotals(); //ctrl w
+      helper.showTotals(this.totalsToggle); //ctrl w
       helper.expiryCalendar(this.row, this.col); //spacebar
       helper.hardCodeStrike(this.row, this.col, this.keyVal("K")); //spacebar
       helper.spaceBarToDvi(this.row, this.col, this.keyVal("Cross")); //spacebar
@@ -982,10 +863,10 @@ export default {
       if (event.code == "KeyR" && event.ctrlKey) {
         event.preventDefault();
         var newOpt = { name: this.col.toString() }; //create new opt object
-        var index = this.optContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optContainer
+        var index = this.optsContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optsContainer
         if (index != -1) {
-          this.optData = this.optContainer[index]; //set current option from container.
-          this.sendToServerForCalc(this.optData, this.col);
+          this.optData = this.optsContainer[index]; //set current option from container.
+          this.sendToServerForCalc();
         }
       }
     },
@@ -1036,6 +917,7 @@ export default {
     //#endregion EVENTS
     //#region FORMAT
     formatComplete() {
+      this.jExcelObj.hideIndex();
       for (const keyGroup of this.pricerSettingsObj) {
         if (keyGroup.Show === true) {
           let keys = keyGroup.Keys;
@@ -1168,7 +1050,7 @@ export default {
         optData[key] = val.toString();
       }
 
-      this.sendToServerForCalc(optData, col);
+      this.sendToServerForCalc();
     },
     //#endregion FORMAT
     //#region UTILITIES
@@ -1212,7 +1094,6 @@ export default {
         this.selectCell(0, setCellPos.col);
       }
     },
-
     //#endregion UTILITIES
     //#region LAYOUT
     resetPricerSetupToggle(val) {
@@ -1270,16 +1151,16 @@ export default {
     },
     copyOpt(col) {
       var fxOptResult = this.jExcelObj.getColumnData(col);
-      var optObj = this.optContainer.filter((opt) => {
-        opt.name == col - 1;
+      var optObj = this.optsContainer.filter((opt) => {
+        return opt.name == col - 1;
       });
       let newOpt = { ...optObj[0] };
       newOpt.name = col.toString();
-      var index = this.optContainer.findIndex((x) => x.name == newOpt.name);
+      var index = this.optsContainer.findIndex((x) => x.name == newOpt.name);
       if (index > -1) {
-        this.optContainer[index] = newOpt;
+        this.optsContainer[index] = newOpt;
       } else {
-        this.optContainer.push(newOpt);
+        this.optsContainer.push(newOpt);
       }
       this.addRedCellsToArray();
       this.replaceSingleOpt(fxOptResult, col + 1);
@@ -1291,11 +1172,11 @@ export default {
       }
     },
     delOpt(col, offset) {
-      var optObj = this.optContainer.filter((opt) => {
-        opt.name == col - 1;
+      var optObj = this.optsContainer.filter((opt) => {
+        return opt.name == col - 1;
       });
-      var index = this.optContainer.findIndex((x) => x.name == optObj[0].name);
-      this.optContainer.splice(index, 1);
+      var index = this.optsContainer.findIndex((x) => x.name == optObj[0].name);
+      this.optsContainer.splice(index, 1);
       this.removeRedCellsFromArray();
       this.replaceSingleOpt(this.emptyCol(), col);
       if (col != 1) {
@@ -1307,21 +1188,41 @@ export default {
         this.sendToServerForCalc();
       }
     },
-    replaceSingleOpt(optValues, col) {
-      for (var i = 0; i < optValues.length; i++) {
-        var cell = utils.getCell(col, i, this.jExcelObj);
-        cell.classList.remove("readonly");
+    replaceSingleOpt(newOpt, col) {
+      var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
+      for (var i = 0; i < newOpt.length; i++) {
+        newList[i][col] = newOpt[i];
       }
-      this.jExcelObj.ignoreEvents = true;
-      this.jExcelObj.setColumnData(col, optValues);
-
-      this.jExcelObj.ignoreEvents = false;
-      for (var i = 0; i < optValues.length; i++) {
-        var cell = utils.getCell(col, i, this.jExcelObj);
-        cell.classList.add("readonly");
-      }
+      this.jExcelObj.setData(newList);
       this.sendAllPricerDataToServer();
     },
+    addContainerToGrid(container) {
+      let grid = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
+      container.forEach((opt) => {
+        const { column, results } = opt;
+
+        for (var i = 0; i < results.length; i++) {
+          grid[i][column] = results[i];
+        }
+      });
+
+      this.jExcelObj.setData(grid);
+    },
+    // replaceSingleOpt(optValues, col) {
+    //   for (var i = 0; i < optValues.length; i++) {
+    //     var cell = utils.getCell(col, i, this.jExcelObj);
+    //     cell.classList.remove("readonly");
+    //   }
+    //   this.jExcelObj.ignoreEvents = true;
+    //   this.jExcelObj.setColumnData(col, optValues);
+
+    //   this.jExcelObj.ignoreEvents = false;
+    //   for (var i = 0; i < optValues.length; i++) {
+    //     var cell = utils.getCell(col, i, this.jExcelObj);
+    //     cell.classList.add("readonly");
+    //   }
+    //   this.sendAllPricerDataToServer();
+    // },
     clearGrid() {
       var cleanSlate = this.jExcelObj.getData()[0];
       var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
@@ -1335,7 +1236,7 @@ export default {
       });
       this.jExcelObj.setData(newList);
       this.redObj = [];
-      this.optContainer = [];
+      this.optsContainer = [];
     },
     clearAll() {
       this.clearGrid();
@@ -1344,6 +1245,17 @@ export default {
       this.selectCell(1, 2);
     },
     //#endregion COPY_DEL_REPLACE
+    //#region STRATEGIES
+    createStrategy(strat) {
+      if (this.keyVal("StrikeText") === strat) {
+        this.$emit("createStrategy", {
+          strategy: strat,
+          optData: this.optData,
+        });
+      }
+    },
+
+    //#endregion STRATEGIES
   },
   async mounted() {
     if (Object.keys(this.defaultPricerKeyGroups).length === 0) {
@@ -1360,7 +1272,7 @@ export default {
     this.initialData = this.setInitalData(this.pricerKeys);
     const jExcelObj = jexcel(this.$refs["jexcelPricer"], this.config);
     Object.assign(this, { jExcelObj });
-    jExcelObj.hideIndex();
+
     this.restorePricerData(this.storedData);
     this.setCellPosition(this.pricerName);
     this.formatComplete();
@@ -1398,19 +1310,22 @@ export default {
     totalsToggle() {
       if (this.totalsToggle) {
         if (!this.isSingleCrossInPricer()) {
-          this.$store.dispatch("setSnackbar", {
-            text: "SINGLE CURRENCY REQUIRED FOR TOTALS",
-            top: true,
-          });
-
-          this.$store.dispatch("togglePriceShowTotals");
+          this.validateTotalsColumnCondition();
           return;
         }
         this.jExcelObj.showColumn(0);
         this.sendToServerForCalc();
+        console.log("are we fkn here");
       } else {
         this.jExcelObj.hideColumn(0);
       }
+    },
+    pricerStrategy() {
+      setTimeout(() => {
+        this.optsContainer = [...this.pricerStrategy];
+        this.optData = this.pricerStrategy[0];
+        this.sendToServerForCalc();
+      }, 500);
     },
   },
 };

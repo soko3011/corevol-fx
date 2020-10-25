@@ -7,6 +7,9 @@ export default {
   RemovePricerFromUse(body) {
     return Api.post("RemovePricerFromUse", body);
   },
+  clearPricersInUse(body) {
+    return Api.post("ClearPricersInUse", body);
+  },
   getLayouts() {
     return Api.get("GetPricerLayouts");
   },
@@ -19,11 +22,11 @@ export default {
   SetPricerLayout(body) {
     return Api.post("SetPricerLayout", body);
   },
-  ReCalcOpt(body) {
-    return Api.post("FxOpt", body);
+  calculateSingleOption(body) {
+    return Api.post("CalculateSingleOption", body);
   },
-  calculateSpread(body) {
-    return Api.post("CalculateSpread", body);
+  calculateContainer(body) {
+    return Api.post("CalculateContainer", body);
   },
   GetSurfaceStatus(body) {
     return Api.post("GetSurfaceStatus", body);

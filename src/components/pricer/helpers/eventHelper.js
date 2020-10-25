@@ -66,10 +66,11 @@ export default class eventHelper {
       );
     }
   }
-  showTotals() {
+  showTotals(currentState) {
     if (this.event.code == "KeyW" && this.event.ctrlKey) {
       this.event.preventDefault();
-      store.dispatch("togglePriceShowTotals");
+      let changeState = currentState === true ? false : true;
+      store.dispatch("togglePriceShowTotals", changeState);
     }
   }
   expiryCalendar(row, col) {

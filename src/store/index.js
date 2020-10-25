@@ -45,18 +45,23 @@ const state = {
   activePricerLayoutTitle: "Trader",
   pricerSetupToggle: false,
   pricerSetupClosed: false,
-  pricerShowTotalsToggle: false
+  pricerShowTotalsToggle: false,
+  pricerStrategy: []
 };
 
 const mutations = {
+  SET_PRICER_STRATEGY(state, data) {
+    state.pricerStrategy = [];
+    state.pricerStrategy = [...data];
+  },
   SET_PRICER_SETUP_TOGGLE(state, data) {
     state.pricerSetupToggle = !state.pricerSetupToggle;
     if (data === "setupClosed") {
       state.pricerSetupClosed = !state.pricerSetupClosed;
     }
   },
-  SET_PRICER_SHOW_TOTALS(state) {
-    state.pricerShowTotalsToggle = !state.pricerShowTotalsToggle;
+  SET_PRICER_SHOW_TOTALS(state, data) {
+    state.pricerShowTotalsToggle = data;
   },
   SET_ACTIVE_PRICERLAYOUT_TITLE(state, data) {
     state.activePricerLayoutTitle = data;
@@ -171,6 +176,9 @@ const mutations = {
 };
 
 const actions = {
+  sendStrategyToPricer({ commit }, data) {
+    commit("SET_PRICER_STRATEGY", data);
+  },
   togglePricerSetupPage({ commit }, data) {
     commit("SET_PRICER_SETUP_TOGGLE", data);
   },
@@ -247,8 +255,8 @@ const actions = {
   toggleRightNav({ commit }) {
     commit("TOGGLE_RIGHT_NAV");
   },
-  togglePriceShowTotals({ commit }) {
-    commit("SET_PRICER_SHOW_TOTALS");
+  togglePriceShowTotals({ commit }, data) {
+    commit("SET_PRICER_SHOW_TOTALS", data);
   },
   async getBrowserTimezone() {
     try {

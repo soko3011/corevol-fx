@@ -1,5 +1,6 @@
 <template>
   <div class="overallContainer ml-5">
+    <!-- <v-btn @click="dev" color="green">pricerDev</v-btn> -->
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
         <v-toolbar
@@ -47,7 +48,12 @@
           class="mr-3 d-flex flex-column"
         >
           <v-list dense>
-            <v-subheader>ACTIVE PRICERS</v-subheader>
+            <v-subheader
+              >ACTIVE PRICERS <v-spacer></v-spacer>
+              <v-btn @click="clearAllPricers" icon x-small color="blue darken-2"
+                ><v-icon>mdi-delete-empty</v-icon></v-btn
+              ></v-subheader
+            >
             <v-list-item
               @click="ReloadPricer(item)"
               v-for="item in activePricers"
@@ -92,7 +98,7 @@
                 </v-btn>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>ADD NEW</v-list-item-title>
+                <v-list-item-title>ADD NEW SHEET</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item>
@@ -109,7 +115,7 @@
                 </v-btn>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>DELETE</v-list-item-title>
+                <v-list-item-title>DELETE SINGLE SHEET</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -120,7 +126,7 @@
           :pricerName="viewName"
           v-bind:style="zoomLevel"
           :key="componentKey"
-          :activePricers="activePricers"
+          @createStrategy="addStrategyView"
         />
       </div>
     </div>
@@ -134,6 +140,7 @@ import TreeView from "@/components/common/TreeView.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import PopUpInput from "@/components/common/PopUpInput.vue";
 import PricerSetupInterface from "@/components/pricer/PricerSetupInterface.vue";
+import stratHelper from "@/components/pricer/helpers/stratHelper.js";
 import { mapState } from "vuex";
 import { statSync } from "fs";
 
@@ -145,7 +152,7 @@ export default {
     TreeView,
     PopUpModal,
     PopUpInput,
-    PricerSetupInterface
+    PricerSetupInterface,
   },
 
   data() {
@@ -158,8 +165,8 @@ export default {
       showSideControl: true,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   async created() {
@@ -170,7 +177,7 @@ export default {
 
     try {
       let response = await PricerApi.GetListOfActivePricers({
-        userName: this.currentUser
+        userName: this.currentUser,
       });
 
       this.activePricers = JSON.parse(response.data.activePricers);
@@ -180,7 +187,7 @@ export default {
     } catch (err) {
       this.$store.dispatch("setSnackbar", {
         text: `${err}  -method: Pricing(created)`,
-        top: true
+        top: true,
       });
     }
   },
@@ -191,23 +198,27 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: state => state.crossList,
-      currentUser: state => state.currentUser,
-      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
-      pricerSetupClosed: state => state.pricerSetupClosed,
-      totalsToggleStore: state => state.pricerShowTotalsToggle
+      crossList: (state) => state.crossList,
+      currentUser: (state) => state.currentUser,
+      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
+      pricerSetupClosed: (state) => state.pricerSetupClosed,
+      totalsToggleStore: (state) => state.pricerShowTotalsToggle,
     }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level
+        zoom: level,
       };
-    }
+    },
   },
 
   methods: {
+    dev() {
+      console.log(this.createdStrat);
+    },
     toggleTotalsSwitch() {
-      this.$store.dispatch("togglePriceShowTotals");
+      let changeState = this.totalsToggleStore === true ? false : true;
+      this.$store.dispatch("togglePriceShowTotals", changeState);
     },
     handleResize() {
       this.window.width = window.innerWidth;
@@ -237,7 +248,13 @@ export default {
 
       this.$route.params.viewName = stratName.toUpperCase();
       this.$router
-        .push({ name: this.$route.name, viewName: view })
+        .push({ name: this.$route.name, viewName: stratName.toUpperCase() })
+        .then((onComplete) => {
+          this.$store.dispatch("togglePriceShowTotals", true);
+          let strategy = new stratHelper();
+          const newStrat = strategy.createRR(strat.optData);
+          this.$store.dispatch("sendStrategyToPricer", newStrat);
+        })
         .catch(() => {});
     },
     UserAddPricer(value) {
@@ -267,7 +284,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `Must have at least one Pricer. Add a new one before deleting ${this.viewName}`,
-          top: true
+          top: true,
         });
 
         return;
@@ -282,19 +299,39 @@ export default {
       try {
         let response = await PricerApi.RemovePricerFromUse({
           userName: this.currentUser,
-          PricerData: { PricerTitle: item }
+          PricerData: { PricerTitle: item },
         });
 
         this.activePricers = JSON.parse(response.data.listOfActivePricers);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  -method: RemoveTab`,
-          top: true
+          top: true,
         });
       }
 
       this.ReloadPricer(redirectTo);
-    }
+    },
+    async clearAllPricers() {
+      let keep = this.activePricers[0];
+      this.activePricers = [];
+      this.activePricers.push(keep);
+
+      try {
+        let response = await PricerApi.clearPricersInUse({
+          userName: this.currentUser,
+          PricerData: { PricerTitle: keep },
+        });
+
+        this.activePricers = JSON.parse(response.data.listOfActivePricers);
+      } catch (error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${err}  -method: RemoveTab`,
+          top: true,
+        });
+      }
+      this.ReloadPricer(keep);
+    },
   },
   watch: {
     crossList() {
@@ -311,8 +348,8 @@ export default {
     },
     totalsToggleStore() {
       this.totalsToggle = this.totalsToggleStore;
-    }
-  }
+    },
+  },
 };
 </script>
 

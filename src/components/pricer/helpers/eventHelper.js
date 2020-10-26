@@ -5,14 +5,7 @@ import store from "@/store/index.js";
 import router from "@/router/index.js";
 
 export default class eventHelper {
-  constructor(
-    event,
-    pricerKeys,
-    keyCol,
-    jExcelObj,
-    eventListeners,
-    autoFillCell
-  ) {
+  constructor(event, pricerKeys, keyCol, jExcelObj) {
     this.event = event;
     this.pricerKeys = pricerKeys;
     this.keyCol = keyCol;

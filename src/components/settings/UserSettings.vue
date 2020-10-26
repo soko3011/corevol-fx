@@ -36,8 +36,8 @@ export default {
   },
   data() {
     return {
-      spotIfaces: ["Barchart", "MongoDB", "Excel"],
-      swapIfaces: ["Barchart", "MongoDB", "Excel"],
+      spotIfaces: ["InvestingDotCom", "MongoDB"],
+      swapIfaces: ["EmpireFX", "MongoDB"],
       spotIface: "",
       swapIface: ""
     };

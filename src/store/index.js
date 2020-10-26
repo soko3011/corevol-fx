@@ -552,7 +552,7 @@ const getters = {
       !state.lastPricerTab === undefined ||
       state.lastPricerTab === ""
     ) {
-      return state.userPrefCross;
+      return "MAIN";
     } else return state.lastPricerTab;
   }
 };

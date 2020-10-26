@@ -29,9 +29,9 @@
           <v-toolbar-title>System Data</v-toolbar-title>
           <v-spacer></v-spacer>
           <div class="green--text text--lighten-3">
-            <v-toolbar-title
-              class="font-weight-light subtitle-2"
-            >Spot:{{ spotIface }} | Swap:{{ swapIface }}</v-toolbar-title>
+            <v-toolbar-title class="font-weight-light subtitle-2"
+              >Spot:{{ spotIface }} | Swap:{{ swapIface }}</v-toolbar-title
+            >
           </div>
         </v-toolbar>
       </template>
@@ -60,13 +60,13 @@
         <v-container fluid>
           <v-select
             v-model="spotIface"
-            :items="ifaces"
+            :items="spotIfaces"
             label="Spot Interface"
             @change="changeIface($event, 'spot')"
           ></v-select>
           <v-select
             v-model="swapIface"
-            :items="ifaces"
+            :items="swapIfaces"
             label="Swaps Interface"
             @change="changeIface($event, 'swap')"
           ></v-select>
@@ -82,10 +82,10 @@
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
         Interfaces Updated => Spot: {{ spotIface }} | Swap :{{ swapIface }}
-        <template
-          v-slot:action="{ attrs }"
-        >
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false">Close</v-btn>
+        <template v-slot:action="{ attrs }">
+          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false"
+            >Close</v-btn
+          >
         </template>
       </v-snackbar>
     </div>
@@ -110,7 +110,8 @@ export default {
     marketTableTitle: "",
     marketTableWidth: "",
     selectedCross: "",
-    ifaces: ["Barchart", "MongoDB", "Excel"],
+    spotIfaces: ["InvestingDotCom", "MongoDB"],
+    swapIfaces: ["EmpireFX", "MongoDB"],
     spotIface: "",
     swapIface: "",
     snackbar: false,

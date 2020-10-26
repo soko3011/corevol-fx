@@ -152,7 +152,7 @@ export default {
     TreeView,
     PopUpModal,
     PopUpInput,
-    PricerSetupInterface,
+    PricerSetupInterface
   },
 
   data() {
@@ -165,8 +165,8 @@ export default {
       showSideControl: true,
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   async created() {
@@ -177,7 +177,7 @@ export default {
 
     try {
       let response = await PricerApi.GetListOfActivePricers({
-        userName: this.currentUser,
+        userName: this.currentUser
       });
 
       this.activePricers = JSON.parse(response.data.activePricers);
@@ -187,7 +187,7 @@ export default {
     } catch (err) {
       this.$store.dispatch("setSnackbar", {
         text: `${err}  -method: Pricing(created)`,
-        top: true,
+        top: true
       });
     }
   },
@@ -198,18 +198,18 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: (state) => state.crossList,
-      currentUser: (state) => state.currentUser,
-      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
-      pricerSetupClosed: (state) => state.pricerSetupClosed,
-      totalsToggleStore: (state) => state.pricerShowTotalsToggle,
+      crossList: state => state.crossList,
+      currentUser: state => state.currentUser,
+      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
+      pricerSetupClosed: state => state.pricerSetupClosed,
+      totalsToggleStore: state => state.pricerShowTotalsToggle
     }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level,
+        zoom: level
       };
-    },
+    }
   },
 
   methods: {
@@ -249,7 +249,7 @@ export default {
       this.$route.params.viewName = stratName.toUpperCase();
       this.$router
         .push({ name: this.$route.name, viewName: stratName.toUpperCase() })
-        .then((onComplete) => {
+        .then(onComplete => {
           this.$store.dispatch("togglePriceShowTotals", true);
           let strategy = new stratHelper();
           const newStrat = strategy.createRR(strat.optData);
@@ -283,8 +283,8 @@ export default {
     async RemoveTab(item) {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
-          text: `Must have at least one Pricer. Add a new one before deleting ${this.viewName}`,
-          top: true,
+          text: `CANNOT REMOVE THE MAIN PRICER. PRESS CTRL-D TO CLEAR THE SHEET`,
+          top: true
         });
 
         return;
@@ -299,39 +299,35 @@ export default {
       try {
         let response = await PricerApi.RemovePricerFromUse({
           userName: this.currentUser,
-          PricerData: { PricerTitle: item },
+          PricerData: { PricerTitle: item }
         });
 
         this.activePricers = JSON.parse(response.data.listOfActivePricers);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  -method: RemoveTab`,
-          top: true,
+          top: true
         });
       }
 
       this.ReloadPricer(redirectTo);
     },
     async clearAllPricers() {
-      let keep = this.activePricers[0];
-      this.activePricers = [];
-      this.activePricers.push(keep);
-
       try {
         let response = await PricerApi.clearPricersInUse({
-          userName: this.currentUser,
-          PricerData: { PricerTitle: keep },
+          UserName: this.currentUser
         });
 
         this.activePricers = JSON.parse(response.data.listOfActivePricers);
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
-          text: `${err}  -method: RemoveTab`,
-          top: true,
+          text: `${error}  -method: RemoveTab`,
+          top: true
         });
       }
-      this.ReloadPricer(keep);
-    },
+      this.$store.dispatch("togglePriceShowTotals", false);
+      this.ReloadPricer("MAIN");
+    }
   },
   watch: {
     crossList() {
@@ -348,8 +344,8 @@ export default {
     },
     totalsToggleStore() {
       this.totalsToggle = this.totalsToggleStore;
-    },
-  },
+    }
+  }
 };
 </script>
 

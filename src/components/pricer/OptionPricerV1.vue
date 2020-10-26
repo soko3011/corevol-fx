@@ -30,6 +30,7 @@ import cssClassHelper from "./helpers/cssClassHelper.js";
 import eventHelper from "./helpers/eventHelper.js";
 import optCalcHelper from "./helpers/optCalcHelper.js";
 import PricerSetup from "@/components/pricer/PricerSetup.vue";
+import stratHelper from "@/components/pricer/helpers/stratHelper.js";
 import moment from "moment";
 import { mapState } from "vuex";
 
@@ -782,7 +783,9 @@ export default {
     userUpdateStrikeText(activeCol) {
       if (this.row == this.keyRow("StrikeText")) {
         Object.assign(this.optData, { strikeText: this.keyVal("StrikeText") });
-        this.createStrategy("rr25");
+        if (this.createStrategy(this.keyVal("StrikeText"))) {
+          return;
+        }
         this.sendToServerForCalc();
       }
     },
@@ -1245,12 +1248,18 @@ export default {
     //#endregion COPY_DEL_REPLACE
     //#region STRATEGIES
     createStrategy(strat) {
-      if (this.keyVal("StrikeText") === strat) {
-        this.$emit("createStrategy", {
-          strategy: strat,
-          optData: this.optData
-        });
+      let strategy = new stratHelper(strat);
+
+      if (!strategy.validateStrategyCreation()) {
+        return;
       }
+
+      this.$emit("createStrategy", {
+        strategy: strat,
+        optData: this.optData
+      });
+
+      return true;
     },
 
     mountStrategy() {

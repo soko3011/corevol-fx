@@ -251,9 +251,12 @@ export default {
         .push({ name: this.$route.name, viewName: stratName.toUpperCase() })
         .then(onComplete => {
           this.$store.dispatch("togglePriceShowTotals", true);
-          let strategy = new stratHelper();
-          const newStrat = strategy.createRR(strat.optData);
-          this.$store.dispatch("sendStrategyToPricer", newStrat);
+          let strategy = new stratHelper(strat.strategy, strat.optData);
+
+          this.$store.dispatch(
+            "sendStrategyToPricer",
+            strategy.returnValidStrategy()
+          );
         })
         .catch(() => {});
     },

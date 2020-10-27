@@ -8,10 +8,10 @@
         :bottom="snackbar.bottom"
         :top="snackbar.top"
         elevation="20"
-        v-for="snackbar in snackbars.filter((s) => s.showing)"
+        v-for="snackbar in snackbars.filter(s => s.showing)"
         :key="snackbar.text + Math.random()"
         v-model="snackbar.showing"
-        :timeout="snackbar.timeout"
+        timeout="1500"
         :color="snackbar.color"
       >
         {{ snackbar.text }}
@@ -38,15 +38,14 @@ export default {
   created() {},
   computed: {
     ...mapState({
-      snackbars: (state) => state.snackbars,
-    }),
+      snackbars: state => state.snackbars
+    })
   },
 
   data: () => ({
     //
-  }),
+  })
 };
 </script>
 
-<style>
-</style>
+<style></style>

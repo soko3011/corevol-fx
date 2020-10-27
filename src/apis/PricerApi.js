@@ -54,5 +54,8 @@ export default {
   },
   getStrategyVol(body) {
     return Api.post("GetStrategyVol", body);
+  },
+  addNewActivePricer(body) {
+    return Api.post("AddNewActivePricer", body);
   }
 };

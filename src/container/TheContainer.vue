@@ -17,9 +17,6 @@ import TheSidebar from "@/container/TheSidebar.vue";
 import TheFooter from "@/container/TheFooter.vue";
 
 export default {
-  created() {
-    console.log("container Created");
-  },
   data: () => ({
     drawer: null
   }),

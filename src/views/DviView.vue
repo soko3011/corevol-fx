@@ -662,9 +662,6 @@ $mainWidth: var(--main-width);
   height: $mainHeight;
 }
 
-.topFixed {
-}
-
 .fade-enter {
   /* starting style */
   opacity: 0;

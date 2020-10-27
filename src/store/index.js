@@ -178,7 +178,54 @@ const mutations = {
 };
 
 const actions = {
-  async getActivePricerListFromServer({ commit }) {
+  async removeActivePricer({ commit, dispatch }, data) {
+    try {
+      let response = await PricerApi.RemovePricerFromUse({
+        userName: state.currentUser,
+        PricerData: { PricerTitle: data }
+      });
+      let list = JSON.parse(response.data.activePricers);
+      commit("SET_ACTIVE_PRICER_LIST", list);
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `${err}  -store: removeActivePricer`,
+        top: true
+      });
+    }
+  },
+  async clearAllPricers({ commit, dispatch }) {
+    try {
+      let response = await PricerApi.clearPricersInUse({
+        UserName: state.currentUser
+      });
+
+      let list = JSON.parse(response.data.activePricers);
+      commit("SET_ACTIVE_PRICER_LIST", list);
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}  -store: clearAllPricers`,
+        top: true
+      });
+    }
+  },
+
+  async addNewActivePricer({ commit, dispatch }, data) {
+    try {
+      let response = await PricerApi.addNewActivePricer({
+        UserName: state.currentUser,
+        PricerData: { PricerTitle: data.toUpperCase() }
+      });
+      let list = JSON.parse(response.data.activePricers);
+
+      commit("SET_ACTIVE_PRICER_LIST", list);
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `${err}  -store: addNewActivePricer`,
+        top: true
+      });
+    }
+  },
+  async getActivePricerListFromServer({ commit, dispatch }) {
     try {
       let response = await PricerApi.GetListOfActivePricers({
         userName: state.currentUser
@@ -186,8 +233,8 @@ const actions = {
       let list = JSON.parse(response.data.activePricers);
       commit("SET_ACTIVE_PRICER_LIST", list);
     } catch (err) {
-      this.$store.dispatch("setSnackbar", {
-        text: `${err}  -method: Pricing(created)`,
+      dispatch("setSnackbar", {
+        text: `${err}  -store: getActivePricerListFromServer`,
         top: true
       });
     }

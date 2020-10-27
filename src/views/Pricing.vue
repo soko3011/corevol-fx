@@ -41,6 +41,16 @@
         </v-toolbar>
       </div>
       <div class="d-flex flex-row flex-nowrap">
+        <v-progress-linear
+          active
+          :indeterminate="loading"
+          top
+          background-opacity="0"
+          color="blue accent-4"
+          rounded
+        ></v-progress-linear>
+      </div>
+      <div class="d-flex flex-row mb-5 flex-nowrap">
         <v-card
           v-if="showSideControl"
           min-width="225"
@@ -55,8 +65,8 @@
           >
           <v-list dense height="325" class="scroll">
             <v-list-item
-              @click="ReloadPricer(item)"
-              v-for="item in activePricersStore"
+              @click="reloadPricer(item)"
+              v-for="item in activePricers"
               :key="item"
               ripple
             >
@@ -93,7 +103,7 @@
                     :color="'blue'"
                     :title="'corevolFx Pricer'"
                     :large="false"
-                    v-on:selection="UserAddPricer"
+                    v-on:selection="userAddPricer"
                   />
                 </v-btn>
               </v-list-item-action>
@@ -110,7 +120,7 @@
                     :color="'grey'"
                     :large="false"
                     :title="'REMOVE DVI'"
-                    v-on:selection="RemoveTab"
+                    v-on:selection="removeSinglePricer"
                   />
                 </v-btn>
               </v-list-item-action>
@@ -135,8 +145,6 @@
 
 <script>
 import OptionPricer from "@/components/pricer/OptionPricerV1.vue";
-import PricerApi from "@/apis/PricerApi";
-import TreeView from "@/components/common/TreeView.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import PopUpInput from "@/components/common/PopUpInput.vue";
 import PricerSetupInterface from "@/components/pricer/PricerSetupInterface.vue";
@@ -145,20 +153,18 @@ import { mapState } from "vuex";
 
 export default {
   name: "Pricer",
-
   components: {
     OptionPricer,
-    TreeView,
     PopUpModal,
     PopUpInput,
     PricerSetupInterface
   },
-
   data() {
     return {
+      loading: false,
+
       totalsToggle: false,
       componentKey: 0,
-      activePricers: [],
       modalToggle: false,
       viewName: this.$route.params.viewName,
       showSideControl: true,
@@ -171,25 +177,14 @@ export default {
   async created() {
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
+    this.loading = true;
     this.$store.dispatch("refreshCrossList");
     await this.$store.dispatch("getActivePricerListFromServer");
+    if (this.activePricers.indexOf(this.viewName) === -1) {
+      this.reloadPricer(this.viewName);
+    }
 
-    // try {
-    //   let response = await PricerApi.GetListOfActivePricers({
-    //     userName: this.currentUser
-    //   });
-
-    //   this.activePricers = JSON.parse(response.data.activePricers);
-
-    //   if (this.activePricers.indexOf(this.viewName) === -1) {
-    //     this.AddNewPricer(this.viewName);
-    //   }
-    // } catch (err) {
-    //   this.$store.dispatch("setSnackbar", {
-    //     text: `${err}  -method: Pricing(created)`,
-    //     top: true
-    //   });
-    // }
+    this.loading = false;
   },
 
   destroyed() {
@@ -203,7 +198,7 @@ export default {
       activePricerLayoutTitle: state => state.activePricerLayoutTitle,
       pricerSetupClosed: state => state.pricerSetupClosed,
       totalsToggleStore: state => state.pricerShowTotalsToggle,
-      activePricersStore: state => state.activePricerList
+      activePricers: state => state.activePricerList
     }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
@@ -212,10 +207,9 @@ export default {
       };
     }
   },
-
   methods: {
     dev() {
-      console.log(this.createdStrat);
+      this.setTransition = !this.setTransition;
     },
     toggleTotalsSwitch() {
       let changeState = this.totalsToggleStore === true ? false : true;
@@ -235,25 +229,23 @@ export default {
         `${this.window.height}px`
       );
     },
-    addStrategyView(strat) {
-      let stratName = `${strat.optData.cross}.${strat.strategy}`;
-      let checkindex = this.activePricers.indexOf(stratName.toUpperCase());
-
+    async addStrategyView(strat) {
+      let stratName = `${strat.optData.cross}.${strat.strategy}`.toUpperCase();
+      let checkindex = this.activePricers.indexOf(stratName);
       let i = 1;
-
       while (checkindex > -1) {
-        stratName = `${strat.optData.cross}.${strat.strategy}.${i}`;
-        checkindex = this.activePricers.indexOf(stratName.toUpperCase());
+        stratName = `${strat.optData.cross}.${strat.strategy}.${i}`.toUpperCase();
+        checkindex = this.activePricers.indexOf(stratName);
         i++;
       }
-
-      this.$route.params.viewName = stratName.toUpperCase();
+      await this.$store.dispatch("addNewActivePricer", stratName);
+      console.log(this.activePricers);
+      this.$route.params.viewName = stratName;
       this.$router
-        .push({ name: this.$route.name, viewName: stratName.toUpperCase() })
+        .push({ name: this.$route.name, viewName: stratName })
         .then(onComplete => {
           this.$store.dispatch("togglePriceShowTotals", true);
           let strategy = new stratHelper(strat.strategy, strat.optData);
-
           this.$store.dispatch(
             "sendStrategyToPricer",
             strategy.returnValidStrategy()
@@ -261,30 +253,24 @@ export default {
         })
         .catch(() => {});
     },
-    UserAddPricer(value) {
-      if (this.activePricers.indexOf(value) === -1) {
-        this.AddNewPricer(value.toUpperCase());
-      } else {
-        alert("Pricer already exist: Choose another name");
-      }
+    isPricerNameDupe(checkName) {
+      checkName = checkName.toUpperCase();
+      return this.activePricers.indexOf(checkName) !== -1 ? true : false;
     },
-    AddNewPricer(value) {
-      var index = this.activePricers.indexOf(value);
-      if (index === -1) {
-        this.activePricers.push(value);
-        index = this.activePricers.length;
+    async userAddPricer(pricerName) {
+      pricerName = pricerName.toUpperCase();
+      if (this.isPricerNameDupe(pricerName) === true) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${priceName} already exist: Rename Pricer`,
+          top: true
+        });
+        return;
       }
-
+      await this.$store.dispatch("addNewActivePricer", pricerName);
       this.modalToggle = false;
-      this.ReloadPricer(value);
+      this.reloadPricer(pricerName);
     },
-    ReloadPricer(view) {
-      this.$route.params.viewName = view;
-      this.$router
-        .push({ name: this.$route.name, viewName: view })
-        .catch(() => {});
-    },
-    async RemoveTab(item) {
+    async removeSinglePricer(item) {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `CANNOT REMOVE THE MAIN PRICER. PRESS CTRL-D TO CLEAR THE SHEET`,
@@ -300,37 +286,20 @@ export default {
           ? this.activePricers[index - 1]
           : this.activePricers[index + 1];
 
-      try {
-        let response = await PricerApi.RemovePricerFromUse({
-          userName: this.currentUser,
-          PricerData: { PricerTitle: item }
-        });
+      await this.$store.dispatch("removeActivePricer", item);
 
-        this.activePricers = JSON.parse(response.data.listOfActivePricers);
-      } catch (error) {
-        this.$store.dispatch("setSnackbar", {
-          text: `${err}  -method: RemoveTab`,
-          top: true
-        });
-      }
-
-      this.ReloadPricer(redirectTo);
+      this.reloadPricer(redirectTo);
     },
     async clearAllPricers() {
-      try {
-        let response = await PricerApi.clearPricersInUse({
-          UserName: this.currentUser
-        });
-
-        this.activePricers = JSON.parse(response.data.listOfActivePricers);
-      } catch (error) {
-        this.$store.dispatch("setSnackbar", {
-          text: `${error}  -method: RemoveTab`,
-          top: true
-        });
-      }
+      this.$store.dispatch("clearAllPricers");
       this.$store.dispatch("togglePriceShowTotals", false);
-      this.ReloadPricer("MAIN");
+      this.reloadPricer("MAIN");
+    },
+    reloadPricer(view) {
+      this.$route.params.viewName = view;
+      this.$router
+        .push({ name: this.$route.name, viewName: view })
+        .catch(() => {});
     }
   },
   watch: {
@@ -363,15 +332,6 @@ span {
 .scroll {
   overflow-y: auto;
 }
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 1.5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
-
 .overallContainer {
   display: flex;
   overflow: scroll;
@@ -379,5 +339,14 @@ span {
   padding-right: 0px;
   height: $mainHeight;
   width: $mainWidth;
+}
+.slide-enter-active {
+  transition: 2.5s;
+}
+.slide-enter {
+  transform: translate(100%, 0);
+}
+.slide-leave-to {
+  transform: translate(-100%, 0);
 }
 </style>

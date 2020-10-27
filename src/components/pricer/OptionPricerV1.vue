@@ -259,6 +259,9 @@ export default {
         this.optData,
         this.pricerKeys
       );
+
+      console.log(`validation:${calcHelper.baseConditionsIsValidated()}`);
+      console.log(this.optData);
       if (!calcHelper.baseConditionsIsValidated()) {
         return;
       }
@@ -1153,6 +1156,7 @@ export default {
       this.jExcelObj.setData(newList);
       this.redObj = [];
       this.optsContainer = [];
+      this.optData = [];
     },
     clearAll() {
       this.clearGrid();
@@ -1245,6 +1249,7 @@ export default {
           return;
         }
         this.jExcelObj.showColumn(0);
+
         this.sendToServerForCalc();
       } else {
         this.jExcelObj.hideColumn(0);

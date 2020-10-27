@@ -26,7 +26,8 @@ import * as calendar from "@/externaljs/calendar.js"; // eslint-disable-line no-
 import PricerApi from "@/apis/PricerApi";
 import alphabetJson from "./Alphabet.json";
 import * as utils from "./helpers/pricerUtils.js";
-import cssClassHelper from "./helpers/cssClassHelper.js";
+import cssUnitsHelper from "./helpers/cssUnitsHelper.js";
+import cssUserEditHelper from "./helpers/cssUserEditHelper.js";
 import eventHelper from "./helpers/eventHelper.js";
 import optCalcHelper from "./helpers/optCalcHelper.js";
 import PricerSetup from "@/components/pricer/PricerSetup.vue";
@@ -119,55 +120,6 @@ export default {
     },
     keyCol() {
       return this.setHeaders().indexOf("Key");
-    },
-    nonReadOnlyList() {
-      let arr = [];
-      arr.push(
-        this.keyRow("Spot"),
-        this.keyRow("ExpiryText"),
-        this.keyRow("StrikeText"),
-        this.keyRow("Call_Put"),
-        this.keyRow("Notional"),
-        this.keyRow("UserVol"),
-        this.keyRow("AtmVol"),
-        this.keyRow("Rr"),
-        this.keyRow("Fly"),
-        this.keyRow("RrMult"),
-        this.keyRow("FlyMult"),
-        this.keyRow("ForDepo"),
-        this.keyRow("DomDepo"),
-        this.keyRow("FwdOutRight"),
-        this.keyRow("FwdPts")
-      );
-      return arr;
-    },
-    userEditableCells() {
-      let arr = [];
-      arr.push(
-        this.keyRow("Cross"),
-        this.keyRow("Spot"),
-        this.keyRow("ExpiryText"),
-        this.keyRow("StrikeText"),
-        this.keyRow("Call_Put"),
-        this.keyRow("Notional"),
-        this.keyRow("UserVol"),
-        this.keyRow("PremiumType"),
-        this.keyRow("AtmVol"),
-        this.keyRow("Rr"),
-        this.keyRow("Fly"),
-        this.keyRow("RrMult"),
-        this.keyRow("FlyMult"),
-        this.keyRow("ForDepo"),
-        this.keyRow("DomDepo"),
-        this.keyRow("FwdOutRight"),
-        this.keyRow("FwdPts")
-      );
-      return arr;
-    },
-    dropDownCells() {
-      let arr = [];
-      arr.push(this.keyRow("Cross"), this.keyRow("PremiumType"));
-      return arr;
     }
   },
   methods: {
@@ -318,7 +270,7 @@ export default {
       this.addContainerToGrid(calcedAndOrderdContainer);
       this.formatComplete();
 
-      let cssHelper = new cssClassHelper(
+      let unitsHelper = new cssUnitsHelper(
         this.keyVal("Cross"),
         this.keyVal("PremiumType"),
         this.col,
@@ -327,7 +279,7 @@ export default {
         this.jExcelObj
       );
 
-      cssHelper.setAppendUnitsToCells();
+      unitsHelper.setAppendUnitsToCells();
 
       this.jExcelObj.updateSelectionFromCoords(
         this.col,
@@ -415,55 +367,18 @@ export default {
       this.col = x1;
       this.eventListenerToggle = true;
 
-      // if (this.col === 1) {
-      //   this.jExcelObj.updateSelectionFromCoords(2, this.row, 2, this.row);
-      // }
-
-      var cellsWithUserEditClass = document.getElementsByClassName(
-        "userEditCell"
+      let cssUser = new cssUserEditHelper(
+        this.jExcelObj,
+        x1,
+        y1,
+        this.pricerKeys,
+        this.keyCol
       );
-      while (cellsWithUserEditClass.length)
-        cellsWithUserEditClass[0].classList.remove("userEditCell");
 
-      while (cellsWithUserEditClass.length)
-        cellsWithUserEditClass[0].classList.add("readonly");
-
-      var cellsWithDropDown = document.getElementsByClassName("dropDownCells");
-      while (cellsWithDropDown.length)
-        cellsWithDropDown[0].classList.remove("dropDownCells");
-
-      if (this.keyVal("Cross") !== "") {
-        if (this.userEditableCells.indexOf(this.row) !== -1) {
-          if (x1 > 1) {
-            var cell = utils.getCell(x1, y1, this.jExcelObj);
-            cell.classList.add("userEditCell");
-          }
-        }
-
-        if (
-          this.dropDownCells.indexOf(this.row) !== -1 &&
-          this.keyVal("PremiumType") !== ""
-        ) {
-          if (x1 > 1) {
-            var cell = utils.getCell(x1, y1, this.jExcelObj);
-            cell.classList.add("dropDownCells");
-          }
-        }
-
-        if (this.nonReadOnlyList.indexOf(this.row) !== -1) {
-          if (x1 > 1) {
-            var cell = utils.getCell(x1, y1, this.jExcelObj);
-            cell.classList.remove("readonly");
-          }
-        }
-      }
-
-      if (this.row === this.keyRow("Cross") && this.keyVal("Cross") === "") {
-        if (x1 > 1) {
-          var cell = utils.getCell(x1, y1, this.jExcelObj);
-          cell.classList.add("userEditCell");
-        }
-      }
+      cssUser.activateUserEditableClasses(
+        this.keyVal("Cross"),
+        this.keyVal("PremiumType")
+      );
     },
 
     //#endregion ON_CELL_SELECTION
@@ -1300,7 +1215,7 @@ export default {
     },
     col() {
       if (this.keyVal("SystemVol") !== "") {
-        let cssHelper = new cssClassHelper(
+        let unitsHelper = new cssUnitsHelper(
           this.keyVal("Cross"),
           this.keyVal("PremiumType"),
           this.col,
@@ -1309,7 +1224,7 @@ export default {
           this.jExcelObj
         );
 
-        cssHelper.setAppendUnitsToCells();
+        unitsHelper.setAppendUnitsToCells();
       }
     },
     eventListenerToggle() {
@@ -1331,7 +1246,6 @@ export default {
         }
         this.jExcelObj.showColumn(0);
         this.sendToServerForCalc();
-        console.log("are we fkn here");
       } else {
         this.jExcelObj.hideColumn(0);
       }

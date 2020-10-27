@@ -1,6 +1,81 @@
 import * as utils from "./pricerUtils.js";
 
-export default class cssClassHelper {
+const userEditableCells = [
+  "Cross",
+  "Spot",
+  "ExpiryText",
+  "StrikeText",
+  "Call_Put",
+  "Notional",
+  "UserVol",
+  "PremiumType",
+  "AtmVol",
+  "Rr",
+  "Fly",
+  "RrMult",
+  "FlyMult",
+  "ForDepo",
+  "DomDepo",
+  "FwdOutRight",
+  "FwdPts"
+];
+
+const variableUnits = [
+  "Price",
+  "Fwd_Price",
+  "Vega",
+  "Theta",
+  "Vanna",
+  "Volga",
+  "SVega",
+  "SVolga",
+  "SVanna",
+  "STheta",
+  "PremiumAmt",
+  "Fwd_PremiumAmt",
+  "VegaAmt",
+  "ThetaAmt",
+  "SVegaAmt",
+  "SThetaAmt",
+  "VannaAmt",
+  "VolgaAmt",
+  "SVannaAmt",
+  "SVolgaAmt",
+  "Rega25",
+  "Rega10",
+  "Sega25",
+  "Sega10",
+  "Rega25Amt",
+  "Rega10Amt",
+  "Sega25Amt",
+  "Sega10Amt",
+  "Rho_Dom",
+  "Rho_DomAmt",
+  "Rho_For",
+  "Rho_ForAmt"
+];
+
+const alwaysBaseUnitsList = [
+  "Delta",
+  "Fwd_Delta",
+  "DeltaAmt",
+  "Fwd_DeltaAmt",
+  "Gamma",
+  "GammaAmt",
+  "SDelta",
+  "Fwd_SDelta",
+  "SDeltaAmt",
+  "Fwd_SDeltaAmt",
+  "SGamma",
+  "SGammaAmt",
+  "ForDepo",
+  "DfForExp",
+  "DfForDel"
+];
+
+const alwaysTermsUnitsList = ["DomDepo", "DfDomExp", "DfDomDel"];
+
+export default class cssUnitsHelper {
   constructor(cross, premiumType, col, keyCol, pricerKeys, table) {
     this.cross = cross;
     this.premiumType = premiumType;
@@ -18,76 +93,6 @@ export default class cssClassHelper {
       this.appendTermsUnitsToCells();
       this.appendVariableUnitsToCells();
     }
-  }
-
-  alwaysBaseUnitsList() {
-    let arr = [];
-    arr.push(
-      "Delta",
-      "Fwd_Delta",
-      "DeltaAmt",
-      "Fwd_DeltaAmt",
-      "Gamma",
-      "GammaAmt",
-      "SDelta",
-      "Fwd_SDelta",
-      "SDeltaAmt",
-      "Fwd_SDeltaAmt",
-      "SGamma",
-      "SGammaAmt",
-      "ForDepo",
-      "DfForExp",
-      "DfForDel"
-    );
-
-    return arr;
-  }
-
-  alwaysTermsUnitsList() {
-    let arr = [];
-    arr.push("DomDepo", "DfDomExp", "DfDomDel");
-
-    return arr;
-  }
-
-  variableUnits() {
-    let arr = [];
-    arr.push(
-      "Price",
-      "Fwd_Price",
-      "Vega",
-      "Theta",
-      "Vanna",
-      "Volga",
-      "SVega",
-      "SVolga",
-      "SVanna",
-      "STheta",
-      "PremiumAmt",
-      "Fwd_PremiumAmt",
-      "VegaAmt",
-      "ThetaAmt",
-      "SVegaAmt",
-      "SThetaAmt",
-      "VannaAmt",
-      "VolgaAmt",
-      "SVannaAmt",
-      "SVolgaAmt",
-      "Rega25",
-      "Rega10",
-      "Sega25",
-      "Sega10",
-      "Rega25Amt",
-      "Rega10Amt",
-      "Sega25Amt",
-      "Sega10Amt",
-      "Rho_Dom",
-      "Rho_DomAmt",
-      "Rho_For",
-      "Rho_ForAmt"
-    );
-
-    return arr;
   }
 
   clearUnitsClasses() {
@@ -116,20 +121,21 @@ export default class cssClassHelper {
   }
 
   appendBaseUnitsToCells() {
-    this.alwaysBaseUnitsList().forEach(element => {
+    alwaysBaseUnitsList.forEach(element => {
       if (this.pricerKeys.indexOf(element) > -1) {
         const cell = utils.getCell(
           this.col,
           this.pricerKeys.indexOf(element),
           this.table
         );
+
         cell.classList.add("baseUnit");
       }
     });
   }
 
   appendTermsUnitsToCells() {
-    this.alwaysTermsUnitsList().forEach(element => {
+    alwaysTermsUnitsList.forEach(element => {
       if (this.pricerKeys.indexOf(element) > -1) {
         const cell = utils.getCell(
           this.col,
@@ -149,7 +155,7 @@ export default class cssClassHelper {
       classType = "termsUnit";
     }
 
-    this.variableUnits().forEach(element => {
+    variableUnits.forEach(element => {
       if (this.pricerKeys.indexOf(element) > -1) {
         const cell = utils.getCell(
           this.col,

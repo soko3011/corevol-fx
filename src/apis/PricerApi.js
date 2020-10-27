@@ -51,5 +51,8 @@ export default {
   },
   SetPricerLayoutTitle(body) {
     return Api.post("SetPricerLayoutTitle", body);
+  },
+  getStrategyVol(body) {
+    return Api.post("GetStrategyVol", body);
   }
 };

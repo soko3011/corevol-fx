@@ -1243,6 +1243,9 @@ export default {
       }
     },
     totalsToggle() {
+      if (this.jExcelObj === undefined) {
+        return;
+      }
       if (this.totalsToggle) {
         if (!this.isSingleCrossInPricer()) {
           this.validateTotalsColumnCondition();

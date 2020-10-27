@@ -46,10 +46,14 @@ const state = {
   pricerSetupToggle: false,
   pricerSetupClosed: false,
   pricerShowTotalsToggle: false,
-  pricerStrategy: []
+  pricerStrategy: [],
+  activePricerList: []
 };
 
 const mutations = {
+  SET_ACTIVE_PRICER_LIST(state, data) {
+    state.activePricerList = [...data];
+  },
   SET_PRICER_STRATEGY(state, data) {
     state.pricerStrategy = [];
     state.pricerStrategy = [...data];
@@ -155,7 +159,6 @@ const mutations = {
     if (user.PricerLayoutPrefs !== null) {
       state.userPricerLayoutPrefs = JSON.parse(user.PricerLayoutPrefs);
     }
-    console.log(state.userPricerLayoutPrefs);
 
     if (user.activePricerLayoutTitle !== null) {
       state.activePricerLayoutTitle = user.ActivePricerLayoutTitle;
@@ -164,7 +167,6 @@ const mutations = {
     if (user.DviPrefs !== null) {
       state.dviPrefs = JSON.parse(user.DviPrefs);
     }
-    console.log(state.dviPrefs);
   },
   SET_ISAUTHED(state, user) {
     state.isUserAuthed = user.IsAuthed;
@@ -176,6 +178,20 @@ const mutations = {
 };
 
 const actions = {
+  async getActivePricerListFromServer({ commit }) {
+    try {
+      let response = await PricerApi.GetListOfActivePricers({
+        userName: state.currentUser
+      });
+      let list = JSON.parse(response.data.activePricers);
+      commit("SET_ACTIVE_PRICER_LIST", list);
+    } catch (err) {
+      this.$store.dispatch("setSnackbar", {
+        text: `${err}  -method: Pricing(created)`,
+        top: true
+      });
+    }
+  },
   sendStrategyToPricer({ commit }, data) {
     commit("SET_PRICER_STRATEGY", data);
   },
@@ -190,7 +206,6 @@ const actions = {
         UserName: state.currentUser,
         ActivePricerLayoutTitle: data
       });
-      console.log(`activeLayoutTitleSaved ${response.status}`);
     } catch (error) {
       dispatch("setSnackbar", {
         text: `${error}`
@@ -217,8 +232,6 @@ const actions = {
         UserName: state.currentUser,
         DviPrefs: JSON.stringify(data)
       });
-
-      console.log("dviPrefs saved");
     } catch (error) {
       dispatch("setSnackbar", {
         text: `${error}`
@@ -297,7 +310,6 @@ const actions = {
 
       return user;
     } catch (e) {
-      console.log(e);
       return { error: "There was an error.  Please try again." };
     }
   },

@@ -74,7 +74,7 @@ export default {
       });
 
       var newId = Math.max.apply(Math, ids) + 1;
-      console.log(newId);
+
       this.jExcelObj.setValueFromCoords(0, row, newId);
     },
     setIdata() {

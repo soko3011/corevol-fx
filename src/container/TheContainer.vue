@@ -2,7 +2,7 @@
   <v-app class="blue-grey lighten-5">
     <TheSidebar :showsidebar="drawer" />
 
-    <v-main v-bind:style="styleObject">
+    <v-main>
       <v-container fluid>
         <router-view :key="$route.fullPath"></router-view>
       </v-container>
@@ -17,16 +17,15 @@ import TheSidebar from "@/container/TheSidebar.vue";
 import TheFooter from "@/container/TheFooter.vue";
 
 export default {
+  created() {
+    console.log("container Created");
+  },
   data: () => ({
-    drawer: null,
-    styleObject: {
-      // transform: "scaleY(0.7)",
-      // transform: "scaleX(0.7)",
-    },
+    drawer: null
   }),
   components: {
     TheSidebar,
-    TheFooter,
-  },
+    TheFooter
+  }
 };
 </script>

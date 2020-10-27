@@ -47,16 +47,16 @@
           :height="window.height"
           class="mr-3 d-flex flex-column"
         >
-          <v-list dense>
-            <v-subheader
-              >ACTIVE PRICERS <v-spacer></v-spacer>
-              <v-btn @click="clearAllPricers" icon x-small color="blue darken-2"
-                ><v-icon>mdi-delete-empty</v-icon></v-btn
-              ></v-subheader
-            >
+          <v-subheader class=" mt-3"
+            >ACTIVE PRICERS <v-spacer></v-spacer>
+            <v-btn @click="clearAllPricers" icon x-small color="blue darken-2"
+              ><v-icon>mdi-delete-empty</v-icon></v-btn
+            ></v-subheader
+          >
+          <v-list dense height="325" class="scroll">
             <v-list-item
               @click="ReloadPricer(item)"
-              v-for="item in activePricers"
+              v-for="item in activePricersStore"
               :key="item"
               ripple
             >
@@ -142,7 +142,6 @@ import PopUpInput from "@/components/common/PopUpInput.vue";
 import PricerSetupInterface from "@/components/pricer/PricerSetupInterface.vue";
 import stratHelper from "@/components/pricer/helpers/stratHelper.js";
 import { mapState } from "vuex";
-import { statSync } from "fs";
 
 export default {
   name: "Pricer",
@@ -172,24 +171,25 @@ export default {
   async created() {
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
-
     this.$store.dispatch("refreshCrossList");
+    await this.$store.dispatch("getActivePricerListFromServer");
 
-    try {
-      let response = await PricerApi.GetListOfActivePricers({
-        userName: this.currentUser
-      });
+    // try {
+    //   let response = await PricerApi.GetListOfActivePricers({
+    //     userName: this.currentUser
+    //   });
 
-      this.activePricers = JSON.parse(response.data.activePricers);
-      if (this.activePricers.indexOf(this.viewName) === -1) {
-        this.AddNewPricer(this.viewName);
-      }
-    } catch (err) {
-      this.$store.dispatch("setSnackbar", {
-        text: `${err}  -method: Pricing(created)`,
-        top: true
-      });
-    }
+    //   this.activePricers = JSON.parse(response.data.activePricers);
+
+    //   if (this.activePricers.indexOf(this.viewName) === -1) {
+    //     this.AddNewPricer(this.viewName);
+    //   }
+    // } catch (err) {
+    //   this.$store.dispatch("setSnackbar", {
+    //     text: `${err}  -method: Pricing(created)`,
+    //     top: true
+    //   });
+    // }
   },
 
   destroyed() {
@@ -202,7 +202,8 @@ export default {
       currentUser: state => state.currentUser,
       activePricerLayoutTitle: state => state.activePricerLayoutTitle,
       pricerSetupClosed: state => state.pricerSetupClosed,
-      totalsToggleStore: state => state.pricerShowTotalsToggle
+      totalsToggleStore: state => state.pricerShowTotalsToggle,
+      activePricersStore: state => state.activePricerList
     }),
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
@@ -358,6 +359,9 @@ $mainWidth: var(--main-width);
 
 span {
   cursor: pointer;
+}
+.scroll {
+  overflow-y: auto;
 }
 
 .fade-enter-active,

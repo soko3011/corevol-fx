@@ -148,7 +148,6 @@ export default {
       MarketDataApi.GetSpotRates({ userName: this.$store.state.currentUser })
         .then(response => {
           this.data = JSON.parse(response.data.spotRates);
-          console.log(this.data);
 
           this.data.sort((a, b) => (a.cross > b.cross ? 1 : -1));
 
@@ -197,7 +196,6 @@ export default {
         });
     },
     viewSwaps(item) {
-      console.log(item);
       MarketDataApi.GetSwaps({
         UserName: this.$store.state.currentUser,
         Cross: item.Cross

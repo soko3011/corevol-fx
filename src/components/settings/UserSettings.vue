@@ -28,7 +28,6 @@ export default {
       .then(response => {
         this.spotIface = JSON.parse(response.data.spot);
         this.swapIface = JSON.parse(response.data.swap);
-        console.log(this.spotIface);
       })
       .catch(err => {
         alert(err);

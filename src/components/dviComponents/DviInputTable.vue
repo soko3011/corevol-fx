@@ -1,8 +1,6 @@
 <template lang="html">
-
   <div class="wrapper-jexcel">
-
-  <div id="spreadsheet" ref="spreadsheet"></div>
+    <div id="spreadsheet" ref="spreadsheet"></div>
   </div>
 </template>
 
@@ -58,7 +56,6 @@ export default {
         Dk: this.jExcelObj.getValueFromCoords(2, 0)
       };
 
-      console.log(iData);
       await this.$store.dispatch("returnDviAfterVolUpdate", iData);
     },
 

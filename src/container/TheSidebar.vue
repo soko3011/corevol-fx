@@ -25,7 +25,7 @@
             $router
               .push({
                 name: 'Dvi',
-                params: { ccyPair: activeCross },
+                params: { ccyPair: activeCross }
               })
               .catch(() => {})
         "
@@ -43,7 +43,7 @@
             $router
               .push({
                 name: 'Pricing',
-                params: { viewName: pricerTab },
+                params: { viewName: pricerTab }
               })
               .catch(() => {})
         "
@@ -148,14 +148,12 @@ import { mapState } from "vuex";
 export default {
   name: "TheSidebar",
   data: () => ({
-    sideBarColor: "#385F73",
+    sideBarColor: "#385F73"
   }),
-  created() {
-    console.log(this.minify);
-  },
+  created() {},
   components: {},
   props: {
-    showsidebar: { type: Boolean },
+    showsidebar: { type: Boolean }
   },
   methods: {
     setSidebarMinified() {
@@ -166,8 +164,6 @@ export default {
         const { remote, ipcRenderer } = require("electron");
         ipcRenderer.send("new-window");
       } catch (error) {
-        console.log(error);
-
         window.open(window.location.href, "_blank");
       }
     },
@@ -176,23 +172,23 @@ export default {
         this.$store.dispatch("logOutUser").then(() => {
           this.$router.push({ name: "UserLogin" }).catch(() => {});
         });
-    },
+    }
   },
   computed: {
     ...mapState({
-      minify: (state) => state.sidebarMinified,
+      minify: state => state.sidebarMinified
     }),
     activeCross() {
       return this.$store.getters.activeCrossGetter;
     },
     pricerTab() {
       return this.$store.getters.lastPricerTabGetter;
-    },
+    }
   },
   watch: {
     showsidebar() {
       this.drawer = this.showsidebar;
-    },
-  },
+    }
+  }
 };
 </script>

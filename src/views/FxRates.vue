@@ -5,7 +5,7 @@
         <v-card flat>
           <MarketData
             v-on:hasData="toggleMarketData = !toggleMarketData"
-            v-bind:style="{ height: `${mainWindowHeight}px` }"
+            :tableHeight="mainWindowHeight"
           />
         </v-card>
       </transition>
@@ -57,11 +57,11 @@ import MarketData from "@/components/marketData/MarketData.vue";
 export default {
   name: "FxRates",
   components: {
-    MarketData
+    MarketData,
   },
   data() {
     return {
-      toggleMarketData: false
+      toggleMarketData: false,
     };
   },
   computed: {
@@ -75,14 +75,17 @@ export default {
       return ` 
               overflow-x: scroll;
               zoom: ${level};`;
-    }
+    },
   },
 
-  mounted() {}
+  mounted() {},
 };
 </script>
 
 <style>
+.scroll {
+  overflow-y: auto;
+}
 .slide-enter-active {
   transition: 0.75s;
 }

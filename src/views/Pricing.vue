@@ -57,13 +57,13 @@
           :height="window.height"
           class="mr-3 d-flex flex-column"
         >
-          <v-subheader class=" mt-3"
+          <v-subheader class="mt-3"
             >ACTIVE PRICERS <v-spacer></v-spacer>
             <v-btn @click="clearAllPricers" icon x-small color="blue darken-2"
               ><v-icon>mdi-delete-empty</v-icon></v-btn
             ></v-subheader
           >
-          <v-list dense height="325" class="scroll">
+          <v-list dense class="scroll">
             <v-list-item
               @click="reloadPricer(item)"
               v-for="item in activePricers"
@@ -91,7 +91,7 @@
                 ></v-switch>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title>SHOW TOTALS</v-list-item-title>
+                <v-list-item-title>{{ totalsCaption }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item>
@@ -157,12 +157,11 @@ export default {
     OptionPricer,
     PopUpModal,
     PopUpInput,
-    PricerSetupInterface
+    PricerSetupInterface,
   },
   data() {
     return {
       loading: false,
-
       totalsToggle: false,
       componentKey: 0,
       modalToggle: false,
@@ -170,8 +169,8 @@ export default {
       showSideControl: true,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   async created() {
@@ -193,19 +192,22 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: state => state.crossList,
-      currentUser: state => state.currentUser,
-      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
-      pricerSetupClosed: state => state.pricerSetupClosed,
-      totalsToggleStore: state => state.pricerShowTotalsToggle,
-      activePricers: state => state.activePricerList
+      crossList: (state) => state.crossList,
+      currentUser: (state) => state.currentUser,
+      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
+      pricerSetupClosed: (state) => state.pricerSetupClosed,
+      totalsToggleStore: (state) => state.pricerShowTotalsToggle,
+      activePricers: (state) => state.activePricerList,
     }),
+    totalsCaption() {
+      return this.totalsToggle ? "HIDE TOTALS" : "SHOW TOTALS";
+    },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level
+        zoom: level,
       };
-    }
+    },
   },
   methods: {
     dev() {
@@ -243,7 +245,7 @@ export default {
       this.$route.params.viewName = stratName;
       this.$router
         .push({ name: this.$route.name, viewName: stratName })
-        .then(onComplete => {
+        .then((onComplete) => {
           this.$store.dispatch("togglePriceShowTotals", true);
           let strategy = new stratHelper(strat.strategy, strat.optData);
           this.$store.dispatch(
@@ -262,7 +264,7 @@ export default {
       if (this.isPricerNameDupe(pricerName) === true) {
         this.$store.dispatch("setSnackbar", {
           text: `${priceName} already exist: Rename Pricer`,
-          top: true
+          top: true,
         });
         return;
       }
@@ -274,7 +276,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `CANNOT REMOVE THE MAIN PRICER. PRESS CTRL-D TO CLEAR THE SHEET`,
-          top: true
+          top: true,
         });
 
         return;
@@ -300,7 +302,7 @@ export default {
       this.$router
         .push({ name: this.$route.name, viewName: view })
         .catch(() => {});
-    }
+    },
   },
   watch: {
     crossList() {
@@ -317,8 +319,8 @@ export default {
     },
     totalsToggleStore() {
       this.totalsToggle = this.totalsToggleStore;
-    }
-  }
+    },
+  },
 };
 </script>
 

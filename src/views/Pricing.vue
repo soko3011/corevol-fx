@@ -63,7 +63,7 @@
               ><v-icon>mdi-delete-empty</v-icon></v-btn
             ></v-subheader
           >
-          <v-list dense class="scroll">
+          <v-list :height="pricerListHeight" dense class="scroll">
             <v-list-item
               @click="reloadPricer(item)"
               v-for="item in activePricers"
@@ -92,6 +92,22 @@
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title>{{ totalsCaption }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-action>
+                <v-btn icon x-small>
+                  <StrategySelector
+                    :inputData="strategyList"
+                    :icon="'mdi-playlist-plus'"
+                    :color="'blue'"
+                    :large="false"
+                    v-on:selection="selectStrategy"
+                  />
+                </v-btn>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>ADD STRATEGY</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item>
@@ -145,11 +161,13 @@
 
 <script>
 import OptionPricer from "@/components/pricer/OptionPricerV1.vue";
+import StrategySelector from "@/components/pricer/StrategySelector.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import PopUpInput from "@/components/common/PopUpInput.vue";
 import PricerSetupInterface from "@/components/pricer/PricerSetupInterface.vue";
 import stratHelper from "@/components/pricer/helpers/stratHelper.js";
 import { mapState } from "vuex";
+import PricerApi from "@/apis/PricerApi";
 
 export default {
   name: "Pricer",
@@ -158,6 +176,7 @@ export default {
     PopUpModal,
     PopUpInput,
     PricerSetupInterface,
+    StrategySelector
   },
   data() {
     return {
@@ -169,8 +188,8 @@ export default {
       showSideControl: true,
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   async created() {
@@ -192,22 +211,29 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: (state) => state.crossList,
-      currentUser: (state) => state.currentUser,
-      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
-      pricerSetupClosed: (state) => state.pricerSetupClosed,
-      totalsToggleStore: (state) => state.pricerShowTotalsToggle,
-      activePricers: (state) => state.activePricerList,
+      crossList: state => state.crossList,
+      currentUser: state => state.currentUser,
+      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
+      pricerSetupClosed: state => state.pricerSetupClosed,
+      totalsToggleStore: state => state.pricerShowTotalsToggle,
+      activePricers: state => state.activePricerList,
+      activecross: state => state.activecross
     }),
     totalsCaption() {
       return this.totalsToggle ? "HIDE TOTALS" : "SHOW TOTALS";
     },
+    pricerListHeight() {
+      return Math.min(100 * this.activePricers.length, 300);
+    },
+    strategyList() {
+      return new stratHelper().strats().map(x => x.name);
+    },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level,
+        zoom: level
       };
-    },
+    }
   },
   methods: {
     dev() {
@@ -245,7 +271,7 @@ export default {
       this.$route.params.viewName = stratName;
       this.$router
         .push({ name: this.$route.name, viewName: stratName })
-        .then((onComplete) => {
+        .then(onComplete => {
           this.$store.dispatch("togglePriceShowTotals", true);
           let strategy = new stratHelper(strat.strategy, strat.optData);
           this.$store.dispatch(
@@ -254,6 +280,36 @@ export default {
           );
         })
         .catch(() => {});
+    },
+    selectStrategy(item) {
+      let stratName = item.mainlist;
+      let cross = item.dropdown;
+
+      console.log(cross);
+      PricerApi.GetSingleSpot({
+        cross: cross,
+        UserName: this.currentUser
+      }).then(response => {
+        const spot = JSON.parse(response.data.singleSpot).toString();
+        const strat = new stratHelper()
+          .strats()
+          .filter(x => x.name === stratName)[0].key;
+        let optData = {
+          call_put: "PUT",
+          cross: cross,
+          expiryText: "1m",
+          name: "1",
+          notional: "100",
+          spot: spot,
+          strikeText: strat,
+          userName: this.currentUser
+        };
+
+        this.addStrategyView({
+          strategy: strat,
+          optData: optData
+        });
+      });
     },
     isPricerNameDupe(checkName) {
       checkName = checkName.toUpperCase();
@@ -264,7 +320,7 @@ export default {
       if (this.isPricerNameDupe(pricerName) === true) {
         this.$store.dispatch("setSnackbar", {
           text: `${priceName} already exist: Rename Pricer`,
-          top: true,
+          top: true
         });
         return;
       }
@@ -276,7 +332,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `CANNOT REMOVE THE MAIN PRICER. PRESS CTRL-D TO CLEAR THE SHEET`,
-          top: true,
+          top: true
         });
 
         return;
@@ -302,7 +358,7 @@ export default {
       this.$router
         .push({ name: this.$route.name, viewName: view })
         .catch(() => {});
-    },
+    }
   },
   watch: {
     crossList() {
@@ -319,8 +375,8 @@ export default {
     },
     totalsToggleStore() {
       this.totalsToggle = this.totalsToggleStore;
-    },
-  },
+    }
+  }
 };
 </script>
 

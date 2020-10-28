@@ -1173,6 +1173,11 @@ export default {
         return;
       }
 
+      console.log({
+        strategy: strat,
+        optData: this.optData
+      });
+
       this.$emit("createStrategy", {
         strategy: strat,
         optData: this.optData

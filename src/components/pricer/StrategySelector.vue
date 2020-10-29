@@ -9,43 +9,66 @@
         </v-btn>
       </template>
 
-      <v-card class="mx-auto" max-width="300">
-        <v-toolbar height="40px" color="blue-grey" dark>
+      <v-card class="mx-auto" width="300" rounded>
+        <v-toolbar height="40px" color="blue-grey" dark class="mb-3">
           <v-spacer />
           <v-toolbar-title class="ma-4">STRATEGY SELECTOR</v-toolbar-title>
           <v-spacer />
         </v-toolbar>
-        <v-select
-          prepend-icon="mdi-dots-hexagon"
-          class="mx-7 mt-7"
-          dense
-          v-model="selection"
-          :items="crossList"
-          label="Select Cross"
-        ></v-select>
+        <v-card class="mx-3 pt-1" flat color="grey lighten-2">
+          <v-select
+            color="green"
+            prepend-icon="mdi-dots-hexagon"
+            class="mx-7 mt-7"
+            dense
+            v-model="selection"
+            :items="crossList"
+            label="Select Cross"
+            :full-width="true"
+          ></v-select>
 
-        <v-menu
-          v-model="menu"
-          :close-on-content-click="false"
-          :nudge-right="40"
-          transition="scale-transition"
-          offset-y
-          width="100px"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-              dense
-              class="mx-7 mt-7"
-              v-model="date"
-              label="Expiry Date"
-              prepend-icon="mdi-calendar"
-              readonly
-              v-bind="attrs"
-              v-on="on"
-            ></v-text-field>
-          </template>
-          <v-date-picker v-model="date" @input="menu = false"></v-date-picker>
-        </v-menu>
+          <v-select
+            v-if="datesToggle"
+            color="green"
+            prepend-icon="mdi-dots-hexagon"
+            class="mx-7"
+            dense
+            v-model="terms"
+            :items="termsList"
+            label="Select Term"
+            :full-width="true"
+          >
+          </v-select>
+          <v-menu
+            v-else
+            v-model="menu"
+            :close-on-content-click="false"
+            :nudge-right="40"
+            transition="scale-transition"
+            offset-y
+            width="100px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                dense
+                class="mx-7 mt-5"
+                v-model="date"
+                label="Expiry Date"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker v-model="date" @input="menu = false"></v-date-picker>
+          </v-menu>
+          <v-radio-group v-model="radio" row dense>
+            <v-spacer />
+            <v-radio label="Term" value="term"></v-radio>
+            <v-radio label="Expiry" value="mat"></v-radio>
+            <v-spacer />
+          </v-radio-group>
+        </v-card>
         <v-list>
           <v-list-item-group mandatory color="indigo">
             <v-subheader><v-spacer />STRATEGIES<v-spacer /></v-subheader>
@@ -76,46 +99,60 @@
 
 <script>
 import { mapState } from "vuex";
+import PricerApi from "@/apis/PricerApi";
+
 export default {
   data: () => ({
     dialog: false,
     selection: "",
     date: new Date().toISOString().substr(0, 10),
-    menu: false
+    menu: false,
+    terms: "",
+    termsList: [],
+    radio: "term",
   }),
   props: {
     inputData: { type: Array },
     icon: { type: String },
     large: { type: Boolean },
-    color: { type: String }
+    color: { type: String },
   },
   created() {
-    if (this.selectList !== undefined) {
-      this.selection = this.selectList[0];
-    }
+    PricerApi.getGlobalTermsList()
+      .then((response) => {
+        this.termsList = JSON.parse(response.data.termsList);
+      })
+      .catch((err) => {
+        alert(err);
+      });
   },
   computed: {
     ...mapState({
-      crossList: state => state.crossList,
-      activecross: state => state.activecross
-    })
+      crossList: (state) => state.crossList,
+      activecross: (state) => state.activecross,
+    }),
+    datesToggle() {
+      return this.radio === "term" ? true : false;
+    },
+    datesSelection() {
+      return this.radio === "term" ? this.terms : this.date;
+    },
   },
   methods: {
     emitToParent(item) {
-      if (this.selection !== "") {
-        this.$emit("selection", { dropdown: this.selection, mainlist: item });
-      } else {
-        this.$emit("selection", item);
-        this.dialog = false;
-      }
-    }
-  }
+      this.$emit("selection", {
+        cross: this.selection,
+        mat: this.datesSelection,
+        strat: item,
+      });
+    },
+  },
 };
 </script>
 
 <style>
-/* .v-select__selection {
+.v-select__selection {
   width: 100%;
   justify-content: center;
-} */
+}
 </style>

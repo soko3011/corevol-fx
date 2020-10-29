@@ -57,5 +57,8 @@ export default {
   },
   addNewActivePricer(body) {
     return Api.post("AddNewActivePricer", body);
+  },
+  getGlobalTermsList() {
+    return Api.get("GetGlobalTermsList");
   }
 };

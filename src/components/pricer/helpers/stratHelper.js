@@ -15,9 +15,10 @@ export default class stratHelper {
       { name: "Strangle 25D", key: "str25" },
       { name: "Strangle 10D", key: "str10" },
       { name: "Call Spread ATM vs 25D", key: "cs" },
-      { name: "Call Spread ATM vs 10D", key: "cs25" },
+      { name: "Call Spread 25D vs 10D", key: "cs25" },
       { name: "PUT Spread ATM vs 25D", key: "ps" },
-      { name: "PUT Spread ATM vs 10D", key: "ps25" }
+      { name: "PUT Spread 25D vs 10D", key: "ps25" },
+      { name: "Iron Condor", key: "cdr" }
     );
   }
 
@@ -36,6 +37,7 @@ export default class stratHelper {
     if (this.requestedStrat === "cs25") return this.createCallSpread25();
     if (this.requestedStrat === "ps") return this.createPutSpread();
     if (this.requestedStrat === "ps25") return this.createPutSpread25();
+    if (this.requestedStrat === "cdr") return this.createIronCondor();
   }
   async getSmileObj() {
     try {
@@ -187,5 +189,33 @@ export default class stratHelper {
     leg2.notional = "-100";
 
     return new Array(leg1, leg2);
+  }
+
+  createIronCondor() {
+    let leg1 = { ...this.optData };
+    leg1.call_put = "PUT";
+    leg1.strikeText = "10D";
+    leg1.notional = "100";
+    leg1.name = "1";
+
+    let leg2 = { ...leg1 };
+    leg2.call_put = "PUT";
+    leg2.strikeText = "25D";
+    leg2.notional = "-100";
+    leg2.name = "2";
+
+    let leg3 = { ...leg1 };
+    leg3.call_put = "CALL";
+    leg3.strikeText = "25D";
+    leg3.notional = "-100";
+    leg3.name = "3";
+
+    let leg4 = { ...leg1 };
+    leg4.call_put = "CALL";
+    leg4.strikeText = "10D";
+    leg4.notional = "100";
+    leg4.name = "4";
+
+    return new Array(leg1, leg2, leg3, leg4);
   }
 }

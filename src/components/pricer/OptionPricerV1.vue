@@ -41,6 +41,7 @@ export default {
     PricerSetup
   },
   created() {
+    console.log(this.totalsToggle);
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
     document.addEventListener("keydown", this.eventListeners);

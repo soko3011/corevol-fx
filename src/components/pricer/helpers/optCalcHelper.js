@@ -58,8 +58,8 @@ export default class optCalcHelper {
 
     try {
       let response = await PricerApi.calculateContainer(this.optsContainer);
-      let totals = JSON.parse(response.data.totals);
-      let individuals = JSON.parse(response.data.individuals);
+      let totals = JSON.parse(response.data.aggregate);
+      let individuals = JSON.parse(response.data.components);
 
       calculatedAndOrderedArray.push({
         column: 0,

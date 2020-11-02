@@ -210,7 +210,6 @@ export default {
       currentUser: state => state.currentUser,
       activePricerLayoutTitle: state => state.activePricerLayoutTitle,
       pricerSetupClosed: state => state.pricerSetupClosed,
-      // totalsToggle: state => state.pricerShowTotalsToggle,
       activePricers: state => state.activePricerList,
       activecross: state => state.activecross
     }),

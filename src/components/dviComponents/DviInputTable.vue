@@ -19,19 +19,20 @@ export default {
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.volInput
+      apidata: (state) => state.dvi.volInput,
     }),
     config() {
       return {
         columnSorting: false,
         colWidths: [100, 100, 100],
         onchange: this.OnChange,
-        allowInsertRow: false
+        allowInsertRow: false,
+        contextMenu: function (obj, x, y, e) {},
       };
     },
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
-    }
+    },
   },
   methods: {
     OnChange() {
@@ -53,7 +54,7 @@ export default {
         Mat2: this.jExcelObj.getValueFromCoords(0, 1),
         Vol1: this.jExcelObj.getValueFromCoords(1, 0),
         Vol2: this.jExcelObj.getValueFromCoords(1, 1),
-        Dk: this.jExcelObj.getValueFromCoords(2, 0)
+        Dk: this.jExcelObj.getValueFromCoords(2, 0),
       };
 
       await this.$store.dispatch("returnDviAfterVolUpdate", iData);
@@ -79,9 +80,9 @@ export default {
 
         table.setStyle("C2", "background-color", "#bfbfbf");
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
@@ -89,8 +90,8 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    }
-  }
+    },
+  },
 };
 </script>
 

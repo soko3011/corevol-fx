@@ -21,20 +21,21 @@ export default {
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.smileInput
+      apidata: (state) => state.dvi.smileInput,
     }),
     config() {
       return {
         columnSorting: false,
         colWidths: [100, 100, 100, 87, 87],
         onchange: this.OnChange,
-        allowInsertRow: false
+        allowInsertRow: false,
+        contextMenu: function (obj, x, y, e) {},
       };
     },
 
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
-    }
+    },
   },
   methods: {
     OnChange() {
@@ -57,7 +58,7 @@ export default {
         Rrcorr: this.jExcelObj.getValueFromCoords(4, 0),
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       };
       this.$store.dispatch("returnDviAfterSmileUpdate", iData);
     },
@@ -91,9 +92,9 @@ export default {
         table.setStyle("D2", "background-color", "#bfbfbf");
         table.setStyle("E2", "background-color", "#bfbfbf");
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
@@ -101,8 +102,8 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    }
-  }
+    },
+  },
 };
 </script>
 

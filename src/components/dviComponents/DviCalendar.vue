@@ -15,21 +15,21 @@ import * as cellElements from "@/externaljs/cellElements.js";
 
 export default {
   name: "dviCalendar",
-  created: function() {
+  created: function () {
     document.addEventListener("keydown", this.EventListeners);
   },
-  destroyed: function() {
+  destroyed: function () {
     document.removeEventListener("keydown", this.EventListeners);
   },
   data() {
     return {
       colWidthsSurf: [200, 100, 50, 80],
       row: [],
-      col: []
+      col: [],
     };
   },
   props: {
-    calData: { type: Array }
+    calData: { type: Array },
   },
   computed: {
     config() {
@@ -38,7 +38,8 @@ export default {
         colWidths: this.colWidthsSurf,
         onchange: this.OnChange,
         allowInsertRow: false,
-        onselection: this.selectionActive
+        onselection: this.selectionActive,
+        contextMenu: function (obj, x, y, e) {},
       };
     },
     apidata() {
@@ -46,7 +47,7 @@ export default {
     },
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
-    }
+    },
   },
   methods: {
     OnChange() {
@@ -97,9 +98,9 @@ export default {
         table.setStyle(col1Name, "color", "#000080");
         // table.setStyle( col1Name, 'font-weight', 'bold');
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
@@ -107,8 +108,8 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    }
-  }
+    },
+  },
 };
 </script>
 

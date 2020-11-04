@@ -17,12 +17,12 @@ export default {
   data() {
     return {
       row: [],
-      col: []
+      col: [],
     };
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.surf
+      apidata: (state) => state.dvi.surf,
     }),
     config() {
       return {
@@ -30,13 +30,14 @@ export default {
         colWidths: [50, 50, 100, 55, 55, 55, 55, 55],
         onchange: this.OnChange,
         allowInsertRow: false,
-        onselection: this.selectionActive
+        onselection: this.selectionActive,
+        contextMenu: function (obj, x, y, e) {},
       };
     },
 
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
-    }
+    },
   },
   methods: {
     selectionActive(instance, x1, y1, x2, y2, origin) {
@@ -64,7 +65,7 @@ export default {
         vol1: vol1,
         vol2: vol2,
         fwdV: fwdV.toFixed(2),
-        fwdD: cal2 - cal1
+        fwdD: cal2 - cal1,
       };
 
       this.$store.dispatch("fwdVolInputsFromDviTable", fwdVolObj);
@@ -77,25 +78,25 @@ export default {
         Cross: this.$store.getters.activeCrossGetter,
         Term: this.jExcelObj.getValueFromCoords(1, this.row),
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       };
 
       if (header === "RR_MULT") {
         Object.assign(iData, {
-          RrMult: this.jExcelObj.getValueFromCoords(colNum, this.row)
+          RrMult: this.jExcelObj.getValueFromCoords(colNum, this.row),
         });
       }
 
       if (header === "SFLY_MULT") {
         Object.assign(iData, {
-          FlyMultSmile: this.jExcelObj.getValueFromCoords(colNum, this.row)
+          FlyMultSmile: this.jExcelObj.getValueFromCoords(colNum, this.row),
         });
       }
 
       var daycount = this.jExcelObj.getValueFromCoords(0, this.row);
       if (daycount > 400 && header === "ATM") {
         Object.assign(iData, {
-          Spread1Y: this.jExcelObj.getValueFromCoords(colNum, this.row)
+          Spread1Y: this.jExcelObj.getValueFromCoords(colNum, this.row),
         });
       }
 
@@ -134,9 +135,9 @@ export default {
           table.setStyle(col4Name, "background-color", "#EDFAFD");
         }
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
@@ -144,7 +145,7 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    }
-  }
+    },
+  },
 };
 </script>

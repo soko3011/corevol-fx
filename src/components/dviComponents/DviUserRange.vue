@@ -31,18 +31,18 @@ export default {
   data() {
     return {
       row: [],
-      col: []
+      col: [],
     };
   },
-  created: function() {
+  created: function () {
     document.addEventListener("keydown", this.EventListeners);
   },
-  destroyed: function() {
+  destroyed: function () {
     document.removeEventListener("keydown", this.EventListeners);
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.userWgtRanges
+      apidata: (state) => state.dvi.userWgtRanges,
     }),
     config() {
       return {
@@ -51,13 +51,14 @@ export default {
         onchange: this.OnChange,
         onselection: this.selectionActive,
         allowInsertRow: true,
-        allowManualInsertRow: false
+        allowManualInsertRow: false,
+        contextMenu: function (obj, x, y, e) {},
       };
     },
 
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
-    }
+    },
   },
   methods: {
     addRow() {
@@ -67,7 +68,7 @@ export default {
       const row = ranges.length - 1;
       this.row = row;
       let ids = [];
-      ranges.forEach(function(childArray) {
+      ranges.forEach(function (childArray) {
         if (childArray[0] !== "") {
           ids.push(childArray[0]);
         }
@@ -87,8 +88,8 @@ export default {
           StartDate: this.jExcelObj.getValueFromCoords(2, this.row),
           EndDate: this.jExcelObj.getValueFromCoords(3, this.row),
           KeepExistingWgt: this.jExcelObj.getValueFromCoords(4, this.row),
-          DayWgt: this.jExcelObj.getValueFromCoords(5, this.row)
-        }
+          DayWgt: this.jExcelObj.getValueFromCoords(5, this.row),
+        },
       };
 
       if (
@@ -105,8 +106,8 @@ export default {
         UserName: this.$store.state.currentUser,
         Cross: this.$store.getters.activeCrossGetter,
         UserEventRangeUI: {
-          AutoID: this.jExcelObj.getValueFromCoords(0, this.row)
-        }
+          AutoID: this.jExcelObj.getValueFromCoords(0, this.row),
+        },
       };
 
       this.jExcelObj.setValueFromCoords(5, this.row, "CLEAR RANGE");
@@ -186,9 +187,9 @@ export default {
 
     FormatTable(data, table) {
       table.hideIndex();
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
     this.FormatTable(this.apidata, jExcelObj);
 
@@ -197,8 +198,8 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    }
-  }
+    },
+  },
 };
 </script>
 

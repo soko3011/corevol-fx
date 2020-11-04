@@ -38,10 +38,9 @@ import { mapState } from "vuex";
 export default {
   name: "optionPricer",
   components: {
-    PricerSetup
+    PricerSetup,
   },
   created() {
-    console.log(this.totalsToggle);
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
     document.addEventListener("keydown", this.eventListeners);
@@ -53,7 +52,7 @@ export default {
     window.removeEventListener("resize", this.handleResize);
   },
   props: {
-    pricerName: { type: String, default: "" }
+    pricerName: { type: String, default: "" },
   },
   data() {
     return {
@@ -73,19 +72,19 @@ export default {
       storedData: [],
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   computed: {
     ...mapState({
-      defaultPricerKeyGroups: state => state.defaultPricerKeyGroups,
-      userPricerLayoutPrefs: state => state.userPricerLayoutPrefs,
-      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
-      totalsToggle: state => state.pricerShowTotalsToggle,
-      crossListData: state => state.crossList,
-      pricerStrategy: state => state.pricerStrategy,
-      currentUser: state => state.currentUser
+      defaultPricerKeyGroups: (state) => state.defaultPricerKeyGroups,
+      userPricerLayoutPrefs: (state) => state.userPricerLayoutPrefs,
+      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
+      totalsToggle: (state) => state.pricerShowTotalsToggle,
+      crossListData: (state) => state.crossList,
+      pricerStrategy: (state) => state.pricerStrategy,
+      currentUser: (state) => state.currentUser,
     }),
     combinedPricerLayouts() {
       const userLayouts = [];
@@ -116,15 +115,41 @@ export default {
         onchange: this.updateOption,
         freezeColumns: 2,
         tableWidth: `${this.window.width}px`,
-        tableHeight: `${this.window.height}px`
+        tableHeight: `${this.window.height}px`,
+        contextMenu: function (obj, x, y, e) {
+          let items = [];
+          items.push({
+            title: "SHOW TOTALS",
+            shortcut: "Ctrl + W",
+          }),
+            items.push({
+              title: "COPY OPTION",
+              shortcut: "Ctrl + P",
+            }),
+            items.push({
+              title: "DELETE OPTION",
+              shortcut: "Ctrl + Q",
+            }),
+            items.push({
+              title: "CLEAR SHEET",
+              shortcut: "Ctrl + D",
+            }),
+            items.push({
+              title: "REFRESH OPTION",
+              shortcut: "Ctrl + R",
+            });
+          return items;
+        },
       };
     },
     keyCol() {
       return this.setHeaders().indexOf("Key");
-    }
+    },
   },
   methods: {
-    dev() {},
+    dev() {
+      console.log(this.totalsToggle);
+    },
     //#region INITIALIZE_SHEET
     setHeaders() {
       var headers = [];
@@ -144,13 +169,13 @@ export default {
     },
     setPricerKeys() {
       return this.pricerSettingsObj
-        .filter(item => item.Show === true)
-        .map(group => group.Keys)
+        .filter((item) => item.Show === true)
+        .map((group) => group.Keys)
         .flat();
     },
     setInitalData(keys) {
       let newArr = [];
-      keys.forEach(element => {
+      keys.forEach((element) => {
         newArr.push(["", element]);
       });
       return newArr;
@@ -208,7 +233,7 @@ export default {
     //#region OPTIONSETUP
     initializeFxOpt() {
       let optID = (this.col - 1).toString();
-      var index = this.optsContainer.findIndex(x => x.name == optID);
+      var index = this.optsContainer.findIndex((x) => x.name == optID);
       if (index === -1) {
         this.optData = { name: optID, userName: this.currentUser };
         this.optsContainer.push(this.optData);
@@ -241,13 +266,13 @@ export default {
           return index > 1 && element !== "";
         });
 
-      return rowData.every(e => e === rowData[0]);
+      return rowData.every((e) => e === rowData[0]);
     },
     validateTotalsColumnCondition() {
       if (!this.isSingleCrossInPricer()) {
         this.$store.dispatch("setSnackbar", {
           text: "SINGLE CURRENCY REQUIRED FOR TOTALS",
-          top: true
+          top: true,
         });
         this.$store.dispatch("togglePriceShowTotals", false);
       }
@@ -261,8 +286,6 @@ export default {
         this.pricerKeys
       );
 
-      console.log(`validation:${calcHelper.baseConditionsIsValidated()}`);
-      console.log(this.optData);
       if (!calcHelper.baseConditionsIsValidated()) {
         return;
       }
@@ -299,7 +322,7 @@ export default {
       try {
         let response = await PricerApi.getSingleSpotLiveForce({
           cross: cross,
-          UserName: this.$store.state.currentUser
+          UserName: this.$store.state.currentUser,
         });
         const spotData = JSON.parse(response.data.singleSpot);
         this.jExcelObj.ignoreEvents = true;
@@ -325,7 +348,7 @@ export default {
       try {
         let response = await PricerApi.GetSurfaceStatus({
           cross: cross,
-          userName: this.$store.state.currentUser
+          userName: this.$store.state.currentUser,
         });
 
         let lastUpdate = moment(
@@ -341,7 +364,7 @@ export default {
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: GetSurfaceStatus`,
-          top: true
+          top: true,
         });
         this.loading = false;
       }
@@ -353,14 +376,14 @@ export default {
           PricerTitle: this.pricerName,
           ActivePricerGridDataJSON: JSON.stringify(this.jExcelObj.getData()),
           UserOverwrittenInputsJSON: JSON.stringify(this.redObj),
-          ActiveOptionsContainerJSON: JSON.stringify(this.optsContainer)
-        }
+          ActiveOptionsContainerJSON: JSON.stringify(this.optsContainer),
+        },
       };
 
-      PricerApi.ReturnCurrentOpts(StoredActivePricerData).catch(err => {
+      PricerApi.ReturnCurrentOpts(StoredActivePricerData).catch((err) => {
         store.dispatch("setSnackbar", {
           text: `${err}  source:sendSingleOptionToServerForCalcs`,
-          top: true
+          top: true,
         });
       });
     },
@@ -420,7 +443,7 @@ export default {
 
         Object.assign(this.optData, {
           cross: this.keyVal("Cross"),
-          spot: this.keyVal("Spot").toString()
+          spot: this.keyVal("Spot").toString(),
         });
 
         this.recordCellPosition(this.pricerName);
@@ -437,7 +460,7 @@ export default {
         "expiryText",
         "strikeText",
         // "call_put",
-        "userName"
+        "userName",
       ];
 
       for (const key of essentialKeys) {
@@ -459,12 +482,12 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a valid Premium Type`,
-            top: true
+            top: true,
           });
           return;
         }
         Object.assign(this.optData, {
-          premiumType: userInput
+          premiumType: userInput,
         });
         this.sendToServerForCalc();
       }
@@ -481,7 +504,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -504,7 +527,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -526,7 +549,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -544,7 +567,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -562,7 +585,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -580,7 +603,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -602,7 +625,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -620,7 +643,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -642,7 +665,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -664,7 +687,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -686,7 +709,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true
+            top: true,
           });
           return;
         }
@@ -727,7 +750,7 @@ export default {
           if (!/^[0-9]+([,.][0-9]+)?$/.test(checkSpot)) {
             this.$store.dispatch("setSnackbar", {
               text: `${checkSpot} is not valid. Please enter a number`,
-              top: true
+              top: true,
             });
             return;
           }
@@ -785,7 +808,7 @@ export default {
       if (event.code == "KeyR" && event.ctrlKey) {
         event.preventDefault();
         var newOpt = { name: this.col.toString() }; //create new opt object
-        var index = this.optsContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optsContainer
+        var index = this.optsContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optsContainer
         if (index != -1) {
           this.optData = this.optsContainer[index]; //set current option from container.
           this.sendToServerForCalc();
@@ -826,7 +849,7 @@ export default {
           }
         }, 500);
       });
-      getUserSelection.then(result => {
+      getUserSelection.then((result) => {
         const cell = utils.getCell(this.col, this.row, this.jExcelObj);
         dropDownList.closeEditor(this.jExcelObj, cell, result);
         document.addEventListener("keydown", this.eventListeners);
@@ -1008,7 +1031,7 @@ export default {
     },
     setCellPosition() {
       var setCellPos = this.cellPosContainer.find(
-        x => x.pricer === this.pricerName
+        (x) => x.pricer === this.pricerName
       );
       if (setCellPos === undefined) {
         this.selectCell(0, 1);
@@ -1022,8 +1045,8 @@ export default {
       this.pricerSetupToggle = val;
     },
     updatePricerLayout(updatedSettings) {
-      var hiddenGroups = updatedSettings.filter(item => item.Show !== true);
-      var shownGroups = updatedSettings.filter(item => item.Show === true);
+      var hiddenGroups = updatedSettings.filter((item) => item.Show !== true);
+      var shownGroups = updatedSettings.filter((item) => item.Show === true);
 
       for (const keyGroup of hiddenGroups) {
         let keys = keyGroup.Keys;
@@ -1055,9 +1078,11 @@ export default {
     recordCellPosition() {
       var recordCellPos = {
         col: this.col,
-        pricer: this.pricerName
+        pricer: this.pricerName,
       };
-      var isDup = this.cellPosContainer.find(x => x.pricer === this.pricerName);
+      var isDup = this.cellPosContainer.find(
+        (x) => x.pricer === this.pricerName
+      );
       var index = this.cellPosContainer.indexOf(isDup);
       if (index === -1) {
         this.cellPosContainer.push(recordCellPos);
@@ -1071,12 +1096,12 @@ export default {
     },
     copyOpt(col) {
       var fxOptResult = this.jExcelObj.getColumnData(col);
-      var optObj = this.optsContainer.filter(opt => {
+      var optObj = this.optsContainer.filter((opt) => {
         return opt.name == col - 1;
       });
       let newOpt = { ...optObj[0] };
       newOpt.name = col.toString();
-      var index = this.optsContainer.findIndex(x => x.name == newOpt.name);
+      var index = this.optsContainer.findIndex((x) => x.name == newOpt.name);
       if (index > -1) {
         this.optsContainer[index] = newOpt;
       } else {
@@ -1092,10 +1117,10 @@ export default {
       }
     },
     delOpt(col, offset) {
-      var optObj = this.optsContainer.filter(opt => {
+      var optObj = this.optsContainer.filter((opt) => {
         return opt.name == col - 1;
       });
-      var index = this.optsContainer.findIndex(x => x.name == optObj[0].name);
+      var index = this.optsContainer.findIndex((x) => x.name == optObj[0].name);
       this.optsContainer.splice(index, 1);
       this.removeRedCellsFromArray();
       this.replaceSingleOpt(this.emptyCol(), col);
@@ -1118,7 +1143,7 @@ export default {
     },
     addContainerToGrid(container) {
       let grid = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
-      container.forEach(opt => {
+      container.forEach((opt) => {
         const { column, results } = opt;
 
         for (var i = 0; i < results.length; i++) {
@@ -1176,12 +1201,12 @@ export default {
 
       console.log({
         strategy: strat,
-        optData: this.optData
+        optData: this.optData,
       });
 
       this.$emit("createStrategy", {
         strategy: strat,
-        optData: this.optData
+        optData: this.optData,
       });
 
       return true;
@@ -1194,7 +1219,7 @@ export default {
         this.sendToServerForCalc();
         this.$store.dispatch("sendStrategyToPricer", new Array());
       }
-    }
+    },
 
     //#endregion STRATEGIES
   },
@@ -1207,7 +1232,7 @@ export default {
       this.pricerName
     );
     this.pricerSettingsObj = this.combinedPricerLayouts.find(
-      x => x.title === this.activePricerLayoutTitle
+      (x) => x.title === this.activePricerLayoutTitle
     ).layout;
     this.pricerKeys = this.setPricerKeys();
     this.initialData = this.setInitalData(this.pricerKeys);
@@ -1263,8 +1288,8 @@ export default {
       } else {
         this.jExcelObj.hideColumn(0);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

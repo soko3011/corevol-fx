@@ -1,95 +1,96 @@
 <template>
-  <v-container :fluid="true" :style="containerStyle">
-    <div class="d-flex flex-nowrap" v-bind:style="zoomLevel">
-      <div>
-        <v-toolbar
-          class="mb-0 mr-2"
-          dark
-          height="30"
-          color="blue-grey darken-0"
-        >
+  <div class="ml-5 overallContainer">
+    <div>
+      <div class="d-flex flex-row mb-5 flex-nowrap">
+        <v-toolbar color="#385F73" min-width="400" collapse>
           <v-spacer></v-spacer>
-          <v-toolbar-title class="text-subtitle-2">Select Ccy</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn icon>
-            <PopUpModal
-              :inputData="availableCurrencies"
-              :icon="'mdi-plus-box'"
-              :color="'blue'"
-              :title="'Select Ccy'"
-              v-on:selection="GetEvents"
-            />
-          </v-btn>
-        </v-toolbar>
-        <v-card elevation="21" class="ma-3">
-          <div
-            ref="spreadsheet"
-            :style="ccyEvents.length > 0 ? scrollY : hold"
-          ></div>
-        </v-card>
-      </div>
-      <div>
-        <v-toolbar
-          class="mb-0 mr-2"
-          dark
-          height="30"
-          color="blue-grey darken-0"
-        >
-          <v-spacer></v-spacer>
-          <v-toolbar-title class="text-subtitle-2"
-            >Generate List</v-toolbar-title
-          >
-          <v-spacer></v-spacer>
-          <v-btn icon>
-            <v-icon color="yellow" v-on:click="GetSelectedEventList"
-              >mdi-lightning-bolt</v-icon
+          <div class="d-flex flex-column">
+            <h4
+              class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
             >
-          </v-btn>
+              corevolFX DAY WEIGHT SETTINGS
+              <v-icon small color="green lighten-3" class="mb-4"
+                >mdi-dots-hexagon</v-icon
+              >
+            </h4>
+            <h6
+              class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+              align="center"
+              justify="center"
+            >
+              {{ currentCcy }}
+            </h6>
+          </div>
+
+          <v-spacer></v-spacer>
         </v-toolbar>
-        <v-card elevation="21" class="ma-3">
-          <div ref="spreadsheet1"></div>
-        </v-card>
-        <div v-if="ccyEvents.length === 0" class="centerWrapper">
-          <h3>Start</h3>
-          <v-btn icon>
-            <PopUpModal
-              :inputData="availableCurrencies"
-              :icon="'mdi-power'"
-              :color="'red'"
-              :title="'Select Ccy'"
-              v-on:selection="GetEvents"
-            />
-          </v-btn>
+      </div>
+      <div class="d-flex flex-row flex-nowrap">
+        <div class="d-flex flex-column dviCol">
+          <v-card
+            :height="window.height"
+            min-width="260"
+            class=" mr-5 d-flex flex-column"
+          >
+            <v-list dense>
+              <v-list-item-group color="blue">
+                <v-subheader>SELECT</v-subheader>
+                <v-list-item>
+                  <v-list-item-action>
+                    <v-btn icon x-small>
+                      <PopUpModal
+                        :inputData="availableCurrencies"
+                        :icon="'mdi-expand-all'"
+                        :color="'#385F73'"
+                        :title="'Select Ccy'"
+                        v-on:selection="changeCcy"
+                      />
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>SELECT CURRENCY</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-subheader>BUILD</v-subheader>
+                <v-list-item @click="buildProductionList">
+                  <v-list-item-action>
+                    <v-btn ripple small icon>
+                      <v-icon color="yellow darken-3"
+                        >mdi-lightning-bolt-outline</v-icon
+                      >
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>BUILD PRODUCTION LIST</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-subheader>SAVE</v-subheader>
+                <v-list-item @click="saveEventsToDB">
+                  <v-list-item-action>
+                    <v-btn ripple small icon>
+                      <v-icon color="green lighten-3">mdi-content-save</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>SAVE EVENTS TO DB</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-card>
+        </div>
+        <div>
+          <div class="dviCol mr-5" ref="eventsByCcyTable"></div>
+        </div>
+        <div>
+          <div class="dviCol mr-5" ref="selectedEventsByCcyTable"></div>
+        </div>
+        <div>
+          <div class="dviCol" ref="productionListTable"></div>
         </div>
       </div>
-
-      <div>
-        <v-toolbar
-          color="blue-grey darken-0"
-          class="mb-0 mr-2"
-          dark
-          height="30"
-        >
-          <v-spacer></v-spacer>
-          <v-toolbar-title class="text-subtitle-2"
-            >Save Setup To Database</v-toolbar-title
-          >
-          <v-spacer></v-spacer>
-          <v-btn icon>
-            <v-icon color="green lighten-3" v-on:click="SaveEventsToDB"
-              >mdi-content-save</v-icon
-            >
-          </v-btn>
-        </v-toolbar>
-        <v-card elevation="21" class="ma-3">
-          <div
-            ref="spreadsheet2"
-            :style="productionList.length > 0 ? scrollY : hold"
-          ></div>
-        </v-card>
-      </div>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -103,66 +104,35 @@ import PopUpModal from "@/components/common/PopUpModal.vue";
 export default {
   name: "DayWgtSetup",
   components: { PopUpModal },
-  created: function() {
+  created() {
     DayWgtSetupApi.GetAvailableCurr().then(response => {
       this.availableCurrencies = JSON.parse(response.data.availableCurrencies);
     });
+
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
   },
-  destroyed: function() {},
 
   data() {
     return {
       currListToggle: false,
       availableCurrencies: [],
       currentCcy: "SELECT CCY",
-      selectedEvents: [],
+      selectedEventsByCcy: [],
       productionList: [],
-      ccyEvents: []
+      eventsByCcy: [],
+      window: {
+        width: 0,
+        height: 0
+      }
     };
   },
   computed: {
-    ccyEventsListHeight() {
-      return this.$refs.spreadsheet.clientHeight;
-    },
-    zoomLevel() {
-      var level = window.innerWidth > 1700 ? "100%" : "80%";
+    configEventsByCcy() {
       return {
-        zoom: level
-      };
-    },
-    longComponentHeight() {
-      var heightAdjust = window.innerWidth > 1700 ? 0.9 : 1.125;
-      heightAdjust = this.mainWindowHeight * heightAdjust;
-      return heightAdjust;
-    },
-    mainWindowHeight() {
-      return window.innerHeight - 75;
-    },
-    mainWindowWidth() {
-      return window.innerWidth - 10;
-    },
-    scrollY() {
-      return ` display: flex;
-              margin-top: 20px;
-              overflow-y: scroll;
-              height: ${this.longComponentHeight}px;`;
-    },
-    hold() {
-      return `
-              `;
-    },
-    containerStyle() {
-      return ` display: flex;
-              overflow-x: scroll;
-              padding-left: 0px;
-              padding-right: 0px;
-              width: ${this.mainWindowWidth}px;
-              height: ${this.mainWindowHeight}px;`;
-    },
-    configAllEvents() {
-      return {
+        data: this.eventsByCcy,
         columnSorting: false,
-        onchange: this.OnChangeAllEvents,
+        onchange: this.onChangeByCcyEvents,
         tableOverflow: false,
         allowInsertRow: false,
         columns: [
@@ -172,13 +142,22 @@ export default {
             title: "EventName",
             width: 350
           }
+        ],
+        nestedHeaders: [
+          [
+            {
+              title: "AVAILABLE EVENTS",
+              colspan: 2
+            }
+          ]
         ]
       };
     },
-    configSelectedEvents() {
+    configSelectedEventsByCcy() {
       return {
+        data: this.selectedEventsByCcy,
         columnSorting: false,
-        onchange: this.OnChangeSelectedEvents,
+        onchange: this.onChangeSelectedEventsByCcy,
         tableOverflow: false,
         allowInsertRow: false,
         columns: [
@@ -193,11 +172,20 @@ export default {
             title: "EventWgt",
             width: 110
           }
+        ],
+        nestedHeaders: [
+          [
+            {
+              title: "SELECTED EVENTS",
+              colspan: 3
+            }
+          ]
         ]
       };
     },
     configProductionList() {
       return {
+        data: this.productionList,
         columnSorting: false,
         tableOverflow: false,
         allowInsertRow: false,
@@ -222,169 +210,228 @@ export default {
             title: "Time",
             width: 100
           }
+        ],
+        nestedHeaders: [
+          [
+            {
+              title: "PRODUCTION LIST",
+              colspan: 4
+            }
+          ]
         ]
       };
     }
   },
   methods: {
-    GetEvents(item) {
-      var body = { name: item };
-      DayWgtSetupApi.GetEvents(body).then(response => {
-        this.ccyEvents = JSON.parse(response.data.currencyEvents);
-        var activeEventsFromServer = response.data.activeEvents;
-        var activeEvents = [];
-
-        if (activeEventsFromServer !== "null") {
-          activeEvents = customFunctions.ReFormatJson(
-            JSON.parse(activeEventsFromServer)
-          );
-        }
-
-        this.jexcelAllEvents.setData(
-          customFunctions.ReFormatJson(this.ccyEvents)
-        );
-        this.selectedEvents = activeEvents;
-        this.jexcelSelectedEvents.setData(this.selectedEvents);
-        this.productionList = [];
-        this.jexcelProductionList.setData(this.productionList);
-        this.currentCcy = item;
+    handleResize() {
+      this.window.width = window.innerWidth - 100;
+      this.window.height = window.innerHeight - 65;
+      this.setContainerDimensions();
+    },
+    setContainerDimensions() {
+      document.documentElement.style.setProperty(
+        "--main-width",
+        `${this.window.width}px`
+      );
+    },
+    async getEvents(ccy) {
+      try {
+        let response = await DayWgtSetupApi.GetEvents({ name: ccy });
+        this.eventsByCcy = JSON.parse(response.data.currencyEvents);
+        this.selectedEventsByCcy = JSON.parse(response.data.activeEvents);
+        this.currentCcy = ccy;
         this.currListToggle = false;
-      });
-    },
-    GetSelectedEventList() {
-      var eventNames = [];
-      this.selectedEvents.forEach(event => {
-        eventNames.push(event[1]);
-      });
-
-      var body = { name: this.currentCcy, eventNames: eventNames };
-      DayWgtSetupApi.GetSelectedEventList(body).then(response => {
-        for (var event of JSON.parse(response.data.selectedEvents)) {
-          var index = this.selectedEvents.findIndex(e => e[1] === event.Title);
-          var wgt = this.jexcelSelectedEvents.getValueFromCoords(2, index);
-
-          if (!event.Time.includes(":")) {
-            //if (event.time === "All Day") {
-            event.Time = "00:00";
-          }
-          var addEvent = {
-            Event: event.Title,
-            Date: event.Date,
-            DayWgt: wgt,
-            Time: event.Time
-          };
-          this.productionList.push(addEvent);
-        }
-
-        this.jexcelProductionList.setData(
-          customFunctions.ReFormatJson(this.productionList)
-        );
-      });
-    },
-    OnChangeAllEvents(instance, cell, x, y) {
-      // eslint-disable-line no-unused-vars
-      var col = x;
-      var row = y;
-
-      if (col === "0") {
-        var event = [
-          true,
-          this.jexcelAllEvents.getValueFromCoords(parseInt(1), parseInt(row)),
-          1
-        ];
-
-        var checkList = this.selectedEvents.some(e => e[1] === event[1]);
-
-        if (!checkList) {
-          this.selectedEvents.push(event);
-        } else {
-          this.selectedEvents = this.selectedEvents.filter(
-            e => e[1] != event[1]
-          );
-        }
-
-        this.jexcelSelectedEvents.setData(this.selectedEvents);
+      } catch (error) {
+        alert(error);
       }
     },
-    OnChangeSelectedEvents(instance, cell, x, y) {
-      // eslint-disable-line no-unused-vars
+
+    async changeCcy(ccy) {
+      await this.getEvents(ccy);
+      if (this.selectedEventsByCcy === null) {
+        this.selectedEventsByCcy = [];
+      }
+      this.selectedEventsByCcyTable.setData(this.selectedEventsByCcy);
+      this.eventsByCcyTable.setData(this.eventsByCcy);
+      this.productionList = [];
+      this.productionListTable.setData(this.productionList);
+    },
+    async buildProductionList() {
+      if (this.selectedEventsByCcy.length === 0) {
+        this.$store.dispatch("setSnackbar", {
+          text: ` Select Events Before Building List`,
+          top: true
+        });
+        return;
+      }
+      try {
+        let response = await DayWgtSetupApi.GetSelectedEventList({
+          name: this.currentCcy,
+          eventNames: this.selectedEventsByCcy.map(x => x.EventName)
+        });
+
+        const productionEvents = JSON.parse(response.data.selectedEvents);
+
+        this.productionList = [];
+
+        productionEvents.forEach(element => {
+          let dayWgt = this.selectedEventsByCcy.filter(
+            x => x.EventName === element.Title
+          )[0].EventWgt;
+
+          if (!element.Time.includes(":")) {
+            element.Time = "00:00";
+          }
+
+          this.productionList.push({
+            Event: element.Title,
+            Date: element.Date,
+            DayWgt: dayWgt,
+            Time: element.Time
+          });
+        });
+
+        this.productionListTable.setData(
+          customFunctions.ReFormatJson(this.productionList)
+        );
+      } catch (error) {
+        alert(error);
+      }
+    },
+    onChangeByCcyEvents(instance, cell, x, y) {
       var col = x;
       var row = y;
 
       if (col === "0") {
-        var event = this.jexcelSelectedEvents.getValueFromCoords(
+        var addEvent = {
+          EventName: this.eventsByCcyTable.getValueFromCoords(
+            parseInt(1),
+            parseInt(row)
+          ),
+          EventWgt: 1.0,
+          IncludeEvent: true
+        };
+
+        var checkList = this.selectedEventsByCcy.some(
+          e => e.EventName === addEvent.EventName
+        );
+
+        if (!checkList) {
+          this.selectedEventsByCcy.push(addEvent);
+        } else {
+          this.selectedEventsByCcy = this.selectedEventsByCcy.filter(
+            e => e.EventName != addEvent.EventName
+          );
+        }
+
+        this.selectedEventsByCcyTable.setData(this.selectedEventsByCcy);
+      }
+    },
+    onChangeSelectedEventsByCcy(instance, cell, x, y) {
+      var col = x;
+      var row = y;
+
+      if (col === "0") {
+        var event = this.selectedEventsByCcyTable.getValueFromCoords(
           parseInt(1),
           parseInt(row)
         );
-        var checkList = this.selectedEvents.some(e => e[1] === event);
 
-        if (checkList) {
-          this.selectedEvents = this.selectedEvents.filter(e => e[1] != event);
-          var arr = this.jexcelAllEvents.getColumnData(1);
-          var index = arr.indexOf(event);
-          this.jexcelAllEvents.setValueFromCoords(0, index, false, true);
+        var checkBox = this.selectedEventsByCcyTable.getValueFromCoords(
+          parseInt(0),
+          parseInt(row)
+        );
+
+        if (!checkBox) {
+          this.selectedEventsByCcy = this.selectedEventsByCcy.filter(
+            e => e.EventName != event
+          );
+
+          this.updateEventsByCcyWithSelectedEvents();
+          this.selectedEventsByCcyTable.setData(this.selectedEventsByCcy);
+          this.eventsByCcyTable.setData(this.eventsByCcy);
         }
-
-        this.jexcelSelectedEvents.setData(this.selectedEvents);
       }
     },
-    ConvertSelectedEventsToObjArr() {
-      var output = [];
-      this.jexcelSelectedEvents.getData().forEach(event => {
-        var newEvent = {
-          IncludeEvent: event[0],
-          EventName: event[1],
-          EventWgt: event[2]
-        };
 
-        output.push(newEvent);
-      });
-
-      return output;
-    },
-    SaveEventsToDB() {
+    saveEventsToDB() {
       var dbObj = {
         ccy: this.currentCcy,
-        selectedEvents: JSON.stringify(this.ConvertSelectedEventsToObjArr()),
+        selectedEvents: JSON.stringify(this.selectedEventsByCcy),
         productionList: JSON.stringify(this.productionList)
       };
 
       DayWgtSetupApi.SaveDataToDB(dbObj)
         .then(response => {
-          alert("Database Upadated. Status " + response.status);
+          this.$store.dispatch("setSnackbar", {
+            text: `Database Upadated With ${this.currentCcy} Events List `,
+            centered: true
+          });
         })
         .catch(error => {
-          alert(error);
+          this.$store.dispatch("setSnackbar", {
+            text: `There was an error updating ${this.currentCcy} events: ${error} `,
+            centered: true
+          });
         });
+    },
+    updateEventsByCcyWithSelectedEvents() {
+      this.eventsByCcy.forEach(element => {
+        var checkList = this.selectedEventsByCcy.some(
+          e => e.EventName === element.EventName
+        );
+
+        element.IncludeEvent = checkList === true ? true : false;
+      });
     }
   },
 
-  mounted: function() {
-    const jexcelAllEvents = jexcel(
-      this.$refs["spreadsheet"],
-      this.configAllEvents
-    );
-    jexcelAllEvents.hideIndex();
-    Object.assign(this, { jexcelAllEvents });
+  async mounted() {
+    await this.getEvents("USD");
+    this.updateEventsByCcyWithSelectedEvents();
+    console.log(this.selectedEventsByCcy);
 
-    const jexcelSelectedEvents = jexcel(
-      this.$refs["spreadsheet1"],
-      this.configSelectedEvents
+    const eventsByCcyTable = jexcel(
+      this.$refs["eventsByCcyTable"],
+      this.configEventsByCcy
     );
-    jexcelSelectedEvents.hideIndex();
-    Object.assign(this, { jexcelSelectedEvents });
+    eventsByCcyTable.hideIndex();
+    Object.assign(this, { eventsByCcyTable });
 
-    const jexcelProductionList = jexcel(
-      this.$refs["spreadsheet2"],
+    const selectedEventsByCcyTable = jexcel(
+      this.$refs["selectedEventsByCcyTable"],
+      this.configSelectedEventsByCcy
+    );
+    selectedEventsByCcyTable.hideIndex();
+    Object.assign(this, { selectedEventsByCcyTable });
+
+    const productionListTable = jexcel(
+      this.$refs["productionListTable"],
       this.configProductionList
     );
-    jexcelProductionList.hideIndex();
-    Object.assign(this, { jexcelProductionList });
+    productionListTable.hideIndex();
+    Object.assign(this, { productionListTable });
   }
 };
 </script>
 
-<style>
+<style lang="scss">
+$mainHeight: var(--main-height);
+$mainWidth: var(--main-width);
+
+.overallContainer {
+  display: flex;
+  overflow: auto;
+  padding-left: 0px;
+  padding-right: 0px;
+  height: $mainHeight;
+  width: $mainWidth;
+}
+.overallContainer .dviCol {
+  display: flex;
+  overflow-y: auto;
+  height: $mainHeight;
+}
 .jexcel > thead > tr > td {
   font-family: Arial;
   font-size: 0.65rem;

@@ -9,6 +9,7 @@ const DashBoard = () => import("@/views/DashBoard");
 const Charts = () => import("@/views/Charts");
 const FxRates = () => import("@/views/FxRates");
 const DayWgtSetup = () => import("@/views/DayWgtSetup");
+
 const Settings = () => import("@/views/Settings");
 const UserLogin = () => import("@/views/UserLogin");
 const UserRegistration = () => import("@/views/UserRegistration");
@@ -58,6 +59,7 @@ let router = new Router({
           name: "DayWgtSetup",
           component: DayWgtSetup
         },
+      
         {
           path: "settings",
           name: "Settings",

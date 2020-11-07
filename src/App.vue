@@ -11,7 +11,7 @@
         v-for="snackbar in snackbars.filter(s => s.showing)"
         :key="snackbar.text + Math.random()"
         v-model="snackbar.showing"
-        timeout="1500"
+        timeout="2000"
         :color="snackbar.color"
       >
         {{ snackbar.text }}

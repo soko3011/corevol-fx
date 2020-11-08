@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="dialog" max-width="300">
+    <v-dialog v-model="dialogToggle" max-width="300">
       <v-card class="mx-auto" max-width="300">
         <v-toolbar height="40px" color="blue-grey" dark>
           <v-spacer />
@@ -25,7 +25,7 @@
         </v-list>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="dialog = false"
+          <v-btn color="green darken-1" text @click="dialogToggle = false"
             >Cancel</v-btn
           >
         </v-card-actions>
@@ -39,14 +39,25 @@ export default {
   props: {
     inputData: { type: Array },
     title: { type: String },
-    dialog: { type: Boolean }
+    vmodel: { type: Boolean },
+  },
+  computed: {
+    dialogToggle: {
+      get() {
+        return this.vmodel;
+      },
+      set(val) {
+        this.$emit("setvmodel", val);
+      },
+    },
   },
 
   methods: {
     emitToParent(item) {
       this.$emit("selection", item);
-    }
-  }
+      this.dialogToggle = false;
+    },
+  },
 };
 </script>
 

@@ -89,38 +89,39 @@
 
               <v-list dense>
                 <v-subheader>ACTIONS</v-subheader>
-                <v-list-item>
+                <v-list-item @click="addNewDviModal = !addNewDviModal">
                   <v-list-item-action>
-                    <v-btn icon x-small>
-                      <PopUpModal
-                        :inputData="this.$store.state.crossList"
-                        :icon="'mdi-expand-all'"
-                        :color="'blue'"
-                        :large="false"
-                        :title="'ADD DVI'"
-                        v-on:selection="ReloadDvi"
-                      />
+                    <v-btn ripple small icon>
+                      <v-icon color="blue">mdi-expand-all</v-icon>
                     </v-btn>
+                    <ModalNoButton
+                      :inputData="this.$store.state.crossList"
+                      :title="'ADD DVI'"
+                      :vmodel="addNewDviModal"
+                      v-on:setvmodel="(data) => (addNewDviModal = data)"
+                      v-on:selection="ReloadDvi"
+                    />
                   </v-list-item-action>
                   <v-list-item-content>
                     <v-list-item-title>ADD NEW</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
-                <v-list-item>
+
+                <v-list-item @click="deleteDviModal = !deleteDviModal">
                   <v-list-item-action>
-                    <v-btn icon x-small>
-                      <PopUpModal
-                        :inputData="this.activeDvis"
-                        :icon="'mdi-delete'"
-                        :color="'grey'"
-                        :large="false"
-                        :title="'REMOVE DVI'"
-                        v-on:selection="RemoveTab"
-                      />
+                    <v-btn ripple small icon>
+                      <v-icon color="#385F73">mdi-delete</v-icon>
                     </v-btn>
+                    <ModalNoButton
+                      :inputData="this.activeDvis"
+                      :title="'REMOVE DVI'"
+                      :vmodel="deleteDviModal"
+                      v-on:setvmodel="(data) => (deleteDviModal = data)"
+                      v-on:selection="RemoveTab"
+                    />
                   </v-list-item-action>
                   <v-list-item-content>
-                    <v-list-item-title>DELETE</v-list-item-title>
+                    <v-list-item-title>REMOVE DVI</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
@@ -289,7 +290,7 @@ import DviCalendar from "@/components/dviComponents/DviCalendar.vue";
 import UserRange from "@/components/dviComponents/DviUserRange.vue";
 import DviApi from "@/apis/DviApi";
 import TreeView from "@/components/common/TreeView.vue";
-import PopUpModal from "@/components/common/PopUpModal.vue";
+import ModalNoButton from "@/components/common/ModalNoButton.vue";
 import IpvSurf from "@/components/dviComponents/IpvSurf.vue";
 import RightNavDrawer from "@/components/dviComponents/RightNavDrawer.vue";
 import moment from "moment";
@@ -304,16 +305,16 @@ export default {
     DviCalendar,
     UserRange,
     TreeView,
-    PopUpModal,
+    ModalNoButton,
     IpvSurf,
-    RightNavDrawer
+    RightNavDrawer,
   },
-  created: async function() {
+  created: async function () {
     this.$store.dispatch("refreshCrossList");
     await this.$store.dispatch("initializeDviUI", {
       Cross: this.$route.params.ccyPair,
       UserName: this.$store.state.currentUser,
-      AutoSave: this.dviPrefs.autoSaveSwitch
+      AutoSave: this.dviPrefs.autoSaveSwitch,
     });
     this.activeDvis = this.dvisInUse;
     this.dataReturned = true;
@@ -348,10 +349,12 @@ export default {
       autoSaveSwitch: false,
       dayWgtRangesSwitch: false,
       loading: false,
+      addNewDviModal: false,
+      deleteDviModal: false,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   computed: {
@@ -365,19 +368,19 @@ export default {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level
+        zoom: level,
       };
     },
     pricerTab() {
       return this.$store.getters.lastPricerTabGetter;
     },
     ...mapState({
-      forCal: state => state.dvi.forCal,
-      domCal: state => state.dvi.domCal,
-      dvisInUse: state => state.dvisInUse,
-      ipvSurf: state => state.dvi.ipvSurf,
-      lastUpdate: state => state.dvi.lastUpdate,
-      dviPrefs: state => state.dviPrefs
+      forCal: (state) => state.dvi.forCal,
+      domCal: (state) => state.dvi.domCal,
+      dvisInUse: (state) => state.dvisInUse,
+      ipvSurf: (state) => state.dvi.ipvSurf,
+      lastUpdate: (state) => state.dvi.lastUpdate,
+      dviPrefs: (state) => state.dviPrefs,
     }),
     ipvHasData() {
       return this.ipvSurf.length > 0 ? true : false;
@@ -389,7 +392,7 @@ export default {
       ).toDate();
 
       return dateTime;
-    }
+    },
   },
   methods: {
     dev() {
@@ -418,24 +421,24 @@ export default {
       this.ipvReturned = false;
       let response = await this.$store.dispatch("checkAndLoadIpv", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: response.error,
-          centered: true
+          centered: true,
         });
       } else {
         if (response === false) {
           this.$store.dispatch("setSnackbar", {
             text: `There is no IPV source for ${this.$route.params.ccyPair}`,
-            centered: true
+            centered: true,
           });
         } else {
           this.ipvReturned = true;
           this.$store.dispatch("setSnackbar", {
             text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`,
-            bottom: true
+            bottom: true,
           });
         }
       }
@@ -445,18 +448,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvAtm", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
-          bottom: true
+          bottom: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV ATM ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true
+          bottom: true,
         });
       }
     },
@@ -465,18 +468,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvSmile", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV SMILE \n${response.error}`,
-          bottom: true
+          bottom: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV SMILE FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true
+          bottom: true,
         });
       }
     },
@@ -485,30 +488,30 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvMults", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV MULTS \n${response.error}`,
-          bottom: true
+          bottom: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV MUTLS FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true
+          bottom: true,
         });
       }
     },
     async RefreshDviData(ccyPair) {
       let message = await this.$store.dispatch("dviRecalc", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
       });
       if (message.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${ccyPair}. \n${message.error}`,
-          centered: true
+          centered: true,
         });
       } else {
         this.dataReturned = true;
@@ -520,7 +523,7 @@ export default {
 
       let response = await this.$store.dispatch("downloadGlobalDvi", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
       });
       this.loading = false;
       let message = "";
@@ -533,12 +536,12 @@ export default {
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} GLOBAL DOWNLOAD\n${response.error}`,
-          centered: true
+          centered: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: ` ${message}`,
-          centered: true
+          centered: true,
         });
       }
 
@@ -562,12 +565,12 @@ export default {
 
       DviApi.RemoveDviFromUse({
         Cross: item,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
       })
-        .then(response => {
+        .then((response) => {
           this.activeDvis = JSON.parse(response.data.listOfActiveDvis);
         })
-        .catch(err => {
+        .catch((err) => {
           alert(err);
         });
 
@@ -589,7 +592,7 @@ export default {
         this.$router
           .push({
             name: "Pricer",
-            params: { viewName: this.pricerTab }
+            params: { viewName: this.pricerTab },
           })
           .catch(() => {});
       }
@@ -609,7 +612,7 @@ export default {
     },
     ToggleCrossList() {
       this.crossListToggle = true;
-    }
+    },
   },
   mounted() {
     this.handleResize();
@@ -619,28 +622,28 @@ export default {
       this.$store.dispatch("saveDviPrefs", {
         ipvSwitch: this.ipvSwitch,
         autoSaveSwitch: this.autoSaveSwitch,
-        dayWgtRangesSwitch: this.dayWgtRangesSwitch
+        dayWgtRangesSwitch: this.dayWgtRangesSwitch,
       });
     },
     autoSaveSwitch() {
       this.$store.dispatch("saveDviPrefs", {
         ipvSwitch: this.ipvSwitch,
         autoSaveSwitch: this.autoSaveSwitch,
-        dayWgtRangesSwitch: this.dayWgtRangesSwitch
+        dayWgtRangesSwitch: this.dayWgtRangesSwitch,
       });
     },
     dayWgtRangesSwitch() {
       this.$store.dispatch("saveDviPrefs", {
         ipvSwitch: this.ipvSwitch,
         autoSaveSwitch: this.autoSaveSwitch,
-        dayWgtRangesSwitch: this.dayWgtRangesSwitch
+        dayWgtRangesSwitch: this.dayWgtRangesSwitch,
       });
     },
     loading(val) {
       if (!val) return;
       setTimeout(() => (this.loading = false), 5000);
-    }
-  }
+    },
+  },
 };
 </script>
 

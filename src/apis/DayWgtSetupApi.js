@@ -7,8 +7,8 @@ export default {
   GetEvents (body) {
     return Api.post('GetEvents', body)
   },
-  GetSelectedEventList (body) {
-    return Api.post('GetSelectedEventList', body)
+  BuildProductionList (body) {
+    return Api.post('BuildProductionList', body)
   },
   SaveDataToDB (body) {
     return Api.post('SaveDataToDB', body)

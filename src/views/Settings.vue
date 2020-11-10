@@ -59,6 +59,11 @@
             <CcySetup v-if="settingSelection === 'Ccy Settings'" />
           </transition>
           <transition name="slide">
+            <ExpiryCutSettings
+              v-if="settingSelection === 'Expiry Cut Settings'"
+            />
+          </transition>
+          <transition name="slide">
             <UserSettings v-if="settingSelection === 'User Settings'" />
           </transition>
         </div>
@@ -71,6 +76,7 @@
 import DviSetup from "@/components/settings/DviSetup.vue";
 import CrossSetup from "@/components/settings/CrossSetup.vue";
 import CcySetup from "@/components/settings/CcySetup.vue";
+import ExpiryCutSettings from "@/components/settings/ExpiryCutSettings.vue";
 import UserSettings from "@/components/settings/UserSettings.vue";
 import SettingsApi from "@/apis/SettingsApi";
 import PopUpModal from "@/components/common/PopUpModal.vue";
@@ -89,6 +95,7 @@ export default {
       "Dvi Settings",
       "Cross Settings",
       "Ccy Settings",
+      "Expiry Cut Settings",
       "User Settings"
     ],
     settingSelection: "Dvi Settings",
@@ -103,7 +110,8 @@ export default {
     CrossSetup,
     CcySetup,
     PopUpModal,
-    UserSettings
+    UserSettings,
+    ExpiryCutSettings
   },
 
   computed: {

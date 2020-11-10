@@ -10,6 +10,12 @@ export default {
   GetCcySetup() {
     return Api.get("CcySetup");
   },
+  GetOptCutSettings() {
+    return Api.get("OptCutSettings");
+  },
+  GetTimeZoneInfos() {
+    return Api.get("GetTimeZoneInfos");
+  },
   UpdateDviDets(body) {
     return Api.post("UpdateDviDets", body);
   },
@@ -19,6 +25,9 @@ export default {
   UpdateCcyDets(body) {
     return Api.post("UpdateCcyDets", body);
   },
+  UpdateOptionCut(body) {
+    return Api.post("UpdateOptionCut", body);
+  },
   AddNewCcyPair(body) {
     return Api.post("AddNewCcyPair", body);
   },
@@ -27,6 +36,9 @@ export default {
   },
   DeleteCcyData(body) {
     return Api.post("DeleteCcyData", body);
+  },
+  DeleteOptionCut(body) {
+    return Api.post("DeleteOptionCut", body);
   },
   MirrorCrossDets(body) {
     return Api.post("MirrorCrossDets", body);

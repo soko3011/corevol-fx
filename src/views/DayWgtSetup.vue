@@ -44,7 +44,7 @@
                       :inputData="availableCurrencies"
                       :title="'Select Ccy'"
                       :vmodel="currListToggle"
-                      v-on:setvmodel="data => (currListToggle = data)"
+                      v-on:setvmodel="(data) => (currListToggle = data)"
                       v-on:selection="changeCcy"
                     />
                   </v-list-item-action>
@@ -121,7 +121,7 @@ export default {
   name: "DayWgtSetup",
   components: { PopUpModal, ModalNoButton },
   created() {
-    DayWgtSetupApi.GetAvailableCurr().then(response => {
+    DayWgtSetupApi.GetAvailableCurr().then((response) => {
       this.availableCurrencies = JSON.parse(response.data.availableCurrencies);
     });
 
@@ -140,8 +140,8 @@ export default {
       dialog: false,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   computed: {
@@ -157,17 +157,17 @@ export default {
           {
             type: "text",
             title: "EventName",
-            width: 320
-          }
+            width: 320,
+          },
         ],
         nestedHeaders: [
           [
             {
               title: "AVAILABLE EVENTS",
-              colspan: 2
-            }
-          ]
-        ]
+              colspan: 2,
+            },
+          ],
+        ],
       };
     },
     configSelectedEventsByCcy() {
@@ -182,22 +182,22 @@ export default {
           {
             type: "text",
             title: "EventName",
-            width: 310
+            width: 310,
           },
           {
             type: "text",
             title: "EventWgt",
-            width: 90
-          }
+            width: 90,
+          },
         ],
         nestedHeaders: [
           [
             {
               title: "SELECTED EVENTS",
-              colspan: 3
-            }
-          ]
-        ]
+              colspan: 3,
+            },
+          ],
+        ],
       };
     },
     configProductionList() {
@@ -210,39 +210,39 @@ export default {
           {
             type: "text",
             title: "Event",
-            width: 175
+            width: 175,
           },
           {
             type: "text",
             title: "Date",
-            width: 175
+            width: 175,
           },
           {
             type: "text",
             title: "DayWgt",
-            width: 75
+            width: 75,
           },
           {
             type: "text",
             title: "Time",
-            width: 100
-          }
+            width: 100,
+          },
         ],
         nestedHeaders: [
           [
             {
               title: "PRODUCTION LIST",
-              colspan: 4
-            }
-          ]
-        ]
+              colspan: 4,
+            },
+          ],
+        ],
       };
-    }
+    },
   },
   methods: {
     handleResize() {
       this.window.width = window.innerWidth - 100;
-      this.window.height = window.innerHeight - 65;
+      this.window.height = window.innerHeight - 95;
       this.setContainerDimensions();
     },
     setContainerDimensions() {
@@ -285,23 +285,23 @@ export default {
       if (this.selectedEventsByCcy.length === 0) {
         this.$store.dispatch("setSnackbar", {
           text: ` Select Events Before Building List`,
-          top: true
+          top: true,
         });
         return;
       }
       try {
         let response = await DayWgtSetupApi.BuildProductionList({
           Ccy: this.currentCcy,
-          EventNames: this.selectedEventsByCcy.map(x => x.EventName)
+          EventNames: this.selectedEventsByCcy.map((x) => x.EventName),
         });
 
         const productionEvents = JSON.parse(response.data.selectedEvents);
 
         this.productionList = [];
 
-        productionEvents.forEach(element => {
+        productionEvents.forEach((element) => {
           let dayWgt = this.selectedEventsByCcy.filter(
-            x => x.EventName === element.Title
+            (x) => x.EventName === element.Title
           )[0].EventWgt;
 
           if (!element.Time.includes(":")) {
@@ -312,7 +312,7 @@ export default {
             Event: element.Title,
             Date: element.Date,
             DayWgt: dayWgt,
-            Time: element.Time
+            Time: element.Time,
           });
         });
 
@@ -334,18 +334,18 @@ export default {
             parseInt(row)
           ),
           EventWgt: 1.0,
-          IncludeEvent: true
+          IncludeEvent: true,
         };
 
         var checkList = this.selectedEventsByCcy.some(
-          e => e.EventName === addEvent.EventName
+          (e) => e.EventName === addEvent.EventName
         );
 
         if (!checkList) {
           this.selectedEventsByCcy.push(addEvent);
         } else {
           this.selectedEventsByCcy = this.selectedEventsByCcy.filter(
-            e => e.EventName != addEvent.EventName
+            (e) => e.EventName != addEvent.EventName
           );
         }
 
@@ -369,7 +369,7 @@ export default {
 
         if (!checkBox) {
           this.selectedEventsByCcy = this.selectedEventsByCcy.filter(
-            e => e.EventName != event
+            (e) => e.EventName != event
           );
 
           this.updateEventsByCcyWithSelectedEvents();
@@ -391,32 +391,32 @@ export default {
       var dbObj = {
         ccy: this.currentCcy,
         selectedEvents: JSON.stringify(this.selectedEventsByCcy),
-        productionList: JSON.stringify(this.productionList)
+        productionList: JSON.stringify(this.productionList),
       };
 
       DayWgtSetupApi.SaveDataToDB(dbObj)
-        .then(response => {
+        .then((response) => {
           this.$store.dispatch("setSnackbar", {
             text: `Database Upadated With ${this.currentCcy} Events List `,
-            centered: true
+            centered: true,
           });
         })
-        .catch(error => {
+        .catch((error) => {
           this.$store.dispatch("setSnackbar", {
             text: `There was an error updating ${this.currentCcy} events: ${error} `,
-            centered: true
+            centered: true,
           });
         });
     },
     updateEventsByCcyWithSelectedEvents() {
-      this.eventsByCcy.forEach(element => {
+      this.eventsByCcy.forEach((element) => {
         var checkList = this.selectedEventsByCcy.some(
-          e => e.EventName === element.EventName
+          (e) => e.EventName === element.EventName
         );
 
         element.IncludeEvent = checkList === true ? true : false;
       });
-    }
+    },
   },
 
   async mounted() {
@@ -448,8 +448,8 @@ export default {
         eventsByCcyTable.hideIndex();
         Object.assign(this, { eventsByCcyTable });
       }, 500);
-    }
-  }
+    },
+  },
 };
 </script>
 

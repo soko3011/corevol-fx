@@ -7,7 +7,6 @@ export default {
   RegisterUser(body) {
     return Api.post("Register", body);
   },
-
   CheckLoginStatus(body) {
     return Api.post("CheckLoginStatus", body);
   },
@@ -22,5 +21,11 @@ export default {
   },
   DeleteUser(body) {
     return Api.post("DeleteUser", body);
+  },
+  updateUserStartFxCross(body) {
+    return Api.post("UpdateUserStartFxCross", body);
+  },
+  updateUserTimeZone(body) {
+    return Api.post("UpdateUserTimeZone", body);
   }
 };

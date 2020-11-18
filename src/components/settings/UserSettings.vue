@@ -40,9 +40,11 @@ export default {
     try {
       const user = await this.$store.dispatch("checkLoginStatus");
       const tzinfo = await SettingsApi.GetTimeZoneInfos();
+
       const response = await MarketDataApi.CurrentInterfaces({
         UserName: this.currentUser,
       });
+
       this.spotIface = JSON.parse(response.data.spot);
       this.swapIface = JSON.parse(response.data.swap);
       this.timeZones = JSON.parse(tzinfo.data.tzInfo);

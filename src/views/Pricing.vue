@@ -171,7 +171,7 @@ export default {
     PopUpModal,
     PopUpInput,
     PricerSetupInterface,
-    StrategySelector
+    StrategySelector,
   },
   data() {
     return {
@@ -182,12 +182,11 @@ export default {
       showSideControl: true,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   async created() {
-    console.log(`${this.totalsToggle} from main view`);
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
     this.loading = true;
@@ -206,12 +205,12 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: state => state.crossList,
-      currentUser: state => state.currentUser,
-      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
-      pricerSetupClosed: state => state.pricerSetupClosed,
-      activePricers: state => state.activePricerList,
-      activecross: state => state.activecross
+      crossList: (state) => state.crossList,
+      currentUser: (state) => state.currentUser,
+      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
+      pricerSetupClosed: (state) => state.pricerSetupClosed,
+      activePricers: (state) => state.activePricerList,
+      activecross: (state) => state.activecross,
     }),
     totalsToggle: {
       get() {
@@ -219,7 +218,7 @@ export default {
       },
       set() {
         this.$store.dispatch("togglePriceShowTotals", !this.totalsToggle);
-      }
+      },
     },
     totalsCaption() {
       return this.totalsToggle ? "HIDE TOTALS" : "SHOW TOTALS";
@@ -228,14 +227,14 @@ export default {
       return Math.min(100 * this.activePricers.length, 300);
     },
     strategyList() {
-      return new stratHelper().strats().map(x => x.name);
+      return new stratHelper().strats().map((x) => x.name);
     },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level
+        zoom: level,
       };
-    }
+    },
   },
   methods: {
     dev() {
@@ -272,7 +271,7 @@ export default {
       this.$route.params.viewName = stratName;
       this.$router
         .push({ name: this.$route.name, viewName: stratName })
-        .then(onComplete => {
+        .then((onComplete) => {
           this.$store.dispatch("togglePriceShowTotals", true);
           let strategy = new stratHelper(strat.strategy, strat.optData);
           this.$store.dispatch(
@@ -289,12 +288,12 @@ export default {
 
       PricerApi.GetSingleSpot({
         cross: cross,
-        UserName: this.currentUser
-      }).then(response => {
+        UserName: this.currentUser,
+      }).then((response) => {
         const spot = JSON.parse(response.data.singleSpot).toString();
         const strat = new stratHelper()
           .strats()
-          .filter(x => x.name === stratName)[0].key;
+          .filter((x) => x.name === stratName)[0].key;
         let optData = {
           cross: cross,
           expiryText: mat,
@@ -302,12 +301,12 @@ export default {
           notional: "100",
           spot: spot,
           strikeText: strat,
-          userName: this.currentUser
+          userName: this.currentUser,
         };
 
         this.addStrategyView({
           strategy: strat,
-          optData: optData
+          optData: optData,
         });
       });
     },
@@ -320,7 +319,7 @@ export default {
       if (this.isPricerNameDupe(pricerName) === true) {
         this.$store.dispatch("setSnackbar", {
           text: `${priceName} already exist: Rename Pricer`,
-          top: true
+          top: true,
         });
         return;
       }
@@ -332,7 +331,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `CANNOT REMOVE THE MAIN PRICER. PRESS CTRL-D TO CLEAR THE SHEET`,
-          top: true
+          top: true,
         });
 
         return;
@@ -358,7 +357,7 @@ export default {
       this.$router
         .push({ name: this.$route.name, viewName: view })
         .catch(() => {});
-    }
+    },
   },
   watch: {
     crossList() {
@@ -372,8 +371,8 @@ export default {
 
     activePricerLayoutTitle() {
       this.componentKey += 1;
-    }
-  }
+    },
+  },
 };
 </script>
 

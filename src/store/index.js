@@ -234,7 +234,7 @@ const actions = {
       commit("SET_ACTIVE_PRICER_LIST", list);
     } catch (err) {
       dispatch("setSnackbar", {
-        text: `${err}  -store: getActivePricerListFromServer`,
+        text: `${err}. In store: getActivePricerListFromServer`,
         top: true
       });
     }
@@ -447,6 +447,8 @@ const actions = {
     try {
       let response = await DviApi.initializeDviUI(payload);
       commit("SET_DVI_INIT", response.data);
+
+      console.log(response.data);
       return true;
     } catch (err) {
       dispatch("setSnackbar", {

@@ -112,6 +112,7 @@
           />
 
           <h6 align="center" justify="center">{{ getFooter(item) }}</h6>
+          <h6 align="center" justify="center">{{ getExpiryCut(item) }}</h6>
         </v-card>
       </v-col>
     </v-row>
@@ -124,18 +125,22 @@ import DashBoardSurf from "@/components/dashboard/DashBoardSurf.vue";
 import moment from "moment";
 import Draggable from "vuedraggable";
 import TreeView from "@/components/common/TreeView.vue";
+import SettingsApi from "@/apis/SettingsApi.js";
 
 export default {
   async created() {
     try {
       let response = await DviApi.GetDashBoardSurfs({
-        userName: this.$store.state.currentUser
+        userName: this.$store.state.currentUser,
       });
       let rawData = JSON.parse(response.data.dashBoardSurfs);
+      const dviData = await SettingsApi.GetDviSetup();
+      this.singleDviInputs = JSON.parse(dviData.data.dviSetup);
+      console.log(this.singleDviInputs);
 
       if (this.userPrefs !== null) {
         for (var item of this.userPrefs) {
-          const rawSurf = rawData.find(x => x.Cross === item.Cross);
+          const rawSurf = rawData.find((x) => x.Cross === item.Cross);
           rawSurf.Show = rawSurf !== undefined ? item.Show : rawSurf.Show;
 
           this.surfs.push(rawSurf);
@@ -148,20 +153,21 @@ export default {
     } catch (error) {
       this.$store.dispatch("setSnackbar", {
         text: `${error} source: DashBoard.vue-created`,
-        top: true
+        top: true,
       });
     }
     this.createMenuColumns();
   },
 
   data: () => ({
+    singleDviInputs: [],
     isDragging: false,
     delayedDragging: false,
     surfs: [],
     menu: false,
     window: {
       width: 0,
-      height: 0
+      height: 0,
     },
     firstWarningColor: "#2DCA61",
     secondWarningColor: "#71B7F9",
@@ -170,15 +176,15 @@ export default {
       firstCol: [],
       secondCol: [],
       thirdCol: [],
-      inactive: []
+      inactive: [],
     },
-    menuColHeaders: ["COLUMN ONE", "COLUMN TWO", "COLUMN THREE", "INACTIVE"]
+    menuColHeaders: ["COLUMN ONE", "COLUMN TWO", "COLUMN THREE", "INACTIVE"],
   }),
 
   components: {
     DashBoardSurf,
     Draggable,
-    TreeView
+    TreeView,
   },
   computed: {
     dragOptions() {
@@ -186,13 +192,13 @@ export default {
         animation: 0,
         group: "description",
         disabled: false,
-        ghostClass: "ghost"
+        ghostClass: "ghost",
       };
     },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "90%" : "80%";
       return {
-        zoom: level
+        zoom: level,
       };
     },
     userPrefs() {
@@ -200,8 +206,8 @@ export default {
     },
 
     activeSurfs() {
-      return this.surfs.filter(item => item.Show === true);
-    }
+      return this.surfs.filter((item) => item.Show === true);
+    },
   },
 
   methods: {
@@ -211,7 +217,7 @@ export default {
       this.setupMenu.thirdCol = [];
       this.setupMenu.inactive = [];
 
-      const active = this.surfs.filter(x => x.Show === true);
+      const active = this.surfs.filter((x) => x.Show === true);
       for (let i = 0; i < active.length; i = i + 3) {
         if (active[i] !== undefined) this.setupMenu.firstCol.push(active[i]);
         if (active[i + 1] !== undefined)
@@ -219,7 +225,7 @@ export default {
         if (active[i + 2] !== undefined)
           this.setupMenu.thirdCol.push(active[i + 2]);
       }
-      this.setupMenu.inactive = this.surfs.filter(x => x.Show === false);
+      this.setupMenu.inactive = this.surfs.filter((x) => x.Show === false);
     },
     recombineSurfs() {
       const maxArrLength = Math.max(
@@ -251,21 +257,21 @@ export default {
       try {
         let prefs = this.recombineSurfs().map(({ Cross, Show }) => ({
           Cross,
-          Show
+          Show,
         }));
 
         let response = await DviApi.saveUserDashBoardPrefs({
           UserName: this.$store.state.currentUser,
-          DashBoardUI: JSON.stringify(prefs)
+          DashBoardUI: JSON.stringify(prefs),
         });
         this.$store.dispatch("setSnackbar", {
           text: `DashBoard Layout Saved`,
-          centered: true
+          centered: true,
         });
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: DashBoard.vue-saveSetup`,
-          bottom: true
+          bottom: true,
         });
       }
       this.menu = false;
@@ -274,14 +280,14 @@ export default {
       this.$store.dispatch("setActivecross", item);
       this.$router.push({
         name: "Dvi",
-        params: { ccyPair: item.Cross }
+        params: { ccyPair: item.Cross },
       });
     },
     singleSurf(item) {
       var surf = [{}];
       surf = JSON.parse(item.Surface);
 
-      surf = surf.map(row => {
+      surf = surf.map((row) => {
         const {
           DK_EFF, // eslint-disable-line no-unused-vars
           IPV_ATM, // eslint-disable-line no-unused-vars
@@ -292,20 +298,26 @@ export default {
           ...rest // eslint-disable-line no-unused-vars
         } = row; // eslint-disable-line no-unused-vars
         return {
-          ...rest
+          ...rest,
         };
       });
 
       return surf;
     },
     getHeader(item) {
-      var str = item.Cross;
-      var data = JSON.parse(item.LastUpdate);
-      var spot = data.Spot;
+      const cross = item.Cross;
+      const data = JSON.parse(item.LastUpdate);
+      const spot = data.Spot;
 
-      str = str + " " + spot;
-
-      return str;
+      return `${cross} ${spot}`;
+    },
+    getExpiryCut(item) {
+      const dviInputs = this.singleDviInputs.filter(
+        (x) => x.Cross === item.Cross
+      )[0];
+      if (dviInputs != undefined) {
+        return `${dviInputs.ExpCut} CUT`;
+      }
     },
     getFooter(item) {
       var data = JSON.parse(item.LastUpdate);
@@ -341,7 +353,7 @@ export default {
       if (warningColor === this.thirdWarningColor) {
         return "mdi-battery-low";
       }
-    }
+    },
   },
   watch: {
     isDragging(newValue) {
@@ -354,7 +366,7 @@ export default {
       });
 
       this.surfs = this.recombineSurfs();
-    }
-  }
+    },
+  },
 };
 </script>

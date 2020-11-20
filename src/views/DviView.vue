@@ -445,7 +445,7 @@ export default {
       this.setContainerDimensions();
     },
     handleResize() {
-      this.window.width = window.innerWidth - 150;
+      this.window.width = window.innerWidth - 120;
       this.window.height = window.innerHeight - 65;
       this.setContainerDimensions();
     },
@@ -549,20 +549,21 @@ export default {
         });
       }
     },
-    async RefreshDviData(ccyPair) {
-      let message = await this.$store.dispatch("dviRecalc", {
-        Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser,
-      });
-      if (message.error) {
-        this.$store.dispatch("setSnackbar", {
-          text: `There is an issue with: ${ccyPair}. \n${message.error}`,
-          centered: true,
-        });
-      } else {
-        this.dataReturned = true;
-      }
-    },
+    // async RefreshDviData(ccyPair) {
+    //   alert("here")
+    //   let message = await this.$store.dispatch("dviRecalc", {
+    //     Cross: this.$route.params.ccyPair,
+    //     UserName: this.$store.state.currentUser,
+    //   });
+    //   if (message.error) {
+    //     this.$store.dispatch("setSnackbar", {
+    //       text: `There is an issue with: ${ccyPair}. \n${message.error}`,
+    //       centered: true,
+    //     });
+    //   } else {
+    //     this.dataReturned = true;
+    //   }
+    // },
     async downloadGlobalDvi() {
       this.loading = true;
       this.globalDviReturned = false;
@@ -646,16 +647,16 @@ export default {
     GoToPricer() {
       this.$router.push("PricerView");
     },
-    AddNewDvi(value) {
-      var index = this.activeDvis.indexOf(value);
-      if (index === -1) {
-        this.activeDvis.push(value);
-        index = this.activeDvis.length;
-      }
+    // AddNewDvi(value) {
+    //   var index = this.activeDvis.indexOf(value);
+    //   if (index === -1) {
+    //     this.activeDvis.push(value);
+    //     index = this.activeDvis.length;
+    //   }
 
-      this.crossListToggle = false;
-      this.RefreshDviData(value);
-    },
+    //   this.crossListToggle = false;
+    //   this.RefreshDviData(value);
+    // },
     ToggleCrossList() {
       this.crossListToggle = true;
     },

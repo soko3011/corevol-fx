@@ -46,7 +46,7 @@
             :height="window.height"
             v-if="settingSelection === 'System Log'"
           >
-            <v-btn ripple small icon class="ma-2">
+            <v-btn ripple small icon class="ma-2" @click="updateLog()">
               <v-icon color="blue">mdi-refresh-circle</v-icon>
             </v-btn>
             <v-card-title>

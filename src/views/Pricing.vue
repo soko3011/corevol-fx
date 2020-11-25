@@ -179,7 +179,7 @@ export default {
       componentKey: 0,
       modalToggle: false,
       viewName: this.$route.params.viewName,
-      showSideControl: true,
+      showSideControl: false,
       window: {
         width: 0,
         height: 0,

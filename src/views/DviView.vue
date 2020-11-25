@@ -378,7 +378,7 @@ export default {
       cutModal: false,
       ccyPair: this.$route.params.ccyPair,
       dataReturned: false,
-      showSideControl: true,
+      showSideControl: false,
       transition: "slide-y-reverse-transition",
       fab: false,
       ipvReturned: false,

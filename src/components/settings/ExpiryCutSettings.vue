@@ -100,10 +100,10 @@ export default {
     snackbar: false,
     snackbarMessage: "",
     apiDataReturned: false,
-    cutIds: []
+    cutIds: [],
   }),
   components: {
-    PopUpModal
+    PopUpModal,
   },
 
   computed: {
@@ -111,18 +111,18 @@ export default {
       return this.addNew === true
         ? "NEW CUT"
         : `EDIT ${this.editedItem.CutName} CUT`;
-    }
+    },
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    }
+    },
   },
 
   created() {
     this.initialize();
-    SettingsApi.GetTimeZoneInfos().then(response => {
+    SettingsApi.GetTimeZoneInfos().then((response) => {
       this.cutIds = JSON.parse(response.data.tzInfo);
     });
   },
@@ -130,12 +130,12 @@ export default {
   methods: {
     initialize() {
       SettingsApi.GetOptCutSettings()
-        .then(response => {
+        .then((response) => {
           this.data = JSON.parse(response.data.optCuts);
           let headersNew = [];
           this.keys = Object.keys(this.data[0]);
 
-          this.keys.forEach(function(val) {
+          this.keys.forEach(function (val) {
             headersNew.push({ text: val, value: val, align: "center" });
           });
 
@@ -143,12 +143,12 @@ export default {
             text: "Actions",
             value: "actions",
             align: "center",
-            sortable: false
+            sortable: false,
           });
           this.headers = headersNew;
           this.apiDataReturned = true;
         })
-        .catch(err => {
+        .catch((err) => {
           this.snackbarMessage = ` Error: ${err}`;
           this.snackbar = true;
         });
@@ -165,13 +165,13 @@ export default {
     deleteItem(item) {
       confirm(`Are you sure you want to delete ${item.CutName}?`) &&
         SettingsApi.DeleteOptionCut({ Cut: item.CutName })
-          .then(response => {
-            this.snackbarMessage = `${item.CutName} deleted succesfully. Status ${response.status}`;
+          .then((response) => {
+            this.snackbarMessage = `${item.CutName} deleted succesfully.`;
             this.snackbar = true;
 
             this.initialize();
           })
-          .catch(err => {
+          .catch((err) => {
             if (err.toString().includes("403") === true) {
               err = "Admin Rights Required";
             }
@@ -185,26 +185,24 @@ export default {
       this.$nextTick(() => {});
     },
 
-    save(item) {
-      console.log(item);
-      SettingsApi.UpdateOptionCut(item)
-        .then(response => {
-          this.snackbarMessage = `${item.CutName} updated succesfully. Status ${response.status}`;
-          this.snackbar = true;
+    async save(item) {
+      try {
+        let response = await SettingsApi.UpdateOptionCut(item);
+        this.snackbarMessage = `${item.CutName} updated succesfully.`;
+        this.snackbar = true;
 
-          this.initialize();
-        })
-        .catch(err => {
-          if (err.toString().includes("403") === true) {
-            err = "Admin Rights Required";
-          }
-          this.snackbarMessage = `Update unsucessful. ${err}`;
-          this.snackbar = true;
-        });
+        this.initialize();
+      } catch (err) {
+        if (err.toString().includes("403") === true) {
+          err = "Admin Rights Required";
+        }
+        this.snackbarMessage = `Update unsucessful. ${err}`;
+        this.snackbar = true;
+      }
 
       this.close();
-    }
-  }
+    },
+  },
 };
 </script>
 

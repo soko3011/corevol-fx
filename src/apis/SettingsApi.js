@@ -48,5 +48,8 @@ export default {
   },
   GetCrossList() {
     return Api.get("GetCrossList");
+  },
+  GetLog() {
+    return Api.get("GetLog");
   }
 };

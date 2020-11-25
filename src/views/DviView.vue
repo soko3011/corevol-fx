@@ -34,22 +34,6 @@
 
           <v-spacer></v-spacer>
         </v-toolbar>
-        <v-spacer />
-        <v-btn
-          v-if="!this.$store.state.rightSideNav"
-          class="mt-10"
-          absolute
-          x-small
-          fab
-          top
-          right
-          color="#385F73"
-          elevation="21"
-          dark
-          @click="toggleRightNav"
-        >
-          <v-icon>mdi-chevron-left</v-icon>
-        </v-btn>
       </div>
       <div class="d-flex flex-row flex-nowrap">
         <v-progress-linear
@@ -63,7 +47,7 @@
       </div>
       <transition name="fade">
         <div class="d-flex flex-row flex-nowrap" v-if="dataReturned">
-          <div class="d-flex flex-column dviCol">
+          <div class="d-flex flex-column">
             <v-card
               v-if="showSideControl"
               min-width="225"
@@ -140,6 +124,16 @@
                   </v-list-item-action>
                   <v-list-item-content>
                     <v-list-item-title>CHANGE CUT</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item @click="toggleRightNav">
+                  <v-list-item-action>
+                    <v-btn ripple small icon>
+                      <v-icon color="#385F73">mdi-square-root</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>FWD VOLS</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
@@ -347,6 +341,7 @@ export default {
       });
 
       this.optionCuts = JSON.parse(response.data.optCuts).map((x) => x.CutName);
+
       this.singleDviInputs = JSON.parse(dviData.data.dviSetup).filter(
         (x) => x.Cross === this.$route.params.ccyPair
       )[0];
@@ -357,6 +352,7 @@ export default {
       this.ipvSwitch = this.dviPrefs.ipvSwitch;
       this.autoSaveSwitch = this.dviPrefs.autoSaveSwitch;
       this.dayWgtRangesSwitch = this.dviPrefs.dayWgtRangesSwitch;
+
       window.addEventListener("resize", this.handleResize);
       this.handleResize();
 
@@ -368,8 +364,6 @@ export default {
     }
 
     document.addEventListener("keydown", this.KeyPressToPricer);
-
-    console.log("END");
   },
   destroyed() {
     document.removeEventListener("keydown", this.KeyPressToPricer);
@@ -445,7 +439,7 @@ export default {
       this.setContainerDimensions();
     },
     handleResize() {
-      this.window.width = window.innerWidth - 120;
+      this.window.width = window.innerWidth - 50;
       this.window.height = window.innerHeight - 65;
       this.setContainerDimensions();
     },
@@ -549,21 +543,7 @@ export default {
         });
       }
     },
-    // async RefreshDviData(ccyPair) {
-    //   alert("here")
-    //   let message = await this.$store.dispatch("dviRecalc", {
-    //     Cross: this.$route.params.ccyPair,
-    //     UserName: this.$store.state.currentUser,
-    //   });
-    //   if (message.error) {
-    //     this.$store.dispatch("setSnackbar", {
-    //       text: `There is an issue with: ${ccyPair}. \n${message.error}`,
-    //       centered: true,
-    //     });
-    //   } else {
-    //     this.dataReturned = true;
-    //   }
-    // },
+
     async downloadGlobalDvi() {
       this.loading = true;
       this.globalDviReturned = false;
@@ -647,23 +627,14 @@ export default {
     GoToPricer() {
       this.$router.push("PricerView");
     },
-    // AddNewDvi(value) {
-    //   var index = this.activeDvis.indexOf(value);
-    //   if (index === -1) {
-    //     this.activeDvis.push(value);
-    //     index = this.activeDvis.length;
-    //   }
 
-    //   this.crossListToggle = false;
-    //   this.RefreshDviData(value);
-    // },
     ToggleCrossList() {
       this.crossListToggle = true;
     },
     async ChangeCut(val) {
       try {
-        this.expiryCut = val;
         this.singleDviInputs.ExpCut = val;
+        this.expiryCut = val;
         await SettingsApi.UpdateDviDets({
           DviInputsUI: this.singleDviInputs,
           UserName: this.$store.state.currentUser,

@@ -96,10 +96,10 @@ export default {
     addNew: false,
     snackbar: false,
     snackbarMessage: "",
-    apiDataReturned: false
+    apiDataReturned: false,
   }),
   components: {
-    PopUpModal
+    PopUpModal,
   },
 
   computed: {
@@ -107,14 +107,14 @@ export default {
       return this.addNew === true ? "NEW CCY" : `EDIT ${this.editedItem.Ccy}`;
     },
     ccyList() {
-      return this.data.map(x => x.Ccy);
-    }
+      return this.data.map((x) => x.Ccy);
+    },
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    }
+    },
   },
 
   created() {
@@ -125,11 +125,11 @@ export default {
   methods: {
     initialize() {
       SettingsApi.GetCcySetup()
-        .then(response => {
+        .then((response) => {
           this.data = JSON.parse(response.data.ccySetup);
           let headersNew = [];
           this.keys = Object.keys(this.data[0]);
-          this.keys.forEach(function(val) {
+          this.keys.forEach(function (val) {
             headersNew.push({ text: val, value: val, align: "center" });
           });
 
@@ -137,12 +137,12 @@ export default {
             text: "Actions",
             value: "actions",
             align: "center",
-            sortable: false
+            sortable: false,
           });
           this.headers = headersNew;
           this.apiDataReturned = true;
         })
-        .catch(err => {
+        .catch((err) => {
           this.snackbarMessage = ` Error: ${err}`;
           this.snackbar = true;
         });
@@ -163,13 +163,13 @@ export default {
     deleteItem(item) {
       confirm(`Are you sure you want to delete ${item.Ccy}?`) &&
         SettingsApi.DeleteCcyData({ Ccy: item.Ccy })
-          .then(response => {
-            this.snackbarMessage = `${item.Ccy} deleted succesfully. Status ${response.status}`;
+          .then((response) => {
+            this.snackbarMessage = `${item.Ccy} deleted succesfully.`;
             this.snackbar = true;
 
             this.initialize();
           })
-          .catch(err => {
+          .catch((err) => {
             if (err.toString().includes("403") === true) {
               err = "Admin Rights Required";
             }
@@ -183,25 +183,23 @@ export default {
       this.$nextTick(() => {});
     },
 
-    save(item) {
-      SettingsApi.UpdateCcyDets(item)
-        .then(response => {
-          this.snackbarMessage = `${item.Ccy} updated succesfully. Status ${response.status}`;
-          this.snackbar = true;
-
-          this.initialize();
-        })
-        .catch(err => {
-          if (err.toString().includes("403") === true) {
-            err = "Admin Rights Required";
-          }
-          this.snackbarMessage = `Update unsucessful. ${err}`;
-          this.snackbar = true;
-        });
+    async save(item) {
+      try {
+        let response = await SettingsApi.UpdateCcyDets(item);
+        this.snackbarMessage = `${item.Ccy} updated succesfully.`;
+        this.snackbar = true;
+        this.initialize();
+      } catch (err) {
+        if (err.toString().includes("403") === true) {
+          err = "Admin Rights Required";
+        }
+        this.snackbarMessage = `Update unsucessful. ${err}`;
+        this.snackbar = true;
+      }
 
       this.close();
-    }
-  }
+    },
+  },
 };
 </script>
 

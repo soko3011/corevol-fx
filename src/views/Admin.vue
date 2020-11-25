@@ -1,0 +1,336 @@
+<template>
+  <div>
+    <div class="d-flex flex-row flex-nowrap">
+      <div class="d-flex flex-column">
+        <v-card
+          min-width="225"
+          :height="window.height"
+          class="mr-3 d-flex flex-column"
+        >
+          <v-list dense>
+            <v-subheader>COREVOLFX ADMIN</v-subheader>
+            <v-list-item
+              @click="ChangeSettings(item)"
+              v-for="item in this.settingHeaders"
+              :key="item"
+              ripple
+            >
+              <v-list-item-action>
+                <v-icon color="green darken-3">mdi-dots-hexagon</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>{{ item }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item @click="backupDatabase()" ripple>
+              <v-list-item-action>
+                <v-progress-circular
+                  v-if="backupProgress"
+                  indeterminate
+                  color="primary"
+                ></v-progress-circular>
+                <v-icon v-else color="green darken-3">mdi-dots-hexagon</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Backup Database</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </div>
+
+      <div class="divCol">
+        <transition name="slide">
+          <v-card
+            width="1000"
+            :height="window.height"
+            v-if="settingSelection === 'System Log'"
+          >
+            <v-btn ripple small icon class="ma-2">
+              <v-icon color="blue">mdi-refresh-circle</v-icon>
+            </v-btn>
+            <v-card-title>
+              System Log
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+            </v-card-title>
+            <v-data-table
+              dense
+              :items-per-page="15"
+              :sort-by.sync="sortBy"
+              :sort-desc.sync="sortDesc"
+              :headers="logHeaders"
+              :items="log"
+              :search="search"
+            >
+              <template v-slot:item.LogTime="{ item }">
+                <span>{{ new Date(item.LogTime).toLocaleString() }}</span>
+              </template></v-data-table
+            >
+          </v-card>
+        </transition>
+        <transition name="slide">
+          <v-card
+            width="1000"
+            :height="window.height"
+            v-if="settingSelection === 'Manage Users'"
+          >
+            <v-data-table
+              :headers="headers"
+              :items="data"
+              sort-by="UserName"
+              dense
+              disable-pagination
+              hide-default-footer
+            >
+              <template v-slot:item.IsAdmin="{ item }">
+                <v-simple-checkbox
+                  v-ripple
+                  v-model="item.IsAdmin"
+                ></v-simple-checkbox>
+              </template>
+              <template v-slot:item.IsAuthed="{ item }">
+                <v-simple-checkbox
+                  v-ripple
+                  v-model="item.IsAuthed"
+                ></v-simple-checkbox>
+              </template>
+              <template v-slot:top>
+                <v-toolbar dense class="mb-3" dark color="blue-grey darken-2">
+                  <v-toolbar-title>Manage Users</v-toolbar-title>
+                  <v-spacer></v-spacer>
+                </v-toolbar>
+              </template>
+              <template v-slot:item.actions="{ item }">
+                <v-icon small class="mr-2" @click="save(item)"
+                  >mdi-content-save</v-icon
+                >
+                <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
+              </template>
+            </v-data-table>
+          </v-card>
+        </transition>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import LoginApi from "@/apis/LoginApi.js";
+import SettingsApi from "@/apis/SettingsApi.js";
+
+export default {
+  data: () => ({
+    keys: [],
+    headers: [],
+    data: [],
+    addNew: false,
+    window: {
+      width: 0,
+      height: 0,
+    },
+    search: "",
+    log: [],
+    logHeaders: [
+      {
+        text: "MESSAGE",
+        align: "start",
+        sortable: false,
+        value: "Message",
+      },
+      { text: "LOG TIME", value: "LogTime" },
+    ],
+    sortBy: "LogTime",
+    sortDesc: true,
+    settingHeaders: ["System Log", "Manage Users"],
+    settingSelection: "System Log",
+    backupProgress: false,
+  }),
+  components: {},
+  props: {
+    refreshComponent: { type: Boolean, default: false },
+  },
+
+  computed: {
+    userList() {
+      return this.data.map((x) => x.UserName);
+    },
+  },
+
+  watch: {
+    refreshComponent() {
+      this.initialize();
+    },
+  },
+
+  created() {
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
+    this.initialize();
+  },
+
+  methods: {
+    handleResize() {
+      this.window.width = window.innerWidth - 50;
+      this.window.height = window.innerHeight - 65;
+      this.setContainerDimensions();
+    },
+    setContainerDimensions() {
+      document.documentElement.style.setProperty(
+        "--main-width",
+        `${this.window.width}px`
+      );
+
+      document.documentElement.style.setProperty(
+        "--main-height",
+        `${this.window.height}px`
+      );
+    },
+    ChangeSettings(setting) {
+      this.settingSelection = setting;
+    },
+    async initialize() {
+      try {
+        await this.updateLog();
+        let response = await LoginApi.GetAllUsers();
+        this.data = JSON.parse(response.data.userProfiles);
+        let headersNew = [];
+        this.keys = Object.keys(this.data[0]);
+
+        this.keys.forEach(function (val) {
+          headersNew.push({ text: val, value: val, align: "center" });
+        });
+
+        headersNew.push({
+          text: "Actions",
+          value: "actions",
+          align: "center",
+          sortable: false,
+        });
+        this.headers = headersNew;
+      } catch (err) {
+        if (err.toString().includes("403") === true) {
+          err = "Admin Rights Required";
+        }
+
+        this.$store.dispatch("setSnackbar", {
+          text: `  ${err}`,
+          centered: true,
+        });
+      }
+    },
+    async updateLog() {
+      try {
+        let response = await SettingsApi.GetLog();
+        this.log = JSON.parse(response.data.log);
+      } catch (err) {
+        this.$store.dispatch("setSnackbar", {
+          text: `  ${err}`,
+          centered: true,
+        });
+      }
+    },
+    async backupDatabase() {
+      try {
+        this.backupProgress = true;
+        this.$store.dispatch("setSnackbar", {
+          text: `Database backup starting...`,
+          centered: true,
+        });
+        let response = await LoginApi.backupDatabase();
+        this.backupProgress = false;
+        this.$store.dispatch("setSnackbar", {
+          text: ` Database backup complete`,
+          centered: true,
+        });
+        await this.updateLog();
+      } catch (err) {
+        this.$store.dispatch("setSnackbar", {
+          text: `  ${err}`,
+          centered: true,
+        });
+      }
+    },
+
+    deleteItem(item) {
+      confirm(`Are you sure you want to delete ${item.UserName}?`) &&
+        LoginApi.DeleteUser(item)
+          .then((response) => {
+            this.$store.dispatch("setSnackbar", {
+              text: `${item.UserName} deleted succesfully. Status ${response.status}`,
+              centered: true,
+            });
+
+            this.initialize();
+          })
+          .catch((err) => {
+            if (err.toString().includes("403") === true) {
+              err = "Admin Rights Required";
+            }
+            this.$store.dispatch("setSnackbar", {
+              text: ` Delete Unsuccessful. ${err}`,
+              centered: true,
+            });
+          });
+    },
+
+    save(item) {
+      LoginApi.UpdateUser(item)
+        .then((response) => {
+          this.$store.dispatch("setSnackbar", {
+            text: `${item.UserName} updated succesfully. Status ${response.status}`,
+            centered: true,
+          });
+
+          this.initialize();
+        })
+        .catch((err) => {
+          if (err.toString().includes("403") === true) {
+            err = "Admin Rights Required";
+          }
+          this.$store.dispatch("setSnackbar", {
+            text: ` Update Unsuccessful. ${err}`,
+            centered: true,
+          });
+        });
+    },
+  },
+};
+</script>
+
+<style lang="scss">
+$mainHeight: var(--main-height);
+$mainWidth: var(--main-width);
+
+.overallContainer {
+  display: flex;
+  overflow: scroll;
+  padding-left: 0px;
+  padding-right: 0px;
+  height: $mainHeight;
+  width: $mainWidth;
+}
+
+.overallContainer .dviCol {
+  display: flex;
+  overflow-y: scroll;
+}
+
+.slide-enter-active {
+  transition: 0.75s;
+}
+.slide-enter {
+  transform: translate(100%, 0);
+}
+.slide-leave-to {
+  transform: translate(-100%, 0);
+}
+</style>
+
+

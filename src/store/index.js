@@ -448,7 +448,6 @@ const actions = {
       let response = await DviApi.initializeDviUI(payload);
       commit("SET_DVI_INIT", response.data);
 
-      console.log(response.data);
       return true;
     } catch (err) {
       dispatch("setSnackbar", {
@@ -460,8 +459,6 @@ const actions = {
     try {
       let response = await DviApi.returnDviAfterVolUpdate(payload);
       commit("SET_DVI_AFTER_VOL_UPDATE", response.data);
-
-      return true;
     } catch (err) {
       dispatch("setSnackbar", {
         text: `${err} `
@@ -472,7 +469,6 @@ const actions = {
     try {
       let response = await DviApi.returnDviAfterSmileUpdate(payload);
       commit("SET_DVI_AFTER_SMILE_UPDATE", response.data);
-      return true;
     } catch (err) {
       dispatch("setSnackbar", {
         text: `${err} `

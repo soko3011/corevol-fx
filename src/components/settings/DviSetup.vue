@@ -167,7 +167,7 @@ export default {
     crossKeys: [],
     dviEdited: {},
     crossEdited: {},
-    mirroredCross: ""
+    mirroredCross: "",
   }),
 
   computed: {
@@ -182,13 +182,13 @@ export default {
     },
     mainWindowWidth() {
       return window.innerWidth - 10;
-    }
+    },
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    }
+    },
   },
 
   created() {
@@ -199,36 +199,36 @@ export default {
     initialize() {
       this.$store.dispatch("refreshCrossList");
       SettingsApi.GetDviSetup()
-        .then(response => {
+        .then((response) => {
           this.data = JSON.parse(response.data.dviSetup);
           let headersNew = [];
           this.keys = Object.keys(this.data[0]);
-          this.keys.forEach(function(val) {
+          this.keys.forEach(function (val) {
             headersNew.push({ text: val, value: val, align: "center" });
           });
           headersNew.push({
             text: "Mults",
             value: "mults",
-            align: "center"
+            align: "center",
           });
 
           headersNew.push({
             text: "Actions",
             value: "actions",
-            align: "center"
+            align: "center",
           });
 
           this.headers = headersNew;
           this.apiDataReturned = true;
         })
-        .catch(err => {
+        .catch((err) => {
           this.snackbarMessage = ` Error: ${err}`;
           this.snackbar = true;
         });
     },
     OpenDialog(cross) {
       SettingsApi.MirrorCrossDets({ Cross: cross })
-        .then(response => {
+        .then((response) => {
           const dvidata = JSON.parse(response.data.dviSetup);
           const crossdata = JSON.parse(response.data.crossSetup);
           delete crossdata.Cross;
@@ -241,13 +241,13 @@ export default {
 
           this.showDialogAddNewCross = true;
         })
-        .catch(err => {
+        .catch((err) => {
           if (err.toString().includes("403") === true) {
             err = "Admin Rights Required";
           }
           this.$store.dispatch("setSnackbar", {
             text: ` ${err}`,
-            centered: true
+            centered: true,
           });
         });
     },
@@ -260,22 +260,22 @@ export default {
     deleteItem(item) {
       confirm(`Are you sure you want to delete ${item.Cross}?`) &&
         SettingsApi.DeleteCcyPairData({ Cross: item.Cross })
-          .then(response => {
+          .then((response) => {
             this.$store.dispatch("setSnackbar", {
               text: `${item.Cross} deleted succesfully. Status ${response.status}`,
-              centered: true
+              centered: true,
             });
 
             this.initialize();
             this.$emit("ccyPairDeleted", true);
           })
-          .catch(err => {
+          .catch((err) => {
             if (err.toString().includes("403") === true) {
               err = "Admin Rights Required";
             }
             this.$store.dispatch("setSnackbar", {
               text: `Delete unsucessful.  ${err}`,
-              centered: true
+              centered: true,
             });
           });
     },
@@ -283,16 +283,16 @@ export default {
       const cross = item.Cross;
       SettingsApi.GetMultsAndSpreads({
         UserName: this.$store.state.currentUser,
-        Cross: item.Cross
+        Cross: item.Cross,
       })
-        .then(response => {
+        .then((response) => {
           this.marketData = JSON.parse(response.data.multsAndSpreads);
           this.selectedCross = cross;
           this.marketTableTitle = "MULTIPLERS AND SPREADS";
           this.marketTableWidth = "1000px";
           this.showMarketTable = true;
         })
-        .catch(err => {
+        .catch((err) => {
           this.snackbarMessage = ` Error: ${err}`;
           this.snackbar = true;
         });
@@ -307,27 +307,27 @@ export default {
       this.$store.dispatch("setSnackbar", {
         text: `Processing ${item.Cross} DVI update ...`,
         centered: true,
-        timeout: 2500
+        timeout: 2500,
       });
       SettingsApi.UpdateDviDets({
         DviInputsUI: item,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
       })
-        .then(response => {
+        .then((response) => {
           this.$store.dispatch("setSnackbar", {
-            text: `${item.Cross} updated succesfully. Status ${response.status}`,
-            centered: true
+            text: `${item.Cross} updated succesfully.`,
+            centered: true,
           });
 
           this.initialize();
         })
-        .catch(err => {
+        .catch((err) => {
           if (err.toString().includes("403") === true) {
             err = "Admin Rights Required";
           }
           this.$store.dispatch("setSnackbar", {
             text: `Update unsucessful.  ${err}`,
-            centered: true
+            centered: true,
           });
         });
 
@@ -338,35 +338,34 @@ export default {
       this.$nextTick(() => {});
     },
 
-    SaveNewCross(dvidata, crossdata) {
+    async SaveNewCross(dvidata, crossdata) {
       crossdata.Cross = dvidata.Cross;
 
-      SettingsApi.AddNewCcyPair({
-        DviInputsUI: dvidata,
-        CrossDetsUI: crossdata
-      })
-        .then(response => {
-          this.$store.dispatch("refreshCrossList");
-          this.$store.dispatch("setSnackbar", {
-            text: ` ${dvidata.Cross} updated succesfully. Status ${response.status}`,
-            centered: true
-          });
-          this.refreshChildren = !this.refreshChildren;
-          this.initialize();
-        })
-        .catch(err => {
-          if (err.toString().includes("403") === true) {
-            err = "Admin Rights Required";
-          }
-          this.$store.dispatch("setSnackbar", {
-            text: `Update unsucessful.  ${err}`,
-            centered: true
-          });
+      try {
+        let response = await SettingsApi.AddNewCcyPair({
+          DviInputsUI: dvidata,
+          CrossDetsUI: crossdata,
         });
+        this.$store.dispatch("refreshCrossList");
+        this.$store.dispatch("setSnackbar", {
+          text: ` ${dvidata.Cross} updated succesfully.`,
+          centered: true,
+        });
+        this.refreshChildren = !this.refreshChildren;
+        this.initialize();
+      } catch (err) {
+        if (err.toString().includes("403") === true) {
+          err = "Admin Rights Required";
+        }
+        this.$store.dispatch("setSnackbar", {
+          text: `Update unsucessful.  ${err}`,
+          centered: true,
+        });
+      }
 
       this.CloseNewCrossDialog();
-    }
-  }
+    },
+  },
 };
 </script>
 

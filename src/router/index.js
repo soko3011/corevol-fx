@@ -13,7 +13,7 @@ const DayWgtSetup = () => import("@/views/DayWgtSetup");
 const Settings = () => import("@/views/Settings");
 const UserLogin = () => import("@/views/UserLogin");
 const UserRegistration = () => import("@/views/UserRegistration");
-const ManageUsers = () => import("@/views/ManageUsers");
+const Admin = () => import("@/views/Admin");
 const SplashScreen = () => import("@/views/SplashScreen");
 
 Vue.use(Router);
@@ -59,7 +59,7 @@ let router = new Router({
           name: "DayWgtSetup",
           component: DayWgtSetup
         },
-      
+
         {
           path: "settings",
           name: "Settings",
@@ -67,9 +67,9 @@ let router = new Router({
         },
 
         {
-          path: "manageUsers",
-          name: "ManageUsers",
-          component: ManageUsers
+          path: "Admin",
+          name: "Admin",
+          component: Admin
         }
       ]
     },

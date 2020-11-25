@@ -78,19 +78,19 @@ export default {
     editedItem: {},
     snackbar: false,
     snackbarMessage: "",
-    apiDataReturned: false
+    apiDataReturned: false,
   }),
 
   computed: {
     formTitle() {
       return `EDIT ${this.editedItem.Cross}`;
-    }
+    },
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    }
+    },
   },
 
   created() {
@@ -100,23 +100,23 @@ export default {
   methods: {
     initialize() {
       SettingsApi.GetCrossSetup()
-        .then(response => {
+        .then((response) => {
           this.data = JSON.parse(response.data.crossSetup);
           let headersNew = [];
           this.keys = Object.keys(this.data[0]);
-          this.keys.forEach(function(val) {
+          this.keys.forEach(function (val) {
             headersNew.push({ text: val, value: val, align: "center" });
           });
 
           headersNew.push({
             text: "Actions",
             value: "actions",
-            align: "center"
+            align: "center",
           });
           this.headers = headersNew;
           this.apiDataReturned = true;
         })
-        .catch(err => {
+        .catch((err) => {
           this.snackbarMessage = ` Error: ${err}`;
           this.snackbar = true;
         });
@@ -131,25 +131,23 @@ export default {
       this.$nextTick(() => {});
     },
 
-    save(item) {
-      SettingsApi.UpdateCrossDets(item)
-        .then(response => {
-          this.snackbarMessage = `${item.Cross} updated succesfully. Status ${response.status}`;
-          this.snackbar = true;
-
-          this.initialize();
-        })
-        .catch(err => {
-          if (err.toString().includes("403") === true) {
-            err = "Admin Rights Required";
-          }
-          this.snackbarMessage = `Update unsucessful.  ${err}`;
-          this.snackbar = true;
-        });
+    async save(item) {
+      try {
+        let response = await SettingsApi.UpdateCrossDets(item);
+        this.snackbarMessage = `${item.Cross} updated succesfully.`;
+        this.snackbar = true;
+        this.initialize();
+      } catch (err) {
+        if (err.toString().includes("403") === true) {
+          err = "Admin Rights Required";
+        }
+        this.snackbarMessage = `Update unsucessful.  ${err}`;
+        this.snackbar = true;
+      }
 
       this.close();
-    }
-  }
+    },
+  },
 };
 </script>
 

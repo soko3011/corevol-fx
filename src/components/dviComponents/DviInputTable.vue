@@ -45,7 +45,7 @@ export default {
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
       this.FormatTable(this.apidata, this.jExcelObj);
     },
-    async setIdata() {
+    setIdata() {
       var iData = {
         UserName: this.$store.state.currentUser,
         Cross: this.$store.getters.activeCrossGetter,
@@ -57,7 +57,7 @@ export default {
         Dk: this.jExcelObj.getValueFromCoords(2, 0),
       };
 
-      await this.$store.dispatch("returnDviAfterVolUpdate", iData);
+      this.$store.dispatch("returnDviAfterVolUpdate", iData);
     },
 
     FormatTable(data, table) {

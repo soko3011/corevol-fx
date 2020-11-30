@@ -4,8 +4,8 @@ import store from "@/store/index.js";
 export default class optCalcHelper {
   constructor(optsContainer, currentOpt, pricerKeys) {
     this.optsContainer = optsContainer;
-    this.pricerKeys = pricerKeys;
     this.currentOpt = currentOpt;
+    this.pricerKeys = pricerKeys;
   }
   baseConditionsIsValidated() {
     const essentialKeys = [
@@ -84,6 +84,7 @@ export default class optCalcHelper {
       });
     }
   }
+
   orderedOptForGrid(optArray) {
     let orderedArray = new Array();
 

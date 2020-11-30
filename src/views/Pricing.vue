@@ -81,6 +81,7 @@
 
           <v-list dense>
             <v-subheader>ACTIONS</v-subheader>
+
             <v-list-item>
               <v-list-item-action>
                 <v-switch dense ripple v-model="totalsToggle"></v-switch>
@@ -91,11 +92,25 @@
             </v-list-item>
             <v-list-item>
               <v-list-item-action>
+                <v-btn
+                  @click="toggleSimulation = !toggleSimulation"
+                  icon
+                  x-small
+                  color="blue darken-2"
+                  ><v-icon>mdi-chart-bell-curve</v-icon></v-btn
+                >
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>SIMULATION</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-action>
                 <v-btn icon x-small>
                   <StrategySelector
                     :inputData="strategyList"
                     :icon="'mdi-playlist-plus'"
-                    :color="'blue'"
+                    :color="'blue darken-2'"
                     :large="false"
                     v-on:selection="selectStrategy"
                   />
@@ -111,7 +126,7 @@
                   <PopUpInput
                     :icon="'mdi-expand-all'"
                     :label="'Pricer Name'"
-                    :color="'blue'"
+                    :color="'blue darken-2'"
                     :title="'corevolFx Pricer'"
                     :large="false"
                     v-on:selection="userAddPricer"
@@ -145,6 +160,7 @@
 
         <OptionPricer
           :pricerName="viewName"
+          :simulationButton="toggleSimulation"
           v-bind:style="zoomLevel"
           :key="componentKey"
           @createStrategy="addStrategyView"
@@ -177,9 +193,10 @@ export default {
     return {
       loading: false,
       componentKey: 0,
+      toggleSimulation: false,
       modalToggle: false,
       viewName: this.$route.params.viewName,
-      showSideControl: false,
+      showSideControl: true,
       window: {
         width: 0,
         height: 0,

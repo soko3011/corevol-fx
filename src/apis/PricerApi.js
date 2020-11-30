@@ -60,5 +60,11 @@ export default {
   },
   getGlobalTermsList() {
     return Api.get("GetGlobalTermsList");
+  },
+  simulateOptions(body) {
+    return Api.post("SimulateOptions", body);
+  },
+  simulateOptionsTimeAdusted(body) {
+    return Api.post("SimulateOptionsTimeAdusted", body);
   }
 };

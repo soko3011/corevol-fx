@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- <v-btn @click="dev" color="blue">DEV</v-btn> -->
     <v-progress-linear
       active
       :indeterminate="loading"
@@ -8,11 +9,17 @@
       color="green accent-4"
       rounded
     ></v-progress-linear>
-    <!-- <v-btn @click="dev" color="blue">DEV</v-btn> -->
+
     <div ref="jexcelPricer"></div>
     <PricerSetup
       :activekeyGroups="pricerSettingsObj"
       @pricerLayoutChanged="updatePricerLayout"
+    />
+    <Simulation
+      v-if="showSimulation"
+      :inputData="this.simData"
+      :vmodel="showSimulation"
+      v-on:setvmodel="(data) => (showSimulation = data)"
     />
   </div>
 </template>
@@ -32,6 +39,7 @@ import eventHelper from "./helpers/eventHelper.js";
 import optCalcHelper from "./helpers/optCalcHelper.js";
 import PricerSetup from "@/components/pricer/PricerSetup.vue";
 import stratHelper from "@/components/pricer/helpers/stratHelper.js";
+import Simulation from "@/components/pricer/Simulation.vue";
 import moment from "moment";
 import { mapState } from "vuex";
 
@@ -39,6 +47,7 @@ export default {
   name: "optionPricer",
   components: {
     PricerSetup,
+    Simulation,
   },
   created() {
     window.addEventListener("resize", this.handleResize);
@@ -53,6 +62,7 @@ export default {
   },
   props: {
     pricerName: { type: String, default: "" },
+    simulationButton: { type: Boolean },
   },
   data() {
     return {
@@ -65,11 +75,14 @@ export default {
       cellPosContainer: [],
       row: [],
       col: [],
+      col2: [],
       redObj: [],
       optData: {},
       optsContainer: [],
       alphabet: alphabetJson.alphabet,
       storedData: [],
+      showSimulation: false,
+      simData: [],
       window: {
         width: 0,
         height: 0,
@@ -137,6 +150,10 @@ export default {
             items.push({
               title: "REFRESH OPTION",
               shortcut: "Ctrl + R",
+            }),
+            items.push({
+              title: "RUN SIMULATION",
+              shortcut: "Ctrl + L",
             });
           return items;
         },
@@ -147,8 +164,24 @@ export default {
     },
   },
   methods: {
-    dev() {
-      console.log(this.totalsToggle);
+    async dev() {
+      try {
+        let optsToServer = this.totalsToggle
+          ? this.optsContainer
+          : this.optsContainer.filter(
+              (opt) =>
+                parseInt(opt.name) >= this.col - 1 &&
+                parseInt(opt.name) <= this.col2 - 1
+            );
+        let response = await PricerApi.simulateOptions(optsToServer);
+        this.simData = response.data;
+        this.showSimulation = !this.showSimulation;
+      } catch (err) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${err}  source:multipleOptsSimulation`,
+          top: true,
+        });
+      }
     },
     //#region INITIALIZE_SHEET
     setHeaders() {
@@ -392,6 +425,7 @@ export default {
     selectionActive(instance, x1, y1, x2, y2) {
       this.row = y1;
       this.col = x1;
+      this.col2 = x2;
       this.eventListenerToggle = true;
 
       let cssUser = new cssUserEditHelper(
@@ -785,6 +819,7 @@ export default {
       this.deleteAllOptsEvent(event); //ctrl D
       this.deleteSingleOptEvent(event); //ctrl Q
       this.refreshSingleOptEvent(event); //ctrl R
+      this.runSimulation(event); //ctrl L
     },
     copyOptEvent(event) {
       if (event.code == "KeyP" && event.ctrlKey) {
@@ -796,6 +831,12 @@ export default {
       if (event.code == "KeyD" && event.ctrlKey) {
         event.preventDefault();
         this.clearAll();
+      }
+    },
+    runSimulation(event) {
+      if (event.code == "KeyL" && event.ctrlKey) {
+        event.preventDefault();
+        this.sendSimulationToServer();
       }
     },
     deleteSingleOptEvent(event) {
@@ -837,6 +878,7 @@ export default {
         );
       }
     },
+
     autoFillCrossDropDownEvent() {
       const getUserSelection = new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -1191,6 +1233,36 @@ export default {
       this.selectCell(1, 2);
     },
     //#endregion COPY_DEL_REPLACE
+    //#region SIMULATION
+    async sendSimulationToServer() {
+      try {
+        let optsToServer = this.totalsToggle
+          ? this.optsContainer
+          : this.optsContainer.filter(
+              (opt) =>
+                parseInt(opt.name) >= this.col - 1 &&
+                parseInt(opt.name) <= this.col2 - 1
+            );
+
+        optsToServer.forEach((object) => {
+          let colNum = parseInt(object["name"]) + 1;
+          object["StrikeText"] = this.jExcelObj.getValueFromCoords(
+            colNum.toString(),
+            this.keyRow("K")
+          );
+        });
+
+        let response = await PricerApi.simulateOptions(optsToServer);
+        this.simData = response.data;
+        this.showSimulation = !this.showSimulation;
+      } catch (err) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${err}  source:multipleOptsSimulation`,
+          top: true,
+        });
+      }
+    },
+    //#endregion SIMULATION
     //#region STRATEGIES
     createStrategy(strat) {
       let strategy = new stratHelper(strat);
@@ -1288,6 +1360,9 @@ export default {
       } else {
         this.jExcelObj.hideColumn(0);
       }
+    },
+    simulationButton() {
+      this.sendSimulationToServer();
     },
   },
 };

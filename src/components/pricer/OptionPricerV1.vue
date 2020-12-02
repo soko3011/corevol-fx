@@ -9,7 +9,6 @@
       color="green accent-4"
       rounded
     ></v-progress-linear>
-    {{ eventListenerToggle }}
     <div ref="jexcelPricer"></div>
     <PricerSetup
       :activekeyGroups="pricerSettingsObj"
@@ -53,6 +52,7 @@ export default {
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
     document.addEventListener("keydown", this.eventListeners);
+    document.addEventListener("keydown", this.restoreEventToggleInCaseOfEscKey);
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;
   },
   destroyed() {
@@ -183,6 +183,7 @@ export default {
         });
       }
     },
+
     //#region INITIALIZE_SHEET
     setHeaders() {
       var headers = [];
@@ -863,6 +864,16 @@ export default {
         event.code === "Space" &&
         this.col > this.keyCol
       ) {
+        let cssUser = new cssUserEditHelper(
+          this.jExcelObj,
+          this.col,
+          this.row,
+          this.pricerKeys,
+          this.keyCol
+        );
+
+        cssUser.removeClassAlertUserToSpaceBar();
+
         event.preventDefault();
         const firstLetter = event.key;
         this.eventListenerToggle = false;
@@ -899,6 +910,16 @@ export default {
           this.autoFillCrossDropDownEvent
         );
       });
+    },
+    restoreEventToggleInCaseOfEscKey(event) {
+      var keyCode = event.keyCode
+        ? event.keyCode
+        : event.which
+        ? event.which
+        : event.charCode;
+      if (keyCode == 27) {
+        this.eventListenerToggle = true;
+      }
     },
     //#endregion EVENTS
     //#region FORMAT
@@ -1393,8 +1414,15 @@ $baseUnits: var(--base-units);
   background-color: #78ffb7 !important;
   // background-color: $primary !important;
 }
-.jexcel > tbody > tr > td.dropDownCells::after {
+
+.jexcel > tbody > tr > td.alertUserToSpaceBar::after {
+  content: "press space bar";
+  padding-left: 0.5em;
+  color: black;
+}
+.jexcel > tbody > tr > td.dropDownCells::before {
   content: "\25bc";
+  //content: "press space bar";
   padding-left: 0.5em;
   color: black;
 }

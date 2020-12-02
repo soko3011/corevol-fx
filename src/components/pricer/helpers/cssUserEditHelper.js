@@ -61,11 +61,9 @@ export default class cssUserEditHelper {
     const cellsWithUserEditClass = document.getElementsByClassName(
       "userEditCell"
     );
-
     while (cellsWithUserEditClass.length) {
       cellsWithUserEditClass[0].classList.remove("userEditCell");
     }
-
     while (cellsWithUserEditClass.length) {
       cellsWithUserEditClass[0].classList.add("readonly");
     }
@@ -74,11 +72,19 @@ export default class cssUserEditHelper {
     while (cellsWithDropDown.length) {
       cellsWithDropDown[0].classList.remove("dropDownCells");
     }
+
+    const alertUserCell = document.getElementsByClassName(
+      "alertUserToSpaceBar"
+    );
+    while (alertUserCell.length) {
+      alertUserCell[0].classList.remove("alertUserToSpaceBar");
+    }
   }
 
   initiatizeColumn(crossVal) {
     if (this.y1 === this.keyRowCross() && crossVal === "") {
       this.addClassUserEditCell();
+      this.addClassAlertUserToSpaceBar();
     }
   }
 
@@ -91,6 +97,21 @@ export default class cssUserEditHelper {
       if (this.isDropDownCell() && premiumTypeVal !== "") {
         this.addClassUserDropDownCells();
       }
+    }
+  }
+
+  addClassAlertUserToSpaceBar() {
+    if (this.x1 > this.keyCol) {
+      const cell = utils.getCell(this.x1, this.y1, this.table);
+      cell.classList.add("alertUserToSpaceBar");
+    }
+  }
+  removeClassAlertUserToSpaceBar() {
+    const alertUserCell = document.getElementsByClassName(
+      "alertUserToSpaceBar"
+    );
+    while (alertUserCell.length) {
+      alertUserCell[0].classList.remove("alertUserToSpaceBar");
     }
   }
 

@@ -95,7 +95,7 @@ export function addDowpDown(obj, cell, source, firstLetter) {
   };
 
   jSuites.dropdown(editor, options);
-  if (firstLetter !== undefined) {
-    document.getElementsByClassName("jdropdown-header")[0].value = firstLetter;
-  }
+  // if (firstLetter !== undefined) {
+  //   document.getElementsByClassName("jdropdown-header")[0].value = firstLetter;
+  // }
 }

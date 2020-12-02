@@ -1,7 +1,7 @@
 import * as utils from "./pricerUtils.js";
 
 const userEditableCells = [
-  "Cross",
+  //"Cross",
   "Spot",
   "ExpiryText",
   "StrikeText",

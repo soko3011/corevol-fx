@@ -1,7 +1,8 @@
+
 <template>
   <v-row justify="center">
-    <v-dialog v-model="dialogToggle" max-width="1000">
-      <v-card width="1000">
+    <v-dialog v-model="dialogToggle" max-width="1300">
+      <v-card width="1300">
         <v-app-bar flat color="rgba(0, 0, 0, 0)">
           <!-- <v-btn @click="dev" color="blue">DEV</v-btn> -->
           <v-toolbar-title class="title black--text text--darken-3 mr-5">
@@ -87,12 +88,14 @@
           disable-pagination
           hide-default-footer
         >
-          <template v-slot:item.TotalPnl="{ item }">
+          <!-- eslint-disable-next-line vue/valid-v-slot-->
+          <template #item.TotalPnl="{ item }">
             <v-chip :color="getColor(item.TotalPnl)" dark small>
               {{ item.TotalPnl }}
             </v-chip>
           </template>
-          <template v-slot:item.SpotShift="{ item }">
+          <!-- eslint-disable-next-line vue/valid-v-slot-->
+          <template #item.SpotShift="{ item }">
             <div
               v-if="parseFloat(item.SpotShift) > 0"
               class="blue--text text--darken-4"
@@ -103,7 +106,8 @@
               {{ item.SpotShift }}
             </div>
           </template>
-          <template v-slot:item.SDeltaTotalChange="{ item }">
+          <!-- eslint-disable-next-line vue/valid-v-slot-->
+          <template #item.SDeltaTotalChange="{ item }">
             <div
               v-if="parseFloat(item.SDeltaTotalChange) > 0"
               class="blue--text text--darken-4"
@@ -114,7 +118,8 @@
               {{ item.SDeltaTotalChange }}
             </div>
           </template>
-          <template v-slot:item.SDeltaStepChange="{ item }">
+          <!-- eslint-disable-next-line vue/valid-v-slot-->
+          <template #item.SDeltaStepChange="{ item }">
             <div
               v-if="parseFloat(item.SDeltaStepChange) > 0"
               class="blue--text text--darken-4"
@@ -125,7 +130,8 @@
               {{ item.SDeltaStepChange }}
             </div>
           </template>
-          <template v-slot:item.SVega="{ item }">
+          <!-- eslint-disable-next-line vue/valid-v-slot-->
+          <template #item.SVega="{ item }">
             <div
               v-if="parseFloat(item.SVega) > 0"
               class="blue--text text--darken-4"
@@ -136,6 +142,7 @@
               {{ item.SVega }}
             </div>
           </template>
+          <!-- eslint-disable-next-line vue/valid-v-slot-->
           <template v-slot:item.PremiumChange="{ item }">
             <div
               v-if="parseFloat(item.PremiumChange) > 0"
@@ -147,7 +154,8 @@
               {{ item.PremiumChange }}
             </div>
           </template>
-          <template v-slot:item.DeltaPnl="{ item }">
+          <!-- eslint-disable-next-line vue/valid-v-slot-->
+          <template #item.DeltaPnl="{ item }">
             <div
               v-if="parseFloat(item.DeltaPnl) > 0"
               class="blue--text text--darken-4"

@@ -9,7 +9,7 @@
       color="green accent-4"
       rounded
     ></v-progress-linear>
-
+    {{ eventListenerToggle }}
     <div ref="jexcelPricer"></div>
     <PricerSetup
       :activekeyGroups="pricerSettingsObj"
@@ -857,10 +857,10 @@ export default {
       }
     },
     crossDropDown(event) {
-      const isLetter = /^[a-z]$/i.test(event.key);
+      //const isLetter = /^[a-z]$/i.test(event.key);
       if (
         this.row === this.keyRow("Cross") &&
-        (event.code === "Space" || isLetter) &&
+        event.code === "Space" &&
         this.col > this.keyCol
       ) {
         event.preventDefault();
@@ -878,7 +878,6 @@ export default {
         );
       }
     },
-
     autoFillCrossDropDownEvent() {
       const getUserSelection = new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -1195,21 +1194,6 @@ export default {
 
       this.jExcelObj.setData(grid);
     },
-    // replaceSingleOpt(optValues, col) {
-    //   for (var i = 0; i < optValues.length; i++) {
-    //     var cell = utils.getCell(col, i, this.jExcelObj);
-    //     cell.classList.remove("readonly");
-    //   }
-    //   this.jExcelObj.ignoreEvents = true;
-    //   this.jExcelObj.setColumnData(col, optValues);
-
-    //   this.jExcelObj.ignoreEvents = false;
-    //   for (var i = 0; i < optValues.length; i++) {
-    //     var cell = utils.getCell(col, i, this.jExcelObj);
-    //     cell.classList.add("readonly");
-    //   }
-    //   this.sendAllPricerDataToServer();
-    // },
     clearGrid() {
       var cleanSlate = this.jExcelObj.getData()[0];
       var newList = JSON.parse(JSON.stringify(this.jExcelObj.getData()));
@@ -1236,9 +1220,11 @@ export default {
     //#region SIMULATION
     async sendSimulationToServer() {
       try {
+        let optContainerClone = JSON.parse(JSON.stringify(this.optsContainer));
+
         let optsToServer = this.totalsToggle
-          ? this.optsContainer
-          : this.optsContainer.filter(
+          ? optContainerClone
+          : optContainerClone.filter(
               (opt) =>
                 parseInt(opt.name) >= this.col - 1 &&
                 parseInt(opt.name) <= this.col2 - 1
@@ -1250,6 +1236,18 @@ export default {
             colNum.toString(),
             this.keyRow("K")
           );
+          object["ExpiryText"] = `${this.jExcelObj.getValueFromCoords(
+            colNum.toString(),
+            this.keyRow("DayCountExpiry")
+          )}D`;
+          object["Call_Put"] = this.jExcelObj.getValueFromCoords(
+            colNum.toString(),
+            this.keyRow("Call_Put")
+          );
+          object["PremiumType"] = this.jExcelObj.getValueFromCoords(
+            colNum.toString(),
+            this.keyRow("PremiumType")
+          );
         });
 
         let response = await PricerApi.simulateOptions(optsToServer);
@@ -1257,7 +1255,7 @@ export default {
         this.showSimulation = !this.showSimulation;
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
-          text: `${err}  source:multipleOptsSimulation`,
+          text: `${err}  source:sendSimulationToServer`,
           top: true,
         });
       }
@@ -1270,11 +1268,6 @@ export default {
       if (!strategy.validateStrategyCreation()) {
         return;
       }
-
-      console.log({
-        strategy: strat,
-        optData: this.optData,
-      });
 
       this.$emit("createStrategy", {
         strategy: strat,

@@ -85,10 +85,6 @@ export default {
             text: "User Settings Updated",
             top: true,
           });
-          this.$store.dispatch("setSnackbar", {
-            text: `Interface Updated`,
-            bottom: true,
-          });
         })
         .catch((err) => {
           this.$store.dispatch("setSnackbar", {

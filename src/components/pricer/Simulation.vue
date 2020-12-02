@@ -131,6 +131,30 @@
             </div>
           </template>
           <!-- eslint-disable-next-line vue/valid-v-slot-->
+          <template #item.SDeltaOption="{ item }">
+            <div
+              v-if="parseFloat(item.SDeltaOption) > 0"
+              class="blue--text text--darken-4"
+            >
+              {{ item.SDeltaOption }}
+            </div>
+            <div v-else class="red--text text--darken-3">
+              {{ item.SDeltaOption }}
+            </div>
+          </template>
+          <!-- eslint-disable-next-line vue/valid-v-slot-->
+          <template #item.DeltaHedge="{ item }">
+            <div
+              v-if="parseFloat(item.DeltaHedge) > 0"
+              class="blue--text text--darken-4"
+            >
+              {{ item.DeltaHedge }}
+            </div>
+            <div v-else class="red--text text--darken-3">
+              {{ item.DeltaHedge }}
+            </div>
+          </template>
+          <!-- eslint-disable-next-line vue/valid-v-slot-->
           <template #item.SVega="{ item }">
             <div
               v-if="parseFloat(item.SVega) > 0"

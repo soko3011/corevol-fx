@@ -25,13 +25,16 @@
           </v-btn>
         </v-toolbar>
       </template>
-      <template v-slot:item.swaps="{ item }">
+      <!-- eslint-disable-next-line vue/valid-v-slot-->
+      <template #item.swaps="{ item }">
         <v-icon small @click="viewSwaps(item)">mdi-eye</v-icon>
       </template>
-      <template v-slot:item.baserates="{ item }">
+      <!-- eslint-disable-next-line vue/valid-v-slot-->
+      <template #item.baserates="{ item }">
         <v-icon small @click="viewDepos(item)">mdi-eye</v-icon>
       </template>
-      <template v-slot:item.ratetiles="{ item }">
+      <!-- eslint-disable-next-line vue/valid-v-slot-->
+      <template #item.ratetiles="{ item }">
         <v-icon small @click="viewRateTiles(item)">mdi-eye</v-icon>
       </template>
     </v-data-table>
@@ -68,17 +71,6 @@
         </v-container>
       </v-card>
     </v-dialog>
-
-    <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
-        Interfaces Updated => Spot: {{ spotIface }} | Swap :{{ swapIface }}
-        <template v-slot:action="{ attrs }">
-          <v-btn color="pink" text v-bind="attrs" @click="snackbar = false"
-            >Close</v-btn
-          >
-        </template>
-      </v-snackbar>
-    </div>
   </div>
 </template>
 
@@ -104,7 +96,6 @@ export default {
     swapIfaces: ["EmpireFX", "MongoDB"],
     spotIface: "",
     swapIface: "",
-    snackbar: false,
     apiDataReturned: false,
   }),
   components: {
@@ -259,7 +250,10 @@ export default {
         .then((response) => {
           this.spotIface = JSON.parse(response.data.spot);
           this.swapIface = JSON.parse(response.data.swap);
-          this.snackbar = true;
+          this.$store.dispatch("setSnackbar", {
+            text: `Interfaces Updated`,
+            centered: true,
+          });
           this.initialize();
         })
         .catch((err) => {

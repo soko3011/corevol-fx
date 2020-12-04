@@ -65,9 +65,11 @@
           </v-dialog>
         </v-toolbar>
       </template>
+      <!-- eslint-disable-next-line vue/valid-v-slot-->
       <template v-slot:item.mults="{ item }">
         <v-icon small @click="viewMultsAndSpreads(item)">mdi-eye</v-icon>
       </template>
+      <!-- eslint-disable-next-line vue/valid-v-slot-->
       <template v-slot:item.actions="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
@@ -262,7 +264,7 @@ export default {
         SettingsApi.DeleteCcyPairData({ Cross: item.Cross })
           .then((response) => {
             this.$store.dispatch("setSnackbar", {
-              text: `${item.Cross} deleted succesfully. Status ${response.status}`,
+              text: `${item.Cross} deleted succesfully.`,
               centered: true,
             });
 

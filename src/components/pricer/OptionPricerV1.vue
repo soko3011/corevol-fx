@@ -165,23 +165,7 @@ export default {
   },
   methods: {
     async dev() {
-      try {
-        let optsToServer = this.totalsToggle
-          ? this.optsContainer
-          : this.optsContainer.filter(
-              (opt) =>
-                parseInt(opt.name) >= this.col - 1 &&
-                parseInt(opt.name) <= this.col2 - 1
-            );
-        let response = await PricerApi.simulateOptions(optsToServer);
-        this.simData = response.data;
-        this.showSimulation = !this.showSimulation;
-      } catch (err) {
-        this.$store.dispatch("setSnackbar", {
-          text: `${err}  source:multipleOptsSimulation`,
-          top: true,
-        });
-      }
+      console.log(this.optsContainer);
     },
 
     //#region INITIALIZE_SHEET
@@ -466,6 +450,7 @@ export default {
       this.userUpdateForDepo(activeCol);
       this.userUpateDomDepo(activeCol);
       this.userUpdateNotional(activeCol);
+      this.setTotalsOverrides(activeCol);
     },
     async validateCrossAndSetSpot(activeCol, crossVal) {
       if (this.row == this.keyRow("Cross")) {
@@ -797,6 +782,16 @@ export default {
         }
       }
     },
+    setTotalsOverrides(activeCol) {
+      if (activeCol === 0) {
+        Object.assign(this.optData, {
+          spot: this.keyVal("Spot"),
+          premiumType: this.keyVal("PremiumType"),
+          strikeText: this.keyVal("StrikeText"),
+          expiryText: this.keyVal("ExpiryText"),
+        });
+      }
+    },
     //#endregion USER_UPDATEOPTION
     //#region EVENTS
     eventListeners(event) {
@@ -925,6 +920,15 @@ export default {
     //#region FORMAT
     formatComplete() {
       this.jExcelObj.hideIndex();
+
+      var isSingleExpiryDate = this.optsContainer
+        .filter((x) => x.name !== "-1")
+        .every((e) => e.expiryText === this.optsContainer[0].expiryText);
+
+      var isSingleStrikeText = this.optsContainer
+        .filter((x) => x.name !== "-1")
+        .every((e) => e.strikeText === this.optsContainer[0].strikeText);
+
       for (const keyGroup of this.pricerSettingsObj) {
         if (keyGroup.Show === true) {
           let keys = keyGroup.Keys;
@@ -932,7 +936,12 @@ export default {
             for (var i = 0; i < this.columnCount; i++) {
               var cellName = jexcel.getColumnNameFromId([i, this.keyRow(key)]);
               if (i === 0) {
-                this.formatTotalsColumn(cellName, keyGroup);
+                this.formatTotalsColumn(
+                  cellName,
+                  keyGroup,
+                  isSingleExpiryDate,
+                  isSingleStrikeText
+                );
               } else {
                 this.formatSingleCell(
                   cellName,
@@ -949,14 +958,19 @@ export default {
         ? this.jExcelObj.hideColumn(0)
         : this.jExcelObj.showColumn(0);
     },
-    formatTotalsColumn(cellName, keyGroup) {
+    formatTotalsColumn(
+      cellName,
+      keyGroup,
+      isSingleExpiryDate,
+      isSingleStrikeText
+    ) {
       let textColor = keyGroup.TextColor;
       const backgroundColor = utils.shadeColor(keyGroup.BackgroundColor, -10);
       if (
-        keyGroup.Name === "SurfaceInputs" ||
-        keyGroup.Name === "DatesInfo" ||
-        keyGroup.Name === "DiscountFactors" ||
-        keyGroup.Name === "FwdsInputs" ||
+        (keyGroup.Name === "SurfaceInputs" && !isSingleExpiryDate) ||
+        (keyGroup.Name === "DatesInfo" && !isSingleExpiryDate) ||
+        (keyGroup.Name === "DiscountFactors" && !isSingleExpiryDate) ||
+        (keyGroup.Name === "FwdsInputs" && !isSingleExpiryDate) ||
         keyGroup.Name === "ImpliedVol"
       ) {
         textColor = backgroundColor;
@@ -967,8 +981,8 @@ export default {
 
         if (
           this.keyRow("K") === row ||
-          this.keyRow("ExpiryText") === row ||
-          this.keyRow("StrikeText") === row ||
+          (this.keyRow("ExpiryText") === row && !isSingleExpiryDate) ||
+          (this.keyRow("StrikeText") === row && !isSingleStrikeText) ||
           this.keyRow("Call_Put") === row
         ) {
           textColor = backgroundColor;
@@ -1250,6 +1264,15 @@ export default {
                 parseInt(opt.name) >= this.col - 1 &&
                 parseInt(opt.name) <= this.col2 - 1
             );
+
+        if (optsToServer.length === 0) {
+          this.$store.dispatch("setSnackbar", {
+            text: `Select Option To Simulate`,
+            top: true,
+          });
+
+          return;
+        }
 
         optsToServer.forEach((object) => {
           let colNum = parseInt(object["name"]) + 1;

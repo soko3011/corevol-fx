@@ -8,6 +8,10 @@ export default class optCalcHelper {
     this.pricerKeys = pricerKeys;
   }
   baseConditionsIsValidated() {
+    if (this.currentOpt.name === "-1") {
+      return true;
+    }
+
     const essentialKeys = [
       "cross",
       "spot",
@@ -20,14 +24,13 @@ export default class optCalcHelper {
     if (this.currentOpt === undefined) {
       return false;
     }
-    if (this.currentOpt.strikeText === "rr25") {
-      return;
-    }
+
     for (const key of essentialKeys) {
       if (!this.currentOpt.hasOwnProperty(key)) {
         return false;
       }
     }
+
     return true;
   }
   async sendSingleOptionToServerForCalcs() {

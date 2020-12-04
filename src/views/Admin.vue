@@ -69,6 +69,7 @@
               :items="log"
               :search="search"
             >
+              <!-- eslint-disable-next-line vue/valid-v-slot-->
               <template v-slot:item.LogTime="{ item }">
                 <span>{{ new Date(item.LogTime).toLocaleString() }}</span>
               </template></v-data-table
@@ -89,12 +90,14 @@
               disable-pagination
               hide-default-footer
             >
+              <!-- eslint-disable-next-line vue/valid-v-slot-->
               <template v-slot:item.IsAdmin="{ item }">
                 <v-simple-checkbox
                   v-ripple
                   v-model="item.IsAdmin"
                 ></v-simple-checkbox>
               </template>
+              <!-- eslint-disable-next-line vue/valid-v-slot-->
               <template v-slot:item.IsAuthed="{ item }">
                 <v-simple-checkbox
                   v-ripple
@@ -107,6 +110,7 @@
                   <v-spacer></v-spacer>
                 </v-toolbar>
               </template>
+              <!-- eslint-disable-next-line vue/valid-v-slot-->
               <template v-slot:item.actions="{ item }">
                 <v-icon small class="mr-2" @click="save(item)"
                   >mdi-content-save</v-icon
@@ -263,7 +267,7 @@ export default {
         LoginApi.DeleteUser(item)
           .then((response) => {
             this.$store.dispatch("setSnackbar", {
-              text: `${item.UserName} deleted succesfully. Status ${response.status}`,
+              text: `${item.UserName} deleted succesfully. `,
               centered: true,
             });
 
@@ -284,7 +288,7 @@ export default {
       LoginApi.UpdateUser(item)
         .then((response) => {
           this.$store.dispatch("setSnackbar", {
-            text: `${item.UserName} updated succesfully. Status ${response.status}`,
+            text: `${item.UserName} updated succesfully.`,
             centered: true,
           });
 

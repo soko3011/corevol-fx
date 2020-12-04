@@ -90,9 +90,15 @@
         >
           <!-- eslint-disable-next-line vue/valid-v-slot-->
           <template #item.TotalPnl="{ item }">
-            <v-chip :color="getColor(item.TotalPnl)" dark small>
+            <div
+              v-if="parseFloat(item.TotalPnl) > 0"
+              class="blue--text text--darken-4"
+            >
               {{ item.TotalPnl }}
-            </v-chip>
+            </div>
+            <div v-else class="red--text text--darken-3">
+              {{ item.TotalPnl }}
+            </div>
           </template>
           <!-- eslint-disable-next-line vue/valid-v-slot-->
           <template #item.SpotShift="{ item }">
@@ -329,7 +335,15 @@ export default {
         optsToServer[0].UserName = this.$store.state.currentUser;
         let response = await PricerApi.simulateOptionsTimeAdusted(optsToServer);
         this.timeAdjustedInputData = response.data;
-        this.timeAdjustedString = `(Time To Expiry: ${pctAdj * 100}%)`;
+
+        var isSingleExpiryDate = optsToServer.every(
+          (e) => e.ExpiryText === optsToServer[0].ExpiryText
+        );
+        var addText = isSingleExpiryDate ? "" : "of Front Maturity";
+
+        this.timeAdjustedString = `(Time To Expiry: ${
+          pctAdj * 100
+        }% ${addText})`;
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  source:sendSimulationToServer`,

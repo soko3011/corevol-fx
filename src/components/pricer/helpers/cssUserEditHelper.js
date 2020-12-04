@@ -20,6 +20,22 @@ const userEditableCells = [
   "FwdPts"
 ];
 
+const totalsEditableCells = [
+  "Spot",
+  //"ExpiryText",
+  // "StrikeText",
+  "PremiumType",
+  "AtmVol",
+  "Rr",
+  "Fly",
+  "RrMult",
+  "FlyMult",
+  "ForDepo",
+  "DomDepo",
+  "FwdOutRight",
+  "FwdPts"
+];
+
 const dropDownCells = ["Cross", "PremiumType"];
 
 export default class cssUserEditHelper {
@@ -39,12 +55,22 @@ export default class cssUserEditHelper {
     return dropDownCells.map(x => this.pricerKeys.indexOf(x));
   }
 
+  rowsTotalsEditableCells() {
+    return totalsEditableCells.map(x => this.pricerKeys.indexOf(x));
+  }
+
   isUserEditableCell() {
     return this.rowsUserEditableCells().indexOf(this.y1) !== -1 ? true : false;
   }
 
   isDropDownCell() {
     return this.rowsDropDownCells().indexOf(this.y1) !== -1 ? true : false;
+  }
+
+  isTotalsEditableCell() {
+    return this.rowsTotalsEditableCells().indexOf(this.y1) !== -1
+      ? true
+      : false;
   }
 
   keyRowCross() {
@@ -97,6 +123,10 @@ export default class cssUserEditHelper {
       if (this.isDropDownCell() && premiumTypeVal !== "") {
         this.addClassUserDropDownCells();
       }
+      if (this.isTotalsEditableCell()) {
+        this.addClassTotalsEditCell();
+        this.removeClassReadOnlyTotals();
+      }
     }
   }
 
@@ -123,14 +153,27 @@ export default class cssUserEditHelper {
   }
 
   addClassUserDropDownCells() {
-    if (this.x1 > this.keyCol) {
+    if (this.x1 !== this.keyCol) {
       var cell = utils.getCell(this.x1, this.y1, this.table);
       cell.classList.add("dropDownCells");
     }
   }
 
+  addClassTotalsEditCell() {
+    if (this.x1 === 0) {
+      const cell = utils.getCell(this.x1, this.y1, this.table);
+      cell.classList.add("userEditCell");
+    }
+  }
+
   removeClassReadOnly() {
     if (this.x1 > this.keyCol) {
+      var cell = utils.getCell(this.x1, this.y1, this.table);
+      cell.classList.remove("readonly");
+    }
+  }
+  removeClassReadOnlyTotals() {
+    if (this.x1 === 0) {
       var cell = utils.getCell(this.x1, this.y1, this.table);
       cell.classList.remove("readonly");
     }

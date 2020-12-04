@@ -426,10 +426,11 @@ export default {
     },
 
     lastUpdateTime() {
+      console.log(this.lastUpdate.Time);
       const dateTime = moment(
         this.lastUpdate.Time,
-        "DD/MM/YYYY, h:mm:ss"
-      ).toDate();
+        "DD/MM/YYYY, HH:mm:ss"
+      ).format("ddd, MMM Do YYYY, HH:mm:ss");
 
       return dateTime;
     },

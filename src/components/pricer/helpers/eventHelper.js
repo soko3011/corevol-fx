@@ -16,7 +16,7 @@ export default class eventHelper {
     if (
       this.event.code === "Space" &&
       row === this.pricerKeys.indexOf("PremiumType") &&
-      col > this.keyCol
+      col !== this.keyCol
     ) {
       this.event.preventDefault();
 

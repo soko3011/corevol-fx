@@ -39,7 +39,7 @@
     <transition name="slide">
       <div v-if="toggleMarketData" class="ma-5">
         <iframe
-          src="https://www.widgets.investing.com/live-currency-cross-rates?theme=darkTheme&roundedCorners=true&cols=last,change,changePerc&pairs=42,155,117,1691,2103,961728,2138,63,650,39,962711,18,17,69,68"
+          src="https://www.widgets.investing.com/live-currency-cross-rates?theme=darkTheme&roundedCorners=true&cols=last,change,changePerc&pairs=42,155,117,1691,2103,961728,2138,63,650,39,962711,18,17,69,68,160"
           frameborder="0"
           allowtransparency="true"
           :height="`${mainWindowHeight}px`"

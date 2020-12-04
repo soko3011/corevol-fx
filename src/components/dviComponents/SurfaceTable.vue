@@ -9,6 +9,8 @@ import { mapState } from "vuex";
 import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
+import alphabetJson from "@/components/pricer/Alphabet.json";
+import cssUserEditDvi from "./helpers/cssUserEditDvi.js";
 import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
 
 export default {
@@ -16,6 +18,7 @@ export default {
   created() {},
   data() {
     return {
+      alphabet: alphabetJson.alphabet,
       row: [],
       col: [],
     };
@@ -26,21 +29,44 @@ export default {
     }),
     config() {
       return {
+        data: this.tableData,
+        colHeaders: this.tableHeaders,
+        columns: this.setReadOnly(),
         columnSorting: false,
         colWidths: [50, 50, 100, 55, 55, 55, 55, 55],
         onchange: this.OnChange,
         allowInsertRow: false,
         onselection: this.selectionActive,
+        tableOverflow: false,
         contextMenu: function (obj, x, y, e) {},
       };
     },
+    tableHeaders() {
+      return Object.keys(this.apidata[0]);
+    },
+    tableData() {
+      let tdata = [];
 
-    jExcelOptions() {
-      return customFunctions.JexcelTableSettings(this.apidata, this.config);
+      this.apidata.forEach((element) => {
+        tdata.push(Object.values(element));
+      });
+
+      return tdata;
     },
   },
   methods: {
+    cellId(col, row) {
+      return `${this.alphabet[col].toUpperCase()}${row}`;
+    },
     selectionActive(instance, x1, y1, x2, y2, origin) {
+      let cssUser = new cssUserEditDvi(
+        this.jExcelObj,
+        this.tableHeaders,
+        x1,
+        y1
+      );
+      cssUser.activateUserEditableClasses();
+
       this.row = y1;
       this.col = x1;
 
@@ -113,32 +139,53 @@ export default {
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
       this.FormatTable(this.apidata, this.jExcelObj);
     },
+    setReadOnly() {
+      var columns = [];
+      for (var c = 0; c < this.tableHeaders.length; c++) {
+        columns.push({ readOnly: true });
+      }
+      return columns;
+    },
     FormatTable(data, table) {
       table.hideIndex();
+      //reset font color to black after readonly class is added.
+      for (var r = 1; r <= table.rows.length; r++) {
+        for (var c = 0; c < table.headers.length; c++) {
+          table.setStyle(this.cellId(c, r), "color", "black");
+        }
+      }
 
-      for (var i = 0; i < data.length; i++) {
-        var row = i + 1;
-        const col1Name = "B" + row;
-        const col4Name = "E" + row;
-        const col13Name = "M" + row;
-        const col14Name = "N" + row;
-        table.setStyle(col4Name, "background-color", "#D2DEE9");
-        table.setStyle(col4Name, "font-weight", "bold");
-        table.setStyle(col1Name, "color", "#000080");
-        table.setStyle(col1Name, "font-weight", "bold");
-        table.setStyle(col13Name, "background-color", "#EDFAFD");
-        table.setStyle(col14Name, "background-color", "#EDFAFD");
-        table.setStyle(col13Name, "font-weight", "bold");
-        table.setStyle(col14Name, "font-weight", "bold");
+      const atmCol = this.tableHeaders.indexOf("ATM");
+      const termCol = this.tableHeaders.indexOf("Term");
+      const rrMult = this.tableHeaders.indexOf("RR_MULT");
+      const flyMult = this.tableHeaders.indexOf("SFLY_MULT");
+
+      for (var row = 1; row <= data.length; row++) {
+        table.setStyle(this.cellId(atmCol, row), "background-color", "#D2DEE9");
+        table.setStyle(this.cellId(atmCol, row), "font-weight", "bold");
+        table.setStyle(this.cellId(termCol, row), "color", "#000080");
+        table.setStyle(this.cellId(termCol, row), "font-weight", "bold");
+        table.setStyle(this.cellId(rrMult, row), "background-color", "#EDFAFD");
+        table.setStyle(this.cellId(rrMult, row), "font-weight", "bold");
+        table.setStyle(
+          this.cellId(flyMult, row),
+          "background-color",
+          "#EDFAFD"
+        );
+        table.setStyle(this.cellId(flyMult, row), "font-weight", "bold");
 
         if (row > 9) {
-          table.setStyle(col4Name, "background-color", "#EDFAFD");
+          table.setStyle(
+            this.cellId(atmCol, row),
+            "background-color",
+            "#EDFAFD"
+          );
         }
       }
     },
   },
   mounted: function () {
-    const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
+    const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
   },
@@ -149,3 +196,10 @@ export default {
   },
 };
 </script>
+
+<style>
+.jexcel > tbody > tr > td.userEditCell {
+  color: black !important;
+  background-color: #78ffb7 !important;
+}
+</style>

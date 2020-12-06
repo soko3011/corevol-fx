@@ -11,33 +11,73 @@ import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unus
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
+import alphabetJson from "@/components/pricer/Alphabet.json";
+import cssUserEditDvi from "./helpers/cssUserEditDvi.js";
 
 export default {
   name: "dviTable",
   created() {},
   data() {
-    return {};
+    return {
+      alphabet: alphabetJson.alphabet
+    };
   },
   computed: {
     ...mapState({
-      apidata: (state) => state.dvi.main,
+      apidata: state => state.dvi.main
     }),
     config() {
       return {
+        data: this.tableData,
+        colHeaders: this.tableHeaders,
+        columns: this.setReadOnly(),
         columnSorting: false,
         colWidths: [50, 120, 75, 60, 60, 60, 60, 60, 60, 60, 60, 60],
         onchange: this.OnChange,
         onselection: this.selectionActive,
         allowInsertRow: false,
-        contextMenu: function (obj, x, y, e) {},
+        tableOverflow: false,
+        contextMenu: function(obj, x, y, e) {}
       };
     },
-    jExcelOptions() {
-      return customFunctions.JexcelTableSettings(this.apidata, this.config);
+    tableHeaders() {
+      return Object.keys(this.apidata[0]);
     },
+    tableData() {
+      let tdata = [];
+
+      this.apidata.forEach(element => {
+        tdata.push(Object.values(element));
+      });
+
+      return tdata;
+    }
   },
   methods: {
+    setReadOnly() {
+      var columns = [];
+      for (var c = 0; c < this.tableHeaders.length; c++) {
+        columns.push({ readOnly: true });
+      }
+      return columns;
+    },
+    isUserEditableCell(col, row) {
+      if (this.tableHeaders[col] === "UserEvent") {
+        return true;
+      }
+    },
+    cellId(col, row) {
+      return `${this.alphabet[col].toUpperCase()}${row}`;
+    },
     selectionActive(instance, x1, y1, x2, y2, origin) {
+      let cssUser = new cssUserEditDvi(
+        this.jExcelObj,
+        this.isUserEditableCell(x1, y1),
+        x1,
+        y1
+      );
+      cssUser.activateUserEditableClasses();
+
       var mat1 = this.jExcelObj.getValueFromCoords("1", y1);
       var mat2 = this.jExcelObj.getValueFromCoords("1", y2);
       var cal1 = this.jExcelObj.getValueFromCoords("0", y1);
@@ -63,7 +103,7 @@ export default {
         fwdV: fwdV.toFixed(2),
         fwdD: cal2 - cal1,
         dateArr: dateArr,
-        volArr: volArr,
+        volArr: volArr
       };
 
       this.$store.dispatch("fwdVolInputsFromDviTable", fwdVolObj);
@@ -82,7 +122,7 @@ export default {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
         UserEventWgt: eventWgt,
-        UserEventDayCount: dayCount,
+        UserEventDayCount: dayCount
       };
       this.$store.dispatch("returnDviAfterUserWgtUpdate", iData);
     },
@@ -93,6 +133,12 @@ export default {
 
     FormatTable(data, table) {
       table.hideIndex();
+
+      for (var r = 1; r <= table.rows.length; r++) {
+        for (var c = 0; c < table.headers.length; c++) {
+          table.setStyle(this.cellId(c, r), "color", "black");
+        }
+      }
       for (var i = 0; i < data.length; i++) {
         var row = i + 1;
         const col0Name = "A" + row;
@@ -135,18 +181,18 @@ export default {
           table.setStyle(col7Name, "background-color", "#bfbfbf");
         }
       }
-    },
+    }
   },
-  mounted: function () {
-    const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
+  mounted: function() {
+    const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj });
   },
   watch: {
     apidata() {
       this.RefreshTable();
-    },
-  },
+    }
+  }
 };
 </script>
 

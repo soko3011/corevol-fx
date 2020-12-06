@@ -19,9 +19,19 @@ let emailFormat = () => {
   return v => (v && regex.test(v)) || "Must be a valid email";
 };
 
+let positiveNumber = () => {
+  let regex = /^[0-9]+([,.][0-9]+)?$/;
+  return v => (v && regex.test(v)) || "Must be a positive number";
+};
+let anyNumber = () => {
+  let regex = /^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/;
+  return v => (v && regex.test(v)) || "Must be a positive number";
+};
 export default {
   required,
   minLength,
   maxLength,
-  emailFormat
+  emailFormat,
+  positiveNumber,
+  anyNumber
 };

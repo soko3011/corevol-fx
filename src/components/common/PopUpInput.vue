@@ -2,7 +2,14 @@
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="400">
       <template v-slot:activator="{ on, attrs }">
-        <v-icon :large="large" :color="color" v-bind="attrs" v-on="on">
+        <v-icon
+          :large="large"
+          :x-small="xsmall"
+          :small="small"
+          :color="color"
+          v-bind="attrs"
+          v-on="on"
+        >
           {{ icon }}
         </v-icon>
       </template>
@@ -35,13 +42,11 @@
   </v-row>
 </template>
 
- 
-
 <script>
 export default {
   data: () => ({
     dialog: false,
-    textValue: "",
+    textValue: ""
   }),
   props: {
     label: { type: String },
@@ -49,6 +54,8 @@ export default {
     color: { type: String },
     title: { type: String },
     large: { type: Boolean },
+    small: { type: Boolean },
+    xsmall: { type: Boolean }
   },
   methods: {
     setTextValue(item) {
@@ -58,8 +65,8 @@ export default {
       this.$emit("selection", this.textValue);
       this.textValue = "";
       this.dialog = false;
-    },
-  },
+    }
+  }
 };
 </script>
 

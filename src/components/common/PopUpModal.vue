@@ -3,10 +3,15 @@
     <v-dialog v-model="dialog" max-width="300">
       <template v-slot:activator="{ on, attrs }">
         <v-btn icon>
-          <v-icon :large="large" :color="color" v-bind="attrs" v-on="on">
-            {{
-            icon
-            }}
+          <v-icon
+            :large="large"
+            :x-small="xsmall"
+            :small="small"
+            :color="color"
+            v-bind="attrs"
+            v-on="on"
+          >
+            {{ icon }}
           </v-icon>
         </v-btn>
       </template>
@@ -35,7 +40,9 @@
         </v-list>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="dialog = false">Cancel</v-btn>
+          <v-btn color="green darken-1" text @click="dialog = false"
+            >Cancel</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -51,6 +58,8 @@ export default {
     inputData: { type: Array },
     icon: { type: String },
     large: { type: Boolean },
+    xsmall: { type: Boolean },
+    small: { type: Boolean },
     color: { type: String },
     title: { type: String }
   },

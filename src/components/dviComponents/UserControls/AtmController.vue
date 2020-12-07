@@ -109,13 +109,13 @@ export default {
       vol1: "",
       vol2: "",
       dk: "",
-      ...validations
+      ...validations,
     };
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.volInput
-    })
+      apidata: (state) => state.dvi.volInput,
+    }),
   },
   methods: {
     refreshFromApi() {
@@ -136,25 +136,25 @@ export default {
         Mat2: this.expiry2,
         Vol1: this.vol1,
         Vol2: this.vol2,
-        Dk: this.dk
+        Dk: this.dk,
       };
 
       this.$store.dispatch("returnDviAfterVolUpdate", iData);
     },
     toggleSmileController() {
       this.$emit("setSmileToggler");
-    }
+    },
   },
   watch: {
     apidata() {
       this.refreshFromApi();
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
-div.textFields {
+/* div.textFields {
   width: 230px;
-}
+} */
 </style>

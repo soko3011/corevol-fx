@@ -171,16 +171,16 @@ export default {
       rrCorr: "",
       showControllerToggle: true,
       rrModelToggle: false,
-      ...validations
+      ...validations,
     };
   },
   props: {
-    smileControllerToggle: { type: Boolean }
+    smileControllerToggle: { type: Boolean },
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.smileInput
-    })
+      apidata: (state) => state.dvi.smileInput,
+    }),
   },
   methods: {
     refreshFromApi() {
@@ -205,10 +205,10 @@ export default {
         Rrcorr: this.rrCorr,
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       };
       this.$store.dispatch("returnDviAfterSmileUpdate", iData);
-    }
+    },
   },
   watch: {
     apidata() {
@@ -217,13 +217,13 @@ export default {
     smileControllerToggle() {
       this.showControllerToggle = this.smileControllerToggle;
       this.rrModelToggle = this.smileControllerToggle;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
-div.textFields {
+/* div.textFields {
   width: 230px;
-}
+} */
 </style>

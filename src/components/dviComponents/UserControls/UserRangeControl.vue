@@ -1,15 +1,16 @@
 <template>
   <div>
-    <v-card color="#385F73" dark class="mx-2">
+    <v-card color="#385F73" class="mx-2">
       <v-container>
         <div class="d-flex flex-nowrap justify-space-between">
-          <AtmController
+          <RangeInput
             v-on:dataSent="alertUserDviChange()"
-            v-on:setSmileToggler="smileTogglerFromAtm = !smileTogglerFromAtm"
+            :activeRange="activeSelection"
           />
-          <SmileController
-            v-on:dataSent="alertUserDviChange()"
-            :smileControllerToggle="smileTogglerFromAtm"
+          <RangeList
+            v-if="toggleList"
+            class="mx-5"
+            v-on:emitToParent="selection"
           />
         </div>
         <v-progress-linear
@@ -25,25 +26,37 @@
 
 <script>
 import { mapState } from "vuex";
-import AtmController from "@/components/dviComponents/UserControls/AtmController.vue";
-import SmileController from "@/components/dviComponents/UserControls/SmileController.vue";
+import RangeInput from "@/components/dviComponents/UserControls/RangeInput.vue";
+import RangeList from "@/components/dviComponents/UserControls/RangeList.vue";
 
 export default {
   name: "dviUserControl",
   components: {
-    SmileController,
-    AtmController,
+    RangeInput,
+    RangeList,
   },
-  created() {},
+  created() {
+    console.log(this.apidata);
+  },
 
   data() {
     return {
-      smileTogglerFromAtm: false,
       progress: 0,
+      activeSelection: {},
     };
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      apidata: (state) => state.dvi.userWgtRanges,
+    }),
+    toggleList() {
+      return this.apidata[0].RangeName !== null ? true : false;
+    },
+  },
   methods: {
+    selection(item) {
+      this.activeSelection = item;
+    },
     alertUserDviChange() {
       this.progress = 100;
       setTimeout(() => {
@@ -56,8 +69,8 @@ export default {
 </script>
 
 <style>
-div.textFields {
-  width: 230px;
+div.userRange {
+  width: 350px;
   height: 50px;
 }
 </style>

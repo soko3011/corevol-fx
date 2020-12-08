@@ -4,7 +4,7 @@
       <div>
         <v-card-title class="subtitle-1 green--text text--lighten-3"
           >CUSTOM DAY WGT RANGE
-          <v-btn icon @click="dev">
+          <v-btn icon @click="resetForm()">
             <v-icon class="mb-2" small color="blue lighten-3"
               >mdi-dots-hexagon</v-icon
             ></v-btn
@@ -30,7 +30,7 @@
             v-model="startTerm"
             :items="termsList"
             label="Select Term"
-            :rules="[required('Start Term')]"
+            :rules="[required('term')]"
           >
           </v-select>
           <v-menu
@@ -51,7 +51,7 @@
                 readonly
                 v-bind="attrs"
                 v-on="on"
-                :rules="[required('Start Date')]"
+                :rules="[required('date')]"
               ></v-text-field>
             </template>
             <v-date-picker
@@ -69,7 +69,7 @@
             v-model="endTerm"
             :items="termsList"
             label="Select Term"
-            :rules="[required('End Term')]"
+            :rules="[required('term')]"
           >
           </v-select>
           <v-menu
@@ -90,7 +90,7 @@
                 readonly
                 v-bind="attrs"
                 v-on="on"
-                :rules="[required('End Date')]"
+                :rules="[required('date')]"
               ></v-text-field>
             </template>
             <v-date-picker
@@ -118,6 +118,7 @@
             v-model="keepExistingWgt"
             :items="['TRUE', 'FALSE']"
             label="KeepExistingWgts"
+            :rules="[required('boolean')]"
           >
           </v-select>
           <v-text-field
@@ -135,17 +136,28 @@
             :rules="[required('dayWgt'), positiveNumber()]"
           ></v-text-field>
         </div>
-        <div class="d-flex flex-nowrap justify-space-between userRange mt-6">
-          <v-btn color="blue lighten-1" @click="activateNewRange(iData)"
+        <div class="d-flex flex-nowrap justify-space-around userRange mt-6">
+          <v-btn
+            color="blue lighten-1"
+            @click="activateNewRange(iData)"
+            v-if="isNewRange"
             >Activate
           </v-btn>
-
-          <v-btn color="red lighten-1" @click="removeRange()">Remove </v-btn>
-          <v-btn color="green lighten-1" @click="updateExistingRange()"
+          <v-btn
+            v-if="!isNewRange"
+            color="green lighten-1"
+            @click="updateExistingRange()"
             >Update
           </v-btn>
-          <v-btn color="grey lighten-1" @click="clearExistingRange()"
+
+          <v-btn
+            color="blue lighten-1"
+            @click="clearExistingRange()"
+            v-if="!isNewRange"
             >Clear
+          </v-btn>
+          <v-btn color="red lighten-1" @click="removeRange()" v-if="!isNewRange"
+            >Remove
           </v-btn>
         </div>
       </div>
@@ -155,6 +167,7 @@
 
 <script>
 import validations from "@/utils/validations";
+import moment from "moment";
 import { mapState } from "vuex";
 
 export default {
@@ -166,8 +179,8 @@ export default {
   data() {
     return {
       rangeName: "",
-      keepExistingWgt: "FALSE",
-      dayWgt: 1,
+      keepExistingWgt: "",
+      dayWgt: "",
       action: "Add",
       ...validations,
       radio: "expiry",
@@ -228,19 +241,11 @@ export default {
         }
       };
     },
-    resetIdata() {
-      return {
-        UserName: this.$store.state.currentUser,
-        Cross: this.$store.getters.activeCrossGetter,
-        UserEventRangeUI: {
-          RangeName: this.rangeName.toUpperCase(),
-          StartDate: this.currentRange.StartDate,
-          EndDate: this.currentRange.EndDate,
-          KeepExistingWgt: this.keepExistingWgt,
-          DayWgt: "CLEAR RANGE",
-          Action: this.action
-        }
-      };
+    isNewRange() {
+      return this.activeRangeListNames.indexOf(this.rangeName.toUpperCase()) >
+        -1
+        ? false
+        : true;
     },
     tomorrowDate() {
       const today = new Date();
@@ -251,17 +256,23 @@ export default {
     }
   },
   methods: {
-    dev() {},
+    dev() {
+      console.log(this.isNewRange);
+    },
 
-    refreshSelection() {
+    refreshExistingRange() {
       this.rangeName = this.activeRange.RangeName;
       this.keepExistingWgt = this.activeRange.KeepExistingWgt;
       this.dayWgt = this.activeRange.DayWgt;
 
       if (this.activeRange.StartDate.length > 2) {
         this.radio = "expiry";
-        this.calDateStart = this.activeRange.StartDate;
-        this.calDateEnd = this.activeRange.EndDate;
+        this.calDateStart = moment(this.activeRange.StartDate, "DD/MM/YYYY")
+          .toISOString()
+          .substr(0, 10);
+        this.calDateEnd = moment(this.activeRange.EndDate, "DD/MM/YYYY")
+          .toISOString()
+          .substr(0, 10);
       } else {
         this.radio = "term";
         this.startTerm = this.activeRange.StartDate;
@@ -270,14 +281,27 @@ export default {
     },
     resetForm() {
       this.rangeName = "";
-      this.keepExistingWgt = "FALSE";
-      this.dayWgt = 1;
+      this.keepExistingWgt = "";
+      this.dayWgt = "";
       this.radio = "expiry";
       this.startTerm = "";
       this.endTerm = "";
-      this.calDateStart = new Date().toISOString().substr(0, 10);
-      this.calDateEnd = new Date().toISOString().substr(0, 10);
+      this.calDateStart = "";
+      this.calDateEnd = "";
       this.action = "Add";
+    },
+    isUniqueRangeName() {
+      if (
+        this.activeRangeListNames.indexOf(this.rangeName.toUpperCase()) > -1
+      ) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${this.rangeName} is already in use. Select another RangeName.`,
+          centered: true
+        });
+        return false;
+      }
+
+      return true;
     },
     isValidated() {
       const validate = {
@@ -290,33 +314,47 @@ export default {
 
       return Object.values(validate).every(Boolean);
     },
-    async activateNewRange(iDataObject) {
-      if (
-        this.activeRangeListNames.indexOf(this.rangeName.toUpperCase()) > -1 &&
-        this.action === "Add"
-      ) {
+    isDatesOrdered() {
+      if (this.radio === "expiry") {
+        return moment(this.calDateEnd).isAfter(this.calDateStart);
+      }
+      return (
+        this.termsList.indexOf(this.startTerm) <
+        this.termsList.indexOf(this.endTerm)
+      );
+    },
+
+    async sendRangeToServer() {
+      if (!this.isDatesOrdered()) {
         this.$store.dispatch("setSnackbar", {
-          text: `${this.rangeName} is already in use. Select another RangeName.`,
+          text: `END DATE MUST BE AFTER START DATE`,
           centered: true
         });
         return;
       }
-      if (this.isValidated()) {
-        let response = await this.$store.dispatch(
-          "returnDviAfterUserWgtRangeUpdate",
-          iDataObject
-        );
-      } else {
+
+      if (!this.isValidated()) {
         this.$store.dispatch("setSnackbar", {
           text: `Check inputs`,
           centered: true
         });
+        return;
       }
+
+      await this.$store.dispatch(
+        "returnDviAfterUserWgtRangeUpdate",
+        this.iData
+      );
     },
-    async removeRange() {
-      this.dayWgt = "CLEAR RANGE";
+    activateNewRange() {
+      if (!this.isUniqueRangeName()) {
+        return;
+      }
+      this.sendRangeToServer();
+    },
+    removeRange() {
       this.action = "Remove";
-      await this.activateNewRange(this.iData);
+      this.sendRangeToServer();
 
       this.$store.dispatch("setSnackbar", {
         text: `${this.rangeName} has been removed`,
@@ -324,23 +362,21 @@ export default {
       });
       this.resetForm();
     },
-
     updateExistingRange() {
-      this.action = "Update";
-
-      this.activateNewRange(this.iData);
-      this.action = "Add";
+      if (this.isNewRange) {
+        return;
+      }
+      this.sendRangeToServer();
       this.$emit("dataSent");
     },
     clearExistingRange() {
-      this.action = "Update";
-      this.activateNewRange(this.resetIdata);
-      this.action = "Add";
+      this.dayWgt = "CLEARED";
+      this.sendRangeToServer();
     }
   },
   watch: {
     activeRange() {
-      this.refreshSelection();
+      this.refreshExistingRange();
     }
   }
 };

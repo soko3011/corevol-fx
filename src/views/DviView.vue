@@ -271,14 +271,14 @@
                 SPOT: {{ lastUpdate.Spot }}
               </h5>
             </div>
-            <div class="d-flex align-center justify-start mt-n3 mb-2">
-              <DviUserControl />
-            </div>
             <div
               v-if="dayWgtRangesSwitch"
               class="d-flex align-center justify-start mb-2"
             >
               <UserRangeControl />
+            </div>
+            <div v-else class="d-flex align-center justify-start mt-n3 mb-2">
+              <DviUserControl />
             </div>
 
             <div v-if="ipvHasData">

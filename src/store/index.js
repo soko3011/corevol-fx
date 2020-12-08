@@ -493,7 +493,8 @@ const actions = {
       return true;
     } catch (err) {
       dispatch("setSnackbar", {
-        text: `${err} `
+        text: `${err} `,
+        centered:true
       });
     }
   },

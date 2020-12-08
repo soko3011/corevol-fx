@@ -18,6 +18,10 @@ let emailFormat = () => {
   let regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,24})+$/;
   return v => (v && regex.test(v)) || "Must be a valid email";
 };
+let noSpaces = () => {
+  let regex = /^\S*$/u;
+  return v => (v && regex.test(v)) || "Cannot have spaces";
+};
 
 let positiveNumber = () => {
   let regex = /^[0-9]+([,.][0-9]+)?$/;
@@ -27,11 +31,19 @@ let anyNumber = () => {
   let regex = /^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/;
   return v => (v && regex.test(v)) || "Must be a positive number";
 };
+
+let uniqueValue = (inputList) => {
+  return v =>
+    (inputList.indexOf(v)===-1) ||
+    `Input is already taken`;
+};
 export default {
   required,
   minLength,
   maxLength,
   emailFormat,
   positiveNumber,
-  anyNumber
+  anyNumber,
+  noSpaces,
+  uniqueValue
 };

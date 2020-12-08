@@ -6,7 +6,7 @@
           <v-card-title class="subtitle-1 green--text text--lighten-3"
             >SMILE CONTROLS
             <v-btn icon @click="rrModelToggle = !rrModelToggle">
-              <v-icon small color="blue lighten-3"
+              <v-icon class="mb-2" small color="blue lighten-3"
                 >mdi-dots-hexagon</v-icon
               ></v-btn
             >
@@ -109,7 +109,7 @@
           <v-card-title class="subtitle-1 green--text text--lighten-3"
             >RR MODEL
             <v-btn icon @click="rrModelToggle = !rrModelToggle">
-              <v-icon small color="blue lighten-3"
+              <v-icon class="mb-2" small color="blue lighten-3"
                 >mdi-dots-hexagon</v-icon
               ></v-btn
             ></v-card-title
@@ -171,16 +171,16 @@ export default {
       rrCorr: "",
       showControllerToggle: true,
       rrModelToggle: false,
-      ...validations,
+      ...validations
     };
   },
   props: {
-    smileControllerToggle: { type: Boolean },
+    smileControllerToggle: { type: Boolean }
   },
   computed: {
     ...mapState({
-      apidata: (state) => state.dvi.smileInput,
-    }),
+      apidata: state => state.dvi.smileInput
+    })
   },
   methods: {
     refreshFromApi() {
@@ -205,10 +205,10 @@ export default {
         Rrcorr: this.rrCorr,
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       };
       this.$store.dispatch("returnDviAfterSmileUpdate", iData);
-    },
+    }
   },
   watch: {
     apidata() {
@@ -217,8 +217,8 @@ export default {
     smileControllerToggle() {
       this.showControllerToggle = this.smileControllerToggle;
       this.rrModelToggle = this.smileControllerToggle;
-    },
-  },
+    }
+  }
 };
 </script>
 

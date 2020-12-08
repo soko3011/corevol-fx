@@ -7,11 +7,7 @@
             v-on:dataSent="alertUserDviChange()"
             :activeRange="activeSelection"
           />
-          <RangeList
-            v-if="toggleList"
-            class="mx-5"
-            v-on:emitToParent="selection"
-          />
+          <RangeList class="mx-5" v-on:emitToParent="selection" />
         </div>
         <v-progress-linear
           :value="progress"
@@ -33,7 +29,7 @@ export default {
   name: "dviUserControl",
   components: {
     RangeInput,
-    RangeList,
+    RangeList
   },
   created() {
     console.log(this.apidata);
@@ -42,16 +38,16 @@ export default {
   data() {
     return {
       progress: 0,
-      activeSelection: {},
+      activeSelection: {}
     };
   },
   computed: {
     ...mapState({
-      apidata: (state) => state.dvi.userWgtRanges,
+      apidata: state => state.dvi.userWgtRanges
     }),
     toggleList() {
       return this.apidata[0].RangeName !== null ? true : false;
-    },
+    }
   },
   methods: {
     selection(item) {
@@ -62,9 +58,9 @@ export default {
       setTimeout(() => {
         this.progress = 0;
       }, 650);
-    },
+    }
   },
-  watch: {},
+  watch: {}
 };
 </script>
 

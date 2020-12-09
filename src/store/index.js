@@ -7,7 +7,7 @@ import SettingsApi from "../apis/SettingsApi";
 import Axios from "axios";
 
 Vue.use(Vuex);
-
+//test
 const state = {
   dvi: {
     main: [],

@@ -15,10 +15,10 @@ import cssUserEditDvi from "./helpers/cssUserEditDvi.js";
 
 export default {
   name: "dviCalendar",
-  created: function() {
+  created: function () {
     document.addEventListener("keydown", this.EventListeners);
   },
-  destroyed: function() {
+  destroyed: function () {
     document.removeEventListener("keydown", this.EventListeners);
   },
   data() {
@@ -26,11 +26,11 @@ export default {
       colWidthsSurf: [200, 100, 50, 80],
       row: [],
       col: [],
-      alphabet: alphabetJson.alphabet
+      alphabet: alphabetJson.alphabet,
     };
   },
   props: {
-    calData: { type: Array }
+    calData: { type: Array },
   },
   computed: {
     config() {
@@ -43,7 +43,7 @@ export default {
         onchange: this.OnChange,
         allowInsertRow: false,
         onselection: this.selectionActive,
-        contextMenu: function(obj, x, y, e) {}
+        contextMenu: function (obj, x, y, e) {},
       };
     },
     tableHeaders() {
@@ -52,7 +52,7 @@ export default {
     tableData() {
       let tdata = [];
 
-      this.apidata.forEach(element => {
+      this.apidata.forEach((element) => {
         tdata.push(Object.values(element));
       });
 
@@ -60,7 +60,7 @@ export default {
     },
     apidata() {
       return this.calData;
-    }
+    },
   },
   methods: {
     setReadOnly() {
@@ -127,9 +127,9 @@ export default {
         table.setStyle(col1Name, "color", "#000080");
         // table.setStyle( col1Name, 'font-weight', 'bold');
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
@@ -137,9 +137,9 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style></style>
+

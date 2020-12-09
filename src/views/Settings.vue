@@ -96,13 +96,13 @@ export default {
       "Cross Settings",
       "Ccy Settings",
       "Expiry Cut Settings",
-      "User Settings"
+      "User Settings",
     ],
     settingSelection: "Dvi Settings",
     window: {
       width: 0,
-      height: 0
-    }
+      height: 0,
+    },
   }),
 
   components: {
@@ -111,16 +111,16 @@ export default {
     CcySetup,
     PopUpModal,
     UserSettings,
-    ExpiryCutSettings
+    ExpiryCutSettings,
   },
 
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "90%";
       return {
-        zoom: level
+        zoom: level,
       };
-    }
+    },
   },
 
   methods: {
@@ -140,8 +140,8 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -161,15 +161,5 @@ $mainWidth: var(--main-width);
 .overallContainer .dviCol {
   display: flex;
   overflow-y: scroll;
-}
-
-.slide-enter-active {
-  transition: 0.75s;
-}
-.slide-enter {
-  transform: translate(100%, 0);
-}
-.slide-leave-to {
-  transform: translate(-100%, 0);
 }
 </style>

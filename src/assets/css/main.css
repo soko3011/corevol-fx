@@ -1,22 +1,56 @@
 .jexcel > thead > tr > td {
-    font-family: Arial;
-    font-size: 0.65rem;
-    background-color: #3c4b63;
-    color: white;
-  }
-  .jexcel > tbody > tr > td {
-    font-family: Arial;
-    font-size: 0.75rem;
-    padding: 0px;
-    line-height: 1.6em;
-  }
-  .jexcel > thead > tr > td.selected {
-    color: black;
-    background-color: #8f9494;
-  }
-  
-  .table th,
-  .table td {
-  padding: 0.25rem;
-  vertical-align: top;
-  }
+  font-family: Arial;
+  font-size: 0.65rem;
+  background-color: #3c4b63;
+  color: white;
+}
+.jexcel > tbody > tr > td {
+  font-family: Arial;
+  font-size: 0.75rem;
+  padding: 0px;
+  line-height: 1.6em;
+}
+.jexcel > thead > tr > td.selected {
+  color: white;
+  background-color: #385f73;
+}
+.jexcel > thead > tr.jexcel_nested > td {
+  background-color: #385f73 !important;
+  font-family: Arial;
+  font-size: 0.9rem;
+  padding: 0px;
+  line-height: 2em;
+  color: white;
+}
+.jexcel > tbody > tr > td.userEditCell {
+  color: black !important;
+  background-color: #78ffb7 !important;
+}
+.fade-enter {
+  /* starting style */
+  opacity: 0;
+}
+.fade-enter-active {
+  /* entering style */
+  transition: opacity 0.25s ease-out;
+}
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transform: translateX(10px);
+  opacity: 0;
+}
+.slide-enter-active {
+  transition: 0.75s;
+}
+.slide-enter {
+  transform: translate(100%, 0);
+}
+.slide-leave-to {
+  transform: translate(-100%, 0);
+}

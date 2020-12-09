@@ -20,12 +20,12 @@ export default {
     return {
       alphabet: alphabetJson.alphabet,
       row: [],
-      col: []
+      col: [],
     };
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.surf
+      apidata: (state) => state.dvi.surf,
     }),
     config() {
       return {
@@ -38,7 +38,7 @@ export default {
         allowInsertRow: false,
         onselection: this.selectionActive,
         tableOverflow: true,
-        contextMenu: function(obj, x, y, e) {}
+        contextMenu: function (obj, x, y, e) {},
       };
     },
     tableHeaders() {
@@ -47,12 +47,12 @@ export default {
     tableData() {
       let tdata = [];
 
-      this.apidata.forEach(element => {
+      this.apidata.forEach((element) => {
         tdata.push(Object.values(element));
       });
 
       return tdata;
-    }
+    },
   },
   methods: {
     setReadOnly() {
@@ -109,7 +109,7 @@ export default {
         vol1: vol1,
         vol2: vol2,
         fwdV: fwdV.toFixed(2),
-        fwdD: cal2 - cal1
+        fwdD: cal2 - cal1,
       };
 
       this.$store.dispatch("fwdVolInputsFromDviTable", fwdVolObj);
@@ -122,25 +122,25 @@ export default {
         Cross: this.$store.getters.activeCrossGetter,
         Term: this.jExcelObj.getValueFromCoords(1, this.row),
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       };
 
       if (header === "RR_MULT") {
         Object.assign(iData, {
-          RrMult: this.jExcelObj.getValueFromCoords(colNum, this.row)
+          RrMult: this.jExcelObj.getValueFromCoords(colNum, this.row),
         });
       }
 
       if (header === "SFLY_MULT") {
         Object.assign(iData, {
-          FlyMultSmile: this.jExcelObj.getValueFromCoords(colNum, this.row)
+          FlyMultSmile: this.jExcelObj.getValueFromCoords(colNum, this.row),
         });
       }
 
       var daycount = this.jExcelObj.getValueFromCoords(0, this.row);
       if (daycount > 400 && header === "ATM") {
         Object.assign(iData, {
-          Spread1Y: this.jExcelObj.getValueFromCoords(colNum, this.row)
+          Spread1Y: this.jExcelObj.getValueFromCoords(colNum, this.row),
         });
       }
 
@@ -194,9 +194,9 @@ export default {
           );
         }
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
@@ -204,14 +204,14 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
-.jexcel > tbody > tr > td.userEditCell {
+/* .jexcel > tbody > tr > td.userEditCell {
   color: black !important;
   background-color: #78ffb7 !important;
-}
+} */
 </style>

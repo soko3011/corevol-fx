@@ -39,7 +39,6 @@ const state = {
   userPricerLayoutPrefs: [],
   dviPrefs: {
     autoSaveSwitch: false,
-    dayWgtRangesSwitch: false,
     ipvSwitch: false
   },
   activePricerLayoutTitle: "Trader",
@@ -494,7 +493,7 @@ const actions = {
     } catch (err) {
       dispatch("setSnackbar", {
         text: `${err} `,
-        centered:true
+        centered: true
       });
     }
   },

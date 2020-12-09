@@ -62,7 +62,9 @@
               class="mr-3 d-flex flex-column"
             >
               <v-list dense>
+              
                 <v-subheader>ACTIVE DVI</v-subheader>
+                
                 <v-list-item
                   @click="ReloadDvi(item)"
                   v-for="item in activeDvis"
@@ -76,6 +78,7 @@
                     <v-list-item-title>{{ item }}</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
+                
               </v-list>
 
               <v-list dense>
@@ -90,7 +93,7 @@
                       :inputData="this.$store.state.crossList"
                       :title="'ADD DVI'"
                       :vmodel="addNewDviModal"
-                      v-on:setvmodel="data => (addNewDviModal = data)"
+                      v-on:setvmodel="(data) => (addNewDviModal = data)"
                       v-on:selection="ReloadDvi"
                     />
                   </v-list-item-action>
@@ -108,7 +111,7 @@
                       :inputData="this.activeDvis"
                       :title="'REMOVE DVI'"
                       :vmodel="deleteDviModal"
-                      v-on:setvmodel="data => (deleteDviModal = data)"
+                      v-on:setvmodel="(data) => (deleteDviModal = data)"
                       v-on:selection="RemoveTab"
                     />
                   </v-list-item-action>
@@ -125,7 +128,7 @@
                       :inputData="optionCuts"
                       :title="'SELECT CUT'"
                       :vmodel="cutModal"
-                      v-on:setvmodel="data => (cutModal = data)"
+                      v-on:setvmodel="(data) => (cutModal = data)"
                       v-on:selection="ChangeCut"
                     />
                   </v-list-item-action>
@@ -147,6 +150,16 @@
 
               <v-list dense>
                 <v-subheader>SETTINGS</v-subheader>
+                 <v-list-item @click="dayWgtRangesSwitch = ! dayWgtRangesSwitch">
+                  <v-list-item-action>
+                    <v-btn ripple small icon>
+                      <v-icon color="#385F73">mdi-cog-transfer-outline</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>DAY WGT RANGES</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
                 <v-list-item>
                   <v-switch
                     dense
@@ -158,15 +171,7 @@
                   ></v-switch>
                 </v-list-item>
 
-                <v-list-item>
-                  <v-switch
-                    dense
-                    color="#126496"
-                    inset
-                    v-model="dayWgtRangesSwitch"
-                    :label="`DAY WGT RANGES`"
-                  ></v-switch>
-                </v-list-item>
+  
                 <v-list-item>
                   <v-switch
                     dense
@@ -330,9 +335,9 @@ export default {
     RightNavDrawer,
     DviUserControl,
     UserRangeControl,
-    PopUpModal
+    PopUpModal,
   },
-  created: async function() {
+  created: async function () {
     this.$store.dispatch("refreshCrossList");
 
     try {
@@ -342,13 +347,13 @@ export default {
       await this.$store.dispatch("initializeDviUI", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.dviPrefs.autoSaveSwitch
+        AutoSave: this.dviPrefs.autoSaveSwitch,
       });
 
-      this.optionCuts = JSON.parse(response.data.optCuts).map(x => x.CutName);
+      this.optionCuts = JSON.parse(response.data.optCuts).map((x) => x.CutName);
 
       this.singleDviInputs = JSON.parse(dviData.data.dviSetup).filter(
-        x => x.Cross === this.$route.params.ccyPair
+        (x) => x.Cross === this.$route.params.ccyPair
       )[0];
       this.expiryCut = this.singleDviInputs.ExpCut;
 
@@ -356,7 +361,7 @@ export default {
       this.dataReturned = true;
       this.ipvSwitch = this.dviPrefs.ipvSwitch;
       this.autoSaveSwitch = this.dviPrefs.autoSaveSwitch;
-      this.dayWgtRangesSwitch = this.dviPrefs.dayWgtRangesSwitch;
+     
 
       window.addEventListener("resize", this.handleResize);
       this.handleResize();
@@ -397,8 +402,8 @@ export default {
       optionCuts: [],
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   computed: {
@@ -412,19 +417,19 @@ export default {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level
+        zoom: level,
       };
     },
     pricerTab() {
       return this.$store.getters.lastPricerTabGetter;
     },
     ...mapState({
-      forCal: state => state.dvi.forCal,
-      domCal: state => state.dvi.domCal,
-      dvisInUse: state => state.dvisInUse,
-      ipvSurf: state => state.dvi.ipvSurf,
-      lastUpdate: state => state.dvi.lastUpdate,
-      dviPrefs: state => state.dviPrefs
+      forCal: (state) => state.dvi.forCal,
+      domCal: (state) => state.dvi.domCal,
+      dvisInUse: (state) => state.dvisInUse,
+      ipvSurf: (state) => state.dvi.ipvSurf,
+      lastUpdate: (state) => state.dvi.lastUpdate,
+      dviPrefs: (state) => state.dviPrefs,
     }),
     ipvHasData() {
       return this.ipvSurf.length > 0 ? true : false;
@@ -438,7 +443,7 @@ export default {
       ).format("ddd, MMM Do YYYY, HH:mm:ss");
 
       return dateTime;
-    }
+    },
   },
   methods: {
     dev() {
@@ -467,24 +472,24 @@ export default {
       this.ipvReturned = false;
       let response = await this.$store.dispatch("checkAndLoadIpv", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: response.error,
-          centered: true
+          centered: true,
         });
       } else {
         if (response === false) {
           this.$store.dispatch("setSnackbar", {
             text: `There is no IPV source for ${this.$route.params.ccyPair}`,
-            centered: true
+            centered: true,
           });
         } else {
           this.ipvReturned = true;
           this.$store.dispatch("setSnackbar", {
             text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`,
-            bottom: true
+            bottom: true,
           });
         }
       }
@@ -494,18 +499,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvAtm", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
-          bottom: true
+          bottom: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV ATM ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true
+          bottom: true,
         });
       }
     },
@@ -514,18 +519,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvSmile", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV SMILE \n${response.error}`,
-          bottom: true
+          bottom: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV SMILE FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true
+          bottom: true,
         });
       }
     },
@@ -534,18 +539,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvMults", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV MULTS \n${response.error}`,
-          bottom: true
+          bottom: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV MUTLS FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true
+          bottom: true,
         });
       }
     },
@@ -556,7 +561,7 @@ export default {
 
       let response = await this.$store.dispatch("downloadGlobalDvi", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
       });
       this.loading = false;
       let message = "";
@@ -569,12 +574,12 @@ export default {
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} GLOBAL DOWNLOAD\n${response.error}`,
-          centered: true
+          centered: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: ` ${message}`,
-          centered: true
+          centered: true,
         });
       }
 
@@ -598,12 +603,12 @@ export default {
 
       DviApi.RemoveDviFromUse({
         Cross: item,
-        UserName: this.$store.state.currentUser
+        UserName: this.$store.state.currentUser,
       })
-        .then(response => {
+        .then((response) => {
           this.activeDvis = JSON.parse(response.data.listOfActiveDvis);
         })
-        .catch(err => {
+        .catch((err) => {
           alert(err);
         });
 
@@ -625,7 +630,7 @@ export default {
         this.$router
           .push({
             name: "Pricer",
-            params: { viewName: this.pricerTab }
+            params: { viewName: this.pricerTab },
           })
           .catch(() => {});
       }
@@ -643,21 +648,21 @@ export default {
         this.expiryCut = val;
         await SettingsApi.UpdateDviDets({
           DviInputsUI: this.singleDviInputs,
-          UserName: this.$store.state.currentUser
+          UserName: this.$store.state.currentUser,
         });
         this.$store.dispatch("setSnackbar", {
           text: `${this.ccyPair} CUT UPDATE SUCCESSFULLY.`,
-          centered: true
+          centered: true,
         });
         await this.$store.dispatch("initializeDviUI", {
           Cross: this.$route.params.ccyPair,
           UserName: this.$store.state.currentUser,
-          AutoSave: this.dviPrefs.autoSaveSwitch
+          AutoSave: this.dviPrefs.autoSaveSwitch,
         });
       } catch (error) {
         alert(error);
       }
-    }
+    },
   },
   mounted() {
     this.handleResize();
@@ -667,28 +672,23 @@ export default {
       this.$store.dispatch("saveDviPrefs", {
         ipvSwitch: this.ipvSwitch,
         autoSaveSwitch: this.autoSaveSwitch,
-        dayWgtRangesSwitch: this.dayWgtRangesSwitch
+       
       });
     },
     autoSaveSwitch() {
       this.$store.dispatch("saveDviPrefs", {
         ipvSwitch: this.ipvSwitch,
         autoSaveSwitch: this.autoSaveSwitch,
-        dayWgtRangesSwitch: this.dayWgtRangesSwitch
+        
       });
     },
-    dayWgtRangesSwitch() {
-      this.$store.dispatch("saveDviPrefs", {
-        ipvSwitch: this.ipvSwitch,
-        autoSaveSwitch: this.autoSaveSwitch,
-        dayWgtRangesSwitch: this.dayWgtRangesSwitch
-      });
-    },
+  
+    
     loading(val) {
       if (!val) return;
       setTimeout(() => (this.loading = false), 5000);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -709,40 +709,8 @@ $mainWidth: var(--main-width);
   overflow-y: auto;
   height: $mainHeight;
 }
-
-.fade-enter {
-  /* starting style */
-  opacity: 0;
-}
-
-.fade-enter-active {
-  /* entering style */
-  transition: opacity 0.25s ease-out;
-}
-
-/* Enter and leave animations can use different */
-/* durations and timing functions.              */
-.slide-fade-enter-active {
-  transition: all 0.3s ease;
-}
-.slide-fade-leave-active {
-  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active below version 2.1.8 */ {
-  transform: translateX(10px);
-  opacity: 0;
-}
-.jexcel > thead > tr > td {
-  font-family: Arial;
-  font-size: 0.65rem;
-  background-color: #3c4b63;
-  color: white;
-}
-.jexcel > tbody > tr > td {
-  font-family: Arial;
-  font-size: 0.75rem;
-  padding: 0px;
-  line-height: 1.6em;
+.border {
+  border: 2px dashed orange;
 }
 </style>
+

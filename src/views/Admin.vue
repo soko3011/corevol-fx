@@ -325,16 +325,6 @@ $mainWidth: var(--main-width);
   display: flex;
   overflow-y: scroll;
 }
-
-.slide-enter-active {
-  transition: 0.75s;
-}
-.slide-enter {
-  transform: translate(100%, 0);
-}
-.slide-leave-to {
-  transform: translate(-100%, 0);
-}
 </style>
 
 

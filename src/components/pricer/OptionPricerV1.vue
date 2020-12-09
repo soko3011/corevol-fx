@@ -1409,35 +1409,6 @@ export default {
 $termsUnits: var(--terms-units);
 $baseUnits: var(--base-units);
 
-.jexcel > thead > tr > td {
-  font-family: Arial;
-  font-size: 0.65rem;
-  background-color: #3c4b63;
-  color: white;
-}
-.jexcel > tbody > tr > td {
-  font-family: Arial;
-  font-size: 0.75rem;
-  padding: 0px;
-  line-height: 1.6em;
-}
-.jexcel > tbody > tr > td.hideRow {
-  display: none;
-}
-.jexcel > tbody > tr > td.hideClue:before {
-  content: "\002B";
-  color: red;
-}
-.jexcel > thead > tr > td.selected {
-  color: white;
-  background-color: #385f73;
-}
-.jexcel > tbody > tr > td.userEditCell {
-  color: black !important;
-  background-color: #78ffb7 !important;
-  // background-color: $primary !important;
-}
-
 .jexcel > tbody > tr > td.alertUserToSpaceBar::after {
   content: "press space bar";
   padding-left: 0.5em;

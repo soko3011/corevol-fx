@@ -119,13 +119,4 @@ export default {
 
 <style lang="scss" >
 $warningColor: var(--warning-color);
-
-.jexcel > thead > tr.jexcel_nested > td {
-  background-color: #385f73 !important;
-  font-family: Arial;
-  font-size: 0.9rem;
-  padding: 0px;
-  line-height: 2em;
-  color: white;
-}
 </style>

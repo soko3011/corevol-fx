@@ -3,11 +3,7 @@
     <v-card color="#385F73" class="mx-2">
       <v-container>
         <div class="d-flex flex-nowrap justify-space-between">
-          <RangeInput
-            v-on:dataSent="alertUserDviChange()"
-            :activeRange="activeSelection"
-          />
-          <RangeList class="mx-5" v-on:emitToParent="selection" />
+          <RangeInput v-on:dataSent="alertUserDviChange()" />
         </div>
         <v-progress-linear
           :value="progress"
@@ -23,22 +19,17 @@
 <script>
 import { mapState } from "vuex";
 import RangeInput from "@/components/dviComponents/UserControls/RangeInput.vue";
-import RangeList from "@/components/dviComponents/UserControls/RangeList.vue";
 
 export default {
   name: "dviUserControl",
   components: {
-    RangeInput,
-    RangeList
+    RangeInput
   },
-  created() {
-    console.log(this.apidata);
-  },
+  created() {},
 
   data() {
     return {
-      progress: 0,
-      activeSelection: {}
+      progress: 0
     };
   },
   computed: {
@@ -50,9 +41,6 @@ export default {
     }
   },
   methods: {
-    selection(item) {
-      this.activeSelection = item;
-    },
     alertUserDviChange() {
       this.progress = 100;
       setTimeout(() => {

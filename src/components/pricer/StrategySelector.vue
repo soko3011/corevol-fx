@@ -109,44 +109,50 @@ export default {
     menu: false,
     terms: "",
     termsList: [],
-    radio: "term",
+    radio: "term"
   }),
   props: {
     inputData: { type: Array },
     icon: { type: String },
     large: { type: Boolean },
     color: { type: String },
+    dialogControl: { type: Boolean }
   },
   created() {
     PricerApi.getGlobalTermsList()
-      .then((response) => {
+      .then(response => {
         this.termsList = JSON.parse(response.data.termsList);
       })
-      .catch((err) => {
+      .catch(err => {
         alert(err);
       });
   },
   computed: {
     ...mapState({
-      crossList: (state) => state.crossList,
-      activecross: (state) => state.activecross,
+      crossList: state => state.crossList,
+      activecross: state => state.activecross
     }),
     datesToggle() {
       return this.radio === "term" ? true : false;
     },
     datesSelection() {
       return this.radio === "term" ? this.terms : this.date;
-    },
+    }
   },
   methods: {
     emitToParent(item) {
       this.$emit("selection", {
         cross: this.selection,
         mat: this.datesSelection,
-        strat: item,
+        strat: item
       });
-    },
+    }
   },
+  watch: {
+    dialogControl() {
+      this.dialog = !this.dialog;
+    }
+  }
 };
 </script>
 

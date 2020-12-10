@@ -1,164 +1,215 @@
 <template>
   <div>
     <v-card flat color="#385F73" dark>
-      <div>
-        <v-card-title class="subtitle-1 green--text text--lighten-3"
-          >CUSTOM DAY WGT RANGE
-          <v-btn icon @click="resetForm()">
-            <v-icon class="mb-2" small color="blue lighten-3"
-              >mdi-dots-hexagon</v-icon
-            ></v-btn
-          ></v-card-title
-        >
-        <div class="d-flex flex-nowrap justify-start userRange mb-2">
-          <v-text-field
-            dense
-            label="RangeName"
-            color="blue lighten-3"
-            v-model="rangeName"
-            @focus="$event.target.select()"
-            class="mx-2"
-            :rules="[required('Range Name'), noSpaces()]"
-          ></v-text-field>
-        </div>
-        <div class="d-flex flex-nowrap justify-start userRange">
-          <v-select
-            v-if="datesToggle"
-            prepend-icon="mdi-calendar"
-            color="blue lighten-3"
-            dense
-            v-model="startTerm"
-            :items="termsList"
-            label="Select Term"
-            :rules="[required('term')]"
-          >
-          </v-select>
-          <v-menu
-            v-else
-            v-model="menuStart"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            transition="scale-transition"
-            offset-y
-            width="100px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                dense
+      <div class="d-flex flex-nowrap justify-space-between">
+        <div class="customRangeInputs">
+          <v-card-title class="subtitle-1 green--text text--lighten-3"
+            >CUSTOM DAY WGT RANGE
+            <v-btn icon @click="resetForm()">
+              <v-icon class="mb-2" small color="blue lighten-3"
+                >mdi-dots-hexagon</v-icon
+              ></v-btn
+            >
+          </v-card-title>
+          <div class="d-flex flex-nowrap justify-start userRange mb-2">
+            <v-text-field
+              dense
+              label="RangeName"
+              color="blue lighten-3"
+              v-model="rangeName"
+              @focus="$event.target.select()"
+              class="mx-2"
+              :rules="[required('Range Name'), noSpaces()]"
+            ></v-text-field>
+          </div>
+          <div class="d-flex flex-nowrap justify-start userRange">
+            <v-select
+              v-if="datesToggle"
+              prepend-icon="mdi-calendar"
+              color="blue lighten-3"
+              dense
+              v-model="startTerm"
+              :items="termsList"
+              label="Select Term"
+              :rules="[required('term')]"
+            >
+            </v-select>
+            <v-menu
+              v-else
+              v-model="menuStart"
+              :close-on-content-click="false"
+              :nudge-right="40"
+              transition="scale-transition"
+              offset-y
+              width="100px"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  dense
+                  v-model="calDateStart"
+                  label="Start Date"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+                  :rules="[required('date')]"
+                ></v-text-field>
+              </template>
+              <v-date-picker
                 v-model="calDateStart"
-                label="Start Date"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                :rules="[required('date')]"
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              v-model="calDateStart"
-              @input="menuStart = false"
-              :min="tomorrowDate"
-            ></v-date-picker>
-          </v-menu>
+                @input="menuStart = false"
+                :min="tomorrowDate"
+              ></v-date-picker>
+            </v-menu>
 
-          <v-select
-            v-if="datesToggle"
-            prepend-icon="mdi-calendar"
-            color="blue lighten-3"
-            dense
-            v-model="endTerm"
-            :items="termsList"
-            label="Select Term"
-            :rules="[required('term')]"
-          >
-          </v-select>
-          <v-menu
-            v-else
-            v-model="menuEnd"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            transition="scale-transition"
-            offset-y
-            width="100px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                dense
+            <v-select
+              v-if="datesToggle"
+              prepend-icon="mdi-calendar"
+              color="blue lighten-3"
+              dense
+              v-model="endTerm"
+              :items="termsList"
+              label="Select Term"
+              :rules="[required('term')]"
+            >
+            </v-select>
+            <v-menu
+              v-else
+              v-model="menuEnd"
+              :close-on-content-click="false"
+              :nudge-right="40"
+              transition="scale-transition"
+              offset-y
+              width="100px"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  dense
+                  v-model="calDateEnd"
+                  label="End Date"
+                  prepend-icon="mdi-calendar"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+                  :rules="[required('date')]"
+                ></v-text-field>
+              </template>
+              <v-date-picker
                 v-model="calDateEnd"
-                label="End Date"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                :rules="[required('date')]"
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              v-model="calDateEnd"
-              @input="menuEnd = false"
-              :min="tomorrowDate"
-            ></v-date-picker>
-          </v-menu>
-        </div>
-        <div
-          class="d-flex flex-nowrap justify-space-around userRange mt-n2 mb-4"
-        >
-          <v-radio-group v-model="radio" row dense>
-            <v-spacer />
-            <v-radio label="Term" value="term"></v-radio>
-            <v-radio label="Expiry" value="expiry"></v-radio>
-            <v-spacer />
-          </v-radio-group>
-        </div>
-        <div class="d-flex flex-nowrap justify-start userRange mb-2">
-          <v-select
-            prepend-icon="mdi-dots-square"
-            color="blue lighten-3"
-            dense
-            v-model="keepExistingWgt"
-            :items="['TRUE', 'FALSE']"
-            label="KeepExistingWgts"
-            :rules="[required('boolean')]"
+                @input="menuEnd = false"
+                :min="tomorrowDate"
+              ></v-date-picker>
+            </v-menu>
+          </div>
+          <div
+            class="d-flex flex-nowrap justify-space-around userRange mt-n2 mb-4"
           >
-          </v-select>
-          <v-text-field
-            dense
-            outlined
-            color="blue lighten-3"
-            label="DayWgt"
-            v-model="dayWgt"
-            @focus="$event.target.select()"
-            @keydown.enter="
-              $event.target.select();
-              updateExistingRange();
-            "
-            class="mx-2"
-            :rules="[required('dayWgt'), positiveNumber()]"
-          ></v-text-field>
-        </div>
-        <div class="d-flex flex-nowrap justify-space-around userRange mt-6">
-          <v-btn
-            color="blue lighten-1"
-            @click="activateNewRange(iData)"
-            v-if="isNewRange"
-            >Activate
-          </v-btn>
-          <v-btn
-            v-if="!isNewRange"
-            color="green lighten-1"
-            @click="updateExistingRange()"
-            >Update
-          </v-btn>
+            <v-radio-group v-model="radio" row dense>
+              <v-spacer />
+              <v-radio label="Term" value="term"></v-radio>
+              <v-radio label="Expiry" value="expiry"></v-radio>
+              <v-spacer />
+            </v-radio-group>
+          </div>
+          <div class="d-flex flex-nowrap justify-start userRange mb-2">
+            <v-select
+              prepend-icon="mdi-dots-square"
+              color="blue lighten-3"
+              dense
+              v-model="keepExistingWgt"
+              :items="[true, false]"
+              label="KeepExistingWgts"
+            >
+            </v-select>
+            <v-text-field
+              dense
+              outlined
+              color="blue lighten-3"
+              label="DayWgt"
+              v-model="dayWgt"
+              @focus="$event.target.select()"
+              @keydown.enter="
+                $event.target.select();
+                updateExistingRange();
+              "
+              class="mx-2"
+              :rules="[required('dayWgt'), positiveNumber()]"
+            ></v-text-field>
+          </div>
+          <div class="d-flex flex-nowrap justify-space-around userRange mt-6">
+            <v-btn
+              color="blue lighten-1"
+              @click="activateNewRange(iData)"
+              v-if="isNewRange"
+              >Activate
+            </v-btn>
+            <v-btn
+              v-if="!isNewRange"
+              color="green lighten-1"
+              @click="updateExistingRange()"
+              >Update
+            </v-btn>
 
-          <v-btn
-            color="blue lighten-1"
-            @click="clearExistingRange()"
-            v-if="!isNewRange"
-            >Clear
-          </v-btn>
-          <v-btn color="red lighten-1" @click="removeRange()" v-if="!isNewRange"
-            >Remove
-          </v-btn>
+            <v-btn
+              color="blue lighten-1"
+              @click="clearExistingRange()"
+              v-if="!isNewRange"
+              >Clear
+            </v-btn>
+            <v-btn
+              color="red lighten-1"
+              @click="removeRange()"
+              v-if="!isNewRange"
+              >Remove
+            </v-btn>
+          </div>
+        </div>
+        <div class="activeRangesList userRange">
+          <v-card-title class="subtitle-1 green--text text--lighten-3">
+            <v-spacer />ACTIVE RANGES
+            <v-btn icon @click="dev()">
+              <v-icon small color="blue lighten-3"
+                >mdi-dots-hexagon</v-icon
+              ></v-btn
+            >
+            <v-spacer
+          /></v-card-title>
+          <v-list color="#385F73" rounded>
+            <v-list-item-group color="blue lighten-3">
+              <v-list-item
+                v-if="apidata.length === 0"
+                dark
+                class="text-center"
+                dense
+              >
+                <v-list-item-content>
+                  <v-list-item-title
+                    >THERE ARE NO CUSTOM RANGES SET
+                  </v-list-item-title>
+                  <v-divider class="mt-2" light></v-divider>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item
+                v-else
+                dark
+                class="text-center"
+                dense
+                v-for="(item, index) in this.apidata"
+                :key="index"
+                @click="setActiveRange(item)"
+              >
+                <v-list-item-content>
+                  <v-list-item-title
+                    >Range Name:
+                    <strong class="green--text text--lighten-3">{{
+                      item.RangeName
+                    }}</strong>
+                  </v-list-item-title>
+                  <v-divider class="mt-2" light></v-divider>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
         </div>
       </div>
     </v-card>
@@ -173,13 +224,11 @@ import { mapState } from "vuex";
 export default {
   name: "rangeInput",
   async created() {},
-  props: {
-    activeRange: { type: Object }
-  },
+
   data() {
     return {
       rangeName: "",
-      keepExistingWgt: "",
+      keepExistingWgt: true,
       dayWgt: "",
       action: "Add",
       ...validations,
@@ -231,11 +280,12 @@ export default {
       return {
         UserName: this.$store.state.currentUser,
         Cross: this.$store.getters.activeCrossGetter,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
         UserEventRangeUI: {
           RangeName: this.rangeName.toUpperCase(),
           StartDate: this.startDate,
           EndDate: this.endDate,
-          KeepExistingWgt: this.keepExistingWgt,
+          KeepExistingWgt: this.keepExistingWgt.toString(),
           DayWgt: this.dayWgt,
           Action: this.action
         }
@@ -257,31 +307,26 @@ export default {
   },
   methods: {
     dev() {
-      console.log(this.isNewRange);
+      console.log(this.apidata);
     },
+    setActiveRange(item) {
+      this.rangeName = item.RangeName;
+      this.keepExistingWgt = item.KeepExistingWgt;
+      this.dayWgt = item.DayWgt;
 
-    refreshExistingRange() {
-      this.rangeName = this.activeRange.RangeName;
-      this.keepExistingWgt = this.activeRange.KeepExistingWgt;
-      this.dayWgt = this.activeRange.DayWgt;
-
-      if (this.activeRange.StartDate.length > 2) {
+      if (item.StartDate.length > 2) {
         this.radio = "expiry";
-        this.calDateStart = moment(this.activeRange.StartDate, "DD/MM/YYYY")
-          .toISOString()
-          .substr(0, 10);
-        this.calDateEnd = moment(this.activeRange.EndDate, "DD/MM/YYYY")
-          .toISOString()
-          .substr(0, 10);
+        this.calDateStart = item.StartDate.substr(0, 10);
+        this.calDateEnd = item.EndDate.substr(0, 10);
       } else {
         this.radio = "term";
-        this.startTerm = this.activeRange.StartDate;
-        this.endTerm = this.activeRange.EndDate;
+        this.startTerm = item.StartDate;
+        this.endTerm = item.EndDate;
       }
     },
     resetForm() {
       this.rangeName = "";
-      this.keepExistingWgt = "";
+      this.keepExistingWgt = true;
       this.dayWgt = "";
       this.radio = "expiry";
       this.startTerm = "";
@@ -374,11 +419,7 @@ export default {
       this.sendRangeToServer();
     }
   },
-  watch: {
-    activeRange() {
-      this.refreshExistingRange();
-    }
-  }
+  watch: {}
 };
 </script>
 

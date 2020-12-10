@@ -55,7 +55,8 @@ export default {
     title: { type: String },
     large: { type: Boolean },
     small: { type: Boolean },
-    xsmall: { type: Boolean }
+    xsmall: { type: Boolean },
+    dialogControl: { type: Boolean }
   },
   methods: {
     setTextValue(item) {
@@ -65,6 +66,11 @@ export default {
       this.$emit("selection", this.textValue);
       this.textValue = "";
       this.dialog = false;
+    }
+  },
+  watch: {
+    dialogControl() {
+      this.dialog = !this.dialog;
     }
   }
 };

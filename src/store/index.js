@@ -35,6 +35,7 @@ const state = {
   isUserAuthed: false,
   isAdmin: false,
   token: "",
+  userTimeZone:"",
   dashBoardPrefs: [],
   userPricerLayoutPrefs: [],
   dviPrefs: {
@@ -155,6 +156,8 @@ const mutations = {
     window.localStorage.currentUser = JSON.stringify(user.UserName);
     state.userPrefCross = user.StarterFxCross;
     state.dashBoardPrefs = JSON.parse(user.DashBoardPrefs);
+    state.userTimeZone = user.Timezone;
+    console.log(`${state.userTimeZone} from set current state`);
     if (user.PricerLayoutPrefs !== null) {
       state.userPricerLayoutPrefs = JSON.parse(user.PricerLayoutPrefs);
     }
@@ -320,9 +323,10 @@ const actions = {
   async getBrowserTimezone() {
     try {
       let response = await Axios.get("https://worldtimeapi.org/api/ip");
+      console.log(`${ response.data.timezone} from api`);
       return response.data.timezone;
     } catch (e) {
-      alert(e);
+      console.log(`${e} getting browser time zone`);
     }
   },
   async setPricerNew({ dispatch }, pricerName) {
@@ -339,10 +343,21 @@ const actions = {
       });
     }
   },
-  async checkLoginStatus({ commit }) {
+  async checkLoginStatus({ commit,dispatch }) {
+    
+    let timezone = state.userTimeZone;
+
+    console.log(`${timezone} from checklogin`);
+   
+    if(state.userTimeZone===""){
+    timezone = await dispatch("getBrowserTimezone");
+    }
+
     try {
       let response = await LoginApi.CheckLoginStatus({
-        Email: JSON.parse(window.localStorage.currentUser)
+        Email: JSON.parse(window.localStorage.currentUser),
+        Timezone: timezone
+
       });
 
       let user = JSON.parse(response.data.userProfile);

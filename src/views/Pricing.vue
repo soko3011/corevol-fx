@@ -88,79 +88,70 @@
 
           <v-list dense>
             <v-subheader>ACTIONS</v-subheader>
-
-            <v-list-item>
-              <v-list-item-action>
-                <v-switch dense ripple v-model="totalsToggle"></v-switch>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>{{ totalsCaption }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-action>
-                <v-btn
-                  @click="toggleSimulation = !toggleSimulation"
-                  icon
-                  x-small
-                  color="blue darken-2"
-                  ><v-icon>mdi-chart-bell-curve</v-icon></v-btn
-                >
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>SIMULATION</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-action>
-                <v-btn icon x-small>
+            <v-list-item-group v-model="model">
+              <v-list-item @click="totalsToggle = !totalsToggle">
+                <v-list-item-action>
+                  <v-switch dense ripple v-model="totalsToggle"></v-switch>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>{{ totalsCaption }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="toggleSimulation = !toggleSimulation">
+                <v-list-item-action>
+                  <v-icon color="blue darken-2">mdi-chart-bell-curve</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>SIMULATION</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="stratModal = !stratModal">
+                <v-list-item-action>
                   <StrategySelector
                     :inputData="strategyList"
                     :icon="'mdi-playlist-plus'"
                     :color="'blue darken-2'"
                     :large="false"
+                    :dialogControl="stratModal"
                     v-on:selection="selectStrategy"
                   />
-                </v-btn>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>ADD STRATEGY</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-action>
-                <v-btn icon x-small>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>ADD STRATEGY</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="addSheetModal = !addSheetModal">
+                <v-list-item-action>
                   <PopUpInput
                     :icon="'mdi-expand-all'"
                     :label="'Pricer Name'"
                     :color="'blue darken-2'"
                     :title="'corevolFx Pricer'"
                     :large="false"
+                    :dialogControl="addSheetModal"
                     v-on:selection="userAddPricer"
                   />
-                </v-btn>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>ADD NEW SHEET</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-action>
-                <v-btn icon x-small>
-                  <PopUpModal
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>ADD NEW SHEET</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="removeModal = !removeModal">
+                <v-list-item-action>
+                  <v-icon color="grey darken-1">mdi-delete</v-icon>
+                  <ModalNoButton
                     :inputData="this.activePricers"
-                    :icon="'mdi-delete'"
-                    :color="'grey'"
-                    :large="false"
                     :title="'REMOVE DVI'"
+                    :vmodel="removeModal"
+                    v-on:setvmodel="data => (removeModal = data)"
                     v-on:selection="removeSinglePricer"
                   />
-                </v-btn>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>DELETE SINGLE SHEET</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>DELETE SINGLE SHEET</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
           </v-list>
           <PricerSetupInterface />
         </v-card>
@@ -186,6 +177,7 @@ import PricerSetupInterface from "@/components/pricer/PricerSetupInterface.vue";
 import stratHelper from "@/components/pricer/helpers/stratHelper.js";
 import { mapState } from "vuex";
 import PricerApi from "@/apis/PricerApi";
+import ModalNoButton from "@/components/common/ModalNoButton.vue";
 
 export default {
   name: "Pricer",
@@ -195,6 +187,7 @@ export default {
     PopUpInput,
     PricerSetupInterface,
     StrategySelector,
+    ModalNoButton
   },
   data() {
     return {
@@ -204,10 +197,13 @@ export default {
       modalToggle: false,
       viewName: this.$route.params.viewName,
       showSideControl: true,
+      removeModal: false,
+      addSheetModal: false,
+      stratModal: false,
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   async created() {
@@ -229,12 +225,12 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: (state) => state.crossList,
-      currentUser: (state) => state.currentUser,
-      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
-      pricerSetupClosed: (state) => state.pricerSetupClosed,
-      activePricers: (state) => state.activePricerList,
-      activecross: (state) => state.activecross,
+      crossList: state => state.crossList,
+      currentUser: state => state.currentUser,
+      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
+      pricerSetupClosed: state => state.pricerSetupClosed,
+      activePricers: state => state.activePricerList,
+      activecross: state => state.activecross
     }),
     totalsToggle: {
       get() {
@@ -242,7 +238,7 @@ export default {
       },
       set() {
         this.$store.dispatch("togglePriceShowTotals", !this.totalsToggle);
-      },
+      }
     },
     totalsCaption() {
       return this.totalsToggle ? "HIDE TOTALS" : "SHOW TOTALS";
@@ -251,14 +247,14 @@ export default {
       return Math.min(100 * this.activePricers.length, 300);
     },
     strategyList() {
-      return new stratHelper().strats().map((x) => x.name);
+      return new stratHelper().strats().map(x => x.name);
     },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level,
+        zoom: level
       };
-    },
+    }
   },
   methods: {
     dev() {
@@ -295,7 +291,7 @@ export default {
       this.$route.params.viewName = stratName;
       this.$router
         .push({ name: this.$route.name, viewName: stratName })
-        .then((onComplete) => {
+        .then(onComplete => {
           this.$store.dispatch("togglePriceShowTotals", true);
           let strategy = new stratHelper(strat.strategy, strat.optData);
           this.$store.dispatch(
@@ -312,12 +308,12 @@ export default {
 
       PricerApi.GetSingleSpot({
         cross: cross,
-        UserName: this.currentUser,
-      }).then((response) => {
+        UserName: this.currentUser
+      }).then(response => {
         const spot = JSON.parse(response.data.singleSpot).toString();
         const strat = new stratHelper()
           .strats()
-          .filter((x) => x.name === stratName)[0].key;
+          .filter(x => x.name === stratName)[0].key;
         let optData = {
           cross: cross,
           expiryText: mat,
@@ -325,12 +321,12 @@ export default {
           notional: "100",
           spot: spot,
           strikeText: strat,
-          userName: this.currentUser,
+          userName: this.currentUser
         };
 
         this.addStrategyView({
           strategy: strat,
-          optData: optData,
+          optData: optData
         });
       });
     },
@@ -343,7 +339,7 @@ export default {
       if (this.isPricerNameDupe(pricerName) === true) {
         this.$store.dispatch("setSnackbar", {
           text: `${priceName} already exist: Rename Pricer`,
-          top: true,
+          top: true
         });
         return;
       }
@@ -355,7 +351,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `CANNOT REMOVE THE MAIN PRICER. PRESS CTRL-D TO CLEAR THE SHEET`,
-          top: true,
+          top: true
         });
 
         return;
@@ -381,7 +377,7 @@ export default {
       this.$router
         .push({ name: this.$route.name, viewName: view })
         .catch(() => {});
-    },
+    }
   },
   watch: {
     crossList() {
@@ -395,8 +391,8 @@ export default {
 
     activePricerLayoutTitle() {
       this.componentKey += 1;
-    },
-  },
+    }
+  }
 };
 </script>
 

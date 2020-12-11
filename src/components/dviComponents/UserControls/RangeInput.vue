@@ -283,6 +283,7 @@ export default {
         AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
         UserEventRangeUI: {
           RangeName: this.rangeName.toUpperCase(),
+          IsTerm: this.radio === "term" ? "true" : "false",
           StartDate: this.startDate,
           EndDate: this.endDate,
           KeepExistingWgt: this.keepExistingWgt.toString(),
@@ -313,15 +314,14 @@ export default {
       this.rangeName = item.RangeName;
       this.keepExistingWgt = item.KeepExistingWgt;
       this.dayWgt = item.DayWgt;
-
-      if (item.StartDate.length > 2) {
+      if (item.IsTerm === true) {
+        this.radio = "term";
+        this.startTerm = item.StartTerm;
+        this.endTerm = item.EndTerm;
+      } else {
         this.radio = "expiry";
         this.calDateStart = item.StartDate.substr(0, 10);
         this.calDateEnd = item.EndDate.substr(0, 10);
-      } else {
-        this.radio = "term";
-        this.startTerm = item.StartDate;
-        this.endTerm = item.EndDate;
       }
     },
     resetForm() {
@@ -386,6 +386,7 @@ export default {
         return;
       }
 
+      console.log(this.iData);
       await this.$store.dispatch(
         "returnDviAfterUserWgtRangeUpdate",
         this.iData

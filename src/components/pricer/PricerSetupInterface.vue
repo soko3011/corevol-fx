@@ -1,6 +1,5 @@
 <template>
   <div>
-    <v-btn color="blue" @click="dev">DEV</v-btn>
     <v-list dense>
       <v-subheader>PRICER LAYOUT</v-subheader>
 

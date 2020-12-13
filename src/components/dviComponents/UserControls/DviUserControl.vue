@@ -2,6 +2,19 @@
   <div>
     <v-card color="#385F73" dark class="mx-2">
       <v-container>
+        <v-row>
+          <v-spacer />
+          <v-btn
+            class="mr-3"
+            @click="$emit('toggle')"
+            sma
+            color="green lighten-3"
+            dark
+            icon
+          >
+            <v-icon>mdi-repeat</v-icon>
+          </v-btn>
+        </v-row>
         <div class="d-flex flex-nowrap justify-space-between">
           <AtmController
             v-on:dataSent="alertUserDviChange()"

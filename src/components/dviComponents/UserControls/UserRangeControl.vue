@@ -2,6 +2,19 @@
   <div>
     <v-card color="#385F73" class="mx-2">
       <v-container>
+        <v-row>
+          <v-spacer />
+          <v-btn
+            class="mr-5"
+            @click="$emit('toggle')"
+            sma
+            color="green lighten-3"
+            dark
+            icon
+          >
+            <v-icon>mdi-repeat</v-icon>
+          </v-btn>
+        </v-row>
         <div class="d-flex flex-nowrap justify-space-between">
           <RangeInput v-on:dataSent="alertUserDviChange()" />
         </div>
@@ -23,22 +36,22 @@ import RangeInput from "@/components/dviComponents/UserControls/RangeInput.vue";
 export default {
   name: "dviUserControl",
   components: {
-    RangeInput
+    RangeInput,
   },
   created() {},
 
   data() {
     return {
-      progress: 0
+      progress: 0,
     };
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.userWgtRanges
+      apidata: (state) => state.dvi.userWgtRanges,
     }),
     toggleList() {
       return this.apidata[0].RangeName !== null ? true : false;
-    }
+    },
   },
   methods: {
     alertUserDviChange() {
@@ -46,9 +59,9 @@ export default {
       setTimeout(() => {
         this.progress = 0;
       }, 650);
-    }
+    },
   },
-  watch: {}
+  watch: {},
 };
 </script>
 

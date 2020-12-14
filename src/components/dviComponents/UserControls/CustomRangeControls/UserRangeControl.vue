@@ -1,20 +1,13 @@
 <template>
-  <div>
+  <div v-bind:style="zoomLevel">
     <v-card color="#385F73" class="mx-2">
       <v-container>
-        <v-row>
+        <div class="d-flex flex-nowrap justify-space-between">
           <v-spacer />
-          <v-btn
-            class="mr-5"
-            @click="$emit('toggle')"
-            sma
-            color="green lighten-3"
-            dark
-            icon
-          >
+          <v-btn @click="$emit('toggle')" sma color="green lighten-3" dark icon>
             <v-icon>mdi-repeat</v-icon>
           </v-btn>
-        </v-row>
+        </div>
         <div class="d-flex flex-nowrap justify-space-between">
           <RangeInput v-on:dataSent="alertUserDviChange()" />
         </div>
@@ -31,7 +24,7 @@
 
 <script>
 import { mapState } from "vuex";
-import RangeInput from "@/components/dviComponents/UserControls/RangeInput.vue";
+import RangeInput from "@/components/dviComponents/UserControls/CustomRangeControls/RangeInput.vue";
 
 export default {
   name: "dviUserControl",
@@ -51,6 +44,12 @@ export default {
     }),
     toggleList() {
       return this.apidata[0].RangeName !== null ? true : false;
+    },
+    zoomLevel() {
+      var level = window.innerWidth > 1700 ? "100%" : "70%";
+      return {
+        zoom: level,
+      };
     },
   },
   methods: {

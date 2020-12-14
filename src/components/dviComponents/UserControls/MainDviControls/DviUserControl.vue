@@ -1,20 +1,13 @@
 <template>
-  <div>
+  <div v-bind:style="zoomLevel">
     <v-card color="#385F73" dark class="mx-2">
       <v-container>
-        <v-row>
+        <div class="d-flex flex-nowrap justify-space-between">
           <v-spacer />
-          <v-btn
-            class="mr-3"
-            @click="$emit('toggle')"
-            sma
-            color="green lighten-3"
-            dark
-            icon
-          >
+          <v-btn @click="$emit('toggle')" sma color="green lighten-3" dark icon>
             <v-icon>mdi-repeat</v-icon>
           </v-btn>
-        </v-row>
+        </div>
         <div class="d-flex flex-nowrap justify-space-between">
           <AtmController
             v-on:dataSent="alertUserDviChange()"
@@ -38,8 +31,8 @@
 
 <script>
 import { mapState } from "vuex";
-import AtmController from "@/components/dviComponents/UserControls/AtmController.vue";
-import SmileController from "@/components/dviComponents/UserControls/SmileController.vue";
+import AtmController from "@/components/dviComponents/UserControls/MainDviControls/AtmController.vue";
+import SmileController from "@/components/dviComponents/UserControls/MainDviControls/SmileController.vue";
 
 export default {
   name: "dviUserControl",
@@ -55,7 +48,14 @@ export default {
       progress: 0,
     };
   },
-  computed: {},
+  computed: {
+    zoomLevel() {
+      var level = window.innerWidth > 1700 ? "100%" : "80%";
+      return {
+        zoom: level,
+      };
+    },
+  },
   methods: {
     alertUserDviChange() {
       this.progress = 100;

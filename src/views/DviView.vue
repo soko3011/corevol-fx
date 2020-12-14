@@ -322,8 +322,8 @@
 import { mapState } from "vuex";
 import SurfaceTable from "@/components/dviComponents/SurfaceTable.vue";
 import DviTable from "@/components/dviComponents/DviTable.vue";
-import DviUserControl from "@/components/dviComponents/UserControls/DviUserControl.vue";
-import UserRangeControl from "@/components/dviComponents/UserControls/UserRangeControl.vue";
+import DviUserControl from "@/components/dviComponents/UserControls/MainDviControls/DviUserControl.vue";
+import UserRangeControl from "@/components/dviComponents/UserControls/CustomRangeControls/UserRangeControl.vue";
 import DviCalendar from "@/components/dviComponents/DviCalendar.vue";
 
 import DviApi from "@/apis/DviApi";
@@ -331,7 +331,7 @@ import TreeView from "@/components/common/TreeView.vue";
 import ModalNoButton from "@/components/common/ModalNoButton.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import IpvSurf from "@/components/dviComponents/IpvSurf.vue";
-import RightNavDrawer from "@/components/dviComponents/RightNavDrawer.vue";
+import RightNavDrawer from "@/components/dviComponents/FwdVols/RightNavDrawer.vue";
 import moment from "moment";
 import SettingsApi from "@/apis/SettingsApi.js";
 

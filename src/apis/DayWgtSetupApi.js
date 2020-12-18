@@ -12,6 +12,9 @@ export default {
   },
   SaveDataToDB (body) {
     return Api.post('SaveDataToDB', body)
-  }
+  },
+  refreshEventsFromApi () {
+    return Api.get('RefreshEventsFromApi')
+  },
 
 }

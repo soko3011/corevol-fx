@@ -3,12 +3,6 @@
     <v-card color="#385F73" dark class="mx-2">
       <v-container>
         <div class="d-flex flex-nowrap justify-space-between">
-          <v-spacer />
-          <v-btn @click="$emit('toggle')" sma color="green lighten-3" dark icon>
-            <v-icon>mdi-repeat</v-icon>
-          </v-btn>
-        </div>
-        <div class="d-flex flex-nowrap justify-space-between">
           <AtmController
             v-on:dataSent="alertUserDviChange()"
             v-on:setSmileToggler="smileTogglerFromAtm = !smileTogglerFromAtm"
@@ -38,23 +32,23 @@ export default {
   name: "dviUserControl",
   components: {
     SmileController,
-    AtmController,
+    AtmController
   },
   created() {},
 
   data() {
     return {
       smileTogglerFromAtm: false,
-      progress: 0,
+      progress: 0
     };
   },
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "80%";
       return {
-        zoom: level,
+        zoom: level
       };
-    },
+    }
   },
   methods: {
     alertUserDviChange() {
@@ -62,9 +56,9 @@ export default {
       setTimeout(() => {
         this.progress = 0;
       }, 650);
-    },
+    }
   },
-  watch: {},
+  watch: {}
 };
 </script>
 

@@ -9,7 +9,7 @@
           </v-btn>
         </div>
         <div class="d-flex flex-nowrap justify-space-between">
-          <RangeInput v-on:dataSent="alertUserDviChange()" />
+          <LongDateController v-on:dataSent="alertUserDviChange()" />
         </div>
         <v-progress-linear
           :value="progress"
@@ -23,12 +23,12 @@
 </template>
 
 <script>
-import RangeInput from "@/components/dviComponents/UserControls/CustomRangeControls/RangeInput.vue";
+import LongDateController from "@/components/dviComponents/UserControls/LongDateControls/LongDateController.vue";
 
 export default {
-  name: "dviUserControl",
+  name: "longDateUserControl",
   components: {
-    RangeInput
+    LongDateController
   },
   created() {},
 

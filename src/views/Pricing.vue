@@ -57,7 +57,7 @@
           rounded
         ></v-progress-linear>
       </div>
-      <div class="d-flex flex-row mb-5 flex-nowrap">
+      <div class="d-flex flex-row mb-5 flex-nowrap dviCol">
         <v-card
           v-if="showSideControl"
           min-width="225"
@@ -88,7 +88,7 @@
 
           <v-list dense>
             <v-subheader>ACTIONS</v-subheader>
-            <v-list-item-group v-model="model">
+            <v-list-item-group>
               <v-list-item @click="totalsToggle = !totalsToggle">
                 <v-list-item-action>
                   <v-switch dense ripple v-model="totalsToggle"></v-switch>
@@ -157,6 +157,7 @@
         </v-card>
 
         <OptionPricer
+          class="dviCol"
           :pricerName="viewName"
           :simulationButton="toggleSimulation"
           v-bind:style="zoomLevel"
@@ -275,6 +276,10 @@ export default {
       document.documentElement.style.setProperty(
         "--main-height",
         `${this.window.height}px`
+      );
+      document.documentElement.style.setProperty(
+        "--dviCol-height",
+        `${this.window.height - 115}px`
       );
     },
     async addStrategyView(strat) {
@@ -399,6 +404,7 @@ export default {
 <style lang="scss">
 $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
+$dviColHeight: var(--dviCol-height);
 
 span {
   cursor: pointer;
@@ -413,5 +419,10 @@ span {
   padding-right: 0px;
   height: $mainHeight;
   width: $mainWidth;
+}
+.overallContainer .dviCol {
+  display: flex;
+  overflow-y: auto;
+  height: $dviColHeight;
 }
 </style>

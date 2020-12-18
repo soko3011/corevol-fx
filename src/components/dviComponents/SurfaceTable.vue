@@ -1,5 +1,6 @@
 <template lang="html">
   <div class="wrapper-jexcel">
+    <!-- <v-btn @click="dev" color="blue">DEV</v-btn> -->
     <div id="spreadsheet" ref="spreadsheet"></div>
   </div>
 </template>
@@ -20,12 +21,12 @@ export default {
     return {
       alphabet: alphabetJson.alphabet,
       row: [],
-      col: [],
+      col: []
     };
   },
   computed: {
     ...mapState({
-      apidata: (state) => state.dvi.surf,
+      apidata: state => state.dvi.surf
     }),
     config() {
       return {
@@ -38,7 +39,7 @@ export default {
         allowInsertRow: false,
         onselection: this.selectionActive,
         tableOverflow: true,
-        contextMenu: function (obj, x, y, e) {},
+        contextMenu: function(obj, x, y, e) {}
       };
     },
     tableHeaders() {
@@ -47,14 +48,24 @@ export default {
     tableData() {
       let tdata = [];
 
-      this.apidata.forEach((element) => {
+      this.apidata.forEach(element => {
         tdata.push(Object.values(element));
       });
 
       return tdata;
     },
+    oneYearRow() {
+      return this.apidata.map(x => x.Term).indexOf("1Y") + 1;
+    }
   },
   methods: {
+    dev() {
+      console.log(this.apidata);
+      const terms = this.apidata.map(x => x.Term);
+      console.log(terms);
+      const val = terms.indexOf("1Y");
+      console.log(val);
+    },
     setReadOnly() {
       var columns = [];
       for (var c = 0; c < this.tableHeaders.length; c++) {
@@ -63,9 +74,6 @@ export default {
       return columns;
     },
     isUserEditableCell(col, row) {
-      if (this.tableHeaders[col] === "ATM" && row > 8) {
-        return true;
-      }
       if (this.tableHeaders[col] === "RR_MULT") {
         return true;
       }
@@ -109,10 +117,23 @@ export default {
         vol1: vol1,
         vol2: vol2,
         fwdV: fwdV.toFixed(2),
-        fwdD: cal2 - cal1,
+        fwdD: cal2 - cal1
       };
 
       this.$store.dispatch("fwdVolInputsFromDviTable", fwdVolObj);
+    },
+
+    validateMultipliers(mult) {
+      if (
+        !/^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/.test(mult)
+      ) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${mult} is not valid. Please enter a number`,
+          top: true
+        });
+
+        return false;
+      }
     },
 
     setIdata(colNum) {
@@ -122,25 +143,29 @@ export default {
         Cross: this.$store.getters.activeCrossGetter,
         Term: this.jExcelObj.getValueFromCoords(1, this.row),
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       };
 
       if (header === "RR_MULT") {
+        const rrMult = this.jExcelObj.getValueFromCoords(colNum, this.row);
+
+        if (this.validateMultipliers(rrMult) === false) {
+          return;
+        }
+
         Object.assign(iData, {
-          RrMult: this.jExcelObj.getValueFromCoords(colNum, this.row),
+          RrMult: rrMult
         });
       }
 
       if (header === "SFLY_MULT") {
-        Object.assign(iData, {
-          FlyMultSmile: this.jExcelObj.getValueFromCoords(colNum, this.row),
-        });
-      }
+        const flyMult = this.jExcelObj.getValueFromCoords(colNum, this.row);
 
-      var daycount = this.jExcelObj.getValueFromCoords(0, this.row);
-      if (daycount > 400 && header === "ATM") {
+        if (this.validateMultipliers(flyMult) === false) {
+          return;
+        }
         Object.assign(iData, {
-          Spread1Y: this.jExcelObj.getValueFromCoords(colNum, this.row),
+          FlyMultSmile: flyMult
         });
       }
 
@@ -186,17 +211,17 @@ export default {
         );
         table.setStyle(this.cellId(flyMult, row), "font-weight", "bold");
 
-        if (row > 9) {
+        if (row > this.oneYearRow) {
           table.setStyle(
             this.cellId(atmCol, row),
             "background-color",
-            "#EDFAFD"
+            "#D7FFF1"
           );
         }
       }
-    },
+    }
   },
-  mounted: function () {
+  mounted: function() {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
@@ -204,14 +229,7 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    },
-  },
+    }
+  }
 };
 </script>
-
-<style>
-/* .jexcel > tbody > tr > td.userEditCell {
-  color: black !important;
-  background-color: #78ffb7 !important;
-} */
-</style>

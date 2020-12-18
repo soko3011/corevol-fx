@@ -29,7 +29,7 @@ let positiveNumber = () => {
 };
 let anyNumber = () => {
   let regex = /^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/;
-  return v => (v && regex.test(v)) || "Must be a positive number";
+  return v => (v && regex.test(v)) || "Must be a number";
 };
 
 let uniqueValue = (inputList) => {

@@ -109,6 +109,10 @@ const mutations = {
     state.dvi.smileInput = JSON.parse(data.smileInput);
     state.dvi.lastUpdate = JSON.parse(data.lastUpdate);
   },
+  SET_DVI_AFTER_LONGDATE_UPDATE(state, data) {
+    state.dvi.surf = JSON.parse(data.surf);
+    state.dvi.lastUpdate = JSON.parse(data.lastUpdate);
+  },
   SET_DVI_AFTER_USERWGT_UPDATE(state, data) {
     state.dvi.main = JSON.parse(data.main);
     state.dvi.surf = JSON.parse(data.surf);
@@ -509,6 +513,16 @@ const actions = {
       dispatch("setSnackbar", {
         text: `${err} `,
         centered: true
+      });
+    }
+  },
+  async returnDviAfterLongDateSpreadUpdate({ commit, dispatch }, payload) {
+    try {
+      let response = await DviApi.returnDviAfterLongDateSpreadUpdate(payload);
+      commit("SET_DVI_AFTER_LONGDATE_UPDATE", response.data);
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `${err} `
       });
     }
   },

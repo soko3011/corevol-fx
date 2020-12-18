@@ -60,5 +60,11 @@ export default {
   },
   saveDviPrefs(body) {
     return Api.post("SaveDviPrefs", body);
+  },
+  getLongDateSpreads(body) {
+    return Api.post("GetLongDateSpreads", body);
+  },
+  returnDviAfterLongDateSpreadUpdate(body) {
+    return Api.post("ReturnDviAfterLongDateSpreadUpdate", body);
   }
 };

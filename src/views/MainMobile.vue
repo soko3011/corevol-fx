@@ -1,10 +1,12 @@
 <template>
   <v-app class="grey darken-4">
     <div class="adjustCenter">
-      <v-img max-height="125" max-width="400" src="@/logo/corevollogo.png" />
+      <v-card color="grey darken-4" flat>
+        <v-img height="125" src="@/logo/corevollogo.png" />
+      </v-card>
       <div
         align="center"
-        class="ml-10 subtitle-2 font-weight-light text-center text-uppercase red--text text--lighten-0"
+        class="ml-10 mt-10 subtitle-2 font-weight-light text-center text-uppercase red--text text--lighten-0"
       >
         mobile coming soon
 
@@ -27,6 +29,6 @@ export default {};
 <style>
 .adjustCenter {
   margin-right: 20px;
-  margin-top: 250px;
+  margin-top: 200px;
 }
 </style>

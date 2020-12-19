@@ -3,6 +3,8 @@ import Router from "vue-router";
 import store from "@/store/index.js";
 
 import Dvi from "@/views/DviView";
+const Init = () => import("@/views/Init");
+const MainMobile = () => import("@/views/MainMobile");
 const TheContainer = () => import("@/container/TheContainer");
 const Pricing = () => import("@/views/Pricing");
 const DashBoard = () => import("@/views/DashBoard");
@@ -20,6 +22,11 @@ Vue.use(Router);
 
 let router = new Router({
   routes: [
+    {
+      path: "/",
+      name: "Root",
+      component: Init
+    },
     {
       path: "/",
       redirect: "/splashScreen",
@@ -93,6 +100,11 @@ let router = new Router({
       meta: {
         requiresGuest: true
       }
+    },
+    {
+      path: "/mainMobile",
+      name: "MainMobile",
+      component: MainMobile
     }
   ]
 });

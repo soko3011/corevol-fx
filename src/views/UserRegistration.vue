@@ -24,7 +24,7 @@
 import UserAuthForm from "@/components/userAuth/UserAuthForm.vue";
 export default {
   components: {
-    UserAuthForm
+    UserAuthForm,
   },
   methods: {
     async registerUser(registrationInfo) {
@@ -32,18 +32,18 @@ export default {
       if (user.error) {
         this.$store.dispatch("setSnackbar", {
           text: user.error,
-          centered: true
+          centered: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: "Welcome " + user.UserName,
-          top: true
+          top: true,
         });
 
-        this.$router.push("/settings");
+        this.$router.push("/dashboard");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

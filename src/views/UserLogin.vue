@@ -14,8 +14,16 @@
           buttonText="Log in"
           title="Log in"
         />
-        <div class="text-center mt-6 white--text">
-          <p font-weight-light>Register</p>
+        <div class="d-flex flex-column">
+          <span
+            class="font-weight-light text-center mt-6 mb-3 white--text"
+            @click="
+              () => $router.push({ name: 'UserRegistration' }).catch(() => {})
+            "
+          >
+            Register
+          </span>
+
           <v-icon
             color="red"
             @click="
@@ -33,7 +41,7 @@
 import UserAuthForm from "@/components/userAuth/UserAuthForm";
 export default {
   components: {
-    UserAuthForm
+    UserAuthForm,
   },
   methods: {
     async loginUser(loginInfo) {
@@ -41,17 +49,23 @@ export default {
       if (user.error) {
         this.$store.dispatch("setSnackbar", {
           text: user.error,
-          top: true
+          top: true,
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: "Welcome back " + user.UserName,
-          top: true
+          top: true,
         });
 
         this.$router.push("/splashScreen");
       }
-    }
-  }
+    },
+  },
 };
 </script>
+
+<style >
+span {
+  cursor: pointer;
+}
+</style>

@@ -288,7 +288,14 @@ export default {
         Cross: item.Cross,
       })
         .then((response) => {
-          this.marketData = JSON.parse(response.data.multsAndSpreads);
+          const mults = JSON.parse(response.data.multsAndSpreads);
+
+          this.marketData = mults.map((item) => {
+            item.RrMult = item.RrMult.toFixed(2);
+            item.FlyMultSmile = item.FlyMultSmile.toFixed(2);
+            return item;
+          });
+
           this.selectedCross = cross;
           this.marketTableTitle = "MULTIPLERS AND SPREADS";
           this.marketTableWidth = "1000px";

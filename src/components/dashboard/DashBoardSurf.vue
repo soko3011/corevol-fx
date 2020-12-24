@@ -43,7 +43,7 @@ export default {
         colHeaders: this.tableHeaders,
         tableOverflow: false,
         columnSorting: false,
-        colWidths: [60, 50, 100, 55, 55, 55, 55, 55, 62],
+        colWidths: [60, 50, 100, 55, 55, 55, 55, 55, 65, 65],
         allowInsertRow: false,
         columns: this.setReadOnly(),
         nestedHeaders: [

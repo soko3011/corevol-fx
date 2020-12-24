@@ -86,7 +86,7 @@
           color="grey lighten-3"
           flat
           :style="zoomLevel"
-          width="542"
+          width="600"
         >
           <v-btn
             absolute
@@ -196,7 +196,7 @@ export default {
       };
     },
     zoomLevel() {
-      var level = window.innerWidth > 1700 ? "90%" : "80%";
+      var level = window.innerWidth > 1700 ? "90%" : "72%";
       return {
         zoom: level,
       };
@@ -291,8 +291,8 @@ export default {
         const {
           DK_EFF, // eslint-disable-line no-unused-vars
           IPV_ATM, // eslint-disable-line no-unused-vars
-          RR_MULT, // eslint-disable-line no-unused-vars
-          S_FLY_MULT, // eslint-disable-line no-unused-vars
+          //RR_MULT, // eslint-disable-line no-unused-vars
+          //SFLY_MULT, // eslint-disable-line no-unused-vars
           SFLY25, // eslint-disable-line no-unused-vars
           SFLY10, // eslint-disable-line no-unused-vars
           ...rest // eslint-disable-line no-unused-vars

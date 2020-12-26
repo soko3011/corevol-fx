@@ -9,7 +9,6 @@ import Axios from "axios";
 Vue.use(Vuex);
 //test
 const state = {
-  api: "http://localhost:5002/api/",
   dvi: {
     main: [],
     surf: [],

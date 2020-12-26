@@ -78,14 +78,6 @@ export default {
         }
       }
 
-      for (var c = 0; c < table.headers.length; c++) {
-        table.setStyle(
-          this.cellId(c, table.rows.length),
-          "background-color",
-          this.warningColor
-        );
-      }
-
       const atmCol = this.tableHeaders.indexOf("ATM");
       const termCol = this.tableHeaders.indexOf("Term");
 
@@ -102,6 +94,13 @@ export default {
             "#EDFAFD"
           );
         }
+      }
+      for (var c = 0; c < table.headers.length; c++) {
+        table.setStyle(
+          this.cellId(c, table.rows.length),
+          "background-color",
+          this.warningColor
+        );
       }
     },
   },

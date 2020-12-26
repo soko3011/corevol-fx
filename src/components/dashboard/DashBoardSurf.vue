@@ -114,6 +114,12 @@ export default {
       `${this.warningColor}`
     );
   },
+  watch: {
+    apidata() {
+      this.jExcelObj.setData(this.tableData);
+      this.FormatTable(this.tableData, this.jExcelObj);
+    },
+  },
 };
 </script>
 

@@ -9,6 +9,7 @@ import Axios from "axios";
 Vue.use(Vuex);
 //test
 const state = {
+  api: "http://localhost:5002/api/",
   dvi: {
     main: [],
     surf: [],
@@ -35,7 +36,7 @@ const state = {
   isUserAuthed: false,
   isAdmin: false,
   token: "",
-  userTimeZone:"",
+  userTimeZone: "",
   dashBoardPrefs: [],
   userPricerLayoutPrefs: [],
   dviPrefs: {
@@ -47,10 +48,14 @@ const state = {
   pricerSetupClosed: false,
   pricerShowTotalsToggle: false,
   pricerStrategy: [],
-  activePricerList: []
+  activePricerList: [],
+  dashBoardUpdate: []
 };
 
 const mutations = {
+  SET_DASHBOARD_NOTIFIER(state, data) {
+    state.dashBoardUpdate = JSON.parse(data);
+  },
   SET_ACTIVE_PRICER_LIST(state, data) {
     state.activePricerList = [...data];
   },
@@ -184,6 +189,9 @@ const mutations = {
 };
 
 const actions = {
+  dashBoardNotifier({ commit }, data) {
+    commit("SET_DASHBOARD_NOTIFIER", data);
+  },
   async removeActivePricer({ commit, dispatch }, data) {
     try {
       let response = await PricerApi.RemovePricerFromUse({
@@ -327,7 +335,7 @@ const actions = {
   async getBrowserTimezone() {
     try {
       let response = await Axios.get("https://worldtimeapi.org/api/ip");
-      console.log(`${ response.data.timezone} from api`);
+      console.log(`${response.data.timezone} from api`);
       return response.data.timezone;
     } catch (e) {
       console.log(`${e} getting browser time zone`);
@@ -347,21 +355,19 @@ const actions = {
       });
     }
   },
-  async checkLoginStatus({ commit,dispatch }) {
-    
+  async checkLoginStatus({ commit, dispatch }) {
     let timezone = state.userTimeZone;
 
     console.log(`${timezone} from checklogin`);
-   
-    if(state.userTimeZone===""){
-    timezone = await dispatch("getBrowserTimezone");
+
+    if (state.userTimeZone === "") {
+      timezone = await dispatch("getBrowserTimezone");
     }
 
     try {
       let response = await LoginApi.CheckLoginStatus({
         Email: JSON.parse(window.localStorage.currentUser),
         Timezone: timezone
-
       });
 
       let user = JSON.parse(response.data.userProfile);

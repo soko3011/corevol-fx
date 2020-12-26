@@ -126,6 +126,7 @@ import moment from "moment";
 import Draggable from "vuedraggable";
 import TreeView from "@/components/common/TreeView.vue";
 import SettingsApi from "@/apis/SettingsApi.js";
+import { mapState } from "vuex";
 
 export default {
   async created() {
@@ -136,7 +137,6 @@ export default {
       let rawData = JSON.parse(response.data.dashBoardSurfs);
       const dviData = await SettingsApi.GetDviSetup();
       this.singleDviInputs = JSON.parse(dviData.data.dviSetup);
-      console.log(this.singleDviInputs);
 
       if (this.userPrefs !== null) {
         for (var item of this.userPrefs) {
@@ -187,6 +187,10 @@ export default {
     TreeView,
   },
   computed: {
+    ...mapState({
+      dashBoardUpdate: (state) => state.dashBoardUpdate,
+      userPrefs: (state) => state.dashBoardPrefs,
+    }),
     dragOptions() {
       return {
         animation: 0,
@@ -200,9 +204,6 @@ export default {
       return {
         zoom: level,
       };
-    },
-    userPrefs() {
-      return this.$store.state.dashBoardPrefs;
     },
 
     activeSurfs() {
@@ -284,15 +285,10 @@ export default {
       });
     },
     singleSurf(item) {
-      var surf = [{}];
-      surf = JSON.parse(item.Surface);
-
-      surf = surf.map((row) => {
+      return JSON.parse(item.Surface).map((row) => {
         const {
           DK_EFF, // eslint-disable-line no-unused-vars
           IPV_ATM, // eslint-disable-line no-unused-vars
-          //RR_MULT, // eslint-disable-line no-unused-vars
-          //SFLY_MULT, // eslint-disable-line no-unused-vars
           SFLY25, // eslint-disable-line no-unused-vars
           SFLY10, // eslint-disable-line no-unused-vars
           ...rest // eslint-disable-line no-unused-vars
@@ -301,8 +297,6 @@ export default {
           ...rest,
         };
       });
-
-      return surf;
     },
     getHeader(item) {
       const cross = item.Cross;
@@ -356,6 +350,15 @@ export default {
     },
   },
   watch: {
+    dashBoardUpdate() {
+      this.surfs.map((item) => {
+        if (item.Cross === this.dashBoardUpdate.Cross) {
+          item.Surface = this.dashBoardUpdate.Surface;
+          item.LastUpdate = this.dashBoardUpdate.LastUpdate;
+        }
+        return item;
+      });
+    },
     isDragging(newValue) {
       if (newValue) {
         this.delayedDragging = true;

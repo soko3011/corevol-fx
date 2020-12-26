@@ -8,7 +8,7 @@
         :bottom="snackbar.bottom"
         :top="snackbar.top"
         elevation="20"
-        v-for="snackbar in snackbars.filter(s => s.showing)"
+        v-for="snackbar in snackbars.filter((s) => s.showing)"
         :key="snackbar.text + Math.random()"
         v-model="snackbar.showing"
         timeout="2000"
@@ -31,20 +31,33 @@
 
 <script>
 import { mapState } from "vuex";
+import { HubConnectionBuilder } from "@microsoft/signalr";
+import * as api from "./apis/Api.js";
+
+const connection = new HubConnectionBuilder()
+  .withUrl(`${api.base}notify`)
+  .build();
+
+connection.start();
 export default {
   name: "App",
-
   components: {},
   created() {},
   computed: {
     ...mapState({
-      snackbars: state => state.snackbars
-    })
+      snackbars: (state) => state.snackbars,
+      //api: (state) => state.api,
+    }),
   },
 
   data: () => ({
     //
-  })
+  }),
+  mounted() {
+    connection.on("DashBoardUpdate", (task) => {
+      this.$store.dispatch("dashBoardNotifier", task);
+    });
+  },
 };
 </script>
 

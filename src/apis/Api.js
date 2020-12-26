@@ -2,10 +2,10 @@
 import axios from "axios";
 import store from "@/store/index.js";
 
-//const baseURL = "https://localhost:5001/api/";
-//const baseURL = "https://localhost:5002/api/";
-const baseURL = "http://localhost:5002/api/";
-//const baseURL = "https://corevolapi-swfmuuo65q-ez.a.run.app/api";
+//export const base = "https://corevolapi-swfmuuo65q-ez.a.run.app/";
+export const base = "http://localhost:5002/";
+
+const baseURL = `${base}api/`;
 
 let Api = axios.create({
   baseURL

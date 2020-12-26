@@ -135,8 +135,8 @@ export default {
         userName: this.$store.state.currentUser,
       });
       let rawData = JSON.parse(response.data.dashBoardSurfs);
-      const dviData = await SettingsApi.GetDviSetup();
-      this.singleDviInputs = JSON.parse(dviData.data.dviSetup);
+      // const dviData = await SettingsApi.GetDviSetup();
+      // this.singleDviInputs = JSON.parse(dviData.data.dviSetup);
 
       if (this.userPrefs !== null) {
         for (var item of this.userPrefs) {
@@ -306,12 +306,7 @@ export default {
       return `${cross} ${spot}`;
     },
     getExpiryCut(item) {
-      const dviInputs = this.singleDviInputs.filter(
-        (x) => x.Cross === item.Cross
-      )[0];
-      if (dviInputs != undefined) {
-        return `${dviInputs.ExpCut} CUT`;
-      }
+      return `${item.ExpCut} CUT`;
     },
     getFooter(item) {
       var data = JSON.parse(item.LastUpdate);
@@ -353,8 +348,11 @@ export default {
     dashBoardUpdate() {
       this.surfs.map((item) => {
         if (item.Cross === this.dashBoardUpdate.Cross) {
+          console.log(item);
+          console.log(this.dashBoardUpdate);
           item.Surface = this.dashBoardUpdate.Surface;
           item.LastUpdate = this.dashBoardUpdate.LastUpdate;
+          item.ExpCut = this.dashBoardUpdate.ExpCut;
         }
         return item;
       });

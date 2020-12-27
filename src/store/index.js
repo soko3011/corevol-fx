@@ -108,6 +108,12 @@ const mutations = {
     state.dvi.volInput = JSON.parse(data.volInput);
     state.dvi.lastUpdate = JSON.parse(data.lastUpdate);
   },
+  SET_DVI_AFTER_SURFACE_UPDATE(state, data) {
+    state.dvi.surf = JSON.parse(data.surf);
+    state.dvi.smileInput = JSON.parse(data.smileInput);
+    state.dvi.volInput = JSON.parse(data.volInput);
+    state.dvi.lastUpdate = JSON.parse(data.lastUpdate);
+  },
   SET_DVI_AFTER_SMILE_UPDATE(state, data) {
     state.dvi.surf = JSON.parse(data.surf);
     state.dvi.smileInput = JSON.parse(data.smileInput);
@@ -529,6 +535,24 @@ const actions = {
       dispatch("setSnackbar", {
         text: `${err} `
       });
+    }
+  },
+  async returnMatchIpvAll({ commit }, payload) {
+    try {
+      let response = await DviApi.returnMatchIpvAll(payload);
+      commit("SET_DVI_AFTER_SURFACE_UPDATE", response.data);
+      return response.status;
+    } catch (err) {
+      return { error: ` ${err}.` };
+    }
+  },
+  async returnMatchIpvAtmSurf({ commit }, payload) {
+    try {
+      let response = await DviApi.returnMatchIpvAtmSurf(payload);
+      commit("SET_DVI_AFTER_SURFACE_UPDATE", response.data);
+      return response.status;
+    } catch (err) {
+      return { error: ` ${err}.` };
     }
   },
   async returnMatchIpvSmile({ commit }, payload) {

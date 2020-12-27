@@ -25,6 +25,12 @@ export default {
   CheckAndLoadIpv(body) {
     return Api.post("CheckAndLoadIpv", body);
   },
+  returnMatchIpvAll(body) {
+    return Api.post("ReturnMatchIpvAll", body);
+  },
+  returnMatchIpvAtmSurf(body) {
+    return Api.post("ReturnMatchIpvAtmSurf", body);
+  },
   returnMatchIpvAtm(body) {
     return Api.post("ReturnMatchIpvAtm", body);
   },

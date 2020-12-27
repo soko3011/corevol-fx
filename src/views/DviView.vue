@@ -245,7 +245,6 @@
               >
                 <v-icon>mdi-cloud-download-outline</v-icon>
               </v-btn>
-
               <v-speed-dial
                 v-model="fab"
                 direction="right"
@@ -264,6 +263,26 @@
                     <div v-else @click="GetIpvVols()">IPV</div>
                   </v-btn>
                 </template>
+                <v-btn
+                  fab
+                  dark
+                  small
+                  color="#eb0235"
+                  @click.stop="MatchIpvAll()"
+                  :loading="!ipvReturned"
+                >
+                  ALL
+                </v-btn>
+                <v-btn
+                  fab
+                  dark
+                  small
+                  color="#eb0235"
+                  @click.stop="MatchIpvAtmSurf()"
+                  :loading="!ipvReturned"
+                >
+                  SURF
+                </v-btn>
                 <v-btn
                   fab
                   dark
@@ -539,6 +558,46 @@ export default {
             bottom: true,
           });
         }
+      }
+    },
+    async MatchIpvAll() {
+      this.loading = true;
+      let response = await this.$store.dispatch("returnMatchIpvAll", {
+        Cross: this.$route.params.ccyPair,
+        UserName: this.$store.state.currentUser,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+      });
+      this.loading = false;
+      if (response.error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
+          bottom: true,
+        });
+      } else {
+        this.$store.dispatch("setSnackbar", {
+          text: `IPV SURFACE & MULTIPLIERS ${this.$route.params.ccyPair} MATCHED`,
+          bottom: true,
+        });
+      }
+    },
+    async MatchIpvAtmSurf() {
+      this.loading = true;
+      let response = await this.$store.dispatch("returnMatchIpvAtmSurf", {
+        Cross: this.$route.params.ccyPair,
+        UserName: this.$store.state.currentUser,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+      });
+      this.loading = false;
+      if (response.error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
+          bottom: true,
+        });
+      } else {
+        this.$store.dispatch("setSnackbar", {
+          text: `IPV SURFACE ${this.$route.params.ccyPair} MATCHED`,
+          bottom: true,
+        });
       }
     },
     async MatchIpvAtm() {

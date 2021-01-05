@@ -161,6 +161,7 @@ export default {
         onchange: this.onChangeByCcyEvents,
         tableOverflow: false,
         allowInsertRow: false,
+        contextMenu: function(obj, x, y, e) {},
         columns: [
           { type: "checkbox", title: "IncludeEvent", width: 90 },
           {
@@ -186,6 +187,7 @@ export default {
         onchange: this.onChangeSelectedEventsByCcy,
         tableOverflow: false,
         allowInsertRow: false,
+        contextMenu: function(obj, x, y, e) {},
         columns: [
           { type: "checkbox", title: "IncludeEvent", width: 90 },
           {
@@ -215,6 +217,7 @@ export default {
         columnSorting: false,
         tableOverflow: false,
         allowInsertRow: false,
+        contextMenu: function(obj, x, y, e) {},
         columns: [
           {
             type: "text",

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="dialog" persistent max-width="700">
+    <v-dialog v-model="dialog" max-width="700">
       <draggable :list="keyGroups" @start="drag = true" @end="drag = false">
         <v-card
           v-for="element in keyGroups"

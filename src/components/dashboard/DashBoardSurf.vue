@@ -13,14 +13,14 @@ export default {
   created() {},
   data() {
     return {
-      alphabet: alphabetJson.alphabet,
+      alphabet: alphabetJson.alphabet
     };
   },
   props: {
     apidata: { type: Array },
     headerData: { type: String },
     footerData: { type: String },
-    warningColor: { type: String },
+    warningColor: { type: String }
   },
   computed: {
     tableHeaders() {
@@ -29,7 +29,7 @@ export default {
 
     tableData() {
       let tdata = [];
-      this.apidata.forEach((element) => {
+      this.apidata.forEach(element => {
         tdata.push(Object.values(element));
       });
 
@@ -46,16 +46,17 @@ export default {
         colWidths: [60, 50, 100, 55, 55, 55, 55, 55, 65, 65],
         allowInsertRow: false,
         columns: this.setReadOnly(),
+        contextMenu: function(obj, x, y, e) {},
         nestedHeaders: [
           [
             {
               title: this.headerData,
-              colspan: this.tableHeaders.length,
-            },
-          ],
-        ],
+              colspan: this.tableHeaders.length
+            }
+          ]
+        ]
       };
-    },
+    }
   },
   methods: {
     cellId(col, row) {
@@ -102,7 +103,7 @@ export default {
           this.warningColor
         );
       }
-    },
+    }
   },
   mounted() {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
@@ -117,11 +118,11 @@ export default {
     apidata() {
       this.jExcelObj.setData(this.tableData);
       this.FormatTable(this.tableData, this.jExcelObj);
-    },
-  },
+    }
+  }
 };
 </script>
 
-<style lang="scss" >
+<style lang="scss">
 $warningColor: var(--warning-color);
 </style>

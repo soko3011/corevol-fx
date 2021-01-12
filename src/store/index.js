@@ -61,6 +61,7 @@ const mutations = {
   SET_PRICER_STRATEGY(state, data) {
     state.pricerStrategy = [];
     state.pricerStrategy = [...data];
+    console.log(data)
   },
   SET_PRICER_SETUP_TOGGLE(state, data) {
     state.pricerSetupToggle = !state.pricerSetupToggle;

@@ -72,5 +72,8 @@ export default {
   },
   returnDviAfterLongDateSpreadUpdate(body) {
     return Api.post("ReturnDviAfterLongDateSpreadUpdate", body);
+  },
+  getHistoricalVols(body) {
+    return Api.post("GetHistoricalVols", body);
   }
 };

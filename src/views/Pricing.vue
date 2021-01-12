@@ -292,17 +292,16 @@ export default {
         i++;
       }
       await this.$store.dispatch("addNewActivePricer", stratName);
-      console.log(this.activePricers);
+      let strategy = new stratHelper(strat.strategy, strat.optData);
+      const validStrat = await strategy.returnValidStrategy();
+
       this.$route.params.viewName = stratName;
       this.$router
         .push({ name: this.$route.name, viewName: stratName })
         .then(onComplete => {
           this.$store.dispatch("togglePriceShowTotals", true);
-          let strategy = new stratHelper(strat.strategy, strat.optData);
-          this.$store.dispatch(
-            "sendStrategyToPricer",
-            strategy.returnValidStrategy()
-          );
+
+          this.$store.dispatch("sendStrategyToPricer", validStrat);
         })
         .catch(() => {});
     },

@@ -97,8 +97,6 @@ export default class stratHelper {
   }
 
   async createStrangle25() {
-    let vols = await this.getSmileObj();
-    console.log(vols);
 
     let leg1 = { ...this.optData };
     leg1.call_put = "PUT";
@@ -112,6 +110,7 @@ export default class stratHelper {
     leg2.notional = "100";
 
     return new Array(leg1, leg2);
+
   }
 
   createStrangle10() {

@@ -2,8 +2,8 @@
 import axios from "axios";
 import store from "@/store/index.js";
 
-export const base = "https://corevolapi-swfmuuo65q-ez.a.run.app/";
-//export const base = "http://localhost:5002/";
+//export const base = "https://corevolapi-swfmuuo65q-ez.a.run.app/";
+export const base = "http://localhost:5002/";
 
 const baseURL = `${base}api/`;
 

@@ -1,5 +1,6 @@
 <template>
   <div class="overallContainer ml-1">
+    <HistoricalVols/>
     <RightNavDrawer v-bind:style="zoomLevel" />
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
@@ -383,6 +384,7 @@ import IpvSurf from "@/components/dviComponents/IpvSurf.vue";
 import RightNavDrawer from "@/components/dviComponents/FwdVols/RightNavDrawer.vue";
 import moment from "moment";
 import SettingsApi from "@/apis/SettingsApi.js";
+import HistoricalVols from "@/components/dviComponents/HistoricalVols/HistoricalVols.vue";
 
 export default {
   name: "DviView",
@@ -398,6 +400,7 @@ export default {
     UserRangeControl,
     LongDateUserControl,
     PopUpModal,
+    HistoricalVols,
   },
   created: async function () {
     this.$store.dispatch("refreshCrossList");

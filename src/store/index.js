@@ -39,7 +39,7 @@ const state = {
   dashBoardPrefs: [],
   userPricerLayoutPrefs: [],
   dviPrefs: {
-    autoSaveSwitch: false,
+    autoSaveSwitch: false
   },
   activePricerLayoutTitle: "Trader",
   pricerSetupToggle: false,
@@ -60,7 +60,7 @@ const mutations = {
   SET_PRICER_STRATEGY(state, data) {
     state.pricerStrategy = [];
     state.pricerStrategy = [...data];
-    console.log(data)
+    console.log(data);
   },
   SET_PRICER_SETUP_TOGGLE(state, data) {
     state.pricerSetupToggle = !state.pricerSetupToggle;
@@ -366,7 +366,9 @@ const actions = {
     console.log(`${timezone} from checklogin`);
 
     if (state.userTimeZone === "") {
-      timezone = await dispatch("getBrowserTimezone");
+      //timezone = await dispatch("getBrowserTimezone");
+      timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log(`${timezone} from checklogin if empty`);
     }
 
     try {

@@ -22,8 +22,15 @@
             slot="append"
             color="red"
             @click="showPassword = !showPassword"
-          >mdi-eye</v-icon>
-          <v-icon @click="showPassword = !showPassword" v-else slot="append" color="red">mdi-eye-off</v-icon>
+            >mdi-eye</v-icon
+          >
+          <v-icon
+            @click="showPassword = !showPassword"
+            v-else
+            slot="append"
+            color="red"
+            >mdi-eye-off</v-icon
+          >
         </v-text-field>
 
         <v-text-field
@@ -33,15 +40,25 @@
           :type="showPassword ? 'text' : 'password'"
           counter="true"
           v-if="hasName"
-          :rules="[required('confirmPassword'), minLength('confirmPassword', 8)]"
+          :rules="[
+            required('confirmPassword'),
+            minLength('confirmPassword', 8),
+          ]"
         >
           <v-icon
             v-if="showPassword"
             slot="append"
             color="red"
             @click="showPassword = !showPassword"
-          >mdi-eye</v-icon>
-          <v-icon @click="showPassword = !showPassword" v-else slot="append" color="red">mdi-eye-off</v-icon>
+            >mdi-eye</v-icon
+          >
+          <v-icon
+            @click="showPassword = !showPassword"
+            v-else
+            slot="append"
+            color="red"
+            >mdi-eye-off</v-icon
+          >
         </v-text-field>
       </v-form>
     </v-card-text>
@@ -54,7 +71,8 @@
         color="red darken-2"
         x-large
         @click="submitForm(userInfo)"
-      >{{ buttonText }}</v-btn>
+        >{{ buttonText }}</v-btn
+      >
       <v-spacer></v-spacer>
     </v-card-actions>
   </v-card>
@@ -75,17 +93,17 @@ export default {
         email: "",
         password: "",
         confirmPassword: "",
-        timezone: ""
+        timezone: "",
       },
-      ...validations
+      ...validations,
     };
   },
   props: ["submitForm", "buttonText", "hasName", "title"],
   methods: {
-    async setUserTimezone() {
-      this.userInfo.timezone = await this.$store.dispatch("getBrowserTimezone");
-    }
-  }
+    setUserTimezone() {
+      this.userInfo.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    },
+  },
 };
 </script>
 

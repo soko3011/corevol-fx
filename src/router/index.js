@@ -83,7 +83,10 @@ let router = new Router({
     {
       path: "/splashScreen",
       name: "SplashScreen",
-      component: SplashScreen
+      component: SplashScreen,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: "/userLogin",
@@ -111,10 +114,11 @@ let router = new Router({
 
 router.beforeEach((to, from, next) => {
   store.dispatch("checkLoginStatus").then(() => {
-    console.log(`router is authed: ${store.state.isUserAuthed}`);
+    console.log(`Login status: ${store.state.isUserAuthed}`);
     // Check for requiresAuth guard
     if (to.matched.some(record => record.meta.requiresAuth)) {
       // Check if NO logged user
+      console.log("here");
       if (!store.state.isUserAuthed) {
         // Go to login
         next({

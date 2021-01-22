@@ -1,6 +1,5 @@
 <template>
   <div class="overallContainer ml-1">
-    <HistoricalVols/>
     <RightNavDrawer v-bind:style="zoomLevel" />
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
@@ -97,7 +96,7 @@
                       :inputData="this.$store.state.crossList"
                       :title="'ADD DVI'"
                       :vmodel="addNewDviModal"
-                      v-on:setvmodel="(data) => (addNewDviModal = data)"
+                      v-on:setvmodel="data => (addNewDviModal = data)"
                       v-on:selection="ReloadDvi"
                     />
                   </v-list-item-action>
@@ -115,7 +114,7 @@
                       :inputData="this.activeDvis"
                       :title="'REMOVE DVI'"
                       :vmodel="deleteDviModal"
-                      v-on:setvmodel="(data) => (deleteDviModal = data)"
+                      v-on:setvmodel="data => (deleteDviModal = data)"
                       v-on:selection="RemoveTab"
                     />
                   </v-list-item-action>
@@ -132,22 +131,12 @@
                       :inputData="optionCuts"
                       :title="'SELECT CUT'"
                       :vmodel="cutModal"
-                      v-on:setvmodel="(data) => (cutModal = data)"
+                      v-on:setvmodel="data => (cutModal = data)"
                       v-on:selection="ChangeCut"
                     />
                   </v-list-item-action>
                   <v-list-item-content>
                     <v-list-item-title>CHANGE CUT</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item @click="toggleRightNav">
-                  <v-list-item-action>
-                    <v-btn ripple small icon>
-                      <v-icon color="#385F73">mdi-square-root</v-icon>
-                    </v-btn>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>FWD VOLS</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
@@ -184,6 +173,40 @@
                     <v-list-item-title>DAY WGT RANGES</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
+              </v-list>
+
+              <v-list dense>
+                <v-subheader>VOL DATA</v-subheader>
+                <v-list-item @click="userControlSelection = 'historicalVols'">
+                  <v-list-item-action>
+                    <v-btn ripple small icon>
+                      <v-icon color="#385F73">mdi-square-root</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>HISTORICAL VOLS</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item @click="userControlSelection = 'ipvVols'">
+                  <v-list-item-action>
+                    <v-btn ripple small icon>
+                      <v-icon color="#385F73">mdi-square-root</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>IPV VOLS</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item @click="toggleRightNav">
+                  <v-list-item-action>
+                    <v-btn ripple small icon>
+                      <v-icon color="#385F73">mdi-square-root</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>FORWARD VOLS</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
 
                 <v-list-item>
                   <v-switch
@@ -193,17 +216,6 @@
                     inset
                     v-model="autoSaveSwitch"
                     :label="`AUTOSAVE ${autoSaveStatus}`"
-                  ></v-switch>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-switch
-                    dense
-                    color="#2E5266"
-                    v-if="ipvHasData"
-                    v-model="ipvSwitch"
-                    inset
-                    :label="`IPV VOLS`"
                   ></v-switch>
                 </v-list-item>
               </v-list>
@@ -349,8 +361,18 @@
             >
               <LongDateUserControl v-on:toggle="userControlSelection = 'atm'" />
             </div>
-            <div v-if="ipvHasData" class="mt-5">
-              <IpvSurf v-if="ipvSwitch === true" class="ma-0" />
+            <div
+              v-if="userControlSelection === 'historicalVols'"
+              class="d-flex align-center justify-start"
+            >
+              <HistoricalVols />
+            </div>
+            <div
+              v-if="userControlSelection === 'ipvVols'"
+              class="d-flex align-center justify-start"
+            >
+              <IpvSurf v-if="ipvHasData" />
+              <div v-else>REFRESH IPV VOL DATA</div>
             </div>
           </div>
           <div class="d-flex flex-column dviCol">
@@ -380,7 +402,7 @@ import DviApi from "@/apis/DviApi";
 import TreeView from "@/components/common/TreeView.vue";
 import ModalNoButton from "@/components/common/ModalNoButton.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
-import IpvSurf from "@/components/dviComponents/IpvSurf.vue";
+import IpvSurf from "@/components/dviComponents/IpvSurface.vue";
 import RightNavDrawer from "@/components/dviComponents/FwdVols/RightNavDrawer.vue";
 import moment from "moment";
 import SettingsApi from "@/apis/SettingsApi.js";
@@ -400,9 +422,9 @@ export default {
     UserRangeControl,
     LongDateUserControl,
     PopUpModal,
-    HistoricalVols,
+    HistoricalVols
   },
-  created: async function () {
+  created: async function() {
     this.$store.dispatch("refreshCrossList");
 
     try {
@@ -412,19 +434,18 @@ export default {
       await this.$store.dispatch("initializeDviUI", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.dviPrefs.autoSaveSwitch,
+        AutoSave: this.dviPrefs.autoSaveSwitch
       });
 
-      this.optionCuts = JSON.parse(response.data.optCuts).map((x) => x.CutName);
+      this.optionCuts = JSON.parse(response.data.optCuts).map(x => x.CutName);
 
       this.singleDviInputs = JSON.parse(dviData.data.dviSetup).filter(
-        (x) => x.Cross === this.$route.params.ccyPair
+        x => x.Cross === this.$route.params.ccyPair
       )[0];
       this.expiryCut = this.singleDviInputs.ExpCut;
 
       this.activeDvis = this.dvisInUse;
       this.dataReturned = true;
-      this.ipvSwitch = this.dviPrefs.ipvSwitch;
       this.autoSaveSwitch = this.dviPrefs.autoSaveSwitch;
 
       window.addEventListener("resize", this.handleResize);
@@ -457,10 +478,7 @@ export default {
       fab: false,
       ipvReturned: false,
       globalDviReturned: true,
-      ipvSwitch: true,
       autoSaveSwitch: false,
-      // dayWgtRangesSwitch: false,
-      // longDatesToggle: false,
       userControlSelection: "atm",
       loading: false,
       addNewDviModal: false,
@@ -468,8 +486,8 @@ export default {
       optionCuts: [],
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   computed: {
@@ -483,19 +501,19 @@ export default {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "100%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
     pricerTab() {
       return this.$store.getters.lastPricerTabGetter;
     },
     ...mapState({
-      forCal: (state) => state.dvi.forCal,
-      domCal: (state) => state.dvi.domCal,
-      dvisInUse: (state) => state.dvisInUse,
-      ipvSurf: (state) => state.dvi.ipvSurf,
-      lastUpdate: (state) => state.dvi.lastUpdate,
-      dviPrefs: (state) => state.dviPrefs,
+      forCal: state => state.dvi.forCal,
+      domCal: state => state.dvi.domCal,
+      dvisInUse: state => state.dvisInUse,
+      ipvSurf: state => state.dvi.ipvSurf,
+      lastUpdate: state => state.dvi.lastUpdate,
+      dviPrefs: state => state.dviPrefs
     }),
     ipvHasData() {
       return this.ipvSurf.length > 0 ? true : false;
@@ -508,7 +526,7 @@ export default {
       ).format("ddd, MMM Do YYYY, HH:mm:ss");
 
       return dateTime;
-    },
+    }
   },
   methods: {
     dev() {
@@ -541,24 +559,24 @@ export default {
       this.ipvReturned = false;
       let response = await this.$store.dispatch("checkAndLoadIpv", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       });
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: response.error,
-          centered: true,
+          centered: true
         });
       } else {
         if (response === false) {
           this.$store.dispatch("setSnackbar", {
             text: `There is no IPV source for ${this.$route.params.ccyPair}`,
-            centered: true,
+            centered: true
           });
         } else {
           this.ipvReturned = true;
           this.$store.dispatch("setSnackbar", {
             text: `${this.$route.params.ccyPair} IPV VOLS UPDATED`,
-            bottom: true,
+            bottom: true
           });
         }
       }
@@ -568,18 +586,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvAll", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV SURFACE & MULTIPLIERS ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -588,18 +606,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvAtmSurf", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV SURFACE ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -608,18 +626,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvAtm", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV ATM  \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV ATM ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -628,18 +646,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvSmile", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV SMILE \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV SMILE FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -648,18 +666,18 @@ export default {
       let response = await this.$store.dispatch("returnMatchIpvMults", {
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       });
       this.loading = false;
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} and IPV MULTS \n${response.error}`,
-          bottom: true,
+          bottom: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `IPV MUTLS FOR ${this.$route.params.ccyPair} MATCHED`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -670,7 +688,7 @@ export default {
 
       let response = await this.$store.dispatch("downloadGlobalDvi", {
         Cross: this.$route.params.ccyPair,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       });
       this.loading = false;
       let message = "";
@@ -683,12 +701,12 @@ export default {
       if (response.error) {
         this.$store.dispatch("setSnackbar", {
           text: `There is an issue with: ${this.$route.params.ccyPair} GLOBAL DOWNLOAD\n${response.error}`,
-          centered: true,
+          centered: true
         });
       } else {
         this.$store.dispatch("setSnackbar", {
           text: ` ${message}`,
-          centered: true,
+          centered: true
         });
       }
 
@@ -712,12 +730,12 @@ export default {
 
       DviApi.RemoveDviFromUse({
         Cross: item,
-        UserName: this.$store.state.currentUser,
+        UserName: this.$store.state.currentUser
       })
-        .then((response) => {
+        .then(response => {
           this.activeDvis = JSON.parse(response.data.listOfActiveDvis);
         })
-        .catch((err) => {
+        .catch(err => {
           alert(err);
         });
 
@@ -739,7 +757,7 @@ export default {
         this.$router
           .push({
             name: "Pricer",
-            params: { viewName: this.pricerTab },
+            params: { viewName: this.pricerTab }
           })
           .catch(() => {});
       }
@@ -758,44 +776,37 @@ export default {
         await SettingsApi.UpdateDviDets({
           DviInputsUI: this.singleDviInputs,
           UserName: this.$store.state.currentUser,
-          AutoSave: this.dviPrefs.autoSaveSwitch,
+          AutoSave: this.dviPrefs.autoSaveSwitch
         });
         this.$store.dispatch("setSnackbar", {
           text: `${this.ccyPair} CUT UPDATE SUCCESSFULLY.`,
-          centered: true,
+          centered: true
         });
         await this.$store.dispatch("initializeDviUI", {
           Cross: this.$route.params.ccyPair,
           UserName: this.$store.state.currentUser,
-          AutoSave: this.dviPrefs.autoSaveSwitch,
+          AutoSave: this.dviPrefs.autoSaveSwitch
         });
       } catch (error) {
         alert(error);
       }
-    },
+    }
   },
   mounted() {
     this.handleResize();
   },
   watch: {
-    ipvSwitch() {
-      this.$store.dispatch("saveDviPrefs", {
-        ipvSwitch: this.ipvSwitch,
-        autoSaveSwitch: this.autoSaveSwitch,
-      });
-    },
     autoSaveSwitch() {
       this.$store.dispatch("saveDviPrefs", {
-        ipvSwitch: this.ipvSwitch,
-        autoSaveSwitch: this.autoSaveSwitch,
+        autoSaveSwitch: this.autoSaveSwitch
       });
     },
 
     loading(val) {
       if (!val) return;
       setTimeout(() => (this.loading = false), 5000);
-    },
-  },
+    }
+  }
 };
 </script>
 

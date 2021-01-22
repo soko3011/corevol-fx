@@ -40,7 +40,6 @@ const state = {
   userPricerLayoutPrefs: [],
   dviPrefs: {
     autoSaveSwitch: false,
-    ipvSwitch: false
   },
   activePricerLayoutTitle: "Trader",
   pricerSetupToggle: false,

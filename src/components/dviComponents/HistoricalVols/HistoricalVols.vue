@@ -1,63 +1,68 @@
 <template>
   <div>
-    <v-btn color="blue" @click="dev">DEV</v-btn>
-    <v-btn color="red" @click="dev1">dev1</v-btn>
-    <!-- <v-data-table
-      v-if="showTable"
-      :headers="headers"
-      :items="data"
-      class="elevation-10 custom-transform-class"
-      dense
-      disable-pagination
-      hide-default-footer
-    ></v-data-table> -->
+    <div
+      class="font-weight-medium text-center text-uppercase blue--text text--darken-4 mb-2"
+    >
+      HISTORICAL VOLS
+    </div>
+    <v-card class="mx-auto" width="770">
+      <v-data-table
+        :headers="headers"
+        :items="histVols"
+        class="elevation-0 custom-transform-class"
+        dense
+        disable-pagination
+        hide-default-footer
+        loading="isLoading"
+        :loading-text="this.loadingMessage"
+      ></v-data-table>
+    </v-card>
   </div>
 </template>
 
 <script>
 import HistoricalVolAPi from "@/apis/pythonApis/HistoricalVolApi";
 export default {
-  created() {},
+  async created() {
+    await this.get_historical_vols();
+  },
   data() {
     return {
       histVols: [],
+      headers: [],
+      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`
     };
   },
-  computed: {
-    showTable() {
-      return this.histVols.length > 0 ? true : false;
-    },
-    headers() {
-      const terms = this.histVols[0].map((x) => x.Term);
-      return ["Calc_Date", ...terms];
-    },
-  },
   methods: {
-    dev() {
-      this.get_historical_vols();
-    },
-    dev1() {
-      console.log(this.headers);
-    },
     async get_historical_vols() {
       const cross = this.$route.params.ccyPair;
       try {
-        const response = await HistoricalVolAPi.get_historical_vols_including_past_dates(
+        const response = await HistoricalVolAPi.get_historical_vol_term_structure_grid(
           cross
         );
-        const vol_list = response.data;
-
-        for (const vols of vol_list) {
-          console.log(JSON.parse(vols));
-          this.histVols.push(JSON.parse(vols));
-        }
+        this.histVols = response.data;
+        this.headers = this.get_headers(this.histVols[0]);
       } catch (error) {
-        alert(error);
+        this.loadingMessage = `There is no historical vol data for ${this.$route.params.ccyPair}`;
       }
     },
-  },
+    get_headers(vol_object) {
+      let headers = [];
+
+      for (const key of Object.keys(vol_object)) {
+        if (key != "Calc_Date") {
+          headers.push({
+            text: key,
+            align: "start",
+            sortable: false,
+            value: key
+          });
+        }
+      }
+      return headers;
+    }
+  }
 };
 </script>
 
-<style>
-</style>
+<style></style>

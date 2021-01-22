@@ -18,20 +18,20 @@ export default {
 
   computed: {
     ...mapState({
-      apidata: (state) => state.dvi.ipvSurf,
+      apidata: state => state.dvi.ipvSurf
     }),
 
     config() {
       return {
         columnSorting: false,
-        colWidths: [50, 100, 55, 55, 55, 55, 55, 55],
+        colWidths: [70, 100, 70, 70, 70, 70, 70, 70],
         allowInsertRow: false,
-        contextMenu: function (obj, x, y, e) {},
+        contextMenu: function(obj, x, y, e) {}
       };
     },
     jExcelOptions() {
       return customFunctions.JexcelTableSettings(this.apidata, this.config);
-    },
+    }
   },
   methods: {
     FormatTable(data, table) {
@@ -51,9 +51,9 @@ export default {
           table.setStyle(col4Name, "background-color", "#EDFAFD");
         }
       }
-    },
+    }
   },
-  mounted: function () {
+  mounted: function() {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.jExcelOptions);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj }); // tucks all methods under jExcelObj object in component instance
@@ -62,7 +62,7 @@ export default {
     apidata() {
       this.jExcelObj.setData(customFunctions.ReFormatJson(this.apidata));
       this.FormatTable(this.apidata, this.jExcelObj);
-    },
-  },
+    }
+  }
 };
 </script>

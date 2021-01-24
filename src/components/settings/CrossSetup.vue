@@ -1,19 +1,18 @@
 <template>
   <div v-if="apiDataReturned">
-    <v-data-table
-      :headers="headers"
-      :items="data"
-      sort-by="Cross"
-      class="elevation-10 custom-transform-class"
-      dense
-      disable-pagination
-      hide-default-footer
-    >
-      <template v-slot:top>
-        <v-toolbar dense class="mb-3" dark color="#385F73">
-          <v-toolbar-title>Cross Settings</v-toolbar-title>
-
-          <v-spacer></v-spacer>
+    <v-card flat>
+      <v-toolbar dense class="mb-2" dark color="#385F73">
+        <v-toolbar-title>Cross Settings</v-toolbar-title>
+      </v-toolbar>
+      <v-data-table
+        :headers="headers"
+        :items="data"
+        sort-by="Cross"
+        dense
+        disable-pagination
+        hide-default-footer
+      >
+        <template v-slot:top>
           <v-dialog v-model="dialog" max-width="1000px">
             <v-card>
               <v-card-title>
@@ -48,12 +47,13 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-        </v-toolbar>
-      </template>
-      <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-      </template>
-    </v-data-table>
+        </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot-->
+        <template v-slot:item.actions="{ item }">
+          <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+        </template>
+      </v-data-table>
+    </v-card>
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" rounded="pill" centered elevation="20">
         {{ snackbarMessage }}

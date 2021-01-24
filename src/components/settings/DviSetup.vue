@@ -1,8 +1,11 @@
 <template>
   <div v-if="apiDataReturned">
-    <v-card>
-      <v-card>
-        <v-btn absolute small fab top right color="pink" elevation="12">
+    <v-card :max-width="this.window.width" flat>
+      <v-toolbar dense class="mb-2" dark color="#385F73">
+        <v-toolbar-title>DVI SETTINGS</v-toolbar-title>
+        <v-spacer></v-spacer>
+
+        <v-btn x-small fab color="pink">
           <PopUpModal
             :inputData="this.$store.state.crossList"
             :icon="'mdi-expand-all'"
@@ -12,23 +15,17 @@
             v-on:selection="OpenDialog"
           />
         </v-btn>
-      </v-card>
-    </v-card>
-    <v-data-table
-      :headers="headers"
-      :items="data"
-      sort-by="Cross"
-      class="elevation-10 custom-transform-class"
-      dense
-      disable-pagination
-      hide-default-footer
-    >
-      <template v-slot:top>
-        <v-toolbar dense class="mb-3" dark color="#385F73">
-          <v-toolbar-title>Dvi Settings</v-toolbar-title>
-
-          <v-spacer></v-spacer>
-
+      </v-toolbar>
+      <v-data-table
+        :headers="headers"
+        :items="data"
+        sort-by="Cross"
+        class="elevation-10 custom-transform-class"
+        dense
+        disable-pagination
+        hide-default-footer
+      >
+        <template v-slot:top>
           <v-dialog v-model="dialog" max-width="1000px" overlay-opacity="0.8">
             <v-card>
               <v-card-title>
@@ -63,18 +60,20 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-        </v-toolbar>
-      </template>
-      <!-- eslint-disable-next-line vue/valid-v-slot-->
-      <template v-slot:item.mults="{ item }">
-        <v-icon small @click="viewMultsAndSpreads(item)">mdi-eye</v-icon>
-      </template>
-      <!-- eslint-disable-next-line vue/valid-v-slot-->
-      <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-        <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
-      </template>
-    </v-data-table>
+        </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot-->
+        <template v-slot:item.mults="{ item }">
+          <v-icon small @click="viewMultsAndSpreads(item)">mdi-eye</v-icon>
+        </template>
+        <!-- eslint-disable-next-line vue/valid-v-slot-->
+        <template v-slot:item.actions="{ item }">
+          <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+          <v-icon small class="mr-2" @click="deleteItem(item)"
+            >mdi-delete</v-icon
+          >
+        </template>
+      </v-data-table>
+    </v-card>
     <v-dialog
       v-model="showMarketTable"
       :max-width="marketTableWidth"
@@ -170,6 +169,10 @@ export default {
     dviEdited: {},
     crossEdited: {},
     mirroredCross: "",
+    window: {
+      width: 0,
+      height: 0,
+    },
   }),
 
   computed: {
@@ -195,9 +198,15 @@ export default {
 
   created() {
     this.initialize();
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
   },
 
   methods: {
+    handleResize() {
+      this.window.width = window.innerWidth - 325;
+      this.window.height = window.innerHeight - 65;
+    },
     initialize() {
       this.$store.dispatch("refreshCrossList");
       SettingsApi.GetDviSetup()

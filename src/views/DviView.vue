@@ -59,12 +59,11 @@
       </div>
       <transition name="fade">
         <div class="d-flex flex-row flex-nowrap" v-if="dataReturned">
-          <div class="d-flex flex-column">
+          <div class="d-flex flex-column dviCol mr-1">
             <v-card
               v-if="showSideControl"
               min-width="225"
               :height="window.height"
-              class="mr-3 d-flex flex-column"
             >
               <v-list dense>
                 <v-subheader>ACTIVE DVI</v-subheader>
@@ -221,8 +220,7 @@
               </v-list>
             </v-card>
           </div>
-
-          <div class="d-flex flex-column dviCol">
+          <div class="d-flex flex-column dviCol mr-1">
             <SurfaceTable />
 
             <v-progress-linear
@@ -375,13 +373,13 @@
               <div v-else>REFRESH IPV VOL DATA</div>
             </div>
           </div>
-          <div class="d-flex flex-column dviCol">
+          <div class="d-flex flex-column dviCol mr-1">
             <DviTable />
           </div>
-          <div class="d-flex flex-column dviCol">
+          <div class="d-flex flex-column dviCol mr-1">
             <DviCalendar v-bind:calData="forCal" />
           </div>
-          <div class="d-flex flex-column dviCol">
+          <div class="d-flex flex-column dviCol mr-1">
             <DviCalendar v-bind:calData="domCal" />
           </div>
         </div>
@@ -533,7 +531,7 @@ export default {
       this.setContainerDimensions();
     },
     handleResize() {
-      this.window.width = window.innerWidth - 50;
+      this.window.width = window.innerWidth - 100;
       this.window.height = window.innerHeight - 45;
       this.setContainerDimensions();
     },
@@ -824,8 +822,8 @@ $dviColHeight: var(--dviCol-height);
   width: $mainWidth;
 }
 .overallContainer .dviCol {
+  overflow-y: scroll;
   display: flex;
-  overflow-y: auto;
   height: $dviColHeight;
 }
 </style>

@@ -1,70 +1,60 @@
 <template>
   <div v-if="apiDataReturned">
     <v-card>
-      <v-btn
-        absolute
-        dark
-        small
-        fab
-        top
-        right
-        color="pink"
-        elevation="12"
-        @click="addNewOptionCut"
-      >
-        <v-icon>mdi-expand-all</v-icon>
-      </v-btn>
+      <v-toolbar dense class="mb-2" dark color="#385F73">
+        <v-toolbar-title>EXPIRY CUT SETTINGS</v-toolbar-title>
+
+        <v-spacer></v-spacer>
+        <v-btn dark x-small fab top right color="pink" @click="addNewOptionCut">
+          <v-icon>mdi-expand-all</v-icon>
+        </v-btn>
+      </v-toolbar>
     </v-card>
     <v-data-table
       :headers="headers"
       :items="data"
       sort-by="CutName"
-      class="elevation-10 custom-transform-class"
       dense
       disable-pagination
       hide-default-footer
     >
       <template v-slot:top>
-        <v-toolbar dense class="mb-3" dark color="#385F73">
-          <v-toolbar-title>expiry cut Settings</v-toolbar-title>
+        <v-dialog v-model="dialog" max-width="500">
+          <v-card>
+            <v-card-title>
+              <v-spacer />
+              <span class="title">{{ formTitle }}</span>
+              <v-spacer />
+            </v-card-title>
+            <v-card-text>
+              <v-text-field
+                v-model="editedItem['CutName']"
+                label="CutName"
+              ></v-text-field>
 
-          <v-spacer></v-spacer>
-          <v-dialog v-model="dialog" max-width="500">
-            <v-card>
-              <v-card-title>
-                <v-spacer />
-                <span class="title">{{ formTitle }}</span>
-                <v-spacer />
-              </v-card-title>
-              <v-card-text>
-                <v-text-field
-                  v-model="editedItem['CutName']"
-                  label="CutName"
-                ></v-text-field>
+              <v-select
+                v-model="editedItem['TimeZone']"
+                :items="cutIds"
+                label="TimeZone"
+              ></v-select>
+              <v-text-field
+                v-model="editedItem['TimeAtCutCenter']"
+                label="TimeAtCutCenter"
+              ></v-text-field>
+            </v-card-text>
 
-                <v-select
-                  v-model="editedItem['TimeZone']"
-                  :items="cutIds"
-                  label="TimeZone"
-                ></v-select>
-                <v-text-field
-                  v-model="editedItem['TimeAtCutCenter']"
-                  label="TimeAtCutCenter"
-                ></v-text-field>
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="save(editedItem)"
-                  >Save</v-btn
-                >
-                <v-spacer />
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-toolbar>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="save(editedItem)"
+                >Save</v-btn
+              >
+              <v-spacer />
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </template>
+      <!-- eslint-disable-next-line vue/valid-v-slot-->
       <template v-slot:item.actions="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>

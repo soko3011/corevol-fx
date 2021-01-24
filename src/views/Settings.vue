@@ -1,75 +1,82 @@
 <template>
-  <v-container fluid class="overallContainer">
-    <div>
-      <div class="d-flex flex-row mb-5 flex-nowrap">
-        <v-toolbar color="#126496" min-width="300" collapse>
-          <v-spacer></v-spacer>
-          <div class="d-flex flex-column">
-            <h4
-              class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+  <div>
+    <div class="d-flex flex-row mb-5 flex-nowrap">
+      <v-toolbar color="#126496" min-width="300" collapse>
+        <v-spacer></v-spacer>
+        <div class="d-flex flex-column">
+          <h4
+            class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+          >
+            Corevolfx
+            <v-icon small color="green lighten-3" class="mb-4"
+              >mdi-dots-hexagon</v-icon
             >
-              Corevolfx
-              <v-icon small color="green lighten-3" class="mb-4"
-                >mdi-dots-hexagon</v-icon
-              >
-            </h4>
-            <h6
-              class="font-weight-light text-center text-uppercase green--text text--lighten-3"
-              align="center"
-              justify="center"
-            >
-              settings
-            </h6>
-          </div>
-          <v-spacer></v-spacer>
-        </v-toolbar>
-      </div>
-      <div class="d-flex flex-row flex-nowrap align-start justify-start">
-        <v-card
-          min-width="225"
-          :height="window.height"
-          class="mr-3 d-flex flex-column"
-        >
-          <v-list dense>
-            <v-subheader>COREVOLFX OPTIONS</v-subheader>
-            <v-list-item
-              @click="ChangeSettings(item)"
-              v-for="item in this.settingHeaders"
-              :key="item"
-              ripple
-            >
-              <v-list-item-action>
-                <v-icon color="green darken-3">mdi-dots-hexagon</v-icon>
-              </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title>{{ item }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-card>
-
-        <div v-bind:style="zoomLevel" class="divCol">
-          <transition name="slide">
-            <DviSetup v-if="settingSelection === 'Dvi Settings'" />
-          </transition>
-          <transition name="slide">
-            <CrossSetup v-if="settingSelection === 'Cross Settings'" />
-          </transition>
-          <transition name="slide">
-            <CcySetup v-if="settingSelection === 'Ccy Settings'" />
-          </transition>
-          <transition name="slide">
-            <ExpiryCutSettings
-              v-if="settingSelection === 'Expiry Cut Settings'"
-            />
-          </transition>
-          <transition name="slide">
-            <UserSettings v-if="settingSelection === 'User Settings'" />
-          </transition>
+          </h4>
+          <h6
+            class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+            align="center"
+            justify="center"
+          >
+            settings
+          </h6>
         </div>
+        <v-spacer></v-spacer>
+      </v-toolbar>
+    </div>
+    <div class="d-flex flex-row">
+      <v-card
+        flat
+        class="d-flex flex-column mr-3 settingsContainer"
+        min-width="225"
+      >
+        <v-list dense>
+          <v-subheader>COREVOLFX OPTIONS</v-subheader>
+          <v-list-item
+            @click="ChangeSettings(item)"
+            v-for="item in this.settingHeaders"
+            :key="item"
+            ripple
+          >
+            <v-list-item-action>
+              <v-icon color="green darken-3">mdi-dots-hexagon</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>{{ item }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+
+      <div>
+        <transition name="slide">
+          <DviSetup
+            v-if="settingSelection === 'Dvi Settings'"
+            class="settingsContainer"
+          />
+        </transition>
+        <transition name="slide">
+          <CrossSetup
+            v-if="settingSelection === 'Cross Settings'"
+            class="settingsContainer"
+          />
+        </transition>
+        <transition name="slide">
+          <CcySetup
+            v-if="settingSelection === 'Ccy Settings'"
+            class="settingsContainer"
+          />
+        </transition>
+        <transition name="slide">
+          <ExpiryCutSettings
+            v-if="settingSelection === 'Expiry Cut Settings'"
+          />
+        </transition>
+        <transition name="slide">
+          <UserSettings v-if="settingSelection === 'User Settings'" />
+        </transition>
       </div>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -140,6 +147,11 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
+
+      document.documentElement.style.setProperty(
+        "--dviCol-height",
+        `${this.window.height - 90}px`
+      );
     },
   },
 };
@@ -148,18 +160,35 @@ export default {
 <style lang="scss">
 $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
+$dviColHeight: var(--dviCol-height);
 
-.overallContainer {
-  display: flex;
-  overflow: scroll;
+.settingsContainer {
+  overflow-x: auto;
+  overflow-y: auto;
   padding-left: 0px;
   padding-right: 0px;
-  height: $mainHeight;
-  width: $mainWidth;
+  height: $dviColHeight;
+  display: flex;
 }
 
-.overallContainer .dviCol {
+.settingsContainer::-webkit-scrollbar {
+  width: 6px; /* width of the entire scrollbar */
+  height: 6px;
+}
+
+.settingsContainer::-webkit-scrollbar-track {
+  background: #eceff1; /* color of the tracking area */
+}
+
+.settingsContainer::-webkit-scrollbar-thumb {
+  background-color: #385f73; /* color of the scroll thumb */
+  border-radius: 20px; /* roundness of the scroll thumb */
+  border: 2px solid #eceff1; /* creates padding around scroll thumb */
+}
+
+.dviCol {
   display: flex;
-  overflow-y: scroll;
+  overflow-y: auto;
+  height: $dviColHeight;
 }
 </style>

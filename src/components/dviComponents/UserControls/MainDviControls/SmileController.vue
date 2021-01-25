@@ -11,7 +11,7 @@
               ></v-btn
             >
           </v-card-title>
-          <div class="d-flex flex-nowrap justify-start textFields">
+          <div class="d-flex flex-nowrap justify-start textFieldsSmile">
             <v-text-field
               dense
               label="Expiry1"
@@ -42,7 +42,7 @@
               :rules="[required('Expiry')]"
             ></v-text-field>
           </div>
-          <div class="d-flex flex-nowrap justify-start textFields">
+          <div class="d-flex flex-nowrap justify-start textFieldsSmile">
             <v-text-field
               dense
               color="blue lighten-3"
@@ -73,7 +73,7 @@
               :rules="[required('RR'), anyNumber()]"
             ></v-text-field>
           </div>
-          <div class="d-flex flex-nowrap justify-start textFields">
+          <div class="d-flex flex-nowrap justify-start textFieldsSmile">
             <v-text-field
               dense
               color="blue lighten-3"
@@ -114,7 +114,7 @@
               ></v-btn
             ></v-card-title
           >
-          <div class="d-flex flex-nowrap justify-start textFields">
+          <div class="d-flex flex-nowrap justify-start textFieldsSmile">
             <v-text-field
               dense
               label="WeightBarrier"
@@ -223,7 +223,8 @@ export default {
 </script>
 
 <style>
-/* div.textFields {
+div.textFieldsSmile {
   width: 230px;
-} */
+  height: 50px;
+}
 </style>

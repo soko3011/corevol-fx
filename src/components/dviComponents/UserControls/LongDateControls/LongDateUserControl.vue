@@ -3,12 +3,6 @@
     <v-card color="#385F73" class="mx-2" min-width="770" v-if="hasData">
       <v-container>
         <div class="d-flex flex-nowrap justify-space-between">
-          <v-spacer />
-          <v-btn @click="$emit('toggle')" color="green lighten-3" dark icon>
-            <v-icon>mdi-repeat</v-icon>
-          </v-btn>
-        </div>
-        <div class="d-flex flex-nowrap justify-space-between">
           <LongDateController
             :spreads="spreads"
             v-on:dataSent="alertUserDviChange()"

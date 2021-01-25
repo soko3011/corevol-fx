@@ -251,20 +251,20 @@ export default {
         "3W",
         "4W",
         "5W",
-        "6W"
-      ]
+        "6W",
+      ],
     };
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.userWgtRanges
+      apidata: (state) => state.dvi.userWgtRanges,
     }),
     activeRangeListNames() {
-      return this.apidata.map(x => x.RangeName);
+      return this.apidata.map((x) => x.RangeName);
     },
     currentRange() {
       return this.apidata.filter(
-        x => (x.RangeName = this.rangeName.toUpperCase())
+        (x) => (x.RangeName = this.rangeName.toUpperCase())
       )[0];
     },
     datesToggle() {
@@ -288,8 +288,8 @@ export default {
           EndDate: this.endDate,
           KeepExistingWgt: this.keepExistingWgt.toString(),
           DayWgt: this.dayWgt,
-          Action: this.action
-        }
+          Action: this.action,
+        },
       };
     },
     isNewRange() {
@@ -304,7 +304,7 @@ export default {
       tomorrow.setDate(today.getDate() + 1);
 
       return tomorrow.toISOString().substr(0, 10);
-    }
+    },
   },
   methods: {
     dev() {
@@ -341,7 +341,7 @@ export default {
       ) {
         this.$store.dispatch("setSnackbar", {
           text: `${this.rangeName} is already in use. Select another RangeName.`,
-          centered: true
+          centered: true,
         });
         return false;
       }
@@ -354,7 +354,7 @@ export default {
         hasDayWgt: this.dayWgt !== "",
         hasKeepExisting: this.keepExistingWgt !== "",
         hasStart: this.startDate !== "",
-        hadEnd: this.endDate !== ""
+        hadEnd: this.endDate !== "",
       };
 
       return Object.values(validate).every(Boolean);
@@ -373,7 +373,7 @@ export default {
       if (!this.isDatesOrdered()) {
         this.$store.dispatch("setSnackbar", {
           text: `END DATE MUST BE AFTER START DATE`,
-          centered: true
+          centered: true,
         });
         return;
       }
@@ -381,7 +381,7 @@ export default {
       if (!this.isValidated()) {
         this.$store.dispatch("setSnackbar", {
           text: `Check inputs`,
-          centered: true
+          centered: true,
         });
         return;
       }
@@ -404,7 +404,7 @@ export default {
 
       this.$store.dispatch("setSnackbar", {
         text: `${this.rangeName} has been removed`,
-        centered: true
+        centered: true,
       });
       this.resetForm();
     },
@@ -418,10 +418,15 @@ export default {
     clearExistingRange() {
       this.dayWgt = "CLEARED";
       this.sendRangeToServer();
-    }
+    },
   },
-  watch: {}
+  watch: {},
 };
 </script>
 
-<style></style>
+<style>
+div.userRange {
+  width: 350px;
+  height: 45px;
+}
+</style>

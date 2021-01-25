@@ -339,19 +339,19 @@
               v-if="userControlSelection === 'atm'"
               class="d-flex align-center justify-start"
             >
-              <DviUserControl v-on:toggle="dayWgtRangesSwitch = true" />
+              <DviUserControl />
             </div>
             <div
               v-if="userControlSelection === 'customRanges'"
               class="d-flex align-center justify-start"
             >
-              <UserRangeControl v-on:toggle="userControlSelection = 'atm'" />
+              <UserRangeControl />
             </div>
             <div
               v-if="userControlSelection === 'longDates'"
               class="d-flex align-center justify-start"
             >
-              <LongDateUserControl v-on:toggle="userControlSelection = 'atm'" />
+              <LongDateUserControl />
             </div>
             <div
               v-if="userControlSelection === 'historicalVols'"

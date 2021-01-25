@@ -14,7 +14,7 @@
             ></v-btn
           ></v-card-title
         >
-        <div class="d-flex flex-nowrap justify-start textFields">
+        <div class="d-flex flex-nowrap justify-start textFieldAtm">
           <v-text-field
             dense
             label="Expiry1"
@@ -45,7 +45,7 @@
             :rules="[required('Expiry')]"
           ></v-text-field>
         </div>
-        <div class="d-flex flex-nowrap justify-start textFields">
+        <div class="d-flex flex-nowrap justify-start textFieldAtm">
           <v-text-field
             dense
             color="blue lighten-3"
@@ -76,7 +76,7 @@
             :rules="[required('Vol'), positiveNumber()]"
           ></v-text-field>
         </div>
-        <div class="d-flex flex-nowrap justify-start textFields">
+        <div class="d-flex flex-nowrap justify-start textFieldAtm">
           <v-text-field
             dense
             color="blue lighten-3"
@@ -113,13 +113,13 @@ export default {
       vol1: "",
       vol2: "",
       dk: "",
-      ...validations
+      ...validations,
     };
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.volInput
-    })
+      apidata: (state) => state.dvi.volInput,
+    }),
   },
   methods: {
     refreshFromApi() {
@@ -140,25 +140,26 @@ export default {
         Mat2: this.expiry2,
         Vol1: this.vol1,
         Vol2: this.vol2,
-        Dk: this.dk
+        Dk: this.dk,
       };
 
       this.$store.dispatch("returnDviAfterVolUpdate", iData);
     },
     toggleSmileController() {
       this.$emit("setSmileToggler");
-    }
+    },
   },
   watch: {
     apidata() {
       this.refreshFromApi();
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
-/* div.textFields {
+div.textFieldAtm {
   width: 230px;
-} */
+  height: 50px;
+}
 </style>

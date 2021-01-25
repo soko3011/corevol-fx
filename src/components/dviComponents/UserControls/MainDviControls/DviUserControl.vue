@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card color="#385F73" dark class="mx-2" min-width="770">
+    <v-card color="#385F73" dark class="mx-2" min-width="770" min-height="265">
       <v-container>
         <div class="d-flex flex-nowrap justify-space-between">
           <AtmController
@@ -62,9 +62,4 @@ export default {
 };
 </script>
 
-<style>
-div.textFields {
-  width: 230px;
-  height: 50px;
-}
-</style>
+

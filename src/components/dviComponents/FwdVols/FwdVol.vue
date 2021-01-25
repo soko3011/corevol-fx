@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card color="#385F73" dark min-width="770">
+    <v-card color="#385F73" dark min-width="770" min-height="265">
       <v-card-title class="headline green--text text--lighten-3"
         >Forward Vol</v-card-title
       >

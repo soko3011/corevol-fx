@@ -54,7 +54,11 @@
       <transition name="fade">
         <div class="d-flex flex-row flex-nowrap">
           <div class="pricingContainer d-flex flex-column mr-1">
-            <v-card v-if="showSideControl" width="250">
+            <v-card
+              v-if="showSideControl"
+              width="250"
+              :min-height="minSideBarHeight"
+            >
               <v-subheader class="mt-3"
                 >ACTIVE PRICERS <v-spacer></v-spacer>
                 <v-btn
@@ -190,7 +194,6 @@ export default {
   data() {
     return {
       loading: false,
-      componentKey: 0,
       toggleSimulation: false,
       modalToggle: false,
       viewName: this.$route.params.viewName,
@@ -246,6 +249,9 @@ export default {
     },
     strategyList() {
       return new stratHelper().strats().map((x) => x.name);
+    },
+    minSideBarHeight() {
+      return this.window.height - 150;
     },
   },
   methods: {

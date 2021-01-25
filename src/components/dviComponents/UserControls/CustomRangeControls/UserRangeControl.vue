@@ -3,12 +3,6 @@
     <v-card color="#385F73" class="mx-2" min-width="770">
       <v-container>
         <div class="d-flex flex-nowrap justify-space-between">
-          <v-spacer />
-          <v-btn @click="$emit('toggle')" color="green lighten-3" dark icon>
-            <v-icon>mdi-repeat</v-icon>
-          </v-btn>
-        </div>
-        <div class="d-flex flex-nowrap justify-space-between">
           <RangeInput v-on:dataSent="alertUserDviChange()" />
         </div>
         <v-progress-linear
@@ -57,9 +51,4 @@ export default {
 };
 </script>
 
-<style>
-div.userRange {
-  width: 350px;
-  height: 50px;
-}
-</style>
+

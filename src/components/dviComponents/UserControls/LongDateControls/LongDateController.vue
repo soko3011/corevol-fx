@@ -123,5 +123,6 @@ export default {
 <style>
 div.textFieldsLong {
   width: 460px;
+  height: 50px;
 }
 </style>

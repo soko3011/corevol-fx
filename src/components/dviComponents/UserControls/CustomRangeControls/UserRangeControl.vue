@@ -1,6 +1,6 @@
 <template>
-  <div v-bind:style="zoomLevel">
-    <v-card color="#385F73" class="mx-2">
+  <div>
+    <v-card color="#385F73" class="mx-2" min-width="770">
       <v-container>
         <div class="d-flex flex-nowrap justify-space-between">
           <v-spacer />
@@ -28,22 +28,22 @@ import RangeInput from "@/components/dviComponents/UserControls/CustomRangeContr
 export default {
   name: "dviUserControl",
   components: {
-    RangeInput
+    RangeInput,
   },
   created() {},
 
   data() {
     return {
-      progress: 0
+      progress: 0,
     };
   },
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "70%";
       return {
-        zoom: level
+        zoom: level,
       };
-    }
+    },
   },
   methods: {
     alertUserDviChange() {
@@ -51,9 +51,9 @@ export default {
       setTimeout(() => {
         this.progress = 0;
       }, 650);
-    }
+    },
   },
-  watch: {}
+  watch: {},
 };
 </script>
 

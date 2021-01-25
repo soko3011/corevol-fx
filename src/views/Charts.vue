@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid class="overallContainer">
+    <v-container fluid class="chartContainer">
       <iframe
         style="position: relative; height: 100%; width: 100%"
         src="https://ssltvc.forexprostools.com/?pair_ID=8839&height=5000&width=5000&interval=300&plotStyle=candles&domain_ID=1&lang_ID=1&timezone_ID=11"
@@ -50,7 +50,7 @@ export default {
 $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
 
-.overallContainer {
+.chartContainer {
   display: flex;
   overflow: scroll;
   padding-left: 0px;

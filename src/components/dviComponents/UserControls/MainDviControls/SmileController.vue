@@ -2,7 +2,7 @@
   <div>
     <v-card flat color="#385F73" dark>
       <div class="d-flex flex-nowrap justify-start">
-        <div class="firstCol" v-if="showControllerToggle">
+        <div class="firstCol">
           <v-card-title class="subtitle-1 green--text text--lighten-3"
             >SMILE CONTROLS
             <v-btn icon @click="rrModelToggle = !rrModelToggle">
@@ -105,7 +105,7 @@
             ></v-text-field>
           </div>
         </div>
-        <div class="secondCol" v-if="rrModelToggle">
+        <div class="secondCol">
           <v-card-title class="subtitle-1 green--text text--lighten-3"
             >RR MODEL
             <v-btn icon @click="rrModelToggle = !rrModelToggle">
@@ -171,16 +171,16 @@ export default {
       rrCorr: "",
       showControllerToggle: true,
       rrModelToggle: false,
-      ...validations
+      ...validations,
     };
   },
   props: {
-    smileControllerToggle: { type: Boolean }
+    smileControllerToggle: { type: Boolean },
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.smileInput
-    })
+      apidata: (state) => state.dvi.smileInput,
+    }),
   },
   methods: {
     refreshFromApi() {
@@ -205,10 +205,10 @@ export default {
         Rrcorr: this.rrCorr,
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
       };
       this.$store.dispatch("returnDviAfterSmileUpdate", iData);
-    }
+    },
   },
   watch: {
     apidata() {
@@ -217,8 +217,8 @@ export default {
     smileControllerToggle() {
       this.showControllerToggle = this.smileControllerToggle;
       this.rrModelToggle = this.smileControllerToggle;
-    }
-  }
+    },
+  },
 };
 </script>
 

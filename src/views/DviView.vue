@@ -851,7 +851,7 @@ $dviColHeight: var(--dviCol-height);
 
 .overallContainer::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: #f5f5f5;
+  background-color: #eceff1;
   border-radius: 10px;
 }
 
@@ -864,6 +864,7 @@ $dviColHeight: var(--dviCol-height);
 .overallContainer::-webkit-scrollbar-thumb {
   background-color: #aaa;
   border-radius: 10px;
+
   background-image: -webkit-linear-gradient(
     90deg,
     rgba(0, 0, 0, 0.2) 25%,

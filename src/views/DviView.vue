@@ -1,6 +1,5 @@
 <template>
   <div class="overallContainer ml-1">
-    <RightNavDrawer v-bind:style="zoomLevel" />
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
         <v-toolbar color="#385F73" min-width="300" collapse>
@@ -191,7 +190,7 @@
                     <v-list-item-title>IPV VOLS</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
-                <v-list-item @click="toggleRightNav">
+                <v-list-item @click="userControlSelection = 'fwdVols'">
                   <v-list-item-action>
                     <v-btn ripple small icon>
                       <v-icon color="#385F73">mdi-square-root</v-icon>
@@ -367,6 +366,12 @@
               <IpvSurf v-if="ipvHasData" />
               <div v-else>REFRESH IPV VOL DATA</div>
             </div>
+            <div
+              v-if="userControlSelection === 'fwdVols'"
+              class="d-flex align-center justify-start"
+            >
+              <FwdVol />
+            </div>
           </div>
           <div class="d-flex flex-column dviCol mr-1">
             <DviTable />
@@ -396,10 +401,10 @@ import TreeView from "@/components/common/TreeView.vue";
 import ModalNoButton from "@/components/common/ModalNoButton.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import IpvSurf from "@/components/dviComponents/IpvSurface.vue";
-import RightNavDrawer from "@/components/dviComponents/FwdVols/RightNavDrawer.vue";
 import moment from "moment";
 import SettingsApi from "@/apis/SettingsApi.js";
 import HistoricalVols from "@/components/dviComponents/HistoricalVols/HistoricalVols.vue";
+import FwdVol from "@/components/dviComponents/FwdVols/FwdVol.vue";
 
 export default {
   name: "DviView",
@@ -410,7 +415,7 @@ export default {
     TreeView,
     ModalNoButton,
     IpvSurf,
-    RightNavDrawer,
+    FwdVol,
     DviUserControl,
     UserRangeControl,
     LongDateUserControl,

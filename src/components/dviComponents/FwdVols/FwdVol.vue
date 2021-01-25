@@ -1,84 +1,83 @@
 <template>
   <div>
-    <v-card color="#385F73" dark>
-      <v-card-title class="headline">Forward Vols</v-card-title>
+    <v-card color="#385F73" dark min-width="770">
+      <v-card-title class="headline green--text text--lighten-3"
+        >Forward Vol</v-card-title
+      >
 
       <v-card-subtitle
         >Scroll over any two dates to get the fwd vol</v-card-subtitle
       >
       <div class="mx-2">
-        <v-row>
-          <v-col cols="12" sm="6" md="4">
-            <v-text-field
-              dense
-              label="CalDay1"
-              :value="fwdVolInputs.cal1"
-              outlined
-              @change="userCal1"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <v-text-field
-              dense
-              label="Mat1"
-              :value="fwdVolInputs.mat1"
-              outlined
-              style="font-size: 14px;"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <v-text-field
-              dense
-              label="Vol1"
-              :value="fwdVolInputs.vol1"
-              outlined
-              @change="userVol1"
-            ></v-text-field>
-          </v-col>
-        </v-row>
+        <div class="d-flex flex-nowrap justify-start textFieldsFwd">
+          <v-text-field
+            class="mr-2"
+            dense
+            label="CalDay1"
+            :value="fwdVolInputs.cal1"
+            outlined
+            @change="userCal1"
+          ></v-text-field>
+
+          <v-text-field
+            class="mr-2"
+            dense
+            label="Mat1"
+            :value="fwdVolInputs.mat1"
+            outlined
+            style="font-size: 14px"
+          ></v-text-field>
+
+          <v-text-field
+            class="mr-2"
+            dense
+            label="Vol1"
+            :value="fwdVolInputs.vol1"
+            outlined
+            @change="userVol1"
+          ></v-text-field>
+        </div>
       </div>
       <div class="mx-2">
-        <v-row>
-          <v-col cols="12" sm="6" md="4">
-            <v-text-field
-              dense
-              label="Calday2"
-              :value="fwdVolInputs.cal2"
-              outlined
-              @change="userCal2"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <v-text-field
-              dense
-              label="Mat2"
-              :value="fwdVolInputs.mat2"
-              outlined
-              style="font-size: 14px;"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="6" md="4">
-            <v-text-field
-              dense
-              label="Vol2"
-              :value="fwdVolInputs.vol2"
-              outlined
-              @change="userVol2"
-            ></v-text-field>
-          </v-col>
-        </v-row>
+        <div class="d-flex flex-nowrap justify-start textFieldsFwd">
+          <v-text-field
+            class="mr-2"
+            dense
+            label="Calday2"
+            :value="fwdVolInputs.cal2"
+            outlined
+            @change="userCal2"
+          ></v-text-field>
+
+          <v-text-field
+            class="mr-2"
+            dense
+            label="Mat2"
+            :value="fwdVolInputs.mat2"
+            outlined
+            style="font-size: 14px"
+          ></v-text-field>
+
+          <v-text-field
+            class="mr-2"
+            dense
+            label="Vol2"
+            :value="fwdVolInputs.vol2"
+            outlined
+            @change="userVol2"
+          ></v-text-field>
+        </div>
       </div>
       <div class="mx-2">
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
-              dense
-              label="Fwd Vol"
-              :value="fwdVolResult"
-              outlined
-            ></v-text-field>
-          </v-col>
-        </v-row>
+        <div class="d-flex flex-nowrap justify-start textFieldsFwd">
+          <v-text-field
+            class="mr-2"
+            dense
+            label="Fwd Vol"
+            :value="fwdVolResult"
+            outlined
+          ></v-text-field>
+        </div>
       </div>
     </v-card>
   </div>
@@ -126,17 +125,22 @@ export default {
       this.fwdVolInputs.vol2 = this.fwdVolInputs.volArr[val - 1];
       this.fwdVolInputs.mat2 = this.fwdVolInputs.dateArr[val - 1];
       this.calcFwdVol();
-    }
+    },
   },
   computed: {
     ...mapState({
-      fwdVolInputs: state => state.fwdVolInputs
+      fwdVolInputs: (state) => state.fwdVolInputs,
     }),
     fwdVolResult() {
       return `${this.fwdVolInputs.fwdD} day vol in ${this.fwdVolInputs.cal1} days time is ${this.fwdVolInputs.fwdV}`;
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style></style>
+<style>
+div.textFieldsFwd {
+  width: 500px;
+  height: 50px;
+}
+</style>

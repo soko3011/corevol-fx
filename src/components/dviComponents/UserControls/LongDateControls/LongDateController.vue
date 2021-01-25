@@ -88,13 +88,6 @@ export default {
     ...mapState({
       apidata: (state) => state.dvi.volInput,
     }),
-    hasData() {
-      if (this.spreads.length > 0) {
-        this.$emit("hasData");
-        return true;
-      }
-      return false;
-    },
   },
   methods: {
     dev() {},

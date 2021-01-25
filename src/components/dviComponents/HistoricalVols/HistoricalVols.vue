@@ -5,11 +5,10 @@
     >
       HISTORICAL VOLS
     </div>
-    <v-card class="mx-auto" width="770">
+    <v-card class="mx-2" min-width="770">
       <v-data-table
         :headers="headers"
         :items="histVols"
-        class="elevation-0 custom-transform-class"
         dense
         disable-pagination
         hide-default-footer
@@ -30,7 +29,7 @@ export default {
     return {
       histVols: [],
       headers: [],
-      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`
+      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`,
     };
   },
   methods: {
@@ -55,14 +54,15 @@ export default {
             text: key,
             align: "start",
             sortable: false,
-            value: key
+            value: key,
+            class: "blue-grey darken-2 white--text font-weight-medium",
           });
         }
       }
       return headers;
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style></style>
+

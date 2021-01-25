@@ -2,7 +2,7 @@
   <div v-if="apiDataReturned">
     <v-card flat>
       <v-toolbar dense class="mb-2" dark color="#385F73">
-        <v-toolbar-title>Cross Settings</v-toolbar-title>
+        <v-toolbar-title>CROSS SETTINGS</v-toolbar-title>
       </v-toolbar>
       <v-data-table
         :headers="headers"

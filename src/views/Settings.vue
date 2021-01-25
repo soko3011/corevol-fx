@@ -47,24 +47,18 @@
         </v-list>
       </v-card>
 
-      <div>
+      <div class="settingsContainer">
         <transition name="slide">
           <DviSetup
             v-if="settingSelection === 'Dvi Settings'"
-            class="settingsContainer"
+            v-bind:style="zoomLevel"
           />
         </transition>
         <transition name="slide">
-          <CrossSetup
-            v-if="settingSelection === 'Cross Settings'"
-            class="settingsContainer"
-          />
+          <CrossSetup v-if="settingSelection === 'Cross Settings'" />
         </transition>
         <transition name="slide">
-          <CcySetup
-            v-if="settingSelection === 'Ccy Settings'"
-            class="settingsContainer"
-          />
+          <CcySetup v-if="settingSelection === 'Ccy Settings'" />
         </transition>
         <transition name="slide">
           <ExpiryCutSettings
@@ -136,7 +130,7 @@ export default {
     },
     handleResize() {
       this.window.width = window.innerWidth;
-      this.window.height = window.innerHeight - 65;
+      this.window.height = window.innerHeight - 150;
 
       document.documentElement.style.setProperty(
         "--main-width",
@@ -147,11 +141,6 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
-
-      document.documentElement.style.setProperty(
-        "--dviCol-height",
-        `${this.window.height - 90}px`
-      );
     },
   },
 };
@@ -160,35 +149,40 @@ export default {
 <style lang="scss">
 $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
-$dviColHeight: var(--dviCol-height);
 
 .settingsContainer {
   overflow-x: auto;
   overflow-y: auto;
   padding-left: 0px;
   padding-right: 0px;
-  height: $dviColHeight;
+  height: $mainHeight;
   display: flex;
-}
-
-.settingsContainer::-webkit-scrollbar {
-  width: 6px; /* width of the entire scrollbar */
-  height: 6px;
 }
 
 .settingsContainer::-webkit-scrollbar-track {
-  background: #eceff1; /* color of the tracking area */
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #f5f5f5;
+  border-radius: 10px;
+}
+
+.settingsContainer::-webkit-scrollbar {
+  width: 6px;
+  height: 0px;
+  background-color: #f5f5f5;
 }
 
 .settingsContainer::-webkit-scrollbar-thumb {
-  background-color: #385f73; /* color of the scroll thumb */
-  border-radius: 20px; /* roundness of the scroll thumb */
-  border: 2px solid #eceff1; /* creates padding around scroll thumb */
-}
-
-.dviCol {
-  display: flex;
-  overflow-y: auto;
-  height: $dviColHeight;
+  background-color: #3366ff;
+  border-radius: 10px;
+  background-image: -webkit-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.5) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.5) 75%,
+    transparent 75%,
+    transparent
+  );
 }
 </style>

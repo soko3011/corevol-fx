@@ -3,12 +3,7 @@
     <RightNavDrawer v-bind:style="zoomLevel" />
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
-        <v-toolbar
-          color="#385F73"
-          min-width="300"
-          collapse
-          @mouseover="showSideControl = true"
-        >
+        <v-toolbar color="#385F73" min-width="300" collapse>
           <v-btn icon>
             <v-icon
               @click="showSideControl = !showSideControl"
@@ -531,23 +526,23 @@ export default {
       this.setContainerDimensions();
     },
     handleResize() {
-      this.window.width = window.innerWidth - 100;
-      this.window.height = window.innerHeight - 45;
+      this.window.width = window.innerWidth;
+      this.window.height = window.innerHeight;
       this.setContainerDimensions();
     },
     setContainerDimensions() {
       document.documentElement.style.setProperty(
         "--main-width",
-        `${this.window.width}px`
+        `${this.window.width - 100}px`
       );
 
       document.documentElement.style.setProperty(
         "--main-height",
-        `${this.window.height}px`
+        `${this.window.height - 60}px`
       );
       document.documentElement.style.setProperty(
         "--dviCol-height",
-        `${this.window.height - 115}px`
+        `${this.window.height - 160}px`
       );
     },
     toggleRightNav() {
@@ -815,15 +810,69 @@ $dviColHeight: var(--dviCol-height);
 
 .overallContainer {
   display: flex;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding-left: 0px;
   padding-right: 0px;
   height: $mainHeight;
   width: $mainWidth;
 }
 .overallContainer .dviCol {
-  overflow-y: scroll;
+  overflow-y: auto;
   display: flex;
   height: $dviColHeight;
+}
+
+.dviCol::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #f5f5f5;
+  border-radius: 10px;
+}
+
+.dviCol::-webkit-scrollbar {
+  width: 6px;
+  background-color: #f5f5f5;
+}
+
+.dviCol::-webkit-scrollbar-thumb {
+  background-color: #3366ff;
+  border-radius: 10px;
+  background-image: -webkit-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.5) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.5) 75%,
+    transparent 75%,
+    transparent
+  );
+}
+
+.overallContainer::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #f5f5f5;
+  border-radius: 10px;
+}
+
+.overallContainer::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background-color: #f5f5f5;
+}
+
+.overallContainer::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 10px;
+  background-image: -webkit-linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.2) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.2) 75%,
+    transparent 75%,
+    transparent
+  );
 }
 </style>

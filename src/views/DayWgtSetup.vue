@@ -32,7 +32,7 @@
       </v-toolbar>
     </div>
     <div class="d-flex flex-row flex-nowrap">
-      <v-card class="d-flex flex-column dviCol mr-3" min-width="225">
+      <v-card class="d-flex flex-column dwCol mr-3" min-width="225">
         <v-list dense>
           <v-list-item-group color="blue">
             <v-subheader>SELECT</v-subheader>
@@ -92,7 +92,7 @@
           </v-list-item-group>
         </v-list>
       </v-card>
-      <div class="settingsContainer">
+      <div class="dwContainer">
         <div ref="selectedEventsByCcyTable"></div>
         <div ref="productionListTable"></div>
       </div>
@@ -263,7 +263,7 @@ export default {
         `${this.window.height}px`
       );
       document.documentElement.style.setProperty(
-        "--dviCol-height",
+        "--dwCol-height",
         `${this.window.height - 70}px`
       );
     },
@@ -467,15 +467,15 @@ export default {
 <style lang="scss">
 $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
-$dviColHeight: var(--dviCol-height);
+$dviColHeight: var(--dwCol-height);
 
-.dviCol {
+.dwCol {
   overflow-y: auto;
   height: $dviColHeight;
   display: flex;
 }
 
-.settingsContainer {
+.dwContainer {
   overflow-x: auto;
   overflow-y: auto;
   padding-left: 0px;
@@ -484,16 +484,16 @@ $dviColHeight: var(--dviCol-height);
   display: flex;
 }
 
-.settingsContainer::-webkit-scrollbar {
+.dwContainer::-webkit-scrollbar {
   width: 6px; /* width of the entire scrollbar */
   height: 6px;
 }
 
-.settingsContainer::-webkit-scrollbar-track {
+.dwContainer::-webkit-scrollbar-track {
   background: #eceff1; /* color of the tracking area */
 }
 
-.settingsContainer::-webkit-scrollbar-thumb {
+.dwContainer::-webkit-scrollbar-thumb {
   background-color: #385f73; /* color of the scroll thumb */
   border-radius: 20px; /* roundness of the scroll thumb */
   border: 2px solid #eceff1; /* creates padding around scroll thumb */

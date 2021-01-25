@@ -1,13 +1,8 @@
 <template>
-  <div class="overallContainer ml-5">
+  <div class="ml-5">
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
-        <v-toolbar
-          color="#385F73"
-          min-width="300"
-          collapse
-          v-bind:style="zoomLevel"
-        >
+        <v-toolbar color="#385F73" min-width="300" collapse>
           <v-btn icon>
             <v-icon
               @click="showSideControl = !showSideControl"
@@ -56,115 +51,117 @@
           rounded
         ></v-progress-linear>
       </div>
-      <div class="d-flex flex-row flex-nowrap">
-        <div class="d-flex flex-column dviCol mr-1">
-          <v-card
-            v-if="showSideControl"
-            min-width="225"
-            :height="window.height"
-          >
-            <v-subheader class="mt-3"
-              >ACTIVE PRICERS <v-spacer></v-spacer>
-              <v-btn @click="clearAllPricers" icon x-small color="blue darken-2"
-                ><v-icon>mdi-delete-empty</v-icon></v-btn
-              ></v-subheader
-            >
-            <v-list :height="pricerListHeight" dense class="scroll">
-              <v-list-item
-                @click="reloadPricer(item)"
-                v-for="item in activePricers"
-                :key="item"
-                ripple
+      <transition name="fade">
+        <div class="d-flex flex-row flex-nowrap">
+          <div class="pricingContainer d-flex flex-column mr-1">
+            <v-card v-if="showSideControl" width="250">
+              <v-subheader class="mt-3"
+                >ACTIVE PRICERS <v-spacer></v-spacer>
+                <v-btn
+                  @click="clearAllPricers"
+                  icon
+                  x-small
+                  color="blue darken-2"
+                  ><v-icon>mdi-delete-empty</v-icon></v-btn
+                ></v-subheader
               >
-                <v-list-item-action>
-                  <v-icon color="green darken-3">mdi-dots-grid</v-icon>
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title>{{ item }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
+              <v-list :height="pricerListHeight" dense class="scroll">
+                <v-list-item
+                  @click="reloadPricer(item)"
+                  v-for="item in activePricers"
+                  :key="item"
+                  ripple
+                >
+                  <v-list-item-action>
+                    <v-icon color="green darken-3">mdi-dots-grid</v-icon>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>{{ item }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list>
 
-            <v-list dense>
-              <v-subheader>ACTIONS</v-subheader>
-              <v-list-item-group>
-                <v-list-item @click="totalsToggle = !totalsToggle">
-                  <v-list-item-action>
-                    <v-switch dense ripple v-model="totalsToggle"></v-switch>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ totalsCaption }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item @click="toggleSimulation = !toggleSimulation">
-                  <v-list-item-action>
-                    <v-icon color="blue darken-2">mdi-chart-bell-curve</v-icon>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>SIMULATION</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item @click="stratModal = !stratModal">
-                  <v-list-item-action>
-                    <StrategySelector
-                      :inputData="strategyList"
-                      :icon="'mdi-playlist-plus'"
-                      :color="'blue darken-2'"
-                      :large="false"
-                      :dialogControl="stratModal"
-                      v-on:selection="selectStrategy"
-                    />
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>ADD STRATEGY</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item @click="addSheetModal = !addSheetModal">
-                  <v-list-item-action>
-                    <PopUpInput
-                      :icon="'mdi-expand-all'"
-                      :label="'Pricer Name'"
-                      :color="'blue darken-2'"
-                      :title="'corevolFx Pricer'"
-                      :large="false"
-                      :dialogControl="addSheetModal"
-                      v-on:selection="userAddPricer"
-                    />
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>ADD NEW SHEET</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item @click="removeModal = !removeModal">
-                  <v-list-item-action>
-                    <v-icon color="grey darken-1">mdi-delete</v-icon>
-                    <ModalNoButton
-                      :inputData="this.activePricers"
-                      :title="'REMOVE DVI'"
-                      :vmodel="removeModal"
-                      v-on:setvmodel="(data) => (removeModal = data)"
-                      v-on:selection="removeSinglePricer"
-                    />
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>DELETE SINGLE SHEET</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-            <PricerSetupInterface />
-          </v-card>
+              <v-list dense>
+                <v-subheader>ACTIONS</v-subheader>
+                <v-list-item-group>
+                  <v-list-item @click="totalsToggle = !totalsToggle">
+                    <v-list-item-action>
+                      <v-switch dense ripple v-model="totalsToggle"></v-switch>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                      <v-list-item-title>{{ totalsCaption }}</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-list-item @click="toggleSimulation = !toggleSimulation">
+                    <v-list-item-action>
+                      <v-icon color="blue darken-2"
+                        >mdi-chart-bell-curve</v-icon
+                      >
+                    </v-list-item-action>
+                    <v-list-item-content>
+                      <v-list-item-title>SIMULATION</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-list-item @click="stratModal = !stratModal">
+                    <v-list-item-action>
+                      <StrategySelector
+                        :inputData="strategyList"
+                        :icon="'mdi-playlist-plus'"
+                        :color="'blue darken-2'"
+                        :large="false"
+                        :dialogControl="stratModal"
+                        v-on:selection="selectStrategy"
+                      />
+                    </v-list-item-action>
+                    <v-list-item-content>
+                      <v-list-item-title>ADD STRATEGY</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-list-item @click="addSheetModal = !addSheetModal">
+                    <v-list-item-action>
+                      <PopUpInput
+                        :icon="'mdi-expand-all'"
+                        :label="'Pricer Name'"
+                        :color="'blue darken-2'"
+                        :title="'corevolFx Pricer'"
+                        :large="false"
+                        :dialogControl="addSheetModal"
+                        v-on:selection="userAddPricer"
+                      />
+                    </v-list-item-action>
+                    <v-list-item-content>
+                      <v-list-item-title>ADD NEW SHEET</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-list-item @click="removeModal = !removeModal">
+                    <v-list-item-action>
+                      <v-icon color="grey darken-1">mdi-delete</v-icon>
+                      <ModalNoButton
+                        :inputData="this.activePricers"
+                        :title="'REMOVE DVI'"
+                        :vmodel="removeModal"
+                        v-on:setvmodel="(data) => (removeModal = data)"
+                        v-on:selection="removeSinglePricer"
+                      />
+                    </v-list-item-action>
+                    <v-list-item-content>
+                      <v-list-item-title>DELETE SINGLE SHEET</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+              <PricerSetupInterface />
+            </v-card>
+          </div>
+          <div class="d-flex flex-column mr-1">
+            <OptionPricer
+              :pricerName="viewName"
+              :simulationButton="toggleSimulation"
+              @createStrategy="addStrategyView"
+            />
+          </div>
         </div>
-        <div class="d-flex flex-column dviCol mr-1">
-          <OptionPricer
-            :pricerName="viewName"
-            :simulationButton="toggleSimulation"
-            v-bind:style="zoomLevel"
-            :key="componentKey"
-            @createStrategy="addStrategyView"
-          />
-        </div>
-      </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -250,12 +247,6 @@ export default {
     strategyList() {
       return new stratHelper().strats().map((x) => x.name);
     },
-    zoomLevel() {
-      var level = window.innerWidth > 1700 ? "100%" : "100%";
-      return {
-        zoom: level,
-      };
-    },
   },
   methods: {
     dev() {
@@ -266,7 +257,7 @@ export default {
     },
     handleResize() {
       this.window.width = window.innerWidth;
-      this.window.height = window.innerHeight - 65;
+      this.window.height = window.innerHeight;
 
       document.documentElement.style.setProperty(
         "--main-width",
@@ -275,11 +266,7 @@ export default {
 
       document.documentElement.style.setProperty(
         "--main-height",
-        `${this.window.height}px`
-      );
-      document.documentElement.style.setProperty(
-        "--dviCol-height",
-        `${this.window.height - 115}px`
+        `${this.window.height - 150}px`
       );
     },
     async addStrategyView(strat) {
@@ -389,13 +376,6 @@ export default {
         this.$store.dispatch("RefreshCrossList");
       }
     },
-    pricerSetupClosed() {
-      this.componentKey += 1;
-    },
-
-    activePricerLayoutTitle() {
-      this.componentKey += 1;
-    },
   },
 };
 </script>
@@ -403,7 +383,6 @@ export default {
 <style lang="scss">
 $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
-$dviColHeight: var(--dviCol-height);
 
 span {
   cursor: pointer;
@@ -411,17 +390,35 @@ span {
 .scroll {
   overflow-y: auto;
 }
-.overallContainer {
-  display: flex;
-  overflow: scroll;
+.pricingContainer {
+  overflow-x: auto;
+  overflow-y: auto;
   padding-left: 0px;
   padding-right: 0px;
   height: $mainHeight;
-  width: $mainWidth;
-}
-.overallContainer .dviCol {
   display: flex;
-  overflow-y: auto;
-  height: $dviColHeight;
+}
+
+.pricingContainer::-webkit-scrollbar-track {
+  background-color: #eceff1;
+  border-radius: 10px;
+}
+
+.pricingContainer::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  background-color: #eceff1;
+}
+
+.pricingContainer::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.44, rgb(122, 153, 217)),
+    color-stop(0.72, rgb(73, 125, 189)),
+    color-stop(0.86, rgb(28, 58, 148))
+  );
 }
 </style>

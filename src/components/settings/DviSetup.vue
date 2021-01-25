@@ -1,6 +1,6 @@
 <template>
   <div v-if="apiDataReturned">
-    <v-card :max-width="this.window.width" flat>
+    <v-card flat>
       <v-toolbar dense class="mb-2" dark color="#385F73">
         <v-toolbar-title>DVI SETTINGS</v-toolbar-title>
         <v-spacer></v-spacer>
@@ -20,7 +20,6 @@
         :headers="headers"
         :items="data"
         sort-by="Cross"
-        class="elevation-10 custom-transform-class"
         dense
         disable-pagination
         hide-default-footer
@@ -88,11 +87,7 @@
         />
       </v-card>
     </v-dialog>
-    <v-dialog
-      v-model="showDialogAddNewCross"
-      :max-width="mainWindowWidth"
-      overlay-opacity="0.8"
-    >
+    <v-dialog v-model="showDialogAddNewCross" overlay-opacity="0.8">
       <v-card>
         <v-card-title>
           <span class="title">{{ FormTitleAddNewCross }}</span>
@@ -169,10 +164,6 @@ export default {
     dviEdited: {},
     crossEdited: {},
     mirroredCross: "",
-    window: {
-      width: 0,
-      height: 0,
-    },
   }),
 
   computed: {
@@ -181,12 +172,6 @@ export default {
     },
     FormTitleAddNewCross() {
       return `Mirror ${this.mirroredCross}`;
-    },
-    mainWindowHeight() {
-      return window.innerHeight;
-    },
-    mainWindowWidth() {
-      return window.innerWidth - 10;
     },
   },
 
@@ -198,15 +183,9 @@ export default {
 
   created() {
     this.initialize();
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
   },
 
   methods: {
-    handleResize() {
-      this.window.width = window.innerWidth - 325;
-      this.window.height = window.innerHeight - 65;
-    },
     initialize() {
       this.$store.dispatch("refreshCrossList");
       SettingsApi.GetDviSetup()
@@ -387,7 +366,4 @@ export default {
 };
 </script>
 
-<style lang="sass">
-.custom-transform-class
-  text-transform: uppercase
-</style>
+

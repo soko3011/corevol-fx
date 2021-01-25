@@ -1,0 +1,1 @@
+.dwCol,.dwContainer{overflow-y:auto;height:var(--dwCol-height);display:flex}.dwContainer{overflow-x:auto;padding-left:0;padding-right:0}.dwContainer::-webkit-scrollbar{width:6px;height:6px}.dwContainer::-webkit-scrollbar-track{background:#eceff1}.dwContainer::-webkit-scrollbar-thumb{background-color:#385f73;border-radius:20px;border:2px solid #eceff1}

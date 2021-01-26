@@ -2,7 +2,7 @@
   <div>
     <v-card color="#385F73" dark class="mx-2" min-width="770" min-height="265">
       <v-container>
-        <div class="d-flex flex-nowrap justify-space-between">
+        <div class="d-flex flex-nowrap justify-start">
           <AtmController
             v-on:dataSent="alertUserDviChange()"
             v-on:setSmileToggler="smileTogglerFromAtm = !smileTogglerFromAtm"

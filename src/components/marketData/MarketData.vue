@@ -93,7 +93,7 @@ export default {
     marketTableWidth: "",
     selectedCross: "",
     spotIfaces: ["InvestingDotCom", "MongoDB"],
-    swapIfaces: ["EmpireFX", "MongoDB"],
+    swapIfaces: ["EmpireFXPY", "MongoDB"],
     spotIface: "",
     swapIface: "",
     apiDataReturned: false,

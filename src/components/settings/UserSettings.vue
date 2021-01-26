@@ -57,7 +57,7 @@ export default {
   data() {
     return {
       spotIfaces: ["InvestingDotCom", "MongoDB"],
-      swapIfaces: ["EmpireFX", "MongoDB"],
+      swapIfaces: ["EmpireFXPY", "MongoDB"],
       spotIface: "",
       swapIface: "",
       timeZones: [],

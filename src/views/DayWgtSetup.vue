@@ -413,8 +413,11 @@ export default {
           });
         })
         .catch((error) => {
+          if (error.toString().includes("403") === true) {
+            error = "Admin Rights Required";
+          }
           this.$store.dispatch("setSnackbar", {
-            text: `There was an error updating ${this.currentCcy} events: ${error} `,
+            text: `${this.currentCcy} events: ${error} `,
             centered: true,
           });
         });

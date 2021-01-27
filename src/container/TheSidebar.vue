@@ -115,6 +115,7 @@
 
     <template v-slot:append>
       <v-list-item
+        v-if="isAdmin"
         @click="() => $router.push({ name: 'Admin' }).catch(() => {})"
       >
         <v-list-item-action>
@@ -177,6 +178,7 @@ export default {
   computed: {
     ...mapState({
       minify: (state) => state.sidebarMinified,
+      isAdmin: (state) => state.isAdmin,
     }),
     activeCross() {
       return this.$store.getters.activeCrossGetter;

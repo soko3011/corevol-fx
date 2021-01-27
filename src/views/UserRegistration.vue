@@ -26,6 +26,7 @@ export default {
   components: {
     UserAuthForm,
   },
+
   methods: {
     async registerUser(registrationInfo) {
       let user = await this.$store.dispatch("register", registrationInfo);

@@ -9,6 +9,7 @@ import Axios from "axios";
 Vue.use(Vuex);
 //test
 const state = {
+  appLoaded: false,
   dvi: {
     main: [],
     surf: [],
@@ -51,6 +52,11 @@ const state = {
 };
 
 const mutations = {
+  SET_APP_LOADED(state) {
+    setTimeout(() => {
+      state.appLoaded = true;
+    }, 2000);
+  },
   SET_DASHBOARD_NOTIFIER(state, data) {
     state.dashBoardUpdate = JSON.parse(data);
   },
@@ -194,6 +200,9 @@ const mutations = {
 };
 
 const actions = {
+  alertMainAppLoaded({ commit }) {
+    commit("SET_APP_LOADED");
+  },
   dashBoardNotifier({ commit }, data) {
     commit("SET_DASHBOARD_NOTIFIER", data);
   },

@@ -1,32 +1,34 @@
 <template>
-  <v-app class="grey darken-4">
-    <v-row align="center" justify="center">
-      <v-col cols="12" sm="8" md="4">
-        <v-toolbar
-          class="mb-10"
-          prominent
-          flat
-          color="grey darken-4"
-          src="@/logo/corevollogo.png"
-        />
-        <div align="center" class="ml-10">
-          <v-list ref="menu" rounded color="grey darken-4" dark>
-            <v-list-item
-              v-for="item in items"
-              :key="item.id"
-              :class="item.class"
-              @mouseover="set_active_id(item.id)"
-              @click="() => $router.push(item.route).catch(() => {})"
-            >
-              <v-list-item-content>
-                <v-list-item-title>{{ item.text }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </div>
-      </v-col>
-    </v-row>
-  </v-app>
+  <transition name="fade">
+    <v-app v-if="loading" class="grey darken-4">
+      <v-row align="center" justify="center">
+        <v-col cols="12" sm="8" md="4">
+          <v-toolbar
+            class="mb-10"
+            prominent
+            flat
+            color="grey darken-4"
+            src="@/logo/corevollogo.png"
+          />
+          <div align="center" class="ml-10">
+            <v-list ref="menu" rounded color="grey darken-4" dark>
+              <v-list-item
+                v-for="item in items"
+                :key="item.id"
+                :class="item.class"
+                @mouseover="set_active_id(item.id)"
+                @click="() => $router.push(item.route).catch(() => {})"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ item.text }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </div>
+        </v-col>
+      </v-row>
+    </v-app>
+  </transition>
 </template>
 
 <script>
@@ -80,6 +82,11 @@ export default {
 
       previous_active_id: 1,
     };
+  },
+  computed: {
+    loading() {
+      return this.$store.state.appLoaded;
+    },
   },
   methods: {
     set_active_id(id) {

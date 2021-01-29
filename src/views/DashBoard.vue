@@ -1,8 +1,12 @@
 <template>
   <div>
     <v-toolbar dark dense color="#126496" class="mb-6">
-      <v-icon>mdi-dots-hexagon</v-icon>
-      <v-toolbar-title class="ml-3">DASHBOARD</v-toolbar-title>
+      <v-btn icon :loading="loading">
+        <v-icon @click="updateAllDviWithIpv">mdi-dots-hexagon</v-icon></v-btn
+      >
+      <v-toolbar-title class="ml-0">DASHBOARD</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <div>{{ updateMessage }}</div>
       <v-spacer></v-spacer>
       <v-dialog
         v-model="menu"
@@ -135,8 +139,6 @@ export default {
         userName: this.$store.state.currentUser,
       });
       let rawData = JSON.parse(response.data.dashBoardSurfs);
-      // const dviData = await SettingsApi.GetDviSetup();
-      // this.singleDviInputs = JSON.parse(dviData.data.dviSetup);
 
       if (this.userPrefs !== null) {
         for (var item of this.userPrefs) {
@@ -179,6 +181,8 @@ export default {
       inactive: [],
     },
     menuColHeaders: ["COLUMN ONE", "COLUMN TWO", "COLUMN THREE", "INACTIVE"],
+    updateMessage: "",
+    loading: false,
   }),
 
   components: {
@@ -212,6 +216,25 @@ export default {
   },
 
   methods: {
+    async updateAllDviWithIpv() {
+      try {
+        this.loading = true;
+        this.updateMessage = "Surface Updates Starting...";
+        const response = await DviApi.updateAllDviWithIpv({
+          UserName: this.$store.state.currentUser,
+          AutoSave: true,
+        });
+        this.loading = false;
+        this.updateMessage = "Surface Updates Have Finished...";
+        setTimeout(() => {
+          this.updateMessage = "";
+        }, 5000);
+      } catch (error) {
+        this.updateMessage = "";
+        this.loading = false;
+        alert(error);
+      }
+    },
     createMenuColumns() {
       this.setupMenu.firstCol = [];
       this.setupMenu.secondCol = [];
@@ -348,14 +371,14 @@ export default {
     dashBoardUpdate() {
       this.surfs.map((item) => {
         if (item.Cross === this.dashBoardUpdate.Cross) {
-          console.log(item);
-          console.log(this.dashBoardUpdate);
           item.Surface = this.dashBoardUpdate.Surface;
           item.LastUpdate = this.dashBoardUpdate.LastUpdate;
           item.ExpCut = this.dashBoardUpdate.ExpCut;
         }
         return item;
       });
+      console.log(this.dashBoardUpdate.Cross);
+      this.updateMessage = `Updating ${this.dashBoardUpdate.Cross} Surface...`;
     },
     isDragging(newValue) {
       if (newValue) {

@@ -35,32 +35,49 @@
 <script>
 import { mapState } from "vuex";
 import { HubConnectionBuilder } from "@microsoft/signalr";
+import { HubConnectionState } from "@microsoft/signalr";
+import { HubConnection } from "@microsoft/signalr";
 import * as api from "./apis/Api.js";
 import LoadingScreen from "./components/LoadingScreen/LoadingScreen";
 
-const connection = new HubConnectionBuilder()
-  .withUrl(`${api.base}notify`)
-  .build();
+// const connection = new HubConnectionBuilder()
+//   .withUrl(`${api.base}notify`)
+//   .build();
 
-connection.start();
+// connection.start();
 export default {
   name: "App",
   components: {
     LoadingScreen,
   },
-  created() {},
+  created() {
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl(`${api.base}notify`)
+      .build();
+
+    this.hubConnection.start();
+  },
   computed: {
     ...mapState({
       snackbars: (state) => state.snackbars,
     }),
+    hubConnectionStatus() {
+      return this.hubConnection.state;
+    },
   },
 
   data: () => ({
     isLoading: true,
+    hubConnection: {},
     //
   }),
+  methods: {
+    dev() {
+      this.hubConnection.stop();
+    },
+  },
   mounted() {
-    connection.on("DashBoardUpdate", (task) => {
+    this.hubConnection.on("DashBoardUpdate", (task) => {
       this.$store.dispatch("dashBoardNotifier", task);
     });
 
@@ -68,6 +85,14 @@ export default {
       this.isLoading = false;
       this.$store.dispatch("alertMainAppLoaded");
     }, 3000);
+  },
+  watch: {
+    hubConnectionStatus() {
+      if (this.hubConnectionStatus === HubConnectionState.Disconnected) {
+        console.log("websocket is down");
+        this.hubConnection.start();
+      }
+    },
   },
 };
 </script>

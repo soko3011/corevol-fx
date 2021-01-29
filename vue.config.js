@@ -12,10 +12,10 @@ module.exports = {
   outputDir: "docs",
   transpileDependencies: ["vuetify"],
   lintOnSave: false,
-  configureWebpack: {
-    plugins,
-    optimization
-  },
+  // configureWebpack: {
+  //   plugins,
+  //   optimization
+  // },
   pluginOptions: {
     electronBuilder: {
       nodeIntegration: true,

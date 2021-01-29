@@ -6,7 +6,7 @@
       >
       <v-toolbar-title class="ml-0">DASHBOARD</v-toolbar-title>
       <v-spacer></v-spacer>
-      <div>{{ updateMessage }}</div>
+      <div v-if="loading">{{ updateMessage }}</div>
       <v-spacer></v-spacer>
       <v-dialog
         v-model="menu"

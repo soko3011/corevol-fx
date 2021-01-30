@@ -76,7 +76,7 @@ export default {
   getHistoricalVols(body) {
     return Api.post("GetHistoricalVols", body);
   },
-  updateAllDviWithIpv(body) {
-    return Api.post("UpdateAllDviWithIpv", body);
+  updateAllDviWithIpv() {
+    return Api.get("UpdateAllDviWithIpv");
   }
 };

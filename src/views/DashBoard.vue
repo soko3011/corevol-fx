@@ -4,9 +4,7 @@
       <v-btn icon :loading="loading">
         <v-icon @click="updateAllDviWithIpv">mdi-dots-hexagon</v-icon></v-btn
       >
-      <v-toolbar-title class="ml-0">DASHBOARD</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <div v-if="loading">{{ updateMessage }}</div>
+      <v-toolbar-title class="ml-0">GLOBAL DASHBOARD</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-dialog
         v-model="menu"
@@ -120,6 +118,15 @@
         </v-card>
       </v-col>
     </v-row>
+    <v-snackbar v-model="snackbar" :timeout="timeout" centered>
+      {{ updateMessage }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -129,7 +136,6 @@ import DashBoardSurf from "@/components/dashboard/DashBoardSurf.vue";
 import moment from "moment";
 import Draggable from "vuedraggable";
 import TreeView from "@/components/common/TreeView.vue";
-import SettingsApi from "@/apis/SettingsApi.js";
 import { mapState } from "vuex";
 
 export default {
@@ -183,6 +189,8 @@ export default {
     menuColHeaders: ["COLUMN ONE", "COLUMN TWO", "COLUMN THREE", "INACTIVE"],
     updateMessage: "",
     loading: false,
+    snackbar: false,
+    timeout: 2000,
   }),
 
   components: {
@@ -194,6 +202,8 @@ export default {
     ...mapState({
       dashBoardUpdate: (state) => state.dashBoardUpdate,
       userPrefs: (state) => state.dashBoardPrefs,
+      dviPrefs: (state) => state.dviPrefs,
+      isAdmin: (state) => state.isAdmin,
     }),
     dragOptions() {
       return {
@@ -217,18 +227,18 @@ export default {
 
   methods: {
     async updateAllDviWithIpv() {
+      if (!this.isAdmin) {
+        return;
+      }
+
       try {
         this.loading = true;
-        this.updateMessage = "Surface Updates Starting...";
-        const response = await DviApi.updateAllDviWithIpv({
-          UserName: this.$store.state.currentUser,
-          AutoSave: true,
-        });
+        this.snackbar = true;
+        this.updateMessage = `Auto surface updates have started...`;
+        const response = await DviApi.updateAllDviWithIpv();
+        this.snackbar = true;
+        this.updateMessage = `Auto surface updates have finished with status:${response.status}`;
         this.loading = false;
-        this.updateMessage = "Surface Updates Have Finished...";
-        setTimeout(() => {
-          this.updateMessage = "";
-        }, 5000);
       } catch (error) {
         this.updateMessage = "";
         this.loading = false;
@@ -342,8 +352,8 @@ export default {
       var currenttime = new Date();
       var status = currenttime - lastUpdate;
 
-      var FIRST_TIME_WARNING = 20 * 60 * 1000;
-      var SECOND_TIME_WARNING = 40 * 60 * 1000;
+      var FIRST_TIME_WARNING = 30 * 60 * 1000;
+      var SECOND_TIME_WARNING = 60 * 60 * 1000;
       //var THIRD_TIME_WARNING = 30 * 60 * 1000;
 
       let warningColor =
@@ -377,8 +387,9 @@ export default {
         }
         return item;
       });
-      console.log(this.dashBoardUpdate.Cross);
-      this.updateMessage = `Updating ${this.dashBoardUpdate.Cross} Surface...`;
+
+      this.snackbar = true;
+      this.updateMessage = `${this.dashBoardUpdate.Cross} SURFACE HAS BEEN UPDATED...`;
     },
     isDragging(newValue) {
       if (newValue) {

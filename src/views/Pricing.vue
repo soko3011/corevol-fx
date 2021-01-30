@@ -56,7 +56,7 @@
           <div class="pricingContainer d-flex flex-column mr-1">
             <v-card
               v-if="showSideControl"
-              width="250"
+              min-width="250"
               :min-height="minSideBarHeight"
             >
               <v-subheader class="mt-3"
@@ -161,7 +161,10 @@
             <OptionPricer
               :pricerName="viewName"
               :simulationButton="toggleSimulation"
+              :tableWidth="this.pricerTableWidth"
+              :tableHeight="minSideBarHeight"
               @createStrategy="addStrategyView"
+              :key="componentKey"
             />
           </div>
         </div>
@@ -169,6 +172,8 @@
     </div>
   </div>
 </template>
+
+
 
 <script>
 import OptionPricer from "@/components/pricer/OptionPricerV1.vue";
@@ -193,6 +198,7 @@ export default {
   },
   data() {
     return {
+      componentKey: 0,
       loading: false,
       toggleSimulation: false,
       modalToggle: false,
@@ -232,6 +238,7 @@ export default {
       pricerSetupClosed: (state) => state.pricerSetupClosed,
       activePricers: (state) => state.activePricerList,
       activecross: (state) => state.activecross,
+      sidebarMinified: (state) => state.sidebarMinified,
     }),
     totalsToggle: {
       get() {
@@ -251,12 +258,17 @@ export default {
       return new stratHelper().strats().map((x) => x.name);
     },
     minSideBarHeight() {
-      return this.window.height - 150;
+      return this.window.height - 160;
+    },
+    pricerTableWidth() {
+      return this.sidebarMinified === true
+        ? this.window.width - 375
+        : this.window.width - 520;
     },
   },
   methods: {
     dev() {
-      this.setTransition = !this.setTransition;
+      alert(this.pricerTableWidth);
     },
     toggleTotalsSwitch() {
       this.$store.dispatch("togglePriceShowTotals", !this.totalsToggle);
@@ -381,6 +393,9 @@ export default {
       if (this.crossList.length === 0) {
         this.$store.dispatch("RefreshCrossList");
       }
+    },
+    sidebarMinified() {
+      this.componentKey += 1;
     },
   },
 };

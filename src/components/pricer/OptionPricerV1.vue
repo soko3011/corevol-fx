@@ -60,6 +60,8 @@ export default {
   props: {
     pricerName: { type: String, default: "" },
     simulationButton: { type: Boolean },
+    tableWidth: { type: Number},
+    tableHeight: { type: Number },
   },
   data() {
     return {
@@ -124,8 +126,10 @@ export default {
         onselection: this.selectionActive,
         onchange: this.updateOption,
         freezeColumns: 2,
-        tableWidth: `${this.window.width - 375}px`,
-        tableHeight: `${this.window.height - 155}px`,
+        tableWidth: `${this.tableWidth}px`,
+        tableHeight: `${this.tableHeight}px`,
+        // tableWidth: `${this.window.width - 375}px`,
+        // tableHeight: `${this.window.height - 155}px`,
         contextMenu: function (obj, x, y, e) {
           let items = [];
           items.push({

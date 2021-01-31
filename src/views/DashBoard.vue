@@ -190,7 +190,7 @@ export default {
     updateMessage: "",
     loading: false,
     snackbar: false,
-    timeout: 2000,
+    timeout: 5000,
   }),
 
   components: {
@@ -235,7 +235,9 @@ export default {
         this.loading = true;
         this.snackbar = true;
         this.updateMessage = `Auto surface updates have started...`;
-        const response = await DviApi.updateAllDviWithIpv();
+        const response = await DviApi.updateAllDviWithIpv({
+          UserName: this.$store.state.currentUser,
+        });
         this.snackbar = true;
         this.updateMessage = `Auto surface updates have finished with status:${response.status}`;
         this.loading = false;
@@ -335,6 +337,7 @@ export default {
       const cross = item.Cross;
       const data = JSON.parse(item.LastUpdate);
       const spot = data.Spot;
+      console.log(item);
 
       return `${cross} ${spot}`;
     },

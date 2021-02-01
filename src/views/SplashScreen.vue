@@ -38,7 +38,7 @@ export default {
       items: [
         {
           id: 1,
-          text: "DashBoard",
+          text: "Global DashBoard",
           class: "",
           route: { name: "DashBoard" },
         },

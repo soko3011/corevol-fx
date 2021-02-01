@@ -10,6 +10,16 @@
   >
     <v-list dense>
       <v-list-item
+        @click="() => $router.push({ name: 'SplashScreen' }).catch(() => {})"
+      >
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-home</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Home</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
         @click="() => $router.push({ name: 'DashBoard' }).catch(() => {})"
       >
         <v-list-item-action>

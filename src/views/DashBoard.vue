@@ -244,7 +244,10 @@ export default {
       } catch (error) {
         this.updateMessage = "";
         this.loading = false;
-        alert(error);
+        this.$store.dispatch("setSnackbar", {
+          text: `There was an issue updating ${this.dashBoardUpdate.Cross} surface: \n${error}`,
+          bottom: true,
+        });
       }
     },
     createMenuColumns() {

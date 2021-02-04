@@ -78,6 +78,12 @@ export default {
           class: "",
           route: { name: "Settings" },
         },
+        {
+          id: 7,
+          text: "Day Wgt Setup",
+          class: "",
+          route: { name: "DayWgtSetup" },
+        },
       ],
 
       previous_active_id: 1,

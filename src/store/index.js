@@ -149,6 +149,7 @@ const mutations = {
   },
 
   SET_IPV_DATA(state, data) {
+    console.log(data)
     state.dvi.surf = JSON.parse(data.dviSurf);
     state.dvi.ipvSurf = JSON.parse(data.ipvSurf);
   },

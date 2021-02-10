@@ -1,22 +1,27 @@
-<template lang="html">
+<template>
   <div class="wrapper-jexcel">
+    <!-- <v-btn color="blue" @click="dev">dev</v-btn> -->
     <div
       class="font-weight-medium text-center text-uppercase blue--text text--darken-4"
     >
       IPV VOLS
     </div>
     <div id="spreadsheet" ref="spreadsheet"></div>
+    <h5
+      class="blue-grey--text text--darken-4 mx-3 font-weight-light"
+      align="right"
+    >
+      UPDATED: {{ lastUpdateTime }}
+    </h5>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
-import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import alphabetJson from "@/components/pricer/Alphabet.json";
-import cssUserEditDvi from "./helpers/cssUserEditDvi.js";
 import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
+import moment from "moment";
 
 export default {
   name: "ipvSurface",
@@ -37,13 +42,26 @@ export default {
       return this.apidataAll.map(row => {
         const {
           FLY25, // eslint-disable-line no-unused-vars
-          FLY10, // eslint-disable-line no-unused-vars
+          FLY10,
+          LastUpdated, // eslint-disable-line no-unused-vars
           ...rest // eslint-disable-line no-unused-vars
         } = row; // eslint-disable-line no-unused-vars
         return {
           ...rest
         };
       });
+    },
+    ipvLastUpdate() {
+      return this.apidataAll[0].LastUpdated;
+    },
+
+    lastUpdateTime() {
+      const dateTime = moment(
+        this.apidataAll[0].LastUpdated,
+        "DD/MM/YYYY, HH:mm:ss"
+      ).format("ddd, MMM Do YYYY, HH:mm:ss");
+
+      return dateTime;
     },
     config() {
       return {
@@ -83,6 +101,9 @@ export default {
     }
   },
   methods: {
+    dev() {
+      console.log(this.lastUpdateTime);
+    },
     setReadOnly() {
       var columns = [];
       for (var c = 0; c < this.tableHeaders.length; c++) {

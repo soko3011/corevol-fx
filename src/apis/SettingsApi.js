@@ -51,5 +51,17 @@ export default {
   },
   GetLog() {
     return Api.get("GetLog");
-  }
+  },
+  getBidOfferSpreadModel() {
+    return Api.get("GetBidOfferSpreadModel");
+  },
+  updateCurrencyPairTiers(body) {
+    return Api.post("UpdateCurrencyPairTiers", body);
+  },
+  updateTierMultipliers(body) {
+    return Api.post("UpdateTierMultipliers", body);
+  },
+  updateSpreadsByDelta(body) {
+    return Api.post("UpdateSpreadsByDelta", body);
+  },
 };

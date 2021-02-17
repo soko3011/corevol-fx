@@ -28,7 +28,5 @@ export default {
   updateUserTimeZone(body) {
     return Api.post("UpdateUserTimeZone", body);
   },
-  backupDatabase(body) {
-    return Api.get("BackupDatabase");
-  }
+
 };

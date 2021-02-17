@@ -68,6 +68,9 @@
         <transition name="slide">
           <UserSettings v-if="settingSelection === 'User Settings'" />
         </transition>
+        <transition name="slide">
+          <BidOfferSpreads v-if="settingSelection === 'Bid-Offer Settings'" />
+        </transition>
       </div>
     </div>
   </div>
@@ -79,7 +82,7 @@ import CrossSetup from "@/components/settings/CrossSetup.vue";
 import CcySetup from "@/components/settings/CcySetup.vue";
 import ExpiryCutSettings from "@/components/settings/ExpiryCutSettings.vue";
 import UserSettings from "@/components/settings/UserSettings.vue";
-import SettingsApi from "@/apis/SettingsApi";
+import BidOfferSpreads from "@/components/settings/bidOfferSpreadSettings/BidOfferSpreads.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 
 export default {
@@ -98,12 +101,13 @@ export default {
       "Ccy Settings",
       "Expiry Cut Settings",
       "User Settings",
+      "Bid-Offer Settings"
     ],
     settingSelection: "Dvi Settings",
     window: {
       width: 0,
-      height: 0,
-    },
+      height: 0
+    }
   }),
 
   components: {
@@ -112,16 +116,17 @@ export default {
     CcySetup,
     PopUpModal,
     UserSettings,
-    ExpiryCutSettings,
+    BidOfferSpreads,
+    ExpiryCutSettings
   },
 
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "90%";
       return {
-        zoom: level,
+        zoom: level
       };
-    },
+    }
   },
 
   methods: {
@@ -141,8 +146,8 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
-    },
-  },
+    }
+  }
 };
 </script>
 

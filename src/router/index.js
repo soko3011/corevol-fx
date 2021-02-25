@@ -11,7 +11,7 @@ const DashBoard = () => import("@/views/DashBoard");
 const Charts = () => import("@/views/Charts");
 const FxRates = () => import("@/views/FxRates");
 const DayWgtSetup = () => import("@/views/DayWgtSetup");
-
+const Correlation = () => import("@/views/CorrelationView");
 const Settings = () => import("@/views/Settings");
 const UserLogin = () => import("@/views/UserLogin");
 const UserRegistration = () => import("@/views/UserRegistration");
@@ -71,6 +71,11 @@ let router = new Router({
           path: "settings",
           name: "Settings",
           component: Settings
+        },
+        {
+          path: "correlation",
+          name: "Correlation",
+          component: Correlation
         },
 
         {

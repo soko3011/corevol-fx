@@ -3,9 +3,7 @@
 </template>
 
 <script>
-import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
-import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import alphabetJson from "@/components/pricer/Alphabet.json";
 
 export default {

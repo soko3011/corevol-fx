@@ -1,25 +1,87 @@
 <template>
-  <div>
-    <li v-for="item in staticCorrs" :key="item.Term">
-      {{ item.Term }}
-    </li>
+  <div v-if="hasData" class="d-flex flex-row flex-nowrap ml-5">
+    <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
+    <div class="d-flex flex-column ">
+      <TableStaticCorrs
+        :apidata="staticCorrs"
+        :headerData="`${cross} CORRELATION MATRIX`"
+        :warningColor="'blue'"
+        class="ma-3"
+      />
+      <TableAtmModel
+        :apidata="atmModel"
+        :headerData="`${cross} CROSS VOL DATA`"
+        :warningColor="'blue'"
+        class="ma-3"
+      />
+
+      <div class="d-flex flex-row flex-nowrap dropdown ml-3 ">
+        <v-select
+          class="mr-5"
+          v-model="chart1Term"
+          :items="staticCorrTerms"
+          label="Term"
+        ></v-select>
+        <v-select
+          class="mr-5"
+          v-model="chart1Selection"
+          :items="chart1AvailableSelection"
+          label="Selection"
+        ></v-select>
+        <v-select
+          v-model="chart1DataPoints"
+          :items="dataPointDays"
+          label="Days"
+        ></v-select>
+      </div>
+      <div class="chart">
+        <CorrChart
+          :key="componentKey"
+          :inputLabels="chart1Labels"
+          :inputData="chart1Data"
+          :chartTitle="`${chart1Selection} ${chart1Term}`"
+        />
+      </div>
+    </div>
+    <div class="d-flex flex-column "></div>
   </div>
 </template>
 
 <script>
 import CorrelationApi from "@/apis/CorrelationApi.js";
+import TableStaticCorrs from "@/components/Correlation/TableStaticCorrs.vue";
+import TableAtmModel from "@/components/Correlation/TableAtmModel.vue";
+import CorrChart from "@/components/Correlation/CorrChart.vue";
+import moment from "moment";
 export default {
   props: {
     cross: { type: String }
+  },
+  components: {
+    TableStaticCorrs,
+    TableAtmModel,
+    CorrChart
   },
   data() {
     return {
       corrModel: [],
       atmModel: [],
-      staticCorrs: []
+      staticCorrs: [],
+      timeSeriesDates: [],
+      chart1DataPoints: 150,
+      chart1Term: "1M",
+      chart1Selection: "RollingAverage20",
+      chart1AvailableSelection: [],
+      componentKey: 0,
+      window: {
+        width: 0,
+        height: 0
+      }
     };
   },
   async created() {
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
     try {
       let response = await CorrelationApi.getCorrelationModel({
         Cross: this.cross,
@@ -29,6 +91,10 @@ export default {
       this.corrModel = JSON.parse(response.data.corrModel);
       this.atmModel = JSON.parse(response.data.atmModel);
       this.staticCorrs = this.corrModel.StaticCorrs;
+      this.timeSeriesDates = this.corrModel.TimeSeriesDates;
+      this.chart1AvailableSelection = Object.keys(
+        this.corrModel.RollingCorrs[0]
+      ).filter(x => x !== "Term");
       console.log(this.corrModel);
       console.log(this.atmModel);
       console.log(this.staticCorrs);
@@ -36,8 +102,87 @@ export default {
       console.log(error);
     }
   },
-  computed: {}
+  computed: {
+    hasData() {
+      return this.staticCorrs.length > 0 ? true : false;
+    },
+    staticCorrTerms() {
+      return this.staticCorrs.map(x => {
+        return x.Term;
+      });
+    },
+    chart1Data() {
+      const index = this.staticCorrTerms.indexOf(this.chart1Term);
+      const arr = this.corrModel.RollingCorrs[index][
+        this.chart1Selection
+      ].reverse();
+      return arr.slice(Math.max(arr.length - this.chart1DataPoints, 0));
+    },
+    chart1Labels() {
+      return this.timeSeriesDates
+        .reverse()
+        .slice(Math.max(this.timeSeriesDates.length - this.chart1DataPoints, 0))
+        .map(function(x) {
+          return moment(x).format("DD-MMM-YYYY");
+        });
+    },
+    dataPointDays() {
+      return Array.from(Array(500).keys());
+    }
+  },
+  methods: {
+    handleResize() {
+      this.window.width = window.innerWidth;
+      this.window.height = window.innerHeight;
+      this.setContainerDimensions();
+    },
+    setContainerDimensions() {
+      document.documentElement.style.setProperty(
+        "--main-width",
+        `${this.window.width - 100}px`
+      );
+
+      document.documentElement.style.setProperty(
+        "--main-height",
+        `${this.window.height - 60}px`
+      );
+      document.documentElement.style.setProperty("--chart-width", `${920}px`);
+
+      document.documentElement.style.setProperty(
+        "--dropdown-width",
+        `${900}px`
+      );
+    },
+
+    dev() {
+      console.log(this.componentKey);
+    }
+  },
+  watch: {
+    chart1Term() {
+      this.componentKey += 1;
+    },
+    chart1Selection() {
+      this.componentKey += 1;
+    },
+    chart1DataPoints() {
+      this.componentKey += 1;
+    }
+  }
 };
 </script>
 
-<style></style>
+<style lang="scss">
+$mainHeight: var(--main-height);
+$mainWidth: var(--main-width);
+$chartWidth: var(--chart-width);
+$dropdownWidth: var(--dropdown-width);
+
+.chart {
+  width: $chartWidth;
+}
+
+div.dropdown {
+  width: $dropdownWidth;
+}
+</style>

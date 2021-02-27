@@ -35,7 +35,7 @@
             $router
               .push({
                 name: 'Dvi',
-                params: { ccyPair: activeCross },
+                params: { ccyPair: activeCross }
               })
               .catch(() => {})
         "
@@ -48,12 +48,22 @@
         </v-list-item-content>
       </v-list-item>
       <v-list-item
+        @click="() => $router.push({ name: 'Correlation' }).catch(() => {})"
+      >
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-alpha-c-circle-outline</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Correlations</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
         @click="
           () =>
             $router
               .push({
                 name: 'Pricing',
-                params: { viewName: pricerTab },
+                params: { viewName: pricerTab }
               })
               .catch(() => {})
         "
@@ -159,12 +169,12 @@ import { mapState } from "vuex";
 export default {
   name: "TheSidebar",
   data: () => ({
-    sideBarColor: "#385F73",
+    sideBarColor: "#385F73"
   }),
   created() {},
   components: {},
   props: {
-    showsidebar: { type: Boolean },
+    showsidebar: { type: Boolean }
   },
   methods: {
     setSidebarMinified() {
@@ -183,24 +193,24 @@ export default {
         this.$store.dispatch("logOutUser").then(() => {
           this.$router.push({ name: "UserLogin" }).catch(() => {});
         });
-    },
+    }
   },
   computed: {
     ...mapState({
-      minify: (state) => state.sidebarMinified,
-      isAdmin: (state) => state.isAdmin,
+      minify: state => state.sidebarMinified,
+      isAdmin: state => state.isAdmin
     }),
     activeCross() {
       return this.$store.getters.activeCrossGetter;
     },
     pricerTab() {
       return this.$store.getters.lastPricerTabGetter;
-    },
+    }
   },
   watch: {
     showsidebar() {
       this.drawer = this.showsidebar;
-    },
-  },
+    }
+  }
 };
 </script>

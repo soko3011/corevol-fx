@@ -40,7 +40,7 @@ export default {
           id: 1,
           text: "Global DashBoard",
           class: "",
-          route: { name: "DashBoard" },
+          route: { name: "DashBoard" }
         },
         {
           id: 2,
@@ -48,66 +48,74 @@ export default {
           class: "",
           route: {
             name: "Dvi",
-            params: { ccyPair: `${this.$store.getters.activeCrossGetter}` },
-          },
+            params: { ccyPair: `${this.$store.getters.activeCrossGetter}` }
+          }
         },
         {
           id: 3,
+          text: "Correlations",
+          class: "",
+          route: {
+            name: "Correlation"
+          }
+        },
+        {
+          id: 4,
           text: "Pricer",
           class: "",
           route: {
             name: "Pricing",
-            params: { viewName: `${this.$store.getters.lastPricerTabGetter}` },
-          },
-        },
-        {
-          id: 4,
-          text: "Charts",
-          class: "",
-          route: { name: "Charts" },
+            params: { viewName: `${this.$store.getters.lastPricerTabGetter}` }
+          }
         },
         {
           id: 5,
-          text: "Market Data",
+          text: "Charts",
           class: "",
-          route: { name: "FxRates" },
+          route: { name: "Charts" }
         },
         {
           id: 6,
-          text: "Settings",
+          text: "Market Data",
           class: "",
-          route: { name: "Settings" },
+          route: { name: "FxRates" }
         },
         {
           id: 7,
+          text: "Settings",
+          class: "",
+          route: { name: "Settings" }
+        },
+        {
+          id: 8,
           text: "Day Wgt Setup",
           class: "",
-          route: { name: "DayWgtSetup" },
-        },
+          route: { name: "DayWgtSetup" }
+        }
       ],
 
-      previous_active_id: 1,
+      previous_active_id: 1
     };
   },
   computed: {
     loading() {
       return this.$store.state.appLoaded;
-    },
+    }
   },
   methods: {
     set_active_id(id) {
       if (this.previous_active_id === id) return; //no need to go further
-      this.items.find((item) => item.id === this.previous_active_id).class = ""; //remove the active class from old active li
-      this.items.find((item) => item.id === id).class = "active"; //set active class to new li
+      this.items.find(item => item.id === this.previous_active_id).class = ""; //remove the active class from old active li
+      this.items.find(item => item.id === id).class = "active"; //set active class to new li
       this.previous_active_id = id; //store the new active li id
     },
     focusInput() {
       this.$refs.menu.$el.focus();
-    },
+    }
   },
   mounted() {
     this.focusInput();
-  },
+  }
 };
 </script>
 

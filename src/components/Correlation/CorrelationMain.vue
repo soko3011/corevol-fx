@@ -1,49 +1,54 @@
 <template>
-  <div v-if="hasData" class="d-flex flex-row flex-nowrap ml-5">
-    <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
-    <div class="d-flex flex-column ">
-      <TableStaticCorrs
-        :apidata="staticCorrs"
-        :headerData="`${cross} CORRELATION MATRIX`"
-        :warningColor="'blue'"
-        class="ma-3"
-      />
-      <TableAtmModel
-        :apidata="atmModel"
-        :headerData="`${cross} CROSS VOL DATA`"
-        :warningColor="'blue'"
-        class="ma-3"
-      />
-
-      <div class="d-flex flex-row flex-nowrap dropdown ml-3 ">
-        <v-select
-          class="mr-5"
-          v-model="chart1Term"
-          :items="staticCorrTerms"
-          label="Term"
-        ></v-select>
-        <v-select
-          class="mr-5"
-          v-model="chart1Selection"
-          :items="chart1AvailableSelection"
-          label="Selection"
-        ></v-select>
-        <v-select
-          v-model="chart1DataPoints"
-          :items="dataPointDays"
-          label="Days"
-        ></v-select>
-      </div>
-      <div class="chart">
-        <CorrChart
-          :key="componentKey"
-          :inputLabels="chart1Labels"
-          :inputData="chart1Data"
-          :chartTitle="`${chart1Selection} ${chart1Term}`"
+  <div>
+    <v-container class="center">
+      <v-progress-linear v-if="!hasData" indeterminate></v-progress-linear>
+    </v-container>
+    <div v-if="hasData" class="d-flex flex-row flex-nowrap ml-5">
+      <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
+      <div class="d-flex flex-column ">
+        <TableStaticCorrs
+          :apidata="staticCorrs"
+          :headerData="`${cross} CORRELATION MATRIX`"
+          :warningColor="'blue'"
+          class="ma-3"
         />
+        <TableAtmModel
+          :apidata="atmModel"
+          :headerData="`${cross} CROSS VOL DATA`"
+          :warningColor="'blue'"
+          class="ma-3"
+        />
+
+        <div class="d-flex flex-row flex-nowrap dropdown ml-3 ">
+          <v-select
+            class="mr-5"
+            v-model="chart1Term"
+            :items="staticCorrTerms"
+            label="Term"
+          ></v-select>
+          <v-select
+            class="mr-5"
+            v-model="chart1Selection"
+            :items="chart1AvailableSelection"
+            label="Selection"
+          ></v-select>
+          <v-select
+            v-model="chart1DataPoints"
+            :items="dataPointDays"
+            label="Days"
+          ></v-select>
+        </div>
+        <div class="chart">
+          <CorrChart
+            :key="componentKey"
+            :inputLabels="chart1Labels"
+            :inputData="chart1Data"
+            :chartTitle="`${chart1Selection} ${chart1Term}`"
+          />
+        </div>
       </div>
+      <div class="d-flex flex-column "></div>
     </div>
-    <div class="d-flex flex-column "></div>
   </div>
 </template>
 
@@ -95,9 +100,6 @@ export default {
       this.chart1AvailableSelection = Object.keys(
         this.corrModel.RollingCorrs[0]
       ).filter(x => x !== "Term");
-      console.log(this.corrModel);
-      console.log(this.atmModel);
-      console.log(this.staticCorrs);
     } catch (error) {
       console.log(error);
     }
@@ -184,5 +186,13 @@ $dropdownWidth: var(--dropdown-width);
 
 div.dropdown {
   width: $dropdownWidth;
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

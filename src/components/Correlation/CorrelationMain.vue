@@ -115,9 +115,10 @@ export default {
     },
     chart1Data() {
       const index = this.staticCorrTerms.indexOf(this.chart1Term);
-      const arr = this.corrModel.RollingCorrs[index][
-        this.chart1Selection
-      ].reverse();
+      const cloneSelection = [
+        ...this.corrModel.RollingCorrs[index][this.chart1Selection]
+      ];
+      const arr = cloneSelection.reverse();
       return arr.slice(Math.max(arr.length - this.chart1DataPoints, 0));
     },
     chart1Labels() {
@@ -129,7 +130,7 @@ export default {
         });
     },
     dataPointDays() {
-      return Array.from(Array(500).keys());
+      return Array.from(Array(501).keys());
     }
   },
   methods: {

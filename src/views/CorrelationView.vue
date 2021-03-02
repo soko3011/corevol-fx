@@ -8,6 +8,13 @@
             class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
           >
             corevolFX Correlations
+          </h4>
+          <h4
+            class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+            align="center"
+            justify="center"
+          >
+            {{ cross }}
             <v-btn icon x-small class="mb-4">
               <PopUpModal
                 :inputData="crosses"
@@ -18,13 +25,6 @@
                 v-on:selection="changeCross"
               />
             </v-btn>
-          </h4>
-          <h4
-            class="font-weight-light text-center text-uppercase green--text text--lighten-3"
-            align="center"
-            justify="center"
-          >
-            {{ cross }}
           </h4>
         </div>
 

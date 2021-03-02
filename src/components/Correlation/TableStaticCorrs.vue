@@ -45,6 +45,11 @@ export default {
 
       return tdata;
     },
+    termList() {
+      return this.apidata.map(x => {
+        return x.Term;
+      });
+    },
     config() {
       return {
         data: this.tableData,
@@ -87,30 +92,26 @@ export default {
         }
       }
 
-      // const atmCol = this.tableHeaders.indexOf("ATM");
-      // const termCol = this.tableHeaders.indexOf("Term");
+      for (var c = 0; c < table.headers.length; c++) {
+        table.setStyle(
+          this.cellId(c, this.termList.indexOf("3M") + 1),
+          "background-color",
+          "#D2DEE9"
+        );
 
-      // for (var row = 1; row <= data.length; row++) {
-      //   table.setStyle(this.cellId(atmCol, row), "background-color", "#D2DEE9");
-      //   table.setStyle(this.cellId(atmCol, row), "font-weight", "bold");
-      //   table.setStyle(this.cellId(termCol, row), "color", "#000080");
-      //   table.setStyle(this.cellId(termCol, row), "font-weight", "bold");
+        table.setStyle(
+          this.cellId(c, this.termList.indexOf("1Y") + 1),
+          "background-color",
+          "#D2DEE9"
+        );
+      }
 
-      //   if (row > 9) {
-      //     table.setStyle(
-      //       this.cellId(atmCol, row),
-      //       "background-color",
-      //       "#EDFAFD"
-      //     );
-      //   }
-      // }
-      // for (var c = 0; c < table.headers.length; c++) {
-      //   table.setStyle(
-      //     this.cellId(c, table.rows.length),
-      //     "background-color",
-      //     this.warningColor
-      //   );
-      // }
+      const dma20 = this.tableHeaders.indexOf("20 DMA");
+
+      for (var row = 1; row <= data.length; row++) {
+        table.setStyle(this.cellId(dma20, row), "background-color", "#99D3BA");
+        table.setStyle(this.cellId(dma20, row), "font-weight", "bold");
+      }
     }
   },
   mounted() {

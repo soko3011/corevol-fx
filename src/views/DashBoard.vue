@@ -142,26 +142,24 @@ export default {
   async created() {
     try {
       let response = await DviApi.GetDashBoardSurfs({
-        userName: this.$store.state.currentUser,
+        userName: this.$store.state.currentUser
       });
       let rawData = JSON.parse(response.data.dashBoardSurfs);
 
-      if (this.userPrefs !== null) {
-        for (var item of this.userPrefs) {
-          const rawSurf = rawData.find((x) => x.Cross === item.Cross);
-          rawSurf.Show = rawSurf !== undefined ? item.Show : rawSurf.Show;
+      for (var item of rawData) {
+        this.surfs.push(item);
+      }
 
-          this.surfs.push(rawSurf);
-        }
-      } else {
-        for (var item of rawData) {
-          this.surfs.push(item);
+      if (this.userPrefs !== null) {
+        for (var userPref of this.userPrefs) {
+          var userSurf = this.surfs.find(x => x.Cross === userPref.Cross);
+          userSurf.Show = userSurf !== undefined ? userPref.Show : rawSurf.Show;
         }
       }
     } catch (error) {
       this.$store.dispatch("setSnackbar", {
         text: `${error} source: DashBoard.vue-created`,
-        top: true,
+        top: true
       });
     }
     this.createMenuColumns();
@@ -175,7 +173,7 @@ export default {
     menu: false,
     window: {
       width: 0,
-      height: 0,
+      height: 0
     },
     firstWarningColor: "#2DCA61",
     secondWarningColor: "#71B7F9",
@@ -184,45 +182,45 @@ export default {
       firstCol: [],
       secondCol: [],
       thirdCol: [],
-      inactive: [],
+      inactive: []
     },
     menuColHeaders: ["COLUMN ONE", "COLUMN TWO", "COLUMN THREE", "INACTIVE"],
     updateMessage: "",
     loading: false,
     snackbar: false,
-    timeout: 5000,
+    timeout: 5000
   }),
 
   components: {
     DashBoardSurf,
     Draggable,
-    TreeView,
+    TreeView
   },
   computed: {
     ...mapState({
-      dashBoardUpdate: (state) => state.dashBoardUpdate,
-      userPrefs: (state) => state.dashBoardPrefs,
-      dviPrefs: (state) => state.dviPrefs,
-      isAdmin: (state) => state.isAdmin,
+      dashBoardUpdate: state => state.dashBoardUpdate,
+      userPrefs: state => state.dashBoardPrefs,
+      dviPrefs: state => state.dviPrefs,
+      isAdmin: state => state.isAdmin
     }),
     dragOptions() {
       return {
         animation: 0,
         group: "description",
         disabled: false,
-        ghostClass: "ghost",
+        ghostClass: "ghost"
       };
     },
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "90%" : "72%";
       return {
-        zoom: level,
+        zoom: level
       };
     },
 
     activeSurfs() {
-      return this.surfs.filter((item) => item.Show === true);
-    },
+      return this.surfs.filter(item => item.Show === true);
+    }
   },
 
   methods: {
@@ -236,7 +234,7 @@ export default {
         this.snackbar = true;
         this.updateMessage = `Auto surface updates have started...`;
         const response = await DviApi.updateAllDviWithIpv({
-          UserName: this.$store.state.currentUser,
+          UserName: this.$store.state.currentUser
         });
         this.snackbar = true;
         this.updateMessage = `Auto surface updates have finished with status:${response.status}`;
@@ -246,7 +244,7 @@ export default {
         this.loading = false;
         this.$store.dispatch("setSnackbar", {
           text: `There was an issue updating ${this.dashBoardUpdate.Cross} surface: \n${error}`,
-          bottom: true,
+          bottom: true
         });
       }
     },
@@ -256,7 +254,7 @@ export default {
       this.setupMenu.thirdCol = [];
       this.setupMenu.inactive = [];
 
-      const active = this.surfs.filter((x) => x.Show === true);
+      const active = this.surfs.filter(x => x.Show === true);
       for (let i = 0; i < active.length; i = i + 3) {
         if (active[i] !== undefined) this.setupMenu.firstCol.push(active[i]);
         if (active[i + 1] !== undefined)
@@ -264,7 +262,7 @@ export default {
         if (active[i + 2] !== undefined)
           this.setupMenu.thirdCol.push(active[i + 2]);
       }
-      this.setupMenu.inactive = this.surfs.filter((x) => x.Show === false);
+      this.setupMenu.inactive = this.surfs.filter(x => x.Show === false);
     },
     recombineSurfs() {
       const maxArrLength = Math.max(
@@ -296,21 +294,21 @@ export default {
       try {
         let prefs = this.recombineSurfs().map(({ Cross, Show }) => ({
           Cross,
-          Show,
+          Show
         }));
 
         let response = await DviApi.saveUserDashBoardPrefs({
           UserName: this.$store.state.currentUser,
-          DashBoardUI: JSON.stringify(prefs),
+          DashBoardUI: JSON.stringify(prefs)
         });
         this.$store.dispatch("setSnackbar", {
           text: `DashBoard Layout Saved`,
-          centered: true,
+          centered: true
         });
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: DashBoard.vue-saveSetup`,
-          bottom: true,
+          bottom: true
         });
       }
       this.menu = false;
@@ -319,11 +317,11 @@ export default {
       this.$store.dispatch("setActivecross", item);
       this.$router.push({
         name: "Dvi",
-        params: { ccyPair: item.Cross },
+        params: { ccyPair: item.Cross }
       });
     },
     singleSurf(item) {
-      return JSON.parse(item.Surface).map((row) => {
+      return JSON.parse(item.Surface).map(row => {
         const {
           DK_EFF, // eslint-disable-line no-unused-vars
           IPV_ATM, // eslint-disable-line no-unused-vars
@@ -332,7 +330,7 @@ export default {
           ...rest // eslint-disable-line no-unused-vars
         } = row; // eslint-disable-line no-unused-vars
         return {
-          ...rest,
+          ...rest
         };
       });
     },
@@ -340,7 +338,6 @@ export default {
       const cross = item.Cross;
       const data = JSON.parse(item.LastUpdate);
       const spot = data.Spot;
-      console.log(item);
 
       return `${cross} ${spot}`;
     },
@@ -381,11 +378,11 @@ export default {
       if (warningColor === this.thirdWarningColor) {
         return "mdi-battery-low";
       }
-    },
+    }
   },
   watch: {
     dashBoardUpdate() {
-      this.surfs.map((item) => {
+      this.surfs.map(item => {
         if (item.Cross === this.dashBoardUpdate.Cross) {
           item.Surface = this.dashBoardUpdate.Surface;
           item.LastUpdate = this.dashBoardUpdate.LastUpdate;
@@ -407,7 +404,7 @@ export default {
       });
 
       this.surfs = this.recombineSurfs();
-    },
-  },
+    }
+  }
 };
 </script>

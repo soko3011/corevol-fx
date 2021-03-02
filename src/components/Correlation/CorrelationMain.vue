@@ -6,6 +6,13 @@
     <div v-if="hasData" class="d-flex flex-row flex-nowrap ml-5">
       <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
       <div class="d-flex flex-column ">
+        <CorrWidget
+          :corrData="staticCorrs"
+          :volData="atmModel"
+          :headerData="`${cross} SCRATCHPAD ${corrWidget1Term}`"
+          :termSelection="corrWidget1Term"
+          class="ma-3"
+        />
         <TableStaticCorrs
           :apidata="staticCorrs"
           :headerData="`${cross} CORRELATION MATRIX`"
@@ -15,7 +22,6 @@
         <TableAtmModel
           :apidata="atmModel"
           :headerData="`${cross} CROSS VOL DATA`"
-          :warningColor="'blue'"
           class="ma-3"
         />
 
@@ -57,6 +63,7 @@ import CorrelationApi from "@/apis/CorrelationApi.js";
 import TableStaticCorrs from "@/components/Correlation/TableStaticCorrs.vue";
 import TableAtmModel from "@/components/Correlation/TableAtmModel.vue";
 import CorrChart from "@/components/Correlation/CorrChart.vue";
+import CorrWidget from "@/components/Correlation/CorrWidget.vue";
 import moment from "moment";
 export default {
   props: {
@@ -65,7 +72,8 @@ export default {
   components: {
     TableStaticCorrs,
     TableAtmModel,
-    CorrChart
+    CorrChart,
+    CorrWidget
   },
   data() {
     return {
@@ -78,6 +86,7 @@ export default {
       chart1Selection: "RollingAverage20",
       chart1AvailableSelection: [],
       componentKey: 0,
+      corrWidget1Term: "1M",
       window: {
         width: 0,
         height: 0

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-btn color="yellow" @click="dev">DEV</v-btn>
+    <!-- <v-btn color="yellow" @click="dev">DEV</v-btn> -->
     <div class="jTable" ref="spreadsheet"></div>
   </div>
 </template>
@@ -15,16 +15,7 @@ export default {
   created() {},
   data() {
     return {
-      alphabet: alphabetJson.alphabet,
-      tableHeaders: [
-        "CorrSource",
-        "Upper",
-        "Lower",
-        "Bid",
-        "Offer",
-        "Mid",
-        "ImpliedMid"
-      ]
+      alphabet: alphabetJson.alphabet
     };
   },
   props: {
@@ -34,6 +25,28 @@ export default {
     headerData: { type: String }
   },
   computed: {
+    tableHeaders() {
+      return [
+        "CorrSource",
+        "Upper",
+        "Lower",
+        "Bid",
+        "Offer",
+        "Mid",
+        "ImpliedMid",
+        this.ccy1Header,
+        this.ccy2Header
+      ];
+    },
+    ccy1Header() {
+      return `${this.headerData.substring(0, 3)}VOL`;
+    },
+    ccy2Header() {
+      return `${this.headerData.substring(3, 6)}VOL`;
+    },
+    lastRowTable() {
+      return this.tableData.length;
+    },
     termVolData() {
       return this.volData.find(x => x.Term === this.termSelection);
     },
@@ -63,6 +76,8 @@ export default {
         data.mid = volmid;
 
         data.impliedMid = ((data.max + data.min) / 2).toFixed(4);
+        data.vol1 = this.termVolData.Ccy1Vol;
+        data.vol2 = this.termVolData.Ccy2Vol;
 
         const addSource = { a: `Corr ${term}`, ...data };
         tdata.push(Object.values(addSource));
@@ -90,7 +105,7 @@ export default {
         nestedHeaders: [
           [
             {
-              title: this.headerData,
+              title: `${this.headerData}`,
               colspan: this.tableHeaders.length
             }
           ]
@@ -100,7 +115,8 @@ export default {
   },
   methods: {
     dev() {
-      console.log(this.tableData.length);
+      var xx = this.validateNumber(0.25);
+      console.log(xx);
     },
     getMinMaxCorrByTerm(term) {
       let obj = this.corrData.find(x => x.Term === term);
@@ -116,17 +132,24 @@ export default {
       );
     },
     isUserEditableCell(col, row) {
-      if (
-        this.tableHeaders[col] === "Upper" &&
-        row === this.tableData.length - 1
-      ) {
+      if (this.tableHeaders[col] === "Upper" && row === this.lastRowTable - 1) {
         return true;
       }
-      if (
-        this.tableHeaders[col] === "Lower" &&
-        row === this.tableData.length - 1
-      ) {
+      if (this.tableHeaders[col] === "Lower" && row === this.lastRowTable - 1) {
         return true;
+      }
+    },
+    validateNumber(v) {
+      let regex = /^-?([0]{1}\.{1}[0-9]+|[1-9]{1}[0-9]*\.{1}[0-9]+|[0-9]+|0)$/;
+
+      if (regex.test(v)) {
+        return true;
+      } else {
+        this.$store.dispatch("setSnackbar", {
+          text: `${v} is not valid. Please enter a number`,
+          top: true
+        });
+        return false;
       }
     },
     selectionActive(instance, x1, y1, x2, y2, origin) {
@@ -161,68 +184,36 @@ export default {
 
         const volmid = ((volbid * 1 + voloffer * 1) / 2).toFixed(4);
 
-        const impliedMid = (corrUpper + corrLower) / 2;
+        const impliedMid = ((corrUpper * 1 + corrLower * 1) / 2).toFixed(4);
 
         if (corrUpper !== "" && corrLower !== "") {
-          this.jExcelObj.setValueFromCoords(
-            this.tableHeaders.indexOf("Bid"),
-            this.row,
-            volbid,
-            true
-          );
-
-          this.jExcelObj.setValueFromCoords(
-            this.tableHeaders.indexOf("Offer"),
-            this.row,
-            voloffer,
-            true
-          );
-
-          this.jExcelObj.setValueFromCoords(
-            this.tableHeaders.indexOf("Mid"),
-            this.row,
-            volmid,
-            true
-          );
-
-          this.jExcelObj.setValueFromCoords(
-            this.tableHeaders.indexOf("ImpliedMid"),
-            this.row,
-            volmid,
-            true
-          );
+          this.setCellVal("Upper", (corrUpper * 1).toFixed(4));
+          this.setCellVal("Lower", (corrLower * 1).toFixed(4));
+          this.setCellVal("Bid", volbid);
+          this.setCellVal("Offer", voloffer);
+          this.setCellVal("Mid", volmid);
+          this.setCellVal("ImpliedMid", impliedMid);
+          this.setCellVal(this.ccy1Header, this.termVolData.Ccy1Vol);
+          this.setCellVal(this.ccy2Header, this.termVolData.Ccy2Vol);
         }
 
         if (corrUpper === "" || corrLower === "") {
-          this.jExcelObj.setValueFromCoords(
-            this.tableHeaders.indexOf("Bid"),
-            this.row,
-            "",
-            true
-          );
-
-          this.jExcelObj.setValueFromCoords(
-            this.tableHeaders.indexOf("Offer"),
-            this.row,
-            "",
-            true
-          );
-
-          this.jExcelObj.setValueFromCoords(
-            this.tableHeaders.indexOf("Mid"),
-            this.row,
-            "",
-            true
-          );
-
-          this.jExcelObj.setValueFromCoords(
-            this.tableHeaders.indexOf("ImpliedMid"),
-            this.row,
-            "",
-            true
-          );
+          this.setCellVal("Bid", "");
+          this.setCellVal("Offer", "");
+          this.setCellVal("Mid", "");
+          this.setCellVal("ImpliedMid", "");
+          this.setCellVal(this.ccy1Header, "");
+          this.setCellVal(this.ccy2Header, "");
         }
       }
+    },
+    setCellVal(headerName, val) {
+      this.jExcelObj.setValueFromCoords(
+        this.tableHeaders.indexOf(headerName),
+        this.row,
+        val,
+        true
+      );
     },
     cellId(col, row) {
       return `${this.alphabet[col].toUpperCase()}${row}`;
@@ -242,6 +233,20 @@ export default {
         for (var c = 0; c < table.headers.length; c++) {
           table.setStyle(this.cellId(c, r), "color", "black");
         }
+      }
+      const bid = this.tableHeaders.indexOf("Bid");
+      const offer = this.tableHeaders.indexOf("Offer");
+      const mid = this.tableHeaders.indexOf("Mid");
+
+      for (var row = 1; row <= data.length; row++) {
+        table.setStyle(this.cellId(bid, row), "background-color", "#EDFAFD");
+        table.setStyle(this.cellId(bid, row), "font-weight", "bold");
+
+        table.setStyle(this.cellId(mid, row), "background-color", "#EDFAFD");
+        table.setStyle(this.cellId(mid, row), "font-weight", "bold");
+
+        table.setStyle(this.cellId(offer, row), "background-color", "#EDFAFD");
+        table.setStyle(this.cellId(offer, row), "font-weight", "bold");
       }
     }
   },

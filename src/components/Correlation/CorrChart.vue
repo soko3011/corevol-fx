@@ -27,7 +27,7 @@ export default {
               backgroundColor: [
                 "rgba(71, 183,132,.5)" // Green
               ],
-              borderColor: ["#47b784"],
+              borderColor: ["#CCFCCB"],
               borderWidth: 1
             }
           ]

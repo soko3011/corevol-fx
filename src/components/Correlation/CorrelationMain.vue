@@ -6,13 +6,6 @@
     <div v-if="hasData" class="d-flex flex-row flex-nowrap ml-5">
       <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
       <div class="d-flex flex-column ">
-        <CorrWidget
-          :corrData="staticCorrs"
-          :volData="atmModel"
-          :headerData="`${cross} SCRATCHPAD ${corrWidget1Term}`"
-          :termSelection="corrWidget1Term"
-          class="ma-3"
-        />
         <TableStaticCorrs
           :apidata="staticCorrs"
           :headerData="`${cross} CORRELATION MATRIX`"
@@ -22,6 +15,23 @@
         <TableAtmModel
           :apidata="atmModel"
           :headerData="`${cross} CROSS VOL DATA`"
+          class="ma-3"
+        />
+        <div class="d-flex flex-row justify-end mr-6">
+          <div class="scratchPad">
+            <v-select
+              v-model="corrWidget1Term"
+              :items="staticCorrTerms"
+              label="Term"
+            ></v-select>
+          </div>
+        </div>
+        <CorrWidget
+          :key="componentKeyScracthPad"
+          :corrData="staticCorrs"
+          :volData="atmModel"
+          :headerData="`${cross} SCRATCHPAD ${corrWidget1Term}`"
+          :termSelection="corrWidget1Term"
           class="ma-3"
         />
 
@@ -86,6 +96,7 @@ export default {
       chart1Selection: "RollingAverage20",
       chart1AvailableSelection: [],
       componentKey: 0,
+      componentKeyScracthPad: 0,
       corrWidget1Term: "1M",
       window: {
         width: 0,
@@ -179,6 +190,9 @@ export default {
     },
     chart1DataPoints() {
       this.componentKey += 1;
+    },
+    corrWidget1Term() {
+      this.componentKeyScracthPad += 1;
     }
   }
 };
@@ -196,6 +210,11 @@ $dropdownWidth: var(--dropdown-width);
 
 div.dropdown {
   width: $dropdownWidth;
+}
+
+.scratchPad {
+  width: 100px;
+  height: 45px;
 }
 
 .center {

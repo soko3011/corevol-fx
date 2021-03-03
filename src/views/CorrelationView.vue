@@ -15,7 +15,7 @@
             justify="center"
           >
             {{ cross }}
-            <v-btn icon x-small class="mb-4">
+            <v-btn icon x-small class="mb-4" elevation="21">
               <PopUpModal
                 :inputData="crosses"
                 :icon="'mdi-dots-hexagon'"
@@ -31,30 +31,61 @@
         <v-spacer></v-spacer>
       </v-toolbar>
     </div>
-    <CorrelationMain :cross="cross" :key="componentKey" />
+    <div class="d-flex flex-row flex-nowrap">
+      <CorrelationMain :cross="cross" :key="componentKey" />
+    </div>
   </div>
 </template>
 
 <script>
 import CorrelationMain from "@/components/Correlation/CorrelationMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
+import ModalNoButton from "@/components/common/ModalNoButton.vue";
 export default {
   components: {
     CorrelationMain,
-    PopUpModal
+    PopUpModal,
+    ModalNoButton
   },
   created() {
     this.$store.dispatch("refreshCrossList");
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
   },
   data() {
     return {
       cross: "AUDJPY",
-      componentKey: 0
+      componentKey: 0,
+      window: {
+        width: 0,
+        height: 0
+      }
     };
   },
   methods: {
     changeCross(val) {
       this.cross = val;
+    },
+    handleResize() {
+      this.window.width = window.innerWidth - 100;
+      this.window.height = window.innerHeight - 95;
+
+      this.setContainerDimensions();
+    },
+    setContainerDimensions() {
+      document.documentElement.style.setProperty(
+        "--main-width",
+        `${this.window.width}px`
+      );
+
+      document.documentElement.style.setProperty(
+        "--main-height",
+        `${this.window.height}px`
+      );
+      document.documentElement.style.setProperty(
+        "--dwCol-height",
+        `${this.window.height - 70}px`
+      );
     }
   },
   computed: {
@@ -72,4 +103,38 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss">
+$mainHeight: var(--main-height);
+$mainWidth: var(--main-width);
+$dviColHeight: var(--dwCol-height);
+
+.dwCol {
+  overflow-y: auto;
+  height: $dviColHeight;
+  display: flex;
+}
+
+.dwContainer {
+  overflow-x: auto;
+  overflow-y: auto;
+  padding-left: 0px;
+  padding-right: 0px;
+  height: $dviColHeight;
+  display: flex;
+}
+
+.dwContainer::-webkit-scrollbar {
+  width: 6px; /* width of the entire scrollbar */
+  height: 6px;
+}
+
+.dwContainer::-webkit-scrollbar-track {
+  background: #eceff1; /* color of the tracking area */
+}
+
+.dwContainer::-webkit-scrollbar-thumb {
+  background-color: #385f73; /* color of the scroll thumb */
+  border-radius: 20px; /* roundness of the scroll thumb */
+  border: 2px solid #eceff1; /* creates padding around scroll thumb */
+}
+</style>

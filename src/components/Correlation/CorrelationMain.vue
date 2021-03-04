@@ -6,6 +6,16 @@
     <div v-if="hasData" class="d-flex flex-row flex-nowrap ml-5">
       <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
       <div class="d-flex flex-column ">
+        <div class="d-flex flex-row justify-end mr-6">
+          <div class="scratchPad">
+            <v-select
+              v-model="baseCcy"
+              :items="baseCcyList"
+              label="Base"
+              @change="changeBaseCcy"
+            ></v-select>
+          </div>
+        </div>
         <TableStaticCorrs
           :apidata="staticCorrs"
           :headerData="`${cross} CORRELATION MATRIX`"
@@ -98,6 +108,8 @@ export default {
       componentKey: 0,
       componentKeyScracthPad: 0,
       corrWidget1Term: "1M",
+      baseCcyList: [],
+      baseCcy: "USD",
       window: {
         width: 0,
         height: 0
@@ -107,22 +119,7 @@ export default {
   async created() {
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
-    try {
-      let response = await CorrelationApi.getCorrelationModel({
-        Cross: this.cross,
-        UserName: this.$store.state.currentUser
-      });
-
-      this.corrModel = JSON.parse(response.data.corrModel);
-      this.atmModel = JSON.parse(response.data.atmModel);
-      this.staticCorrs = this.corrModel.StaticCorrs;
-      this.timeSeriesDates = this.corrModel.TimeSeriesDates;
-      this.chart1AvailableSelection = Object.keys(
-        this.corrModel.RollingCorrs[0]
-      ).filter(x => x !== "Term");
-    } catch (error) {
-      console.log(error);
-    }
+    await this.getCorrelationModelFromServer();
   },
   computed: {
     hasData() {
@@ -154,6 +151,32 @@ export default {
     }
   },
   methods: {
+    async getCorrelationModelFromServer() {
+      try {
+        let response = await CorrelationApi.getCorrelationModel({
+          Cross: this.cross,
+          UserName: this.$store.state.currentUser,
+          Ccy: this.baseCcy
+        });
+
+        this.baseCcyList = JSON.parse(response.data.baseCurrencyList);
+
+        this.atmModel = JSON.parse(response.data.atmModel);
+
+        this.corrModel = JSON.parse(response.data.corrModel);
+        this.staticCorrs = this.corrModel.StaticCorrs;
+        this.timeSeriesDates = this.corrModel.TimeSeriesDates;
+        this.chart1AvailableSelection = Object.keys(
+          this.corrModel.RollingCorrs[0]
+        ).filter(x => x !== "Term");
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    handleServerData() {},
+    async changeBaseCcy() {
+      await this.getCorrelationModelFromServer();
+    },
     handleResize() {
       this.window.width = window.innerWidth;
       this.window.height = window.innerHeight;

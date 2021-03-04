@@ -1,5 +1,8 @@
 <template>
-  <div class="jTable" ref="spreadsheet"></div>
+  <div>
+    <!-- <v-btn color="green" @click="dev">DEV</v-btn> -->
+    <div class="jTable" ref="spreadsheet"></div>
+  </div>
 </template>
 
 <script>
@@ -11,37 +14,49 @@ export default {
   created() {},
   data() {
     return {
-      alphabet: alphabetJson.alphabet
+      alphabet: alphabetJson.alphabet,
     };
   },
   props: {
     apidata: { type: Array },
-    headerData: { type: String }
+    headerData: { type: String },
+    cross: { type: String },
   },
   computed: {
+    baseCross1() {
+      return this.apidata[0].BaseCross1;
+    },
+    baseCross2() {
+      return this.apidata[0].BaseCross2;
+    },
+    adaptedApiData() {
+      return this.apidata.map((row) => {
+        const { BaseCross1, BaseCross2, ...rest } = row;
+        return {
+          ...rest,
+        };
+      });
+    },
     tableHeaders() {
-      const headers = Object.keys(this.apidata[0]);
-      const cross = this.headerData.substring(0, 6);
-      const ccy1 = this.headerData.substring(0, 3);
-      const ccy2 = this.headerData.substring(3, 6);
+      const headers = Object.keys(this.adaptedApiData[0]);
 
-      let updatedHeaders = headers.map(title => {
+      let updatedHeaders = headers.map((title) => {
         if (title === "Ccy1Vol") {
-          return `${ccy1} VOL`;
+          return `${this.baseCross1} VOL`;
         }
         if (title === "Ccy2Vol") {
-          return `${ccy2} VOL`;
+          return `${this.baseCross2} VOL`;
         }
 
         if (title === "CrossVol") {
-          return `${cross} VOL`;
+          return `${this.cross} VOL`;
         }
 
         if (title === "Ccy1CrossVega") {
-          return `${ccy1} CrossVega`;
+          return `${this.baseCross1} CrossVega`;
         }
         if (title === "Ccy2CrossVega") {
-          return `${ccy2} CrossVega`;
+          return `${this.baseCross2} CrossVega`;
         }
         return title;
       });
@@ -50,14 +65,14 @@ export default {
 
     tableData() {
       let tdata = [];
-      this.apidata.forEach(element => {
+      this.adaptedApiData.forEach((element) => {
         tdata.push(Object.values(element));
       });
 
       return tdata;
     },
     termList() {
-      return this.apidata.map(x => {
+      return this.apidata.map((x) => {
         return x.Term;
       });
     },
@@ -70,19 +85,25 @@ export default {
         colWidths: [100, 100, 100, 100, 100, 100, 100, 100, 100],
         allowInsertRow: false,
         columns: this.setReadOnly(),
-        contextMenu: function(obj, x, y, e) {},
+        contextMenu: function (obj, x, y, e) {},
         nestedHeaders: [
           [
             {
               title: this.headerData,
-              colspan: this.tableHeaders.length
-            }
-          ]
-        ]
+              colspan: this.tableHeaders.length,
+            },
+          ],
+        ],
       };
-    }
+    },
   },
   methods: {
+    dev() {
+      // console.log(this.adaptedApiData[0]);
+      // console.log(this.apidata[0]);
+      console.log(this.baseCross1);
+      console.log(this.baseCross2);
+    },
     cellId(col, row) {
       return `${this.alphabet[col].toUpperCase()}${row}`;
     },
@@ -126,7 +147,7 @@ export default {
         );
         table.setStyle(this.cellId(impliedCorr, row), "font-weight", "bold");
       }
-    }
+    },
   },
   mounted() {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
@@ -137,7 +158,7 @@ export default {
     apidata() {
       this.jExcelObj.setData(this.tableData);
       this.FormatTable(this.tableData, this.jExcelObj);
-    }
-  }
+    },
+  },
 };
 </script>

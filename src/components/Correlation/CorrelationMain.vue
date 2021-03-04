@@ -5,7 +5,7 @@
     </v-container>
     <div v-if="hasData" class="d-flex flex-row flex-nowrap ml-5">
       <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
-      <div class="d-flex flex-column ">
+      <div class="d-flex flex-column">
         <div class="d-flex flex-row justify-end mr-6">
           <div class="scratchPad">
             <v-select
@@ -17,14 +17,17 @@
           </div>
         </div>
         <TableStaticCorrs
+          :key="componentKeyStaticCorrTable"
           :apidata="staticCorrs"
-          :headerData="`${cross} CORRELATION MATRIX`"
+          :headerData="`${cross} CORRELATION MATRIX BASE ${baseCcy}`"
           :warningColor="'blue'"
           class="ma-3"
         />
         <TableAtmModel
+          :key="componentKeyAtmTable"
           :apidata="atmModel"
           :headerData="`${cross} CROSS VOL DATA`"
+          :cross="cross"
           class="ma-3"
         />
         <div class="d-flex flex-row justify-end mr-6">
@@ -45,7 +48,7 @@
           class="ma-3"
         />
 
-        <div class="d-flex flex-row flex-nowrap dropdown ml-3 ">
+        <div class="d-flex flex-row flex-nowrap dropdown ml-3">
           <v-select
             class="mr-5"
             v-model="chart1Term"
@@ -73,7 +76,7 @@
           />
         </div>
       </div>
-      <div class="d-flex flex-column "></div>
+      <div class="d-flex flex-column"></div>
     </div>
   </div>
 </template>
@@ -87,13 +90,13 @@ import CorrWidget from "@/components/Correlation/CorrWidget.vue";
 import moment from "moment";
 export default {
   props: {
-    cross: { type: String }
+    cross: { type: String },
   },
   components: {
     TableStaticCorrs,
     TableAtmModel,
     CorrChart,
-    CorrWidget
+    CorrWidget,
   },
   data() {
     return {
@@ -107,13 +110,15 @@ export default {
       chart1AvailableSelection: [],
       componentKey: 0,
       componentKeyScracthPad: 0,
+      componentKeyAtmTable: 0,
+      componentKeyStaticCorrTable: 0,
       corrWidget1Term: "1M",
       baseCcyList: [],
       baseCcy: "USD",
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   async created() {
@@ -126,14 +131,14 @@ export default {
       return this.staticCorrs.length > 0 ? true : false;
     },
     staticCorrTerms() {
-      return this.staticCorrs.map(x => {
+      return this.staticCorrs.map((x) => {
         return x.Term;
       });
     },
     chart1Data() {
       const index = this.staticCorrTerms.indexOf(this.chart1Term);
       const cloneSelection = [
-        ...this.corrModel.RollingCorrs[index][this.chart1Selection]
+        ...this.corrModel.RollingCorrs[index][this.chart1Selection],
       ];
       const arr = cloneSelection.reverse();
       return arr.slice(Math.max(arr.length - this.chart1DataPoints, 0));
@@ -142,13 +147,13 @@ export default {
       return this.timeSeriesDates
         .reverse()
         .slice(Math.max(this.timeSeriesDates.length - this.chart1DataPoints, 0))
-        .map(function(x) {
+        .map(function (x) {
           return moment(x).format("DD-MMM-YYYY");
         });
     },
     dataPointDays() {
       return Array.from(Array(501).keys());
-    }
+    },
   },
   methods: {
     async getCorrelationModelFromServer() {
@@ -156,7 +161,7 @@ export default {
         let response = await CorrelationApi.getCorrelationModel({
           Cross: this.cross,
           UserName: this.$store.state.currentUser,
-          Ccy: this.baseCcy
+          Ccy: this.baseCcy,
         });
 
         this.baseCcyList = JSON.parse(response.data.baseCurrencyList);
@@ -168,14 +173,16 @@ export default {
         this.timeSeriesDates = this.corrModel.TimeSeriesDates;
         this.chart1AvailableSelection = Object.keys(
           this.corrModel.RollingCorrs[0]
-        ).filter(x => x !== "Term");
+        ).filter((x) => x !== "Term");
       } catch (error) {
         console.log(error);
       }
     },
-    handleServerData() {},
     async changeBaseCcy() {
       await this.getCorrelationModelFromServer();
+      this.componentKeyAtmTable += 1;
+      this.componentKey += 1;
+      this.componentKeyStaticCorrTable += 1;
     },
     handleResize() {
       this.window.width = window.innerWidth;
@@ -202,7 +209,7 @@ export default {
 
     dev() {
       console.log(this.componentKey);
-    }
+    },
   },
   watch: {
     chart1Term() {
@@ -216,8 +223,8 @@ export default {
     },
     corrWidget1Term() {
       this.componentKeyScracthPad += 1;
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -13,7 +13,9 @@
               :items="baseCcyList"
               label="Base"
               @change="changeBaseCcy"
-            ></v-select>
+              :loading="loading"
+            >
+            </v-select>
           </div>
         </div>
         <TableStaticCorrs
@@ -115,6 +117,7 @@ export default {
       corrWidget1Term: "1M",
       baseCcyList: [],
       baseCcy: "USD",
+      loading: false,
       window: {
         width: 0,
         height: 0,
@@ -179,10 +182,12 @@ export default {
       }
     },
     async changeBaseCcy() {
+      this.loading = true;
       await this.getCorrelationModelFromServer();
       this.componentKeyAtmTable += 1;
       this.componentKey += 1;
       this.componentKeyStaticCorrTable += 1;
+      this.loading = false;
     },
     handleResize() {
       this.window.width = window.innerWidth;

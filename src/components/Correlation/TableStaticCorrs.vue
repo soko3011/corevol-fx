@@ -11,17 +11,17 @@ export default {
   created() {},
   data() {
     return {
-      alphabet: alphabetJson.alphabet
+      alphabet: alphabetJson.alphabet,
     };
   },
   props: {
     apidata: { type: Array },
-    headerData: { type: String }
+    headerData: { type: String },
   },
   computed: {
     tableHeaders() {
       const headers = Object.keys(this.apidata[0]);
-      let updatedHeaders = headers.map(title => {
+      let updatedHeaders = headers.map((title) => {
         if (title === "Average20") {
           return `20 DMA`;
         }
@@ -39,14 +39,14 @@ export default {
 
     tableData() {
       let tdata = [];
-      this.apidata.forEach(element => {
+      this.apidata.forEach((element) => {
         tdata.push(Object.values(element));
       });
 
       return tdata;
     },
     termList() {
-      return this.apidata.map(x => {
+      return this.apidata.map((x) => {
         return x.Term;
       });
     },
@@ -59,17 +59,17 @@ export default {
         colWidths: [80, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75],
         allowInsertRow: false,
         columns: this.setReadOnly(),
-        contextMenu: function(obj, x, y, e) {},
+        contextMenu: function (obj, x, y, e) {},
         nestedHeaders: [
           [
             {
               title: this.headerData,
-              colspan: this.tableHeaders.length
-            }
-          ]
-        ]
+              colspan: this.tableHeaders.length,
+            },
+          ],
+        ],
       };
-    }
+    },
   },
   methods: {
     cellId(col, row) {
@@ -112,7 +112,7 @@ export default {
         table.setStyle(this.cellId(dma20, row), "background-color", "#99D3BA");
         table.setStyle(this.cellId(dma20, row), "font-weight", "bold");
       }
-    }
+    },
   },
   mounted() {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
@@ -123,7 +123,7 @@ export default {
     apidata() {
       this.jExcelObj.setData(this.tableData);
       this.FormatTable(this.tableData, this.jExcelObj);
-    }
-  }
+    },
+  },
 };
 </script>

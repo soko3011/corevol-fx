@@ -15,14 +15,14 @@ export default {
   created() {},
   data() {
     return {
-      alphabet: alphabetJson.alphabet
+      alphabet: alphabetJson.alphabet,
     };
   },
   props: {
     corrData: { type: Array },
     volData: { type: Array },
     termSelection: { type: String },
-    headerData: { type: String }
+    headerData: { type: String },
   },
   computed: {
     tableHeaders() {
@@ -35,7 +35,7 @@ export default {
         "Mid",
         "ImpliedMid",
         this.ccy1Header,
-        this.ccy2Header
+        this.ccy2Header,
       ];
     },
     ccy1Header() {
@@ -48,7 +48,7 @@ export default {
       return this.tableData.length;
     },
     termVolData() {
-      return this.volData.find(x => x.Term === this.termSelection);
+      return this.volData.find((x) => x.Term === this.termSelection);
     },
     tableData() {
       let tdata = [];
@@ -87,7 +87,7 @@ export default {
       return tdata;
     },
     termList() {
-      return this.corrData.map(x => {
+      return this.corrData.map((x) => {
         return x.Term;
       });
     },
@@ -101,17 +101,17 @@ export default {
         allowInsertRow: false,
         columns: this.setReadOnly(),
         onselection: this.selectionActive,
-        contextMenu: function(obj, x, y, e) {},
+        contextMenu: function (obj, x, y, e) {},
         nestedHeaders: [
           [
             {
               title: `${this.headerData}`,
-              colspan: this.tableHeaders.length
-            }
-          ]
-        ]
+              colspan: this.tableHeaders.length,
+            },
+          ],
+        ],
       };
-    }
+    },
   },
   methods: {
     dev() {
@@ -119,11 +119,11 @@ export default {
       console.log(xx);
     },
     getMinMaxCorrByTerm(term) {
-      let obj = this.corrData.find(x => x.Term === term);
+      let obj = this.corrData.find((x) => x.Term === term);
       let newArr = [obj.Current, obj.Average20, obj.Average100];
       return {
         max: Math.max(...newArr),
-        min: Math.min(...newArr)
+        min: Math.min(...newArr),
       };
     },
     crossVol(vol1, vol2, corr) {
@@ -147,7 +147,7 @@ export default {
       } else {
         this.$store.dispatch("setSnackbar", {
           text: `${v} is not valid. Please enter a number`,
-          top: true
+          top: true,
         });
         return false;
       }
@@ -161,10 +161,7 @@ export default {
       );
       cssUser.activateUserEditableClasses();
 
-      this.row = y1;
-      this.col = x1;
-
-      if (this.row === this.tableData.length - 1) {
+      if (y1 === this.tableData.length - 1) {
         const lowerIndex = this.tableHeaders.indexOf("Lower");
         const upperIndex = this.tableHeaders.indexOf("Upper");
         let corrUpper = this.jExcelObj.getValueFromCoords(upperIndex, y1);
@@ -187,30 +184,30 @@ export default {
         const impliedMid = ((corrUpper * 1 + corrLower * 1) / 2).toFixed(4);
 
         if (corrUpper !== "" && corrLower !== "") {
-          this.setCellVal("Upper", (corrUpper * 1).toFixed(4));
-          this.setCellVal("Lower", (corrLower * 1).toFixed(4));
-          this.setCellVal("Bid", volbid);
-          this.setCellVal("Offer", voloffer);
-          this.setCellVal("Mid", volmid);
-          this.setCellVal("ImpliedMid", impliedMid);
-          this.setCellVal(this.ccy1Header, this.termVolData.Ccy1Vol);
-          this.setCellVal(this.ccy2Header, this.termVolData.Ccy2Vol);
+          this.setCellVal("Upper", (corrUpper * 1).toFixed(4), y1);
+          this.setCellVal("Lower", (corrLower * 1).toFixed(4), y1);
+          this.setCellVal("Bid", volbid, y1);
+          this.setCellVal("Offer", voloffer, y1);
+          this.setCellVal("Mid", volmid, y1);
+          this.setCellVal("ImpliedMid", impliedMid, y1);
+          this.setCellVal(this.ccy1Header, this.termVolData.Ccy1Vol, y1);
+          this.setCellVal(this.ccy2Header, this.termVolData.Ccy2Vol, y1);
         }
 
         if (corrUpper === "" || corrLower === "") {
-          this.setCellVal("Bid", "");
-          this.setCellVal("Offer", "");
-          this.setCellVal("Mid", "");
-          this.setCellVal("ImpliedMid", "");
-          this.setCellVal(this.ccy1Header, "");
-          this.setCellVal(this.ccy2Header, "");
+          this.setCellVal("Bid", "", y1);
+          this.setCellVal("Offer", "", y1);
+          this.setCellVal("Mid", "", y1);
+          this.setCellVal("ImpliedMid", "", y1);
+          this.setCellVal(this.ccy1Header, "", y1);
+          this.setCellVal(this.ccy2Header, "", y1);
         }
       }
     },
-    setCellVal(headerName, val) {
+    setCellVal(headerName, val, row) {
       this.jExcelObj.setValueFromCoords(
         this.tableHeaders.indexOf(headerName),
-        this.row,
+        row,
         val,
         true
       );
@@ -248,7 +245,7 @@ export default {
         table.setStyle(this.cellId(offer, row), "background-color", "#EDFAFD");
         table.setStyle(this.cellId(offer, row), "font-weight", "bold");
       }
-    }
+    },
   },
   mounted() {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
@@ -259,7 +256,7 @@ export default {
     corrData() {
       this.jExcelObj.setData(this.tableData);
       this.FormatTable(this.tableData, this.jExcelObj);
-    }
-  }
+    },
+  },
 };
 </script>

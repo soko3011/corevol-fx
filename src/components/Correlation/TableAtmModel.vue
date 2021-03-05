@@ -8,6 +8,7 @@
 <script>
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import alphabetJson from "@/components/pricer/Alphabet.json";
+import cssUserEditDvi from "@/components/dviComponents/helpers/cssUserEditDvi.js";
 
 export default {
   name: "tableAtmModel",
@@ -85,6 +86,8 @@ export default {
         colWidths: [100, 100, 100, 100, 100, 100, 100, 100, 100],
         allowInsertRow: false,
         columns: this.setReadOnly(),
+        onselection: this.selectionActive,
+        onchange: this.OnChange,
         contextMenu: function (obj, x, y, e) {},
         nestedHeaders: [
           [
@@ -103,6 +106,28 @@ export default {
       // console.log(this.apidata[0]);
       console.log(this.baseCross1);
       console.log(this.baseCross2);
+    },
+    isUserEditableCell(col) {
+      if (this.tableHeaders[col] === "ImpliedCorr") {
+        return true;
+      }
+    },
+    selectionActive(instance, x1, y1, x2, y2, origin) {
+      let cssUser = new cssUserEditDvi(
+        this.jExcelObj,
+        this.isUserEditableCell(x1, y1),
+        x1,
+        y1
+      );
+      cssUser.activateUserEditableClasses();
+    },
+    OnChange(instance, cell, x, y) {
+      console.log(cell);
+      console.log(x);
+      console.log(y);
+
+      const val = this.jExcelObj.getValueFromCoords(x, y);
+      console.log(val);
     },
     cellId(col, row) {
       return `${this.alphabet[col].toUpperCase()}${row}`;

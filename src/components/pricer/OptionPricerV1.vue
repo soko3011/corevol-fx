@@ -18,7 +18,7 @@
       v-if="showSimulation"
       :inputData="this.simData"
       :vmodel="showSimulation"
-      v-on:setvmodel="(data) => (showSimulation = data)"
+      v-on:setvmodel="data => (showSimulation = data)"
     />
   </div>
 </template>
@@ -43,7 +43,7 @@ export default {
   name: "optionPricer",
   components: {
     PricerSetup,
-    Simulation,
+    Simulation
   },
   created() {
     window.addEventListener("resize", this.handleResize);
@@ -60,8 +60,8 @@ export default {
   props: {
     pricerName: { type: String, default: "" },
     simulationButton: { type: Boolean },
-    tableWidth: { type: Number},
-    tableHeight: { type: Number },
+    tableWidth: { type: Number },
+    tableHeight: { type: Number }
   },
   data() {
     return {
@@ -84,19 +84,19 @@ export default {
       simData: [],
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   computed: {
     ...mapState({
-      defaultPricerKeyGroups: (state) => state.defaultPricerKeyGroups,
-      userPricerLayoutPrefs: (state) => state.userPricerLayoutPrefs,
-      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
-      totalsToggle: (state) => state.pricerShowTotalsToggle,
-      crossListData: (state) => state.crossList,
-      pricerStrategy: (state) => state.pricerStrategy,
-      currentUser: (state) => state.currentUser,
+      defaultPricerKeyGroups: state => state.defaultPricerKeyGroups,
+      userPricerLayoutPrefs: state => state.userPricerLayoutPrefs,
+      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
+      totalsToggle: state => state.pricerShowTotalsToggle,
+      crossListData: state => state.crossList,
+      pricerStrategy: state => state.pricerStrategy,
+      currentUser: state => state.currentUser
     }),
     combinedPricerLayouts() {
       const userLayouts = [];
@@ -130,39 +130,39 @@ export default {
         tableHeight: `${this.tableHeight}px`,
         // tableWidth: `${this.window.width - 375}px`,
         // tableHeight: `${this.window.height - 155}px`,
-        contextMenu: function (obj, x, y, e) {
+        contextMenu: function(obj, x, y, e) {
           let items = [];
           items.push({
             title: "SHOW TOTALS",
-            shortcut: "Ctrl + W",
+            shortcut: "Ctrl + W"
           }),
             items.push({
               title: "COPY OPTION",
-              shortcut: "Ctrl + P",
+              shortcut: "Ctrl + P"
             }),
             items.push({
               title: "DELETE OPTION",
-              shortcut: "Ctrl + Q",
+              shortcut: "Ctrl + Q"
             }),
             items.push({
               title: "CLEAR SHEET",
-              shortcut: "Ctrl + D",
+              shortcut: "Ctrl + D"
             }),
             items.push({
               title: "REFRESH OPTION",
-              shortcut: "Ctrl + R",
+              shortcut: "Ctrl + R"
             }),
             items.push({
               title: "RUN SIMULATION",
-              shortcut: "Ctrl + L",
+              shortcut: "Ctrl + L"
             });
           return items;
-        },
+        }
       };
     },
     keyCol() {
       return this.setHeaders().indexOf("Key");
-    },
+    }
   },
   methods: {
     async dev() {
@@ -188,13 +188,13 @@ export default {
     },
     setPricerKeys() {
       return this.pricerSettingsObj
-        .filter((item) => item.Show === true)
-        .map((group) => group.Keys)
+        .filter(item => item.Show === true)
+        .map(group => group.Keys)
         .flat();
     },
     setInitalData(keys) {
       let newArr = [];
-      keys.forEach((element) => {
+      keys.forEach(element => {
         newArr.push(["", element]);
       });
       return newArr;
@@ -252,7 +252,7 @@ export default {
     //#region OPTIONSETUP
     initializeFxOpt() {
       let optID = (this.col - 1).toString();
-      var index = this.optsContainer.findIndex((x) => x.name == optID);
+      var index = this.optsContainer.findIndex(x => x.name == optID);
       if (index === -1) {
         this.optData = { name: optID, userName: this.currentUser };
         this.optsContainer.push(this.optData);
@@ -287,13 +287,13 @@ export default {
           return index > 1 && element !== "";
         });
 
-      return rowData.every((e) => e === rowData[0]);
+      return rowData.every(e => e === rowData[0]);
     },
     validateTotalsColumnCondition() {
       if (!this.isSingleCrossInPricer()) {
         this.$store.dispatch("setSnackbar", {
           text: "SINGLE CURRENCY REQUIRED FOR TOTALS",
-          top: true,
+          top: true
         });
         this.$store.dispatch("togglePriceShowTotals", false);
       }
@@ -344,7 +344,7 @@ export default {
       try {
         let response = await PricerApi.getSingleSpotLiveForce({
           cross: cross,
-          UserName: this.$store.state.currentUser,
+          UserName: this.$store.state.currentUser
         });
         const spotData = JSON.parse(response.data.singleSpot);
         this.jExcelObj.ignoreEvents = true;
@@ -370,7 +370,7 @@ export default {
       try {
         let response = await PricerApi.GetSurfaceStatus({
           cross: cross,
-          userName: this.$store.state.currentUser,
+          userName: this.$store.state.currentUser
         });
 
         let lastUpdate = moment(
@@ -386,7 +386,7 @@ export default {
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: `${error} source: GetSurfaceStatus`,
-          top: true,
+          top: true
         });
         this.loading = false;
       }
@@ -398,14 +398,14 @@ export default {
           PricerTitle: this.pricerName,
           ActivePricerGridDataJSON: JSON.stringify(this.jExcelObj.getData()),
           UserOverwrittenInputsJSON: JSON.stringify(this.redObj),
-          ActiveOptionsContainerJSON: JSON.stringify(this.optsContainer),
-        },
+          ActiveOptionsContainerJSON: JSON.stringify(this.optsContainer)
+        }
       };
 
-      PricerApi.ReturnCurrentOpts(StoredActivePricerData).catch((err) => {
+      PricerApi.ReturnCurrentOpts(StoredActivePricerData).catch(err => {
         store.dispatch("setSnackbar", {
           text: `${err}  source:sendSingleOptionToServerForCalcs`,
-          top: true,
+          top: true
         });
       });
     },
@@ -474,7 +474,7 @@ export default {
 
         Object.assign(this.optData, {
           cross: this.keyVal("Cross"),
-          spot: this.keyVal("Spot").toString(),
+          spot: this.keyVal("Spot").toString()
         });
 
         this.recordCellPosition(this.pricerName);
@@ -493,7 +493,7 @@ export default {
         "expiryText",
         "strikeText",
         // "call_put",
-        "userName",
+        "userName"
       ];
 
       for (const key of essentialKeys) {
@@ -515,12 +515,12 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a valid Premium Type`,
-            top: true,
+            top: true
           });
           return;
         }
         Object.assign(this.optData, {
-          premiumType: userInput,
+          premiumType: userInput
         });
         this.sendToServerForCalc();
       }
@@ -537,7 +537,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -560,7 +560,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -582,7 +582,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -600,7 +600,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -618,7 +618,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -636,7 +636,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -658,7 +658,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -676,7 +676,7 @@ export default {
         if (!/^[0-9]+([,.][0-9]+)?$/.test(userInput)) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -698,7 +698,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -720,7 +720,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -742,7 +742,7 @@ export default {
         ) {
           this.$store.dispatch("setSnackbar", {
             text: `${userInput} is not valid. Please enter a number`,
-            top: true,
+            top: true
           });
           return;
         }
@@ -783,7 +783,7 @@ export default {
           if (!/^[0-9]+([,.][0-9]+)?$/.test(checkSpot)) {
             this.$store.dispatch("setSnackbar", {
               text: `${checkSpot} is not valid. Please enter a number`,
-              top: true,
+              top: true
             });
             return;
           }
@@ -801,7 +801,7 @@ export default {
           spot: this.keyVal("Spot"),
           premiumType: this.keyVal("PremiumType"),
           strikeText: this.keyVal("StrikeText"),
-          expiryText: this.keyVal("ExpiryText"),
+          expiryText: this.keyVal("ExpiryText")
         });
       }
     },
@@ -858,7 +858,7 @@ export default {
       if (event.code == "KeyR" && event.ctrlKey) {
         event.preventDefault();
         var newOpt = { name: this.col.toString() }; //create new opt object
-        var index = this.optsContainer.findIndex((x) => x.name == newOpt.name); //check if option exist and if not add to optsContainer
+        var index = this.optsContainer.findIndex(x => x.name == newOpt.name); //check if option exist and if not add to optsContainer
         if (index != -1) {
           this.optData = this.optsContainer[index]; //set current option from container.
           this.sendToServerForCalc();
@@ -909,7 +909,7 @@ export default {
           }
         }, 500);
       });
-      getUserSelection.then((result) => {
+      getUserSelection.then(result => {
         const cell = utils.getCell(this.col, this.row, this.jExcelObj);
         dropDownList.closeEditor(this.jExcelObj, cell, result);
         document.addEventListener("keydown", this.eventListeners);
@@ -935,12 +935,12 @@ export default {
       this.jExcelObj.hideIndex();
 
       var isSingleExpiryDate = this.optsContainer
-        .filter((x) => x.name !== "-1")
-        .every((e) => e.expiryText === this.optsContainer[0].expiryText);
+        .filter(x => x.name !== "-1")
+        .every(e => e.expiryText === this.optsContainer[0].expiryText);
 
       var isSingleStrikeText = this.optsContainer
-        .filter((x) => x.name !== "-1")
-        .every((e) => e.strikeText === this.optsContainer[0].strikeText);
+        .filter(x => x.name !== "-1")
+        .every(e => e.strikeText === this.optsContainer[0].strikeText);
 
       for (const keyGroup of this.pricerSettingsObj) {
         if (keyGroup.Show === true) {
@@ -1120,7 +1120,7 @@ export default {
     },
     setCellPosition() {
       var setCellPos = this.cellPosContainer.find(
-        (x) => x.pricer === this.pricerName
+        x => x.pricer === this.pricerName
       );
       if (setCellPos === undefined) {
         this.selectCell(0, 1);
@@ -1134,8 +1134,8 @@ export default {
       this.pricerSetupToggle = val;
     },
     updatePricerLayout(updatedSettings) {
-      var hiddenGroups = updatedSettings.filter((item) => item.Show !== true);
-      var shownGroups = updatedSettings.filter((item) => item.Show === true);
+      var hiddenGroups = updatedSettings.filter(item => item.Show !== true);
+      var shownGroups = updatedSettings.filter(item => item.Show === true);
 
       for (const keyGroup of hiddenGroups) {
         let keys = keyGroup.Keys;
@@ -1159,6 +1159,7 @@ export default {
       }
 
       this.formatComplete();
+      this.$emit("layoutChanged");
 
       //location.reload();
     },
@@ -1167,11 +1168,9 @@ export default {
     recordCellPosition() {
       var recordCellPos = {
         col: this.col,
-        pricer: this.pricerName,
+        pricer: this.pricerName
       };
-      var isDup = this.cellPosContainer.find(
-        (x) => x.pricer === this.pricerName
-      );
+      var isDup = this.cellPosContainer.find(x => x.pricer === this.pricerName);
       var index = this.cellPosContainer.indexOf(isDup);
       if (index === -1) {
         this.cellPosContainer.push(recordCellPos);
@@ -1185,12 +1184,12 @@ export default {
     },
     copyOpt(col) {
       var fxOptResult = this.jExcelObj.getColumnData(col);
-      var optObj = this.optsContainer.filter((opt) => {
+      var optObj = this.optsContainer.filter(opt => {
         return opt.name == col - 1;
       });
       let newOpt = { ...optObj[0] };
       newOpt.name = col.toString();
-      var index = this.optsContainer.findIndex((x) => x.name == newOpt.name);
+      var index = this.optsContainer.findIndex(x => x.name == newOpt.name);
       if (index > -1) {
         this.optsContainer[index] = newOpt;
       } else {
@@ -1206,10 +1205,10 @@ export default {
       }
     },
     delOpt(col, offset) {
-      var optObj = this.optsContainer.filter((opt) => {
+      var optObj = this.optsContainer.filter(opt => {
         return opt.name == col - 1;
       });
-      var index = this.optsContainer.findIndex((x) => x.name == optObj[0].name);
+      var index = this.optsContainer.findIndex(x => x.name == optObj[0].name);
       this.optsContainer.splice(index, 1);
       this.removeRedCellsFromArray();
       this.replaceSingleOpt(this.emptyCol(), col);
@@ -1247,7 +1246,7 @@ export default {
       var evt = new MouseEvent("click", {
         bubbles: true,
         cancelable: true,
-        view: window,
+        view: window
       });
       // If cancelled, don't dispatch our event
       elem.dispatchEvent(evt);
@@ -1284,7 +1283,7 @@ export default {
         let optsToServer = this.totalsToggle
           ? optContainerClone
           : optContainerClone.filter(
-              (opt) =>
+              opt =>
                 parseInt(opt.name) >= this.col - 1 &&
                 parseInt(opt.name) <= this.col2 - 1
             );
@@ -1292,13 +1291,13 @@ export default {
         if (optsToServer.length === 0) {
           this.$store.dispatch("setSnackbar", {
             text: `Select Option To Simulate`,
-            top: true,
+            top: true
           });
 
           return;
         }
 
-        optsToServer.forEach((object) => {
+        optsToServer.forEach(object => {
           let colNum = parseInt(object["name"]) + 1;
           object["StrikeText"] = this.jExcelObj.getValueFromCoords(
             colNum.toString(),
@@ -1324,7 +1323,7 @@ export default {
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
           text: `${err}  source:sendSimulationToServer`,
-          top: true,
+          top: true
         });
       }
     },
@@ -1339,7 +1338,7 @@ export default {
 
       this.$emit("createStrategy", {
         strategy: strat,
-        optData: this.optData,
+        optData: this.optData
       });
 
       return true;
@@ -1352,7 +1351,7 @@ export default {
         this.sendToServerForCalc();
         this.$store.dispatch("sendStrategyToPricer", new Array());
       }
-    },
+    }
 
     //#endregion STRATEGIES
   },
@@ -1365,7 +1364,7 @@ export default {
       this.pricerName
     );
     this.pricerSettingsObj = this.combinedPricerLayouts.find(
-      (x) => x.title === this.activePricerLayoutTitle
+      x => x.title === this.activePricerLayoutTitle
     ).layout;
     this.pricerKeys = this.setPricerKeys();
     this.initialData = this.setInitalData(this.pricerKeys);
@@ -1424,8 +1423,8 @@ export default {
     },
     simulationButton() {
       this.sendSimulationToServer();
-    },
-  },
+    }
+  }
 };
 </script>
 

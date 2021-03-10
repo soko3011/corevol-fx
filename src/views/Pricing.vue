@@ -144,7 +144,7 @@
                         :inputData="this.activePricers"
                         :title="'REMOVE DVI'"
                         :vmodel="removeModal"
-                        v-on:setvmodel="(data) => (removeModal = data)"
+                        v-on:setvmodel="data => (removeModal = data)"
                         v-on:selection="removeSinglePricer"
                       />
                     </v-list-item-action>
@@ -154,7 +154,7 @@
                   </v-list-item>
                 </v-list-item-group>
               </v-list>
-              <PricerSetupInterface />
+              <PricerSetupInterface v-on:layoutChanged="changeLayout()" />
             </v-card>
           </div>
           <div class="d-flex flex-column mr-1">
@@ -165,6 +165,7 @@
               :tableHeight="minSideBarHeight"
               @createStrategy="addStrategyView"
               :key="componentKey"
+              v-on:layoutChanged="changeLayout()"
             />
           </div>
         </div>
@@ -172,8 +173,6 @@
     </div>
   </div>
 </template>
-
-
 
 <script>
 import OptionPricer from "@/components/pricer/OptionPricerV1.vue";
@@ -194,7 +193,7 @@ export default {
     PopUpInput,
     PricerSetupInterface,
     StrategySelector,
-    ModalNoButton,
+    ModalNoButton
   },
   data() {
     return {
@@ -209,8 +208,8 @@ export default {
       stratModal: false,
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   async created() {
@@ -232,13 +231,13 @@ export default {
   },
   computed: {
     ...mapState({
-      crossList: (state) => state.crossList,
-      currentUser: (state) => state.currentUser,
-      activePricerLayoutTitle: (state) => state.activePricerLayoutTitle,
-      pricerSetupClosed: (state) => state.pricerSetupClosed,
-      activePricers: (state) => state.activePricerList,
-      activecross: (state) => state.activecross,
-      sidebarMinified: (state) => state.sidebarMinified,
+      crossList: state => state.crossList,
+      currentUser: state => state.currentUser,
+      activePricerLayoutTitle: state => state.activePricerLayoutTitle,
+      pricerSetupClosed: state => state.pricerSetupClosed,
+      activePricers: state => state.activePricerList,
+      activecross: state => state.activecross,
+      sidebarMinified: state => state.sidebarMinified
     }),
     totalsToggle: {
       get() {
@@ -246,7 +245,7 @@ export default {
       },
       set() {
         this.$store.dispatch("togglePriceShowTotals", !this.totalsToggle);
-      },
+      }
     },
     totalsCaption() {
       return this.totalsToggle ? "HIDE TOTALS" : "SHOW TOTALS";
@@ -255,7 +254,7 @@ export default {
       return Math.min(100 * this.activePricers.length, 300);
     },
     strategyList() {
-      return new stratHelper().strats().map((x) => x.name);
+      return new stratHelper().strats().map(x => x.name);
     },
     minSideBarHeight() {
       return this.window.height - 160;
@@ -264,7 +263,7 @@ export default {
       return this.sidebarMinified === true
         ? this.window.width - 375
         : this.window.width - 520;
-    },
+    }
   },
   methods: {
     dev() {
@@ -303,7 +302,7 @@ export default {
       this.$route.params.viewName = stratName;
       this.$router
         .push({ name: this.$route.name, viewName: stratName })
-        .then((onComplete) => {
+        .then(onComplete => {
           this.$store.dispatch("togglePriceShowTotals", true);
 
           this.$store.dispatch("sendStrategyToPricer", validStrat);
@@ -317,12 +316,12 @@ export default {
 
       PricerApi.GetSingleSpot({
         cross: cross,
-        UserName: this.currentUser,
-      }).then((response) => {
+        UserName: this.currentUser
+      }).then(response => {
         const spot = JSON.parse(response.data.singleSpot).toString();
         const strat = new stratHelper()
           .strats()
-          .filter((x) => x.name === stratName)[0].key;
+          .filter(x => x.name === stratName)[0].key;
         let optData = {
           cross: cross,
           expiryText: mat,
@@ -330,12 +329,12 @@ export default {
           notional: "100",
           spot: spot,
           strikeText: strat,
-          userName: this.currentUser,
+          userName: this.currentUser
         };
 
         this.addStrategyView({
           strategy: strat,
-          optData: optData,
+          optData: optData
         });
       });
     },
@@ -348,7 +347,7 @@ export default {
       if (this.isPricerNameDupe(pricerName) === true) {
         this.$store.dispatch("setSnackbar", {
           text: `${priceName} already exist: Rename Pricer`,
-          top: true,
+          top: true
         });
         return;
       }
@@ -360,7 +359,7 @@ export default {
       if (this.activePricers.length === 1) {
         this.$store.dispatch("setSnackbar", {
           text: `CANNOT REMOVE THE MAIN PRICER. PRESS CTRL-D TO CLEAR THE SHEET`,
-          top: true,
+          top: true
         });
 
         return;
@@ -387,6 +386,9 @@ export default {
         .push({ name: this.$route.name, viewName: view })
         .catch(() => {});
     },
+    changeLayout() {
+      this.componentKey += 1;
+    }
   },
   watch: {
     crossList() {
@@ -396,8 +398,8 @@ export default {
     },
     sidebarMinified() {
       this.componentKey += 1;
-    },
-  },
+    }
+  }
 };
 </script>
 

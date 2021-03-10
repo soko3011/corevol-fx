@@ -321,7 +321,7 @@ const actions = {
         PricerLayoutPrefs: JSON.stringify(data)
       });
       dispatch("setSnackbar", {
-        text: `PricerSetup saved. Status: ${response.status}`
+        text: `PricerSetup saved.`
       });
     } catch (error) {
       dispatch("setSnackbar", {
@@ -333,7 +333,7 @@ const actions = {
     try {
       let response = await PricerApi.SavePricerSetup(data);
       dispatch("setSnackbar", {
-        text: `PricerSetup saved. Status: ${response.status}`
+        text: `PricerSetup saved.`
       });
     } catch (error) {
       dispatch("setSnackbar", {

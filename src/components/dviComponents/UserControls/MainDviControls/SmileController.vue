@@ -109,7 +109,7 @@
           <v-card-title
             class="subtitle-1 green--text text--lighten-3"
           ></v-card-title>
-          <div class="d-flex flex-nowrap justify-start textFieldsSmile">
+          <div class="d-flex flex-nowrap justify-start textFieldsSmile mt-9">
             <v-text-field
               dense
               label="WeightBarrier"
@@ -141,7 +141,7 @@
             ></v-text-field>
           </div>
 
-          <div class="d-flex flex-nowrap justify-start textFieldsSmile mt-9">
+          <div class="d-flex flex-nowrap justify-start textFieldsSmile ">
             <v-text-field
               dense
               label="RRMULT1"

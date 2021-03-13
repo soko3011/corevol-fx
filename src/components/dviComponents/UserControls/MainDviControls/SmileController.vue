@@ -109,6 +109,37 @@
           <v-card-title
             class="subtitle-1 green--text text--lighten-3"
           ></v-card-title>
+          <div class="d-flex flex-nowrap justify-start textFieldsSmile">
+            <v-text-field
+              dense
+              label="WeightBarrier"
+              color="blue lighten-3"
+              v-model="wgtBar"
+              outlined
+              @focus="$event.target.select()"
+              @keydown.enter="
+                $event.target.select();
+                setIdata();
+              "
+              class="mx-2"
+              :rules="[required('WgtBar'), positiveNumber()]"
+            ></v-text-field>
+
+            <v-text-field
+              dense
+              color="blue lighten-3"
+              label="RRCorr"
+              v-model="rrCorr"
+              outlined
+              class="mx-2"
+              @focus="$event.target.select()"
+              @keydown.enter="
+                $event.target.select();
+                setIdata();
+              "
+              :rules="[required('RRCORR'), anyNumber()]"
+            ></v-text-field>
+          </div>
 
           <div class="d-flex flex-nowrap justify-start textFieldsSmile mt-9">
             <v-text-field
@@ -170,38 +201,6 @@
                 setFixedSmileMults();
               "
               :rules="[required('SFLYMULT'), positiveNumber()]"
-            ></v-text-field>
-          </div>
-
-          <div class="d-flex flex-nowrap justify-start textFieldsSmile">
-            <v-text-field
-              dense
-              label="WeightBarrier"
-              color="blue lighten-3"
-              v-model="wgtBar"
-              outlined
-              @focus="$event.target.select()"
-              @keydown.enter="
-                $event.target.select();
-                setIdata();
-              "
-              class="mx-2"
-              :rules="[required('WgtBar'), positiveNumber()]"
-            ></v-text-field>
-
-            <v-text-field
-              dense
-              color="blue lighten-3"
-              label="RRCorr"
-              v-model="rrCorr"
-              outlined
-              class="mx-2"
-              @focus="$event.target.select()"
-              @keydown.enter="
-                $event.target.select();
-                setIdata();
-              "
-              :rules="[required('RRCORR'), anyNumber()]"
             ></v-text-field>
           </div>
         </div>

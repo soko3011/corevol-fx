@@ -9,7 +9,7 @@
     >
       <!-- eslint-disable-next-line vue/valid-v-slot-->
       <template v-slot:item.Atm="{ item }">
-        {{ item.Atm.toFixed(2) }}
+        {{ item.Atm.toFixed(4) }}
       </template>
       <!-- eslint-disable-next-line vue/valid-v-slot-->
       <template v-slot:item.Sub25="{ item }">

@@ -594,6 +594,15 @@ const actions = {
       return { error: ` ${err}.` };
     }
   },
+  async returnFixedSmileMults({ commit }, payload) {
+    try {
+      let response = await DviApi.returnFixedSmileMults(payload);
+      commit("SET_SURF", response.data);
+      return response.status;
+    } catch (err) {
+      return { error: ` ${err}.` };
+    }
+  },
   async checkAndLoadIpv({ commit }, payload) {
     try {
       let response = await DviApi.CheckAndLoadIpv(payload);

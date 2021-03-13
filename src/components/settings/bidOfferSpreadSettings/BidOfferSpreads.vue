@@ -3,6 +3,7 @@
     <!-- <v-btn color="blue" @click="dev">DEV</v-btn> -->
     <div class="d-flex flex-row flex-nowrap">
       <CcyPairTiers
+        class="mx-2"
         v-if="isDataLoaded"
         :inputData="currencyPairTiers"
         v-on:saveCcyPairTier="saveCcyPairTier"

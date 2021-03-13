@@ -376,9 +376,10 @@ export default {
       this.reloadPricer(redirectTo);
     },
     async clearAllPricers() {
-      this.$store.dispatch("clearAllPricers");
+      await this.$store.dispatch("clearAllPricers");
       this.$store.dispatch("togglePriceShowTotals", false);
       this.reloadPricer("MAIN");
+      this.componentKey += 1;
     },
     reloadPricer(view) {
       this.$route.params.viewName = view;

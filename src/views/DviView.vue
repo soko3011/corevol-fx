@@ -273,21 +273,22 @@
                   dark
                   small
                   color="#eb0235"
-                  @click.stop="MatchIpvAll()"
+                  @click.stop="MatchIpvAtmSurf()"
                   :loading="!ipvReturned"
                 >
-                  ALL
+                  SURF
                 </v-btn>
                 <v-btn
                   fab
                   dark
                   small
                   color="#eb0235"
-                  @click.stop="MatchIpvAtmSurf()"
+                  @click.stop="MatchIpvAll()"
                   :loading="!ipvReturned"
                 >
-                  SURF
+                  ALL
                 </v-btn>
+
                 <v-btn
                   fab
                   dark

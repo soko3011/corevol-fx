@@ -25,6 +25,9 @@ export default {
   CheckAndLoadIpv(body) {
     return Api.post("CheckAndLoadIpv", body);
   },
+  returnFixedSmileMults(body) {
+    return Api.post("ReturnFixedSmileMults", body);
+  },
   returnMatchIpvAll(body) {
     return Api.post("ReturnMatchIpvAll", body);
   },

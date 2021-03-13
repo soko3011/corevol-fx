@@ -5,7 +5,7 @@
         <div class="firstCol">
           <v-card-title class="subtitle-1 green--text text--lighten-3"
             >SMILE CONTROLS
-            <v-btn icon @click="rrModelToggle = !rrModelToggle">
+            <v-btn icon>
               <v-icon class="mb-2" small color="blue lighten-3"
                 >mdi-dots-hexagon</v-icon
               ></v-btn
@@ -106,14 +106,73 @@
           </div>
         </div>
         <div class="secondCol">
-          <v-card-title class="subtitle-1 green--text text--lighten-3"
-            >RR MODEL
-            <v-btn icon @click="rrModelToggle = !rrModelToggle">
-              <v-icon class="mb-2" small color="blue lighten-3"
-                >mdi-dots-hexagon</v-icon
-              ></v-btn
-            ></v-card-title
-          >
+          <v-card-title
+            class="subtitle-1 green--text text--lighten-3"
+          ></v-card-title>
+
+          <div class="d-flex flex-nowrap justify-start textFieldsSmile mt-9">
+            <v-text-field
+              dense
+              label="RRMULT1"
+              color="blue lighten-3"
+              v-model="rrMult1"
+              outlined
+              @focus="$event.target.select()"
+              @keydown.enter="
+                $event.target.select();
+                setFixedSmileMults();
+              "
+              class="mx-2"
+              :rules="[required('RRMULT'), positiveNumber()]"
+            ></v-text-field>
+
+            <v-text-field
+              dense
+              color="blue lighten-3"
+              label="RRMULT2"
+              v-model="rrMult2"
+              outlined
+              class="mx-2"
+              @focus="$event.target.select()"
+              @keydown.enter="
+                $event.target.select();
+                setFixedSmileMults();
+              "
+              :rules="[required('RRMULT'), positiveNumber()]"
+            ></v-text-field>
+          </div>
+          <div class="d-flex flex-nowrap justify-start textFieldsSmile">
+            <v-text-field
+              dense
+              label="SFLYMULT1"
+              color="blue lighten-3"
+              v-model="sFlyMult1"
+              outlined
+              @focus="$event.target.select()"
+              @keydown.enter="
+                $event.target.select();
+                setFixedSmileMults();
+              "
+              class="mx-2"
+              :rules="[required('SFLYMULT'), positiveNumber()]"
+            ></v-text-field>
+
+            <v-text-field
+              dense
+              color="blue lighten-3"
+              label="SFLYMULT2"
+              v-model="sFlyMult2"
+              outlined
+              class="mx-2"
+              @focus="$event.target.select()"
+              @keydown.enter="
+                $event.target.select();
+                setFixedSmileMults();
+              "
+              :rules="[required('SFLYMULT'), positiveNumber()]"
+            ></v-text-field>
+          </div>
+
           <div class="d-flex flex-nowrap justify-start textFieldsSmile">
             <v-text-field
               dense
@@ -169,18 +228,22 @@ export default {
       FLY2: "",
       wgtBar: "",
       rrCorr: "",
+      rrMult1: "",
+      rrMult2: "",
+      sFlyMult1: "",
+      sFlyMult2: "",
       showControllerToggle: true,
       rrModelToggle: false,
-      ...validations,
+      ...validations
     };
   },
   props: {
-    smileControllerToggle: { type: Boolean },
+    smileControllerToggle: { type: Boolean }
   },
   computed: {
     ...mapState({
-      apidata: (state) => state.dvi.smileInput,
-    }),
+      apidata: state => state.dvi.smileInput
+    })
   },
   methods: {
     refreshFromApi() {
@@ -192,6 +255,10 @@ export default {
       this.FLY2 = this.apidata[1].FLY25;
       this.wgtBar = this.apidata[0].WgtBar;
       this.rrCorr = this.apidata[0].RRCORR;
+      this.rrMult1 = this.apidata[0].RRMULT;
+      this.rrMult2 = this.apidata[1].RRMULT;
+      this.sFlyMult1 = this.apidata[0].SFLYMULT;
+      this.sFlyMult2 = this.apidata[1].SFLYMULT;
     },
 
     setIdata() {
@@ -205,10 +272,39 @@ export default {
         Rrcorr: this.rrCorr,
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
-        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
       };
       this.$store.dispatch("returnDviAfterSmileUpdate", iData);
     },
+    async setFixedSmileMults() {
+      this.$emit("dataSent");
+
+      let response = await this.$store.dispatch("returnFixedSmileMults", {
+        Cross: this.$route.params.ccyPair,
+        UserName: this.$store.state.currentUser,
+        AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
+
+        SmileMults: [
+          {
+            Term: this.expiry1,
+            RrMult: parseFloat(this.rrMult1),
+            FlyMultSmile: parseFloat(this.sFlyMult1)
+          },
+          {
+            Term: this.expiry2,
+            RrMult: parseFloat(this.rrMult2),
+            FlyMultSmile: parseFloat(this.sFlyMult2)
+          }
+        ]
+      });
+
+      if (response.error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `There is an issue setting Fixed Smile Mults For: ${this.$route.params.ccyPair} \n${response.error}`,
+          bottom: true
+        });
+      }
+    }
   },
   watch: {
     apidata() {
@@ -217,8 +313,8 @@ export default {
     smileControllerToggle() {
       this.showControllerToggle = this.smileControllerToggle;
       this.rrModelToggle = this.smileControllerToggle;
-    },
-  },
+    }
+  }
 };
 </script>
 

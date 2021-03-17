@@ -6,8 +6,17 @@
     <div v-if="hasData" class="d-flex flex-row flex-nowrap ml-5">
       <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
       <div class="d-flex flex-column">
-        <div class="d-flex flex-row justify-end mr-6">
-          <div class="scratchPad">
+        <div class="d-flex flex-row justify-end ">
+          <div class="scratchPad mr-6">
+            <v-select
+              v-model="activeCross"
+              :items="crossList"
+              label="Cross"
+              @change="changeCross"
+            >
+            </v-select>
+          </div>
+          <div class="scratchPad mr-6">
             <v-select
               v-model="baseCcy"
               :items="baseCcyList"
@@ -92,7 +101,8 @@ import CorrWidget from "@/components/Correlation/CorrWidget.vue";
 import moment from "moment";
 export default {
   props: {
-    cross: { type: String }
+    cross: { type: String },
+    crossList: { type: Array }
   },
   components: {
     TableStaticCorrs,
@@ -117,6 +127,7 @@ export default {
       corrWidget1Term: "1M",
       baseCcyList: [],
       baseCcy: "USD",
+      activeCross: this.cross,
       loading: false,
       window: {
         width: 0,
@@ -159,6 +170,9 @@ export default {
     }
   },
   methods: {
+    changeCross() {
+      this.$emit("crossChanged", this.activeCross);
+    },
     async getCorrelationModelFromServer() {
       try {
         let response = await CorrelationApi.getCorrelationModel({

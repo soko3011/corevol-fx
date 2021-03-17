@@ -49,7 +49,6 @@
 </template>
 
 <script>
-import SettingsApi from "@/apis/SettingsApi.js";
 export default {
   props: {
     inputData: { type: Array }

@@ -15,6 +15,7 @@
             justify="center"
           >
             {{ cross }}
+
             <v-btn icon x-small class="mb-4" elevation="21">
               <PopUpModal
                 :inputData="crosses"
@@ -32,7 +33,12 @@
       </v-toolbar>
     </div>
     <div class="d-flex flex-row flex-nowrap">
-      <CorrelationMain :cross="cross" :key="componentKey" />
+      <CorrelationMain
+        :cross="cross"
+        :crossList="crosses"
+        v-on:crossChanged="changeCross"
+        :key="componentKey"
+      />
     </div>
   </div>
 </template>
@@ -54,7 +60,7 @@ export default {
   },
   data() {
     return {
-      cross: "AUDJPY",
+      cross: "EURZAR",
       componentKey: 0,
       window: {
         width: 0,

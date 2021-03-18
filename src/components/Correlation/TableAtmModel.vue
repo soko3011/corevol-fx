@@ -30,6 +30,15 @@ export default {
     baseCross2() {
       return this.apidata[0].BaseCross2;
     },
+    baseCrossHeader1() {
+      return `${this.baseCross1} VOL`;
+    },
+    baseCrossHeader2() {
+      return `${this.baseCross2} VOL`;
+    },
+    crossHeader() {
+      return `${this.cross} VOL`;
+    },
     adaptedApiData() {
       return this.apidata.map(row => {
         const { BaseCross1, BaseCross2, ...rest } = row;
@@ -43,10 +52,10 @@ export default {
 
       let updatedHeaders = headers.map(title => {
         if (title === "Ccy1Vol") {
-          return `${this.baseCross1} VOL`;
+          return this.baseCrossHeader1;
         }
         if (title === "Ccy2Vol") {
-          return `${this.baseCross2} VOL`;
+          return this.baseCrossHeader2;
         }
 
         if (title === "CrossVol") {
@@ -102,13 +111,22 @@ export default {
   },
   methods: {
     dev() {
-      // console.log(this.adaptedApiData[0]);
+      console.log(this.adaptedApiData[0]);
       // console.log(this.apidata[0]);
       console.log(this.baseCross1);
       console.log(this.baseCross2);
     },
     isUserEditableCell(col) {
       if (this.tableHeaders[col] === "ImpliedCorr") {
+        return true;
+      }
+      if (this.tableHeaders[col] === this.baseCrossHeader1) {
+        return true;
+      }
+      if (this.tableHeaders[col] === this.baseCrossHeader2) {
+        return true;
+      }
+      if (this.tableHeaders[col] === this.crossHeader) {
         return true;
       }
     },
@@ -122,6 +140,20 @@ export default {
       cssUser.activateUserEditableClasses();
     },
     OnChange(instance, cell, x1, y1) {
+      if (this.tableHeaders[x1] === "ImpliedCorr") {
+        this.userImpliedCorr(x1, y1);
+      }
+      if (this.tableHeaders[x1] === this.baseCrossHeader1) {
+        this.userBaseVol(x1, y1, this.baseCrossHeader1, false);
+      }
+      if (this.tableHeaders[x1] === this.baseCrossHeader2) {
+        this.userBaseVol(x1, y1, this.baseCrossHeader2, false);
+      }
+      if (this.tableHeaders[x1] === this.crossHeader) {
+        this.userBaseVol(x1, y1, this.crossHeader, true);
+      }
+    },
+    userImpliedCorr(x1, y1) {
       let checkVal = this.jExcelObj.getValueFromCoords(x1, y1);
       let resetVal = 99999;
 
@@ -137,7 +169,7 @@ export default {
       const rowData = this.jExcelObj.getRowData(y1);
       const obj = this.createRowObject(rowData, this.tableHeaders);
       this.jExcelObj.ignoreEvents = true;
-      this.updateUserCorr(obj, y1);
+      this.updateUserCorr(obj, y1, false);
       this.jExcelObj.ignoreEvents = false;
 
       if (resetVal === 99999) {
@@ -154,12 +186,65 @@ export default {
         );
       }
     },
+    userBaseVol(x1, y1, colHeader, implyCorr) {
+      let checkVal = this.jExcelObj.getValueFromCoords(x1, y1);
+      let resetVal = 99999;
+      let term = this.jExcelObj.getValueFromCoords(
+        this.tableHeaders.indexOf("Term"),
+        y1
+      );
 
-    updateUserCorr(rowObject, row) {
-      let vol1 = rowObject[`${this.baseCross1} VOL`] * 1;
-      let vol2 = rowObject[`${this.baseCross2} VOL`] * 1;
+      if (checkVal === "") {
+        if (colHeader === this.baseCrossHeader1) {
+          resetVal = this.apidata.find(x => x.Term === term).Ccy1Vol;
+        }
+        if (colHeader === this.baseCrossHeader2) {
+          resetVal = this.apidata.find(x => x.Term === term).Ccy2Vol;
+        }
+        if (colHeader === this.crossHeader) {
+          resetVal = this.apidata.find(x => x.Term === term).CrossVol;
+        }
+        this.setCellVal(colHeader, resetVal, y1);
+      }
+
+      const rowData = this.jExcelObj.getRowData(y1);
+      const obj = this.createRowObject(rowData, this.tableHeaders);
+      this.jExcelObj.ignoreEvents = true;
+      this.updateUserCorr(obj, y1, implyCorr);
+      this.jExcelObj.ignoreEvents = false;
+
+      if (resetVal === 99999) {
+        this.jExcelObj.setStyle(
+          this.cellId(this.tableHeaders.indexOf(colHeader), y1 * 1 + 1),
+          "background-color",
+          "#ff0000"
+        );
+      } else if (term === "3M" || term === "1Y") {
+        this.jExcelObj.setStyle(
+          this.cellId(this.tableHeaders.indexOf(colHeader), y1 * 1 + 1),
+          "background-color",
+          "#D2DEE9"
+        );
+      } else {
+        this.jExcelObj.setStyle(
+          this.cellId(this.tableHeaders.indexOf(colHeader), y1 * 1 + 1),
+          "background-color",
+          "#FFFFFF"
+        );
+      }
+    },
+
+    updateUserCorr(rowObject, row, implyCorr) {
+      let vol1 = rowObject[this.baseCrossHeader1] * 1;
+      let vol2 = rowObject[this.baseCrossHeader2] * 1;
       let userCorr = rowObject.ImpliedCorr * 1;
       let crossVol = this.crossVol(vol1, vol2, userCorr);
+
+      if (implyCorr === true) {
+        crossVol = rowObject[this.crossHeader] * 1;
+        userCorr = this.impliedCorrelation(vol1, vol2, crossVol);
+      }
+
       let crossVegas = this.crossVegas(vol1, vol2, userCorr);
       let corrBumps = this.corrBumps(vol1, vol2, userCorr);
 
@@ -232,6 +317,12 @@ export default {
         corrBumpUP: crossVolBumpUP - crossVolBase,
         corrBumpDN: crossVolBumpDN - crossVolBase
       };
+    },
+    impliedCorrelation(vol1, vol2, crossVol) {
+      return (
+        -(Math.pow(crossVol, 2) - Math.pow(vol1, 2) - Math.pow(vol2, 2)) /
+        (2 * vol1 * vol2)
+      );
     },
     cellId(col, row) {
       return `${this.alphabet[col].toUpperCase()}${row}`;

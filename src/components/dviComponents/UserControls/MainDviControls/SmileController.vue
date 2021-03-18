@@ -109,10 +109,12 @@
           <v-card-title
             class="subtitle-1 green--text text--lighten-3"
           ></v-card-title>
-          <div class="d-flex flex-nowrap justify-start textFieldsSmile mt-9">
+          <div
+            class="d-flex flex-nowrap justify-start textFieldsSmileLong mt-9"
+          >
             <v-text-field
               dense
-              label="WeightBarrier"
+              label="WgtBar"
               color="blue lighten-3"
               v-model="wgtBar"
               outlined
@@ -139,9 +141,23 @@
               "
               :rules="[required('RRCORR'), anyNumber()]"
             ></v-text-field>
+            <v-text-field
+              dense
+              color="blue lighten-3"
+              label="RRWgt"
+              v-model="rrWgt"
+              outlined
+              class="mx-2"
+              @focus="$event.target.select()"
+              @keydown.enter="
+                $event.target.select();
+                setIdata();
+              "
+              :rules="[required('RRWgt'), positiveNumber()]"
+            ></v-text-field>
           </div>
 
-          <div class="d-flex flex-nowrap justify-start textFieldsSmile ">
+          <div class="d-flex flex-nowrap justify-start textFieldsSmileLong ">
             <v-text-field
               dense
               label="RRMULT1"
@@ -172,7 +188,7 @@
               :rules="[required('RRMULT'), positiveNumber()]"
             ></v-text-field>
           </div>
-          <div class="d-flex flex-nowrap justify-start textFieldsSmile">
+          <div class="d-flex flex-nowrap justify-start textFieldsSmileLong">
             <v-text-field
               dense
               label="SFLYMULT1"
@@ -216,6 +232,7 @@ export default {
   name: "smileController",
   created() {
     this.refreshFromApi();
+    console.log(this.apidata);
   },
   data() {
     return {
@@ -227,6 +244,7 @@ export default {
       FLY2: "",
       wgtBar: "",
       rrCorr: "",
+      rrWgt: "",
       rrMult1: "",
       rrMult2: "",
       sFlyMult1: "",
@@ -254,6 +272,7 @@ export default {
       this.FLY2 = this.apidata[1].FLY25;
       this.wgtBar = this.apidata[0].WgtBar;
       this.rrCorr = this.apidata[0].RRCORR;
+      this.rrWgt = this.apidata[0].RRWgt;
       this.rrMult1 = this.apidata[0].RRMULT;
       this.rrMult2 = this.apidata[1].RRMULT;
       this.sFlyMult1 = this.apidata[0].SFLYMULT;
@@ -268,7 +287,8 @@ export default {
         Fly1: this.FLY1,
         Fly2: this.FLY2,
         Wgtbar: this.wgtBar,
-        Rrcorr: this.rrCorr,
+        RRcorr: this.rrCorr,
+        RRWgt: this.rrWgt,
         Cross: this.$route.params.ccyPair,
         UserName: this.$store.state.currentUser,
         AutoSave: this.$store.state.dviPrefs.autoSaveSwitch
@@ -319,7 +339,11 @@ export default {
 
 <style>
 div.textFieldsSmile {
-  width: 230px;
+  width: 250px;
+  height: 50px;
+}
+div.textFieldsSmileLong {
+  width: 250px;
   height: 50px;
 }
 </style>

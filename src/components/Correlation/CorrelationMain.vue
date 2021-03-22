@@ -6,11 +6,12 @@
     <div v-if="hasData" class="d-flex flex-row flex-nowrap ml-5">
       <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
       <div class="d-flex flex-column">
-        <div class="d-flex flex-row justify-end ">
+        <div class="d-flex flex-row justify-end">
           <div class="scratchPad mr-6">
             <v-select
               v-model="activeCross"
               :items="crossList"
+              :menu-props="{ maxHeight: 600, elevation: 21 }"
               label="Cross"
               @change="changeCross"
             >
@@ -102,13 +103,13 @@ import moment from "moment";
 export default {
   props: {
     cross: { type: String },
-    crossList: { type: Array }
+    crossList: { type: Array },
   },
   components: {
     TableStaticCorrs,
     TableAtmModel,
     CorrChart,
-    CorrWidget
+    CorrWidget,
   },
   data() {
     return {
@@ -131,8 +132,8 @@ export default {
       loading: false,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   async created() {
@@ -145,29 +146,31 @@ export default {
       return this.staticCorrs.length > 0 ? true : false;
     },
     staticCorrTerms() {
-      return this.staticCorrs.map(x => {
+      return this.staticCorrs.map((x) => {
         return x.Term;
       });
     },
     chart1Data() {
       const index = this.staticCorrTerms.indexOf(this.chart1Term);
       const cloneSelection = [
-        ...this.corrModel.RollingCorrs[index][this.chart1Selection]
+        ...this.corrModel.RollingCorrs[index][this.chart1Selection],
       ];
       const arr = cloneSelection.reverse();
       return arr.slice(Math.max(arr.length - this.chart1DataPoints, 0));
     },
     chart1Labels() {
-      return this.timeSeriesDates
-        .reverse()
-        .slice(Math.max(this.timeSeriesDates.length - this.chart1DataPoints, 0))
-        .map(function(x) {
+      const cloneTimeSeriesDates = [...this.timeSeriesDates];
+      const arr = cloneTimeSeriesDates.reverse();
+
+      return arr
+        .slice(Math.max(arr.length - this.chart1DataPoints, 0))
+        .map(function (x) {
           return moment(x).format("DD-MMM-YYYY");
         });
     },
     dataPointDays() {
       return Array.from(Array(501).keys());
-    }
+    },
   },
   methods: {
     changeCross() {
@@ -178,7 +181,7 @@ export default {
         let response = await CorrelationApi.getCorrelationModel({
           Cross: this.cross,
           UserName: this.$store.state.currentUser,
-          Ccy: this.baseCcy
+          Ccy: this.baseCcy,
         });
 
         this.baseCcyList = JSON.parse(response.data.baseCurrencyList);
@@ -190,7 +193,7 @@ export default {
         this.timeSeriesDates = this.corrModel.TimeSeriesDates;
         this.chart1AvailableSelection = Object.keys(
           this.corrModel.RollingCorrs[0]
-        ).filter(x => x !== "Term");
+        ).filter((x) => x !== "Term");
       } catch (error) {
         console.log(error);
       }
@@ -228,7 +231,7 @@ export default {
 
     dev() {
       console.log(this.componentKey);
-    }
+    },
   },
   watch: {
     chart1Term() {
@@ -242,8 +245,8 @@ export default {
     },
     corrWidget1Term() {
       this.componentKeyScracthPad += 1;
-    }
-  }
+    },
+  },
 };
 </script>
 

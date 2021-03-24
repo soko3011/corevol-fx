@@ -1,7 +1,6 @@
 <template>
   <div id="app">
-    <!-- <v-btn color="yellow" @click="dev">dev</v-btn> -->
-    <canvas id="chart"></canvas>
+    <canvas id="zscore" width="1000" height="300"></canvas>
   </div>
 </template>
 
@@ -12,7 +11,7 @@ export default {
   props: {
     chartTitle: { type: String },
     inputLabels: { type: Array },
-    inputData: { type: Array }
+    inputSeries1: { type: Array }
   },
   data() {
     return {
@@ -23,12 +22,10 @@ export default {
           datasets: [
             {
               label: this.chartTitle,
-              data: this.inputData,
-              backgroundColor: [
-                "rgba(71, 183,132,.5)" // Green
-              ],
-              borderColor: ["#CCFCCB"],
-              borderWidth: 1
+              data: this.inputSeries1,
+              borderColor: ["red"],
+              borderWidth: 1,
+              fill: true
             }
           ]
         },
@@ -43,9 +40,23 @@ export default {
           scales: {
             yAxes: [
               {
+                scaleLabel: {
+                  display: true,
+                  labelString: "Standard Deviations"
+                },
                 ticks: {
                   beginAtZero: true,
-                  padding: 5
+                  padding: 5,
+                  userCallback: function(value, index, values) {
+                    return value.toFixed(2);
+                  }
+                }
+              }
+            ],
+            xAxes: [
+              {
+                gridLines: {
+                  display: false
                 }
               }
             ]
@@ -57,7 +68,7 @@ export default {
   computed: {},
   methods: {
     dev() {
-      console.log(this.formattedDate);
+      console.log(this.ChartData);
     },
     createChart(chartId, chartData) {
       const ctx = document.getElementById(chartId);
@@ -70,7 +81,7 @@ export default {
   },
 
   mounted() {
-    this.createChart("chart", this.ChartData);
+    this.createChart("zscore", this.ChartData);
   }
 };
 </script>

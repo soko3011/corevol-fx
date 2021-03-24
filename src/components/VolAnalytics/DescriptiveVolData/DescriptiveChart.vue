@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <!-- <v-btn color="yellow" @click="dev">dev</v-btn> -->
-    <canvas id="chart"></canvas>
+    <canvas id="chart" width="1000"></canvas>
   </div>
 </template>
 
@@ -12,7 +12,9 @@ export default {
   props: {
     chartTitle: { type: String },
     inputLabels: { type: Array },
-    inputData: { type: Array }
+    inputSeries1: { type: Array },
+    inputSeries2: { type: Array },
+    inputSeries3: { type: Array }
   },
   data() {
     return {
@@ -22,17 +24,34 @@ export default {
           labels: this.inputLabels,
           datasets: [
             {
-              label: this.chartTitle,
-              data: this.inputData,
-              backgroundColor: [
-                "rgba(71, 183,132,.5)" // Green
-              ],
-              borderColor: ["#CCFCCB"],
-              borderWidth: 1
+              label: "Mean",
+              data: this.inputSeries1,
+              borderColor: ["red"],
+              borderWidth: 1,
+              fill: true
+            },
+            {
+              label: "Realized",
+              data: this.inputSeries2,
+              borderColor: ["#385F73"],
+              borderWidth: 2,
+              borderDash: [10, 5],
+              fill: false
+            },
+            {
+              label: "Std. Dev.",
+              data: this.inputSeries3,
+              borderColor: ["#385F73"],
+              borderWidth: 1,
+              backgroundColor: ["#385F73"]
             }
           ]
         },
         options: {
+          title: {
+            display: true,
+            text: this.chartTitle
+          },
           elements: {
             point: {
               radius: 0
@@ -43,9 +62,16 @@ export default {
           scales: {
             yAxes: [
               {
+                scaleLabel: {
+                  display: true,
+                  labelString: "Volatility"
+                },
                 ticks: {
                   beginAtZero: true,
-                  padding: 5
+                  padding: 5,
+                  userCallback: function(value, index, values) {
+                    return value.toFixed(2);
+                  }
                 }
               }
             ]
@@ -57,7 +83,7 @@ export default {
   computed: {},
   methods: {
     dev() {
-      console.log(this.formattedDate);
+      console.log(this.ChartData);
     },
     createChart(chartId, chartData) {
       const ctx = document.getElementById(chartId);

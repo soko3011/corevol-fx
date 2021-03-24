@@ -17,6 +17,7 @@ const UserLogin = () => import("@/views/UserLogin");
 const UserRegistration = () => import("@/views/UserRegistration");
 const Admin = () => import("@/views/Admin");
 const SplashScreen = () => import("@/views/SplashScreen");
+const VolAnalytics = () => import("@/views/VolAnalyticsView");
 
 Vue.use(Router);
 
@@ -76,6 +77,11 @@ let router = new Router({
           path: "correlation",
           name: "Correlation",
           component: Correlation
+        },
+        {
+          path: "volAnalytics",
+          name: "VolAnalytics",
+          component: VolAnalytics
         },
 
         {

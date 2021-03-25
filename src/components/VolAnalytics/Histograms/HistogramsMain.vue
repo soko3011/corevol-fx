@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="ml-5">
     <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
     <div v-if="loaded">
       <div class="d-flex flex-row">
@@ -15,17 +15,9 @@
                 :loading="refreshingData"
               ></v-select>
               <v-select
-                v-model="chartDataPoints"
-                :items="dataPointDays"
-                label="Days"
-                @change="refreshApi"
-                class="mr-5"
-                :loading="refreshingData"
-              ></v-select>
-              <v-select
                 v-model="averaging_period"
                 :items="dataPointDays"
-                label="Averaging Period"
+                label="Observations"
                 @change="refreshApi"
                 class="mr-5"
               ></v-select>
@@ -39,25 +31,22 @@
             </div>
           </div>
           <div>
-            <RollingPercentilesChart
+            <HistogramChart
               :key="componentKey"
-              :inputLabels="dates"
-              :inputSeries1="topQuartile"
-              :inputSeries2="median"
-              :inputSeries3="bottomQuartile"
-              :inputSeries4="realized"
-              :chartTitle="`${cross} Rolling Percentiles (Historical)`"
+              :inputLabels="bins"
+              :inputSeries1="frequency"
+              :chartTitle="`${cross} Histogram`"
             />
           </div>
         </div>
-        <div class="dt_rolling">
+        <!-- <div class="dt_rolling">
           <DataTable
             :key="componentKey"
             :inputHeaders="tableHeaders"
             :inputData="dataTableData"
             :rowsPerPage="10"
           />
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -65,15 +54,14 @@
 
 <script>
 import VolAnalyticsApi from "@/apis/pythonApis/VolAnalyticsApi";
-import moment from "moment";
-import RollingPercentilesChart from "@/components/VolAnalytics/RollingPercentiles/RollingPercentilesChart.vue";
+import HistogramChart from "@/components/VolAnalytics/Histograms/HistogramChart.vue";
 import DataTable from "@/components/VolAnalytics/DataTables/MaterialDataTable.vue";
 import { mapState } from "vuex";
 
 export default {
-  name: "RollingPercentiles",
+  name: "HistogramsMain",
   components: {
-    RollingPercentilesChart,
+    HistogramChart,
     DataTable
   },
   props: {
@@ -88,7 +76,7 @@ export default {
       term: "3M",
       volEstName: "Raw",
       refreshingData: false,
-      averaging_period: 60
+      averaging_period: 200
     };
   },
   async created() {
@@ -120,60 +108,36 @@ export default {
       return Object.keys(this.dataTableData[0]);
     },
     dataPointDays() {
-      return Array.from(Array(501).keys());
+      return Array.from(Array(1001).keys());
     },
-    dates() {
-      const cloneTimeSeriesDates = [...JSON.parse(this.apiData.Dates)];
-      const arr = cloneTimeSeriesDates;
 
-      return arr
-        .slice(Math.max(arr.length - this.chartDataPoints, 0))
-        .map(function(x) {
-          return moment(x).format("DD-MMM-YYYY");
-        });
-    },
-    median() {
-      const cloneSelection = [...JSON.parse(this.apiData.Median)];
+    bins() {
+      const cloneSelection = [...this.apiData.Bins];
       const arr = cloneSelection.map(x => {
-        return x * 100;
+        return (x * 100).toFixed(2);
       });
-      return arr.slice(Math.max(arr.length - this.chartDataPoints, 0));
+      return arr;
     },
-    realized() {
-      const cloneSelection = [...JSON.parse(this.apiData.Realized)];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr.slice(Math.max(arr.length - this.chartDataPoints, 0));
-    },
-    bottomQuartile() {
-      const cloneSelection = [...JSON.parse(this.apiData.BottomQuartile)];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr.slice(Math.max(arr.length - this.chartDataPoints, 0));
-    },
-    topQuartile() {
-      const cloneSelection = [...JSON.parse(this.apiData.TopQuartile)];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr.slice(Math.max(arr.length - this.chartDataPoints, 0));
+    frequency() {
+      const cloneSelection = [...this.apiData.Frequency];
+
+      return cloneSelection;
     }
   },
   methods: {
     dev() {
-      console.log(this.apiData);
+      console.log(this.bins);
     },
     async getApiData() {
       try {
-        let response = await VolAnalyticsApi.get_rolling_percentiles(
+        let response = await VolAnalyticsApi.get_histogram(
           this.cross,
           this.term,
           this.volEstName,
           this.averaging_period
         );
-        this.apiData = response.data[0];
+
+        this.apiData = response.data;
         this.loaded = true;
       } catch (error) {
         console.log(error);

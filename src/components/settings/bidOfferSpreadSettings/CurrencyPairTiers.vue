@@ -77,6 +77,9 @@ export default {
   },
 
   methods: {
+    dev() {
+      console.log(this.tableData);
+    },
     get_headers(table_object) {
       let headers = [];
       const classText = "blue-grey darken-2 white--text font-weight-medium";

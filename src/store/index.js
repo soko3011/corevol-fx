@@ -48,7 +48,18 @@ const state = {
   pricerShowTotalsToggle: false,
   pricerStrategy: [],
   activePricerList: [],
-  dashBoardUpdate: []
+  dashBoardUpdate: [],
+  volEstimators:[
+    'GarmanKlass',
+    'HodgesTompkins',
+    'Kurtosis',
+    'Parkinson',
+    'Raw',
+    'RogersSatchell',
+    'Skew',
+    'YangZhang'
+],
+volEstimatorTerms:["1W", "2W", "1M", "2M", "3M", "6M", "9M", "1Y", "2Y"]
 };
 
 const mutations = {

@@ -67,6 +67,11 @@
             :cross="cross"
             :key="componentKey"
           />
+          <HistogramsMain
+            v-if="settingSelection === 'Histograms'"
+            :cross="cross"
+            :key="componentKey"
+          />
         </transition>
       </div>
     </div>
@@ -76,6 +81,7 @@
 <script>
 import DescriptiveVolData from "@/components/VolAnalytics/DescriptiveVolData/DescriptiveVolDataMain.vue";
 import VolConesMain from "@/components/VolAnalytics/VolCones/VolConesMain.vue";
+import HistogramsMain from "@/components/VolAnalytics/Histograms/HistogramsMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 
 export default {
@@ -83,6 +89,7 @@ export default {
   components: {
     DescriptiveVolData,
     VolConesMain,
+    HistogramsMain,
     PopUpModal
   },
   created() {
@@ -94,7 +101,7 @@ export default {
     return {
       cross: "USDCAD",
       componentKey: 0,
-      settingHeaders: ["Descriptive Data", "Vol Cones"],
+      settingHeaders: ["Descriptive Data", "Vol Cones", "Histograms"],
       settingSelection: "Descriptive Data",
       window: {
         width: 0,

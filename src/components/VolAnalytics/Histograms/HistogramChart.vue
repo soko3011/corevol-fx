@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <canvas id="histogram" width="1000" height="400"></canvas>
+    <canvas :id="id_name" width="1000" height="400"></canvas>
   </div>
 </template>
 
@@ -11,7 +11,10 @@ export default {
   props: {
     chartTitle: { type: String },
     inputLabels: { type: Array },
-    inputSeries1: { type: Array }
+    inputSeries1: { type: Array },
+    id_name: { type: String },
+    data_label: { type: String },
+    bar_color: { type: String }
   },
   data() {
     return {
@@ -21,10 +24,10 @@ export default {
           labels: this.inputLabels,
           datasets: [
             {
-              label: "Realized Vol",
+              label: this.data_label,
               data: this.inputSeries1,
               borderColor: ["385F73"],
-              backgroundColor: "rgba(71, 183,132,.5)",
+              backgroundColor: this.bar_color,
               barThickness: 80,
               minBarLength: 0
             }
@@ -75,7 +78,7 @@ export default {
   },
 
   mounted() {
-    this.createChart("histogram", this.ChartData);
+    this.createChart(this.id_name, this.ChartData);
   }
 };
 </script>

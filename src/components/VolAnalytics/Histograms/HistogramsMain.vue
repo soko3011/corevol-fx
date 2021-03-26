@@ -36,6 +36,20 @@
               :inputLabels="bins"
               :inputSeries1="frequency"
               :chartTitle="`${cross} Histogram`"
+              id_name="hist"
+              data_label="Realized Vol"
+              bar_color="rgba(71, 183,132,.5)"
+            />
+          </div>
+          <div class="mt-10">
+            <HistogramChart
+              :key="componentKey"
+              :inputLabels="binsNorm"
+              :inputSeries1="frequencyNorm"
+              :chartTitle="`${cross} Histogram Normalized`"
+              id_name="hist1"
+              data_label="Standard Deviations"
+              bar_color="#385F73"
             />
           </div>
         </div>
@@ -71,12 +85,9 @@ export default {
     return {
       apiData: [],
       loaded: false,
-      chartDataPoints: 500,
       componentKey: 0,
-      term: "3M",
-      volEstName: "Raw",
       refreshingData: false,
-      averaging_period: 200
+      averaging_period: 300
     };
   },
   async created() {
@@ -85,8 +96,26 @@ export default {
   computed: {
     ...mapState({
       terms: state => state.volEstimatorTerms,
-      volEstimators: state => state.volEstimators
+      volEstimators: state => state.volEstimators,
+      analyticsTerm: state => state.analyticsTerm,
+      analyticsVolType: state => state.analyticsVolType
     }),
+    term: {
+      get() {
+        return this.analyticsTerm;
+      },
+      set(val) {
+        this.$store.dispatch("setAnalyticsTerm", val);
+      }
+    },
+    volEstName: {
+      get() {
+        return this.analyticsVolType;
+      },
+      set(val) {
+        this.$store.dispatch("setAnalyticsVolType", val);
+      }
+    },
     dataTableData() {
       const ar2 = this.realized;
       const ar3 = this.median;
@@ -112,16 +141,19 @@ export default {
     },
 
     bins() {
-      const cloneSelection = [...this.apiData.Bins];
-      const arr = cloneSelection.map(x => {
+      const arr = this.apiData.Bins.map(x => {
         return (x * 100).toFixed(2);
       });
       return arr;
     },
     frequency() {
-      const cloneSelection = [...this.apiData.Frequency];
-
-      return cloneSelection;
+      return this.apiData.Frequency;
+    },
+    binsNorm() {
+      return this.apiData.BinsNorm;
+    },
+    frequencyNorm() {
+      return this.apiData.FrequencyNorm;
     }
   },
   methods: {
@@ -139,6 +171,7 @@ export default {
 
         this.apiData = response.data;
         this.loaded = true;
+        this.$emit("alertLoaded", true);
       } catch (error) {
         console.log(error);
       }

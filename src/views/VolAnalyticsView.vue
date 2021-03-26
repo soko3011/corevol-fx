@@ -1,5 +1,9 @@
 <template>
   <div>
+    <v-container class="center">
+      <v-progress-linear v-if="!dataLoaded" indeterminate></v-progress-linear>
+    </v-container>
+    <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
     <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#385F73" min-width="400" collapse>
         <v-spacer></v-spacer>
@@ -14,7 +18,7 @@
             align="center"
             justify="center"
           >
-            {{ cross }}
+            {{ activecross }}
 
             <v-btn icon x-small class="mb-4" elevation="21">
               <PopUpModal
@@ -59,18 +63,21 @@
         <transition name="slide">
           <DescriptiveVolData
             v-if="settingSelection === 'Descriptive Data'"
-            :cross="cross"
+            :cross="activecross"
             :key="componentKey"
+            @alertLoaded="setLoaded"
           />
           <VolConesMain
             v-if="settingSelection === 'Vol Cones'"
-            :cross="cross"
+            :cross="activecross"
             :key="componentKey"
+            @alertLoaded="setLoaded"
           />
           <HistogramsMain
             v-if="settingSelection === 'Histograms'"
-            :cross="cross"
+            :cross="activecross"
             :key="componentKey"
+            @alertLoaded="setLoaded"
           />
         </transition>
       </div>
@@ -83,6 +90,7 @@ import DescriptiveVolData from "@/components/VolAnalytics/DescriptiveVolData/Des
 import VolConesMain from "@/components/VolAnalytics/VolCones/VolConesMain.vue";
 import HistogramsMain from "@/components/VolAnalytics/Histograms/HistogramsMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
+import { mapState } from "vuex";
 
 export default {
   name: "VolAnalytics",
@@ -99,10 +107,10 @@ export default {
   },
   data() {
     return {
-      cross: "USDCAD",
       componentKey: 0,
       settingHeaders: ["Descriptive Data", "Vol Cones", "Histograms"],
       settingSelection: "Descriptive Data",
+      dataLoaded: false,
       window: {
         width: 0,
         height: 0
@@ -110,16 +118,29 @@ export default {
     };
   },
   computed: {
-    crosses() {
-      return this.$store.state.crossList;
+    ...mapState({
+      crosses: state => state.crossList
+    }),
+    activecross() {
+      return this.$store.getters.activeCrossGetter;
     }
   },
   methods: {
+    dev() {
+      console.log(this.$store.getters.activeCrossGetter);
+      console.log(this.activecross);
+    },
+    setLoaded(val) {
+      this.dataLoaded = val;
+    },
     ChangeSettings(setting) {
+      this.dataLoaded = false;
       this.settingSelection = setting;
     },
     changeCross(val) {
-      this.cross = val;
+      this.dataLoaded = false;
+      this.$store.dispatch("setActivecross", val);
+      this.componentKey += 1;
     },
     handleResize() {
       this.window.width = window.innerWidth - 100;
@@ -142,11 +163,6 @@ export default {
         `${this.window.height - 70}px`
       );
     }
-  },
-  watch: {
-    cross() {
-      this.componentKey += 1;
-    }
   }
 };
 </script>
@@ -154,6 +170,14 @@ export default {
 <style lang="scss">
 $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
 .settingsContainer {
   overflow-x: auto;

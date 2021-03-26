@@ -10,28 +10,28 @@
                 v-model="term"
                 :items="terms"
                 label="Term"
-                @change="changeTerm"
+                @change="refreshApiData"
                 class="mr-5"
               ></v-select>
               <v-select
                 v-model="chartDataPoints"
                 :items="dataPointDays"
                 label="Days"
-                @change="changeTerm"
+                @change="refreshApiData"
                 class="mr-5"
               ></v-select>
               <v-select
                 v-model="averaging_period"
                 :items="dataPointDays"
                 label="Averaging Period"
-                @change="changeTerm"
+                @change="refreshApiData"
                 class="mr-5"
               ></v-select>
               <v-select
                 v-model="volEstName"
                 :items="volEstimators"
                 label="VolType"
-                @change="changeTerm"
+                @change="refreshApiData"
               ></v-select>
             </div>
           </div>
@@ -92,8 +92,6 @@ export default {
       loaded: false,
       chartDataPoints: 150,
       componentKey: 0,
-      term: "3M",
-      volEstName: "Raw",
       averaging_period: 60
     };
   },
@@ -103,8 +101,26 @@ export default {
   computed: {
     ...mapState({
       terms: state => state.volEstimatorTerms,
-      volEstimators: state => state.volEstimators
+      volEstimators: state => state.volEstimators,
+      analyticsTerm: state => state.analyticsTerm,
+      analyticsVolType: state => state.analyticsVolType
     }),
+    term: {
+      get() {
+        return this.analyticsTerm;
+      },
+      set(val) {
+        this.$store.dispatch("setAnalyticsTerm", val);
+      }
+    },
+    volEstName: {
+      get() {
+        return this.analyticsVolType;
+      },
+      set(val) {
+        this.$store.dispatch("setAnalyticsVolType", val);
+      }
+    },
     dataTableData() {
       const ar2 = this.realized;
       const ar3 = this.mean;
@@ -166,7 +182,7 @@ export default {
   },
   methods: {
     dev() {
-      console.log(this.zScore);
+      console.log(this.$store.state.activecross);
     },
     async getApiData() {
       try {
@@ -178,16 +194,17 @@ export default {
         );
         this.apiData = response.data[0];
         this.loaded = true;
-        console.log(this.loaded);
+        this.$emit("alertLoaded", true);
       } catch (error) {
         console.log(error);
       }
     },
-    async changeTerm() {
+    async refreshApiData() {
       await this.getApiData();
       this.componentKey += 1;
     }
-  }
+  },
+  watch: {}
 };
 </script>
 

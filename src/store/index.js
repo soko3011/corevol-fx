@@ -49,6 +49,8 @@ const state = {
   pricerStrategy: [],
   activePricerList: [],
   dashBoardUpdate: [],
+  analyticsTerm:'3M',
+  analyticsVolType:"Raw",
   volEstimators:[
     'GarmanKlass',
     'HodgesTompkins',
@@ -67,6 +69,12 @@ const mutations = {
     setTimeout(() => {
       state.appLoaded = true;
     }, 2000);
+  },
+  SET_ANALYTICS_TERM(state, data) {
+    state.analyticsTerm = data
+  },
+  SET_ANALYTICS_VOL_TYPE(state, data) {
+    state.analyticsVolType = data
   },
   SET_DASHBOARD_NOTIFIER(state, data) {
     state.dashBoardUpdate = JSON.parse(data);
@@ -214,6 +222,12 @@ const mutations = {
 const actions = {
   alertMainAppLoaded({ commit }) {
     commit("SET_APP_LOADED");
+  },
+  setAnalyticsTerm({commit},data){
+    commit("SET_ANALYTICS_TERM",data)
+  },
+  setAnalyticsVolType({commit},data){
+    commit("SET_ANALYTICS_VOL_TYPE",data)
   },
   dashBoardNotifier({ commit }, data) {
     commit("SET_DASHBOARD_NOTIFIER", data);
@@ -692,6 +706,26 @@ const getters = {
     ) {
       return state.userPrefCross;
     } else return state.activecross;
+  },
+  corrCrossGetter(state,getters){
+    let corrGetter = getters.activeCrossGetter
+    let crosses = state.crossList.filter(x => {
+      return !x.includes("USD");
+    });
+
+    if(corrGetter.includes("USD")){
+    let filtered = crosses.filter(x=>{
+      return x.includes(corrGetter.substring(0,3)) || x.includes(corrGetter.substring(3,6))
+    })
+
+    if(filtered.length>0){
+      return filtered[0]
+    }
+   
+    return "EURJPY"
+    }
+
+    return corrGetter
   },
   lastPricerTabGetter(state) {
     if (

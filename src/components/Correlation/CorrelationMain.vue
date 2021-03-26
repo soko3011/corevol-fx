@@ -103,13 +103,13 @@ import moment from "moment";
 export default {
   props: {
     cross: { type: String },
-    crossList: { type: Array },
+    crossList: { type: Array }
   },
   components: {
     TableStaticCorrs,
     TableAtmModel,
     CorrChart,
-    CorrWidget,
+    CorrWidget
   },
   data() {
     return {
@@ -132,8 +132,8 @@ export default {
       loading: false,
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   async created() {
@@ -146,14 +146,14 @@ export default {
       return this.staticCorrs.length > 0 ? true : false;
     },
     staticCorrTerms() {
-      return this.staticCorrs.map((x) => {
+      return this.staticCorrs.map(x => {
         return x.Term;
       });
     },
     chart1Data() {
       const index = this.staticCorrTerms.indexOf(this.chart1Term);
       const cloneSelection = [
-        ...this.corrModel.RollingCorrs[index][this.chart1Selection],
+        ...this.corrModel.RollingCorrs[index][this.chart1Selection]
       ];
       const arr = cloneSelection.reverse();
       return arr.slice(Math.max(arr.length - this.chart1DataPoints, 0));
@@ -164,13 +164,13 @@ export default {
 
       return arr
         .slice(Math.max(arr.length - this.chart1DataPoints, 0))
-        .map(function (x) {
+        .map(function(x) {
           return moment(x).format("DD-MMM-YYYY");
         });
     },
     dataPointDays() {
       return Array.from(Array(501).keys());
-    },
+    }
   },
   methods: {
     changeCross() {
@@ -181,7 +181,7 @@ export default {
         let response = await CorrelationApi.getCorrelationModel({
           Cross: this.cross,
           UserName: this.$store.state.currentUser,
-          Ccy: this.baseCcy,
+          Ccy: this.baseCcy
         });
 
         this.baseCcyList = JSON.parse(response.data.baseCurrencyList);
@@ -193,7 +193,7 @@ export default {
         this.timeSeriesDates = this.corrModel.TimeSeriesDates;
         this.chart1AvailableSelection = Object.keys(
           this.corrModel.RollingCorrs[0]
-        ).filter((x) => x !== "Term");
+        ).filter(x => x !== "Term");
       } catch (error) {
         console.log(error);
       }
@@ -231,7 +231,7 @@ export default {
 
     dev() {
       console.log(this.componentKey);
-    },
+    }
   },
   watch: {
     chart1Term() {
@@ -245,8 +245,8 @@ export default {
     },
     corrWidget1Term() {
       this.componentKeyScracthPad += 1;
-    },
-  },
+    }
+  }
 };
 </script>
 

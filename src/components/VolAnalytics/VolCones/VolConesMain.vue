@@ -77,8 +77,7 @@ export default {
       loaded: false,
       refreshingData: false,
       chartDataPoints: 360,
-      componentKey: 0,
-      volEstName: "Raw"
+      componentKey: 0
     };
   },
   async created() {
@@ -87,13 +86,22 @@ export default {
   computed: {
     ...mapState({
       terms: state => state.volEstimatorTerms,
-      volEstimators: state => state.volEstimators
+      volEstimators: state => state.volEstimators,
+      analyticsVolType: state => state.analyticsVolType
     }),
+    volEstName: {
+      get() {
+        return this.analyticsVolType;
+      },
+      set(val) {
+        this.$store.dispatch("setAnalyticsVolType", val);
+      }
+    },
     dataTableData() {
       const ar2 = this.realized;
       const ar3 = this.median;
-      const ar4 = this.bottomQuartile;
-      const ar5 = this.topQuartile;
+      const ar4 = this.topQuartile;
+      const ar5 = this.bottomQuartile;
       const ar6 = this.minVol;
       const ar7 = this.maxVol;
 
@@ -173,6 +181,7 @@ export default {
         );
         this.apiData = response.data[0];
         this.loaded = true;
+        this.$emit("alertLoaded", true);
       } catch (error) {
         console.log(error);
       }

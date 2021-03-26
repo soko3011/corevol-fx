@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-btn color="red" @click="dev">dev</v-btn>
+    <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
     <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#385F73" min-width="400" collapse>
         <v-spacer></v-spacer>

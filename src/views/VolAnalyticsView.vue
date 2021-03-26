@@ -134,6 +134,9 @@ export default {
       this.dataLoaded = val;
     },
     ChangeSettings(setting) {
+      if (setting === this.settingSelection) {
+        return;
+      }
       this.dataLoaded = false;
       this.settingSelection = setting;
     },

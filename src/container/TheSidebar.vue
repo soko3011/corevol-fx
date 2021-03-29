@@ -61,7 +61,7 @@
         @click="() => $router.push({ name: 'VolAnalytics' }).catch(() => {})"
       >
         <v-list-item-action>
-          <v-icon color="blue lighten-3">mdi-alpha-v-circle-outline</v-icon>
+          <v-icon color="blue lighten-3">mdi-google-analytics</v-icon>
         </v-list-item-action>
         <v-list-item-content>
           <v-list-item-title>VolAnalytics</v-list-item-title>

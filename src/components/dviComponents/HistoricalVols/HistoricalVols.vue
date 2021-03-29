@@ -1,10 +1,24 @@
 <template>
   <div>
-    <div
-      class="font-weight-medium text-center text-uppercase blue--text text--darken-4 mb-2"
-    >
-      HISTORICAL VOLS
+    <div class="d-flex flex-row justify-end mr-6">
+      <v-spacer />
+      <div
+        class="font-weight-medium text-center text-uppercase blue--text text--darken-4 mb-2 center_title"
+      >
+        HISTORICAL VOLS
+      </div>
+      <v-spacer />
+      <div class="tf_hist">
+        <v-select
+          dense
+          v-model="volEstName"
+          :items="volEstimators"
+          label="VolType"
+          @change="get_historical_vols()"
+        ></v-select>
+      </div>
     </div>
+
     <v-card class="mx-2" min-width="770">
       <v-data-table
         :headers="headers"
@@ -20,7 +34,10 @@
 </template>
 
 <script>
-import HistoricalVolAPi from "@/apis/pythonApis/HistoricalVolApi";
+//import HistoricalVolAPi from "@/apis/pythonApis/HistoricalVolApi";
+import HistoricalVolAPi from "@/apis/pythonApis/VolAnalyticsApi";
+import { mapState } from "vuex";
+
 export default {
   async created() {
     await this.get_historical_vols();
@@ -30,14 +47,21 @@ export default {
       histVols: [],
       headers: [],
       loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`,
+      volEstName: "Raw"
     };
+  },
+  computed: {
+    ...mapState({
+      volEstimators: state => state.volEstimators
+    })
   },
   methods: {
     async get_historical_vols() {
       const cross = this.$route.params.ccyPair;
       try {
         const response = await HistoricalVolAPi.get_historical_vol_term_structure_grid(
-          cross
+          cross,
+          this.volEstName
         );
         this.histVols = response.data;
         this.headers = this.get_headers(this.histVols[0]);
@@ -55,14 +79,21 @@ export default {
             align: "start",
             sortable: false,
             value: key,
-            class: "blue-grey darken-2 white--text font-weight-medium",
+            class: "blue-grey darken-2 white--text font-weight-medium"
           });
         }
       }
       return headers;
-    },
-  },
+    }
+  }
 };
 </script>
 
-
+<style>
+div.tf_hist {
+  width: 200px;
+}
+div.center_title {
+  margin-left: 175px;
+}
+</style>

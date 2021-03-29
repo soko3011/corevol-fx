@@ -4,7 +4,7 @@
       <v-progress-linear v-if="!dataLoaded" indeterminate></v-progress-linear>
     </v-container>
     <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
-    <div class="d-flex flex-row mb-5 flex-nowrap">
+    <div class="d-flex flex-row mb-5 flex-nowrap ">
       <v-toolbar color="#385F73" min-width="400" collapse>
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
@@ -37,11 +37,7 @@
       </v-toolbar>
     </div>
     <div class="d-flex flex-row">
-      <v-card
-        flat
-        class="d-flex flex-column mr-3 settingsContainer"
-        min-width="225"
-      >
+      <v-card flat class="d-flex flex-column mr-3 " min-width="225">
         <v-list dense>
           <v-subheader>Analytics</v-subheader>
           <v-list-item
@@ -60,7 +56,7 @@
         </v-list>
       </v-card>
 
-      <div class="settingsContainer">
+      <div class="analyticsContainer">
         <transition name="slide">
           <DescriptiveVolData
             v-if="settingSelection === 'Descriptive Data'"
@@ -148,7 +144,7 @@ export default {
     },
     handleResize() {
       this.window.width = window.innerWidth - 100;
-      this.window.height = window.innerHeight - 95;
+      this.window.height = window.innerHeight - 195;
 
       this.setContainerDimensions();
     },
@@ -161,10 +157,6 @@ export default {
       document.documentElement.style.setProperty(
         "--main-height",
         `${this.window.height}px`
-      );
-      document.documentElement.style.setProperty(
-        "--dwCol-height",
-        `${this.window.height - 70}px`
       );
     }
   }
@@ -184,37 +176,39 @@ $mainWidth: var(--main-width);
   transform: translate(-50%, -50%);
 }
 
-.settingsContainer {
+.analyticsContainer::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #eceff1;
+  border-radius: 10px;
+}
+
+.analyticsContainer {
+  display: flex;
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: hidden;
   padding-left: 0px;
   padding-right: 0px;
   height: $mainHeight;
-  display: flex;
+  width: $mainWidth;
 }
 
-.settingsContainer::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: #f5f5f5;
-  border-radius: 10px;
-}
-
-.settingsContainer::-webkit-scrollbar {
-  width: 6px;
-  height: 0px;
+.analyticsContainer::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
   background-color: #f5f5f5;
 }
 
-.settingsContainer::-webkit-scrollbar-thumb {
-  background-color: #3366ff;
+.analyticsContainer::-webkit-scrollbar-thumb {
+  background-color: #aaa;
   border-radius: 10px;
+
   background-image: -webkit-linear-gradient(
-    0deg,
-    rgba(255, 255, 255, 0.5) 25%,
+    90deg,
+    rgba(0, 0, 0, 0.2) 25%,
     transparent 25%,
     transparent 50%,
-    rgba(255, 255, 255, 0.5) 50%,
-    rgba(255, 255, 255, 0.5) 75%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.2) 75%,
     transparent 75%,
     transparent
   );

@@ -2,7 +2,7 @@
   <div class="ml-5">
     <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
     <div v-if="loaded">
-      <div class="d-flex flex-row">
+      <div class="d-flex flex-row flex-nowrap">
         <div class="d-flex flex-column  mr-1">
           <div class="d-flex flex-row justify-end mr-6">
             <div class="tfVolData d-flex flex-row flex-nowrap">
@@ -216,5 +216,6 @@ div.dt_voldata {
   margin-top: 10px;
   margin-left: 30px;
   margin-right: 30px;
+  min-width: 450px;
 }
 </style>

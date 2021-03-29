@@ -13,5 +13,8 @@ export default {
   get_vol_cone_historical(cross,observations,estimator) {
     return Api.get(`/vol_cone/${cross}/${observations}/${estimator}`);
   },
+  get_historical_vol_term_structure_grid(cross,estimator) {
+    return Api.get(`/historical_term_structures/${cross}/${estimator}`);
+  },
 
 };

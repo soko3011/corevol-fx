@@ -61,6 +61,14 @@ export default {
         },
         {
           id: 4,
+          text: "Analytics",
+          class: "",
+          route: {
+            name: "VolAnalytics"
+          }
+        },
+        {
+          id: 5,
           text: "Pricer",
           class: "",
           route: {
@@ -69,25 +77,25 @@ export default {
           }
         },
         {
-          id: 5,
+          id: 6,
           text: "Charts",
           class: "",
           route: { name: "Charts" }
         },
         {
-          id: 6,
+          id: 7,
           text: "Market Data",
           class: "",
           route: { name: "FxRates" }
         },
         {
-          id: 7,
+          id: 8,
           text: "Settings",
           class: "",
           route: { name: "Settings" }
         },
         {
-          id: 8,
+          id: 9,
           text: "Day Wgt Setup",
           class: "",
           route: { name: "DayWgtSetup" }

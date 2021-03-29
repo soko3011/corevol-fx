@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <!-- <v-btn color="orange" @click="dev">dev</v-btn> -->
     <canvas :id="id_name" width="1000" height="400"></canvas>
   </div>
 </template>
@@ -14,7 +15,9 @@ export default {
     inputSeries1: { type: Array },
     id_name: { type: String },
     data_label: { type: String },
-    bar_color: { type: String }
+    bar_color: { type: String },
+    last: { type: Number },
+    yAxisYVal: { type: Number }
   },
   data() {
     return {
@@ -23,6 +26,24 @@ export default {
         data: {
           labels: this.inputLabels,
           datasets: [
+            {
+              type: "scatter",
+              label: "Last",
+              backgroundColor: "#385F73",
+              pointRadius: 5,
+              pointStyle: "circle",
+              data: [
+                {
+                  x: this.last,
+                  y: this.yAxisYVal
+                }
+              ],
+              legend: {
+                labels: {
+                  fontSize: 0
+                }
+              }
+            },
             {
               label: this.data_label,
               data: this.inputSeries1,
@@ -50,10 +71,7 @@ export default {
                 },
                 ticks: {
                   beginAtZero: true,
-                  padding: 5,
-                  userCallback: function(value, index, values) {
-                    return value.toFixed(2);
-                  }
+                  padding: 5
                 }
               }
             ]
@@ -65,7 +83,7 @@ export default {
   computed: {},
   methods: {
     dev() {
-      console.log(this.ChartData);
+      console.log(this.yValScatter);
     },
     createChart(chartId, chartData) {
       const ctx = document.getElementById(chartId);

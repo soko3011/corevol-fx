@@ -59,6 +59,7 @@
           </v-list-item>
         </v-list>
       </v-card>
+
       <div class="settingsContainer">
         <transition name="slide">
           <DescriptiveVolData
@@ -176,6 +177,7 @@ $mainWidth: var(--main-width);
 
 .center {
   margin: 0;
+  width: 50%;
   position: absolute;
   top: 50%;
   left: 50%;

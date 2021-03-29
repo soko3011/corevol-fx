@@ -1,6 +1,6 @@
 <template>
   <div class="ml-5">
-    <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
+    <v-btn color="red" @click="dev">dev</v-btn>
     <div v-if="loaded">
       <div class="d-flex flex-row">
         <div class="d-flex flex-column mr-1">
@@ -39,6 +39,8 @@
               id_name="hist"
               data_label="Realized Vol"
               bar_color="rgba(71, 183,132,.5)"
+              :last="last"
+              :yAxisYVal="yAxisYVal"
             />
           </div>
           <div class="mt-10">
@@ -49,7 +51,9 @@
               :chartTitle="`${cross} Histogram Normalized`"
               id_name="hist1"
               data_label="Standard Deviations"
-              bar_color="#385F73"
+              bar_color="#90CAF9"
+              :last="lastNorm"
+              :yAxisYVal="yAxisYVal"
             />
           </div>
         </div>
@@ -142,23 +146,50 @@ export default {
 
     bins() {
       const arr = this.apiData.Bins.map(x => {
-        return (x * 100).toFixed(2);
+        return parseFloat((x * 100).toFixed(2));
       });
       return arr;
     },
     frequency() {
       return this.apiData.Frequency;
     },
+    last() {
+      return this.closest(this.apiData.Last * 100, this.bins);
+    },
     binsNorm() {
       return this.apiData.BinsNorm;
     },
     frequencyNorm() {
       return this.apiData.FrequencyNorm;
+    },
+    lastNorm() {
+      return this.closest(this.apiData.LastNorm, this.binsNorm);
+    },
+    yAxisYVal() {
+      return (
+        this.frequency.reduce((accumulator, element) => {
+          return accumulator + element;
+        }, 0) / 10
+      );
     }
   },
   methods: {
     dev() {
       console.log(this.bins);
+      console.log(this.frequency);
+      console.log(this.apiData.Last);
+    },
+    closest(num, arr) {
+      var curr = arr[0];
+      var diff = Math.abs(num - curr);
+      for (var val = 0; val < arr.length; val++) {
+        var newdiff = Math.abs(num - arr[val]);
+        if (newdiff < diff) {
+          diff = newdiff;
+          curr = arr[val];
+        }
+      }
+      return curr;
     },
     async getApiData() {
       try {

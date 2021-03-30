@@ -46,14 +46,22 @@ export default {
     return {
       histVols: [],
       headers: [],
-      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`,
-      volEstName: "Raw"
+      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`
     };
   },
   computed: {
     ...mapState({
-      volEstimators: state => state.volEstimators
-    })
+      volEstimators: state => state.volEstimators,
+      analyticsVolType: state => state.analyticsVolType
+    }),
+    volEstName: {
+      get() {
+        return this.analyticsVolType;
+      },
+      set(val) {
+        this.$store.dispatch("setAnalyticsVolType", val);
+      }
+    }
   },
   methods: {
     async get_historical_vols() {

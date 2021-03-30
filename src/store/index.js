@@ -52,13 +52,10 @@ const state = {
   analyticsTerm:'3M',
   analyticsVolType:"Raw",
   volEstimators:[
-    'GarmanKlass',
-    'HodgesTompkins',
-    'Kurtosis',
-    'Parkinson',
     'Raw',
+    'GarmanKlass',
+    'Parkinson',
     'RogersSatchell',
-    'Skew',
     'YangZhang'
 ],
 volEstimatorTerms:["1W", "2W", "1M", "2M", "3M", "6M", "9M", "1Y", "2Y"]

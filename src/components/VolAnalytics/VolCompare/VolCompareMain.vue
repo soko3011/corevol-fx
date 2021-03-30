@@ -15,56 +15,39 @@
                 :loading="refreshingData"
               ></v-select>
               <v-select
-                v-model="averaging_period"
+                v-model="chartDataPoints"
                 :items="dataPointDays"
-                label="Observations"
+                label="Days"
                 @change="refreshApi"
                 class="mr-5"
-              ></v-select>
-              <v-select
-                v-model="volEstName"
-                :items="volEstimators"
-                label="VolType"
-                @change="refreshApi"
                 :loading="refreshingData"
               ></v-select>
             </div>
           </div>
           <div>
-            <HistogramChart
+            <VolCompareChart
               :key="componentKey"
-              :inputLabels="bins"
-              :inputSeries1="frequency"
-              :chartTitle="`${cross} Histogram`"
-              id_name="hist"
-              data_label="Realized Vol"
-              bar_color="rgba(71, 183,132,.5)"
-              :last="last"
-              :yAxisYVal="yAxisYVal"
+              :inputLabels="dates"
+              :inputSeries1="chartData"
+              :chartTitle="`${cross} Volatility Comps`"
             />
-          </div>
-          <div class="mt-10">
-            <HistogramChart
+            <ParkinsonChart
+              class="mt-10"
               :key="componentKey"
-              :inputLabels="binsNorm"
-              :inputSeries1="frequencyNorm"
-              :chartTitle="`${cross} Histogram Normalized`"
-              id_name="hist1"
-              data_label="Standard Deviations"
-              bar_color="#90CAF9"
-              :last="lastNorm"
-              :yAxisYVal="yAxisYVal"
+              :inputLabels="dates"
+              :inputSeries1="chartData"
+              :chartTitle="`${cross} Parkinson Ratio`"
             />
           </div>
         </div>
-        <!-- <div class="dt_rolling">
+        <div class="dt_compare">
           <DataTable
             :key="componentKey"
             :inputHeaders="tableHeaders"
             :inputData="dataTableData"
-            :rowsPerPage="10"
+            :rowsPerPage="20"
           />
-        </div> -->
+        </div>
       </div>
     </div>
   </div>
@@ -72,14 +55,18 @@
 
 <script>
 import VolAnalyticsApi from "@/apis/pythonApis/VolAnalyticsApi";
-import HistogramChart from "@/components/VolAnalytics/Histograms/HistogramChart.vue";
+import moment from "moment";
+import VolCompareChart from "@/components/VolAnalytics/VolCompare/VolCompareChart.vue";
+import ParkinsonChart from "@/components/VolAnalytics/VolCompare/ParkinsonChart.vue";
+
 import DataTable from "@/components/VolAnalytics/DataTables/MaterialDataTable.vue";
 import { mapState } from "vuex";
 
 export default {
-  name: "HistogramsMain",
+  name: "VolCompare",
   components: {
-    HistogramChart,
+    VolCompareChart,
+    ParkinsonChart,
     DataTable
   },
   props: {
@@ -89,9 +76,10 @@ export default {
     return {
       apiData: [],
       loaded: false,
+      chartDataPoints: 500,
       componentKey: 0,
       refreshingData: false,
-      averaging_period: 100
+      averaging_period: 60
     };
   },
   async created() {
@@ -121,21 +109,7 @@ export default {
       }
     },
     dataTableData() {
-      const ar2 = this.realized;
-      const ar3 = this.median;
-      const ar4 = this.topQuartile;
-      const ar5 = this.bottomQuartile;
-      let armixed = this.dates.map(function(x, i) {
-        return {
-          Date: x,
-          Realized: ar2[i].toFixed(2),
-          Median: ar3[i].toFixed(2),
-          TopQrtl: ar4[i].toFixed(2),
-          BotQrtl: ar5[i].toFixed(2)
-        };
-      });
-
-      return armixed.reverse();
+      return this.slicedApiData;
     },
     tableHeaders() {
       return Object.keys(this.dataTableData[0]);
@@ -143,61 +117,33 @@ export default {
     dataPointDays() {
       return Array.from(Array(1001).keys());
     },
-
-    bins() {
-      const arr = this.apiData.Bins.map(x => {
-        return parseFloat((x * 100).toFixed(2));
+    slicedApiData() {
+      const arr = [...this.apiData.reverse()];
+      return arr.slice(0, this.chartDataPoints);
+    },
+    chartData() {
+      const arr = [...this.slicedApiData];
+      return arr.reverse();
+    },
+    dates() {
+      return this.chartData.map(x => {
+        return moment(x.Date).format("DD-MMM-YYYY");
       });
-      return arr;
-    },
-    frequency() {
-      return this.apiData.Frequency;
-    },
-    last() {
-      return this.closest(this.apiData.Last * 100, this.bins);
-    },
-    binsNorm() {
-      return this.apiData.BinsNorm;
-    },
-    frequencyNorm() {
-      return this.apiData.FrequencyNorm;
-    },
-    lastNorm() {
-      return this.closest(this.apiData.LastNorm, this.binsNorm);
-    },
-    yAxisYVal() {
-      return (
-        this.frequency.reduce((accumulator, element) => {
-          return accumulator + element;
-        }, 0) / 10
-      );
     }
   },
   methods: {
     dev() {
-      console.log(this.bins);
-      console.log(this.frequency);
-      console.log(this.apiData.Last);
-    },
-    closest(num, arr) {
-      var curr = arr[0];
-      var diff = Math.abs(num - curr);
-      for (var val = 0; val < arr.length; val++) {
-        var newdiff = Math.abs(num - arr[val]);
-        if (newdiff < diff) {
-          diff = newdiff;
-          curr = arr[val];
-        }
-      }
-      return curr;
+      console.log(this.chartData);
+      let xx = this.chartData.map(x => {
+        return x["Parkinson/Daily"];
+      });
+      console.log(xx);
     },
     async getApiData() {
       try {
-        let response = await VolAnalyticsApi.get_histogram(
+        let response = await VolAnalyticsApi.get_vol_compare(
           this.cross,
-          this.term,
-          this.volEstName,
-          this.averaging_period
+          this.term
         );
 
         this.apiData = response.data;
@@ -221,9 +167,10 @@ export default {
 div.tfRolling {
   width: 600px;
 }
-div.dt_rolling {
+div.dt_compare {
   margin-top: 10px;
   margin-left: 30px;
   margin-right: 30px;
+  min-width: 950px;
 }
 </style>

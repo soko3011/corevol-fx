@@ -76,6 +76,12 @@
             :key="componentKey"
             @alertLoaded="setLoaded"
           />
+          <VolCompareMain
+            v-if="settingSelection === 'VolComparison'"
+            :cross="activecross"
+            :key="componentKey"
+            @alertLoaded="setLoaded"
+          />
         </transition>
       </div>
     </div>
@@ -86,6 +92,7 @@
 import DescriptiveVolData from "@/components/VolAnalytics/DescriptiveVolData/DescriptiveVolDataMain.vue";
 import VolConesMain from "@/components/VolAnalytics/VolCones/VolConesMain.vue";
 import HistogramsMain from "@/components/VolAnalytics/Histograms/HistogramsMain.vue";
+import VolCompareMain from "@/components/VolAnalytics/VolCompare/VolCompareMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import { mapState } from "vuex";
 
@@ -95,6 +102,7 @@ export default {
     DescriptiveVolData,
     VolConesMain,
     HistogramsMain,
+    VolCompareMain,
     PopUpModal
   },
   created() {
@@ -105,7 +113,12 @@ export default {
   data() {
     return {
       componentKey: 0,
-      settingHeaders: ["Descriptive Data", "Vol Cones", "Histograms"],
+      settingHeaders: [
+        "Descriptive Data",
+        "Vol Cones",
+        "Histograms",
+        "VolComparison"
+      ],
       settingSelection: "Descriptive Data",
       dataLoaded: false,
       window: {

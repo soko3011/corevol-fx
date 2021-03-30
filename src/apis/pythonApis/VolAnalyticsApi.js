@@ -16,5 +16,8 @@ export default {
   get_historical_vol_term_structure_grid(cross,estimator) {
     return Api.get(`/historical_term_structures/${cross}/${estimator}`);
   },
+  get_vol_compare(cross,term) {
+    return Api.get(`/vol_compare/${cross}/${term}`);
+  },
 
 };

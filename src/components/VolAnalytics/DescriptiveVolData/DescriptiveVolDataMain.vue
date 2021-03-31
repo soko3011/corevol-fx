@@ -1,9 +1,9 @@
 <template>
-  <div class="ml-5">
+  <div class="ml-5 settingsContainer">
     <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
     <div v-if="loaded">
       <div class="d-flex flex-row flex-nowrap">
-        <div class="d-flex flex-column  mr-1">
+        <div class="d-flex flex-column mr-1">
           <div class="d-flex flex-row justify-end mr-6">
             <div class="tfVolData d-flex flex-row flex-nowrap">
               <v-select
@@ -79,10 +79,10 @@ export default {
   components: {
     DescriptiveChart,
     ZScoreChart,
-    DataTable
+    DataTable,
   },
   props: {
-    cross: { type: String }
+    cross: { type: String },
   },
   data() {
     return {
@@ -90,7 +90,11 @@ export default {
       loaded: false,
       chartDataPoints: 150,
       componentKey: 0,
-      averaging_period: 60
+      averaging_period: 60,
+      window: {
+        width: 0,
+        height: 0,
+      },
     };
   },
   async created() {
@@ -98,10 +102,10 @@ export default {
   },
   computed: {
     ...mapState({
-      terms: state => state.volEstimatorTerms,
-      volEstimators: state => state.volEstimators,
-      analyticsTerm: state => state.analyticsTerm,
-      analyticsVolType: state => state.analyticsVolType
+      terms: (state) => state.volEstimatorTerms,
+      volEstimators: (state) => state.volEstimators,
+      analyticsTerm: (state) => state.analyticsTerm,
+      analyticsVolType: (state) => state.analyticsVolType,
     }),
     term: {
       get() {
@@ -109,7 +113,7 @@ export default {
       },
       set(val) {
         this.$store.dispatch("setAnalyticsTerm", val);
-      }
+      },
     },
     volEstName: {
       get() {
@@ -117,7 +121,7 @@ export default {
       },
       set(val) {
         this.$store.dispatch("setAnalyticsVolType", val);
-      }
+      },
     },
     dataTableData() {
       return this.slicedApiData;
@@ -137,10 +141,10 @@ export default {
       return arr.reverse();
     },
     dates() {
-      return this.chartData.map(x => {
+      return this.chartData.map((x) => {
         return moment(x.Date).format("DD-MMM-YYYY");
       });
-    }
+    },
   },
   methods: {
     dev() {
@@ -164,13 +168,17 @@ export default {
     async refreshApiData() {
       await this.getApiData();
       this.componentKey += 1;
-    }
+    },
   },
-  watch: {}
+  watch: {},
 };
 </script>
 
-<style>
+
+<style lang="scss">
+$mainHeight: var(--main-height);
+$mainWidth: var(--main-width);
+
 div.tfVolData {
   width: 500px;
 }
@@ -178,6 +186,6 @@ div.dt_voldata {
   margin-top: 10px;
   margin-left: 30px;
   margin-right: 30px;
-  min-width: 450px;
+  min-width: 650px;
 }
 </style>

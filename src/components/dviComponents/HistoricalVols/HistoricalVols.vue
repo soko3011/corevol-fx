@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div class="d-flex flex-row justify-end mr-6">
+    <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
+    <div class="d-flex flex-row justify-end mr-6 headers">
       <v-spacer />
       <div
         class="font-weight-medium text-center text-uppercase blue--text text--darken-4 mb-2 center_title"
@@ -19,40 +20,43 @@
       </div>
     </div>
 
-    <v-card class="mx-2" min-width="770">
-      <v-data-table
-        :headers="headers"
-        :items="histVols"
-        dense
-        disable-pagination
-        hide-default-footer
-        loading="isLoading"
-        :loading-text="this.loadingMessage"
-      ></v-data-table>
+    <v-card class="mx-2" max-width="770" :loading="!loaded">
+      <div v-if="loaded">
+        <DataTable :inputHeaders="tableHeaders" :inputData="dataTableData" />
+      </div>
+      <div
+        v-else
+        class="font-weight-light text-center blue--text text--darken-4 ma-10"
+      >
+        {{ loadingMessage }}
+      </div>
     </v-card>
   </div>
 </template>
 
 <script>
-//import HistoricalVolAPi from "@/apis/pythonApis/HistoricalVolApi";
 import HistoricalVolAPi from "@/apis/pythonApis/VolAnalyticsApi";
+import DataTable from "@/components/dviComponents/HistoricalVols/HistVolTable.vue";
 import { mapState } from "vuex";
 
 export default {
   async created() {
     await this.get_historical_vols();
   },
+  components: {
+    DataTable,
+  },
   data() {
     return {
-      histVols: [],
-      headers: [],
-      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`
+      apiData: [],
+      loaded: false,
+      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`,
     };
   },
   computed: {
     ...mapState({
-      volEstimators: state => state.volEstimators,
-      analyticsVolType: state => state.analyticsVolType
+      volEstimators: (state) => state.volEstimators,
+      analyticsVolType: (state) => state.analyticsVolType,
     }),
     volEstName: {
       get() {
@@ -60,10 +64,19 @@ export default {
       },
       set(val) {
         this.$store.dispatch("setAnalyticsVolType", val);
-      }
-    }
+      },
+    },
+    dataTableData() {
+      return this.apiData;
+    },
+    tableHeaders() {
+      return Object.keys(this.dataTableData[0]);
+    },
   },
   methods: {
+    dev() {
+      console.log(this.tableHeaders);
+    },
     async get_historical_vols() {
       const cross = this.$route.params.ccyPair;
       try {
@@ -71,33 +84,20 @@ export default {
           cross,
           this.volEstName
         );
-        this.histVols = response.data;
-        this.headers = this.get_headers(this.histVols[0]);
+        this.apiData = response.data;
+        this.loaded = true;
       } catch (error) {
         this.loadingMessage = `There is no historical vol data for ${this.$route.params.ccyPair}`;
       }
     },
-    get_headers(vol_object) {
-      let headers = [];
-
-      for (const key of Object.keys(vol_object)) {
-        if (key != "Calc_Date") {
-          headers.push({
-            text: key,
-            align: "start",
-            sortable: false,
-            value: key,
-            class: "blue-grey darken-2 white--text font-weight-medium"
-          });
-        }
-      }
-      return headers;
-    }
-  }
+  },
 };
 </script>
 
 <style>
+div.headers {
+  width: 770px;
+}
 div.tf_hist {
   width: 200px;
 }

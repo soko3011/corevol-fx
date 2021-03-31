@@ -4,7 +4,7 @@
       <v-progress-linear v-if="!dataLoaded" indeterminate></v-progress-linear>
     </v-container>
     <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
-    <div class="d-flex flex-row mb-5 flex-nowrap ">
+    <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#385F73" min-width="400" collapse>
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
@@ -37,7 +37,7 @@
       </v-toolbar>
     </div>
     <div class="d-flex flex-row">
-      <v-card flat class="d-flex flex-column mr-3 " min-width="225">
+      <v-card flat class="d-flex flex-column mr-3" min-width="225">
         <v-list dense>
           <v-subheader>Analytics</v-subheader>
           <v-list-item
@@ -56,7 +56,7 @@
         </v-list>
       </v-card>
 
-      <div class="analyticsContainer">
+      <div class="analyticContainer">
         <transition name="slide">
           <DescriptiveVolData
             v-if="settingSelection === 'Descriptive Data'"
@@ -64,12 +64,14 @@
             :key="componentKey"
             @alertLoaded="setLoaded"
           />
+
           <VolConesMain
             v-if="settingSelection === 'Vol Cones'"
             :cross="activecross"
             :key="componentKey"
             @alertLoaded="setLoaded"
           />
+
           <HistogramsMain
             v-if="settingSelection === 'Histograms'"
             :cross="activecross"
@@ -103,7 +105,7 @@ export default {
     VolConesMain,
     HistogramsMain,
     VolCompareMain,
-    PopUpModal
+    PopUpModal,
   },
   created() {
     this.$store.dispatch("refreshCrossList");
@@ -117,23 +119,23 @@ export default {
         "Descriptive Data",
         "Vol Cones",
         "Histograms",
-        "VolComparison"
+        "VolComparison",
       ],
       settingSelection: "Descriptive Data",
       dataLoaded: false,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   computed: {
     ...mapState({
-      crosses: state => state.crossList
+      crosses: (state) => state.crossList,
     }),
     activecross() {
       return this.$store.getters.activeCrossGetter;
-    }
+    },
   },
   methods: {
     dev() {
@@ -157,7 +159,7 @@ export default {
     },
     handleResize() {
       this.window.width = window.innerWidth - 100;
-      this.window.height = window.innerHeight - 195;
+      this.window.height = window.innerHeight - 165;
 
       this.setContainerDimensions();
     },
@@ -171,8 +173,8 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -189,41 +191,36 @@ $mainWidth: var(--main-width);
   transform: translate(-50%, -50%);
 }
 
-.analyticsContainer::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: #eceff1;
-  border-radius: 10px;
-}
-
-.analyticsContainer {
+.analyticContainer {
   display: flex;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
   padding-left: 0px;
   padding-right: 0px;
   height: $mainHeight;
   width: $mainWidth;
 }
 
-.analyticsContainer::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-  background-color: #f5f5f5;
+.analyticContainer::-webkit-scrollbar-track {
+  background-color: #eceff1;
+  border-radius: 10px;
 }
 
-.analyticsContainer::-webkit-scrollbar-thumb {
-  background-color: #aaa;
-  border-radius: 10px;
+.analyticContainer::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+  background-color: #eceff1;
+}
 
-  background-image: -webkit-linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.2) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.2) 50%,
-    rgba(0, 0, 0, 0.2) 75%,
-    transparent 75%,
-    transparent
+.analyticContainer::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.44, rgb(122, 153, 217)),
+    color-stop(0.72, rgb(73, 125, 189)),
+    color-stop(0.86, rgb(28, 58, 148))
   );
 }
 </style>

@@ -11,10 +11,7 @@ export default {
   props: {
     chartTitle: { type: String },
     inputLabels: { type: Array },
-    inputSeries1: { type: Array },
-    inputSeries2: { type: Array },
-    inputSeries3: { type: Array },
-    inputSeries4: { type: Array }
+    inputSeries1: { type: Array }
   },
   data() {
     return {
@@ -24,32 +21,41 @@ export default {
           labels: this.inputLabels,
           datasets: [
             {
-              label: "75 Prctl",
-              data: this.inputSeries1,
-              borderColor: ["green"],
+              label: "Realized",
+              data: this.inputSeries1.map(x => {
+                return x.Realized;
+              }),
+              borderColor: ["#385F73"],
               borderWidth: 1,
+              borderDash: [10, 5],
               fill: false
             },
             {
               label: "Median",
-              data: this.inputSeries2,
+              data: this.inputSeries1.map(x => {
+                return x.Median;
+              }),
               borderColor: ["orange"],
               borderWidth: 2,
               fill: false
             },
             {
-              label: "25 Prctl",
-              data: this.inputSeries3,
-              borderColor: ["purple"],
-              borderWidth: 2,
+              label: "75 Prctl",
+              data: this.inputSeries1.map(x => {
+                return x.TopQrtl;
+              }),
+              borderColor: ["green"],
+              borderWidth: 1,
               fill: false
             },
+
             {
-              label: "Realized",
-              data: this.inputSeries4,
-              borderColor: ["#385F73"],
-              borderWidth: 1,
-              borderDash: [10, 5],
+              label: "25 Prctl",
+              data: this.inputSeries1.map(x => {
+                return x.BotQrtl;
+              }),
+              borderColor: ["purple"],
+              borderWidth: 2,
               fill: false
             }
           ]

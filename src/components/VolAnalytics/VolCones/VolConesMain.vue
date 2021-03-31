@@ -27,13 +27,7 @@
             <div>
               <VolConeHistoricalChart
                 :key="componentKey"
-                :inputLabels="apiData.Windows"
-                :inputSeries1="maxVol"
-                :inputSeries2="minVol"
-                :inputSeries3="realized"
-                :inputSeries4="median"
-                :inputSeries5="topQuartile"
-                :inputSeries6="bottomQuartile"
+                :inputSeries1="apiData"
                 :chartTitle="`${cross} Vol Cone (Historical)`"
               />
             </div>
@@ -98,74 +92,13 @@ export default {
       }
     },
     dataTableData() {
-      const ar2 = this.realized;
-      const ar3 = this.median;
-      const ar4 = this.topQuartile;
-      const ar5 = this.bottomQuartile;
-      const ar6 = this.minVol;
-      const ar7 = this.maxVol;
-
-      let armixed = this.apiData.Windows.map(function(x, i) {
-        return {
-          Term: x,
-          Realized: ar2[i].toFixed(2),
-          Median: ar3[i].toFixed(2),
-          TopQrtl: ar4[i].toFixed(2),
-          BotQrtl: ar5[i].toFixed(2),
-          Min: ar6[i].toFixed(2),
-          Max: ar7[i].toFixed(2)
-        };
-      });
-
-      return armixed;
+      return this.apiData;
     },
     tableHeaders() {
       return Object.keys(this.dataTableData[0]);
     },
     dataObservations() {
       return [30, 60, 90, 180, 360, 720];
-    },
-    maxVol() {
-      const cloneSelection = [...this.apiData.Max];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr;
-    },
-    minVol() {
-      const cloneSelection = [...this.apiData.Min];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr;
-    },
-    realized() {
-      const cloneSelection = [...this.apiData.Realized];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr;
-    },
-    median() {
-      const cloneSelection = [...this.apiData.Median];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr;
-    },
-    topQuartile() {
-      const cloneSelection = [...this.apiData.TopQuartile];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr;
-    },
-    bottomQuartile() {
-      const cloneSelection = [...this.apiData.BottomQuartile];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr;
     }
   },
   methods: {
@@ -179,7 +112,7 @@ export default {
           this.chartDataPoints,
           this.volEstName
         );
-        this.apiData = response.data[0];
+        this.apiData = response.data;
         this.loaded = true;
         this.$emit("alertLoaded", true);
       } catch (error) {

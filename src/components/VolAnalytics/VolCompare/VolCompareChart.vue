@@ -11,10 +11,7 @@ export default {
   props: {
     chartTitle: { type: String },
     inputLabels: { type: Array },
-    inputSeries1: { type: Array },
-    inputSeries2: { type: Array },
-    inputSeries3: { type: Array },
-    inputSeries4: { type: Array }
+    inputSeries1: { type: Array }
   },
   data() {
     return {

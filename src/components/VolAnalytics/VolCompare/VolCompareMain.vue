@@ -118,7 +118,7 @@ export default {
       return Array.from(Array(1001).keys());
     },
     slicedApiData() {
-      const arr = [...this.apiData.reverse()];
+      const arr = [...this.apiData];
       return arr.slice(0, this.chartDataPoints);
     },
     chartData() {

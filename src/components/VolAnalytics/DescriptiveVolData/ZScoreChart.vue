@@ -22,7 +22,9 @@ export default {
           datasets: [
             {
               label: this.chartTitle,
-              data: this.inputSeries1,
+              data: this.inputSeries1.map(x => {
+                return x.ZScore;
+              }),
               borderColor: ["red"],
               borderWidth: 1,
               fill: true

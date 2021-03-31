@@ -12,9 +12,7 @@ export default {
   props: {
     chartTitle: { type: String },
     inputLabels: { type: Array },
-    inputSeries1: { type: Array },
-    inputSeries2: { type: Array },
-    inputSeries3: { type: Array }
+    inputSeries1: { type: Array }
   },
   data() {
     return {
@@ -25,14 +23,18 @@ export default {
           datasets: [
             {
               label: "Mean",
-              data: this.inputSeries1,
+              data: this.inputSeries1.map(x => {
+                return x.Mean;
+              }),
               borderColor: ["red"],
               borderWidth: 1,
               fill: true
             },
             {
               label: "Realized",
-              data: this.inputSeries2,
+              data: this.inputSeries1.map(x => {
+                return x.Realized;
+              }),
               borderColor: ["#385F73"],
               borderWidth: 2,
               borderDash: [10, 5],
@@ -40,7 +42,9 @@ export default {
             },
             {
               label: "Std. Dev.",
-              data: this.inputSeries3,
+              data: this.inputSeries1.map(x => {
+                return x.StDev;
+              }),
               borderColor: ["#385F73"],
               borderWidth: 1,
               backgroundColor: ["#385F73"]

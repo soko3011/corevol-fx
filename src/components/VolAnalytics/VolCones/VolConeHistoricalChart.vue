@@ -10,38 +10,40 @@ import Chart from "chart.js";
 export default {
   props: {
     chartTitle: { type: String },
-    inputLabels: { type: Array },
-    inputSeries1: { type: Array },
-    inputSeries2: { type: Array },
-    inputSeries3: { type: Array },
-    inputSeries4: { type: Array },
-    inputSeries5: { type: Array },
-    inputSeries6: { type: Array }
+    inputSeries1: { type: Array }
   },
   data() {
     return {
       ChartData: {
         type: "line",
         data: {
-          labels: this.inputLabels,
+          labels: this.inputSeries1.map(x => {
+            return x.Terms;
+          }),
           datasets: [
             {
               label: "Max",
-              data: this.inputSeries1,
+              data: this.inputSeries1.map(x => {
+                return x.Max;
+              }),
               borderColor: ["red"],
               borderWidth: 1,
               fill: false
             },
             {
               label: "Min",
-              data: this.inputSeries2,
+              data: this.inputSeries1.map(x => {
+                return x.Min;
+              }),
               borderColor: ["#385F73"],
               borderWidth: 2,
               fill: false
             },
             {
               label: "Realized",
-              data: this.inputSeries3,
+              data: this.inputSeries1.map(x => {
+                return x.Realized;
+              }),
               borderColor: ["#385F73"],
               borderWidth: 1,
               borderDash: [10, 5],
@@ -49,21 +51,27 @@ export default {
             },
             {
               label: "Median",
-              data: this.inputSeries4,
+              data: this.inputSeries1.map(x => {
+                return x.Median;
+              }),
               borderColor: ["orange"],
               borderWidth: 2,
               fill: false
             },
             {
               label: "75 Prctl ",
-              data: this.inputSeries5,
+              data: this.inputSeries1.map(x => {
+                return x.TopQrtl;
+              }),
               borderColor: ["green"],
               borderWidth: 2,
               fill: false
             },
             {
               label: "25 Prctl ",
-              data: this.inputSeries6,
+              data: this.inputSeries1.map(x => {
+                return x.BotQrtl;
+              }),
               borderColor: ["purple"],
               borderWidth: 2,
               fill: false

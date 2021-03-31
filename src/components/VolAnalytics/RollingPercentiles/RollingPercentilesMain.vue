@@ -42,10 +42,7 @@
             <RollingPercentilesChart
               :key="componentKey"
               :inputLabels="dates"
-              :inputSeries1="topQuartile"
-              :inputSeries2="median"
-              :inputSeries3="bottomQuartile"
-              :inputSeries4="realized"
+              :inputSeries1="chartData"
               :chartTitle="`${cross} Rolling Percentiles (Historical)`"
             />
           </div>
@@ -116,21 +113,7 @@ export default {
       }
     },
     dataTableData() {
-      const ar2 = this.realized;
-      const ar3 = this.median;
-      const ar4 = this.topQuartile;
-      const ar5 = this.bottomQuartile;
-      let armixed = this.dates.map(function(x, i) {
-        return {
-          Date: x,
-          Realized: ar2[i].toFixed(2),
-          Median: ar3[i].toFixed(2),
-          TopQrtl: ar4[i].toFixed(2),
-          BotQrtl: ar5[i].toFixed(2)
-        };
-      });
-
-      return armixed.reverse();
+      return this.slicedApiData;
     },
     tableHeaders() {
       return Object.keys(this.dataTableData[0]);
@@ -138,43 +121,18 @@ export default {
     dataPointDays() {
       return Array.from(Array(501).keys());
     },
+    slicedApiData() {
+      const arr = [...this.apiData];
+      return arr.slice(0, this.chartDataPoints);
+    },
+    chartData() {
+      const arr = [...this.slicedApiData];
+      return arr.reverse();
+    },
     dates() {
-      const cloneTimeSeriesDates = [...JSON.parse(this.apiData.Dates)];
-      const arr = cloneTimeSeriesDates;
-
-      return arr
-        .slice(Math.max(arr.length - this.chartDataPoints, 0))
-        .map(function(x) {
-          return moment(x).format("DD-MMM-YYYY");
-        });
-    },
-    median() {
-      const cloneSelection = [...JSON.parse(this.apiData.Median)];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
+      return this.chartData.map(x => {
+        return moment(x.Date).format("DD-MMM-YYYY");
       });
-      return arr.slice(Math.max(arr.length - this.chartDataPoints, 0));
-    },
-    realized() {
-      const cloneSelection = [...JSON.parse(this.apiData.Realized)];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr.slice(Math.max(arr.length - this.chartDataPoints, 0));
-    },
-    bottomQuartile() {
-      const cloneSelection = [...JSON.parse(this.apiData.BottomQuartile)];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr.slice(Math.max(arr.length - this.chartDataPoints, 0));
-    },
-    topQuartile() {
-      const cloneSelection = [...JSON.parse(this.apiData.TopQuartile)];
-      const arr = cloneSelection.map(x => {
-        return x * 100;
-      });
-      return arr.slice(Math.max(arr.length - this.chartDataPoints, 0));
     }
   },
   methods: {
@@ -189,7 +147,7 @@ export default {
           this.volEstName,
           this.averaging_period
         );
-        this.apiData = response.data[0];
+        this.apiData = response.data;
         this.loaded = true;
       } catch (error) {
         console.log(error);

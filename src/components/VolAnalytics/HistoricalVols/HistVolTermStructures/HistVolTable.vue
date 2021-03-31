@@ -7,6 +7,7 @@
       item-key="name"
       class="elevation-0"
       :options="options"
+      hide-default-footer
     >
       <!-- eslint-disable-next-line vue/valid-v-slot-->
       <template #[`item.${currentTermStructure}`]="{ item }">

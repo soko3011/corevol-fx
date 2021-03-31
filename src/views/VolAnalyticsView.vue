@@ -84,6 +84,12 @@
             :key="componentKey"
             @alertLoaded="setLoaded"
           />
+          <HistoricalVolsMain
+            v-if="settingSelection === 'Historical Vols'"
+            :cross="activecross"
+            :key="componentKey"
+            @alertLoaded="setLoaded"
+          />
         </transition>
       </div>
     </div>
@@ -95,6 +101,7 @@ import DescriptiveVolData from "@/components/VolAnalytics/DescriptiveVolData/Des
 import VolConesMain from "@/components/VolAnalytics/VolCones/VolConesMain.vue";
 import HistogramsMain from "@/components/VolAnalytics/Histograms/HistogramsMain.vue";
 import VolCompareMain from "@/components/VolAnalytics/VolCompare/VolCompareMain.vue";
+import HistoricalVolsMain from "@/components/VolAnalytics/HistoricalVols/HistoricalVolsMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import { mapState } from "vuex";
 
@@ -105,6 +112,7 @@ export default {
     VolConesMain,
     HistogramsMain,
     VolCompareMain,
+    HistoricalVolsMain,
     PopUpModal,
   },
   created() {
@@ -120,6 +128,7 @@ export default {
         "Vol Cones",
         "Histograms",
         "VolComparison",
+        "Historical Vols",
       ],
       settingSelection: "Descriptive Data",
       dataLoaded: false,

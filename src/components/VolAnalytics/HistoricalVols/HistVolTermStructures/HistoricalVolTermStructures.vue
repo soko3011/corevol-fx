@@ -36,7 +36,7 @@
 
 <script>
 import HistoricalVolAPi from "@/apis/pythonApis/VolAnalyticsApi";
-import DataTable from "@/components/dviComponents/HistoricalVols/HistVolTable.vue";
+import DataTable from "@/components/VolAnalytics/HistoricalVols/HistVolTermStructures/HistVolTable.vue";
 import { mapState } from "vuex";
 
 export default {
@@ -45,6 +45,9 @@ export default {
   },
   components: {
     DataTable,
+  },
+  props: {
+    cross: { type: String },
   },
   data() {
     return {
@@ -78,10 +81,9 @@ export default {
       console.log(this.tableHeaders);
     },
     async get_historical_vols() {
-      const cross = this.$route.params.ccyPair;
       try {
         const response = await HistoricalVolAPi.get_historical_vol_term_structure_grid(
-          cross,
+          this.cross,
           this.volEstName
         );
         this.apiData = response.data;

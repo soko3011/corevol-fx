@@ -358,7 +358,7 @@
               v-if="userControlSelection === 'historicalVols'"
               class="d-flex align-center justify-start"
             >
-              <HistoricalVols />
+              <HistoricalVols :cross="ccyPair" />
             </div>
             <div
               v-if="userControlSelection === 'ipvVols'"
@@ -404,7 +404,7 @@ import PopUpModal from "@/components/common/PopUpModal.vue";
 import IpvSurf from "@/components/dviComponents/IpvSurface.vue";
 import moment from "moment";
 import SettingsApi from "@/apis/SettingsApi.js";
-import HistoricalVols from "@/components/dviComponents/HistoricalVols/HistoricalVols.vue";
+import HistoricalVols from "@/components/VolAnalytics/HistoricalVols/HistVolTermStructures/HistoricalVolTermStructures.vue";
 import FwdVol from "@/components/dviComponents/FwdVols/FwdVol.vue";
 
 export default {

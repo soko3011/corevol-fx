@@ -25,5 +25,8 @@ export default {
   },
   get_historical_vol_series(cross, estimator) {
     return Api.get(`/historical_vol_series/${cross}/${estimator}`);
+  },
+  get_vol_cone_scanner(estimator,sample_size) {
+    return Api.get(`/vol_cone_scanner/${estimator}/${sample_size}`);
   }
 };

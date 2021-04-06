@@ -54,6 +54,22 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
+        <v-list dense>
+          <v-subheader>Scanners</v-subheader>
+          <v-list-item
+            @click="ChangeSettings(item)"
+            v-for="item in this.scannerHeaders"
+            :key="item"
+            ripple
+          >
+            <v-list-item-action>
+              <v-icon color="green darken-3">mdi-dots-hexagon</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>{{ item }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
       </v-card>
 
       <div class="analyticContainer">
@@ -90,6 +106,12 @@
             :key="componentKey"
             @alertLoaded="setLoaded"
           />
+          <VolConeScannerMain
+            v-if="settingSelection === 'Vol Cone Scanner'"
+            :cross="activecross"
+            :key="componentKey"
+            @alertLoaded="setLoaded"
+          />
         </transition>
       </div>
     </div>
@@ -102,6 +124,7 @@ import VolConesMain from "@/components/VolAnalytics/VolCones/VolConesMain.vue";
 import HistogramsMain from "@/components/VolAnalytics/Histograms/HistogramsMain.vue";
 import VolCompareMain from "@/components/VolAnalytics/VolCompare/VolCompareMain.vue";
 import HistoricalVolsMain from "@/components/VolAnalytics/HistoricalVols/HistoricalVolsMain.vue";
+import VolConeScannerMain from "@/components/VolAnalytics/Scanners/VolConeScanner//VolConeScannerMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import { mapState } from "vuex";
 
@@ -113,7 +136,8 @@ export default {
     HistogramsMain,
     VolCompareMain,
     HistoricalVolsMain,
-    PopUpModal,
+    VolConeScannerMain,
+    PopUpModal
   },
   created() {
     this.$store.dispatch("refreshCrossList");
@@ -128,23 +152,24 @@ export default {
         "Vol Cones",
         "Histograms",
         "VolComparison",
-        "Historical Vols",
+        "Historical Vols"
       ],
+      scannerHeaders: ["Vol Cone Scanner"],
       settingSelection: "Descriptive Data",
       dataLoaded: false,
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   computed: {
     ...mapState({
-      crosses: (state) => state.crossList,
+      crosses: state => state.crossList
     }),
     activecross() {
       return this.$store.getters.activeCrossGetter;
-    },
+    }
   },
   methods: {
     dev() {
@@ -182,8 +207,8 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
-    },
-  },
+    }
+  }
 };
 </script>
 

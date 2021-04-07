@@ -4,12 +4,12 @@
     <div v-if="loaded">
       <div class="d-flex flex-column mr-1">
         <div class="d-flex flex-row">
-          <div class="d-flex flex-column  mr-1">
+          <div class="d-flex flex-column mr-1">
             <div class="d-flex flex-row justify-end mr-6">
               <div class="observations d-flex flex-row flex-nowrap">
                 <v-select
                   v-model="chartDataPoints"
-                  :items="dataObservations"
+                  :items="sample_size"
                   label="Sample Size"
                   @change="refreshApi"
                   :loading="refreshingData"
@@ -25,11 +25,13 @@
               </div>
             </div>
             <div>
-              <!-- <VolConeScannerChart
+              <VolConeScannerChart
                 :key="componentKey"
-                :inputSeries1="apiData"
+                :labels="uniqueCrossLow"
+                :inputSeries1="termArrLow"
+                :terms="terms"
                 :chartTitle="`${cross} Vol Cone (Historical)`"
-              /> -->
+              />
             </div>
           </div>
           <div class="dt_volCone">
@@ -64,10 +66,10 @@ export default {
   name: "volConeScanner",
   components: {
     VolConeScannerChart,
-    DataTable
+    DataTable,
   },
   props: {
-    cross: { type: String }
+    cross: { type: String },
   },
   data() {
     return {
@@ -75,7 +77,7 @@ export default {
       loaded: false,
       refreshingData: false,
       chartDataPoints: 360,
-      componentKey: 0
+      componentKey: 0,
     };
   },
   async created() {
@@ -83,9 +85,9 @@ export default {
   },
   computed: {
     ...mapState({
-      terms: state => state.volEstimatorTerms,
-      volEstimators: state => state.volEstimators,
-      analyticsVolType: state => state.analyticsVolType
+      terms: (state) => state.volEstimatorTerms,
+      volEstimators: (state) => state.volEstimators,
+      analyticsVolType: (state) => state.analyticsVolType,
     }),
     volsHigh() {
       return JSON.parse(this.apiData.high);
@@ -93,13 +95,24 @@ export default {
     volsLow() {
       return JSON.parse(this.apiData.low);
     },
+    uniqueCrossLow() {
+      return [...new Set(this.volsLow.map((item) => item.Cross))].sort();
+    },
+    termArrLow() {
+      let arr = [];
+      for (const term of this.terms) {
+        arr.push(this.createArrayFromTerm(this.volsLow, term));
+      }
+      return arr;
+    },
+
     volEstName: {
       get() {
         return this.analyticsVolType;
       },
       set(val) {
         this.$store.dispatch("setAnalyticsVolType", val);
-      }
+      },
     },
     dt_high() {
       return this.volsHigh;
@@ -113,15 +126,31 @@ export default {
     th_low() {
       return Object.keys(this.dt_high[0]);
     },
-    dataObservations() {
+    sample_size() {
       return [30, 60, 90, 180, 360, 720];
-    }
+    },
   },
   methods: {
     dev() {
-      console.log(this.apiData);
-      console.log(this.volsHigh);
-      console.log(this.volsLow);
+      console.log(this.uniqueCrossLow);
+
+      // let arr = this.createArrayFromTerm(this.volsLow, "1M");
+      // console.log(arr);
+      console.log(this.termArrLow);
+    },
+    createArrayFromTerm(inputArray, term) {
+      let arr = [];
+      let filteredArr = inputArray.filter((item) => item.Terms == term);
+      for (const item of this.uniqueCrossLow) {
+        const index = filteredArr.map((item) => item.Cross).indexOf(item);
+
+        if (index > -1) {
+          arr.push(filteredArr[index].Realized);
+        } else {
+          arr.push(0);
+        }
+      }
+      return arr;
     },
     async getApiData() {
       try {
@@ -141,9 +170,9 @@ export default {
       await this.getApiData();
       this.componentKey += 1;
       this.refreshingData = false;
-    }
+    },
   },
-  watch: {}
+  watch: {},
 };
 </script>
 

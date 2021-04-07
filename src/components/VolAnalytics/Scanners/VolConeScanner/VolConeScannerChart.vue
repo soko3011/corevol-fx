@@ -1,114 +1,108 @@
 <template>
   <div id="app">
-    <canvas id="volCones" width="1000" height="400"></canvas>
+    <canvas id="vols_low" width="1000" height="400"></canvas>
   </div>
 </template>
 
 <script>
 import Chart from "chart.js";
 
+const DATA_COUNT = 7;
+const NUMBER_CFG = { count: DATA_COUNT, rmin: 1, rmax: 1, min: 0, max: 100 };
+
 export default {
   props: {
     chartTitle: { type: String },
-    inputSeries1: { type: Array }
+    inputSeries1: { type: Array },
+    labels: { type: Array },
+    terms: { type: Array },
   },
   data() {
     return {
       ChartData: {
-        type: "line",
+        type: "bar",
+
         data: {
-          labels: this.inputSeries1.map(x => {
-            return x.Terms;
-          }),
+          labels: this.labels,
           datasets: [
             {
-              label: "Max",
-              data: this.inputSeries1.map(x => {
-                return x.Max;
-              }),
-              borderColor: ["red"],
-              borderWidth: 1,
-              fill: false
-            },
-            {
-              label: "Min",
-              data: this.inputSeries1.map(x => {
-                return x.Min;
-              }),
-              borderColor: ["#385F73"],
+              data: this.inputSeries1[0],
+              label: this.terms[0],
+              borderColor: "#3cba9f",
+              backgroundColor: "#71d1bd",
               borderWidth: 2,
-              fill: false
             },
             {
-              label: "Realized",
-              data: this.inputSeries1.map(x => {
-                return x.Realized;
-              }),
-              borderColor: ["#385F73"],
-              borderWidth: 1,
-              borderDash: [10, 5],
-              fill: false
-            },
-            {
-              label: "Median",
-              data: this.inputSeries1.map(x => {
-                return x.Median;
-              }),
-              borderColor: ["orange"],
+              data: this.inputSeries1[1],
+              label: this.terms[1],
+              borderColor: "#ffa500",
+              backgroundColor: "#ffc04d",
               borderWidth: 2,
-              fill: false
             },
             {
-              label: "75 Prctl ",
-              data: this.inputSeries1.map(x => {
-                return x.TopQrtl;
-              }),
-              borderColor: ["green"],
+              data: this.inputSeries1[2],
+              label: this.terms[2],
+              borderColor: "#c45850",
+              backgroundColor: "#d78f89",
               borderWidth: 2,
-              fill: false
             },
             {
-              label: "25 Prctl ",
-              data: this.inputSeries1.map(x => {
-                return x.BotQrtl;
-              }),
-              borderColor: ["purple"],
+              data: this.inputSeries1[3],
+              label: this.terms[3],
+              borderColor: "#3cba9f",
+              backgroundColor: "#71d1bd",
               borderWidth: 2,
-              fill: false
-            }
-          ]
+            },
+            {
+              data: this.inputSeries1[4],
+              label: this.terms[4],
+              borderColor: "#ffa500",
+              backgroundColor: "#ffc04d",
+              borderWidth: 2,
+            },
+            {
+              data: this.inputSeries1[5],
+              label: this.terms[5],
+              borderColor: "#c45850",
+              backgroundColor: "#d78f89",
+              borderWidth: 2,
+            },
+            {
+              data: this.inputSeries1[6],
+              label: this.terms[6],
+              borderColor: "#3cba9f",
+              backgroundColor: "#71d1bd",
+              borderWidth: 2,
+            },
+            {
+              data: this.inputSeries1[7],
+              label: this.terms[7],
+              borderColor: "#ffa500",
+              backgroundColor: "#ffc04d",
+              borderWidth: 2,
+            },
+            {
+              data: this.inputSeries1[8],
+              label: this.terms[8],
+              borderColor: "#c45850",
+              backgroundColor: "#d78f89",
+              borderWidth: 2,
+            },
+          ],
         },
         options: {
-          title: {
-            display: true,
-            text: this.chartTitle
-          },
-          elements: {
-            point: {
-              radius: 0
-            }
-          },
           responsive: true,
-          lineTension: 1,
-          scales: {
-            yAxes: [
-              {
-                scaleLabel: {
-                  display: true,
-                  labelString: "Volatility"
-                },
-                ticks: {
-                  beginAtZero: true,
-                  padding: 5,
-                  userCallback: function(value, index, values) {
-                    return value.toFixed(2);
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
+          plugins: {
+            legend: {
+              position: "top",
+            },
+            title: {
+              display: true,
+              text: "Chart.js Scatter Chart",
+            },
+          },
+        },
+      },
     };
   },
   computed: {},
@@ -121,13 +115,15 @@ export default {
       const myChart = new Chart(ctx, {
         type: chartData.type,
         data: chartData.data,
-        options: chartData.options
+        options: chartData.options,
       });
-    }
+    },
   },
 
   mounted() {
-    this.createChart("volCones", this.ChartData);
-  }
+    this.createChart("vols_low", this.ChartData);
+  },
 };
 </script>
+
+

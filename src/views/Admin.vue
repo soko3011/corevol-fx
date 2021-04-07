@@ -36,6 +36,19 @@
                 <v-list-item-title>Refresh Api Day Wgts</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
+            <v-list-item @click="refreshEventsFromApi()" ripple>
+              <v-list-item-action>
+                <v-progress-circular
+                  v-if="dayWgtProgress"
+                  indeterminate
+                  color="primary"
+                ></v-progress-circular>
+                <v-icon v-else color="green darken-3">mdi-dots-hexagon</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>Refresh Historical Spots</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </v-card>
       </div>

@@ -28,5 +28,8 @@ export default {
   },
   get_vol_cone_scanner(estimator,sample_size) {
     return Api.get(`/vol_cone_scanner/${estimator}/${sample_size}`);
+  },
+  refresh_historical_spots() {
+    return Api.get(`/refresh_historical_spots`);
   }
 };

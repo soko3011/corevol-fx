@@ -1,6 +1,12 @@
 <template>
   <div class="ml-5">
-    <v-btn color="red" @click="dev">dev</v-btn>
+    <!-- <v-btn @click="dev" /> -->
+    <div
+      class="ml-7 mt-5 font-weight-bold text-center  grey--text text--lighten-3"
+    >
+      <v-switch v-model="high_low_toggle" :label="`${chart_title}`"></v-switch>
+    </div>
+
     <div v-if="loaded">
       <div class="d-flex flex-column mr-1">
         <div class="d-flex flex-row">
@@ -25,26 +31,28 @@
               </div>
             </div>
             <div>
-              <VolConeScannerChart
+              <VolConeScannerChartScatter
                 :key="componentKey"
-                :labels="uniqueCrossLow"
-                :inputSeries1="termArrLow"
+                :labels="uniqueCrosses"
+                :scatter_data="scatter_data"
+                :chartTitle="`${chart_title}`"
+              />
+              <VolConeScannerChartBar
+                class="mt-10"
+                :key="componentKey"
+                :labels="uniqueCrosses"
+                :inputSeries1="bar_chart_data"
                 :terms="terms"
-                :chartTitle="`${cross} Vol Cone (Historical)`"
               />
             </div>
           </div>
           <div class="dt_volCone">
             <DataTable
-              :key="componentKey"
-              :inputHeaders="th_high"
-              :inputData="dt_high"
-            />
-            <DataTable
               class="mt-10"
               :key="componentKey"
-              :inputHeaders="th_low"
-              :inputData="dt_low"
+              :inputHeaders="data_table_headers"
+              :inputData="data_table_data"
+              :rowsPerPage="25"
             />
           </div>
         </div>
@@ -57,19 +65,20 @@
 
 <script>
 import VolAnalyticsApi from "@/apis/pythonApis/VolAnalyticsApi";
-import VolConeScannerChart from "@/components/VolAnalytics/Scanners/VolConeScanner/VolConeScannerChart.vue";
-
+import VolConeScannerChartBar from "@/components/VolAnalytics/Scanners/VolConeScanner/VolConeScannerChartBar.vue";
+import VolConeScannerChartScatter from "@/components/VolAnalytics/Scanners/VolConeScanner/VolConeScannerChartScatter.vue";
 import DataTable from "@/components/VolAnalytics/DataTables/MaterialDataTable.vue";
 import { mapState } from "vuex";
 
 export default {
   name: "volConeScanner",
   components: {
-    VolConeScannerChart,
-    DataTable,
+    VolConeScannerChartBar,
+    VolConeScannerChartScatter,
+    DataTable
   },
   props: {
-    cross: { type: String },
+    cross: { type: String }
   },
   data() {
     return {
@@ -78,6 +87,19 @@ export default {
       refreshingData: false,
       chartDataPoints: 360,
       componentKey: 0,
+      high_low_toggle: "High",
+      terms_keys: {
+        "1D": 1,
+        "1W": 2,
+        "2W": 3,
+        "1M": 4,
+        "2M": 5,
+        "3M": 6,
+        "6M": 7,
+        "9M": 8,
+        "1Y": 9,
+        "2Y": 10
+      }
     };
   },
   async created() {
@@ -85,25 +107,33 @@ export default {
   },
   computed: {
     ...mapState({
-      terms: (state) => state.volEstimatorTerms,
-      volEstimators: (state) => state.volEstimators,
-      analyticsVolType: (state) => state.analyticsVolType,
+      terms: state => state.volEstimatorTerms,
+      volEstimators: state => state.volEstimators,
+      analyticsVolType: state => state.analyticsVolType
     }),
-    volsHigh() {
-      return JSON.parse(this.apiData.high);
+    vol_data() {
+      let data = this.high_low_toggle ? this.apiData.high : this.apiData.low;
+      let parsed = JSON.parse(data);
+      parsed.sort((a, b) => a.Cross.localeCompare(b.Cross));
+      return parsed;
     },
-    volsLow() {
-      return JSON.parse(this.apiData.low);
+    uniqueCrosses() {
+      return [...new Set(this.vol_data.map(item => item.Cross))].sort();
     },
-    uniqueCrossLow() {
-      return [...new Set(this.volsLow.map((item) => item.Cross))].sort();
+    scatter_data() {
+      return this.createScatterChartData(this.vol_data);
     },
-    termArrLow() {
+    bar_chart_data() {
       let arr = [];
       for (const term of this.terms) {
-        arr.push(this.createArrayFromTerm(this.volsLow, term));
+        arr.push(this.createBarChartData(this.vol_data, term));
       }
       return arr;
+    },
+    chart_title() {
+      return this.high_low_toggle
+        ? "REALIZED VOL  >  75th PERCENTILE"
+        : "REALIZED VOL  <  25th PERCENTILE";
     },
 
     volEstName: {
@@ -112,37 +142,32 @@ export default {
       },
       set(val) {
         this.$store.dispatch("setAnalyticsVolType", val);
-      },
+      }
     },
-    dt_high() {
-      return this.volsHigh;
+    data_table_data() {
+      return this.vol_data;
     },
-    th_high() {
-      return Object.keys(this.dt_high[0]);
-    },
-    dt_low() {
-      return this.volsLow;
-    },
-    th_low() {
-      return Object.keys(this.dt_high[0]);
+    data_table_headers() {
+      return Object.keys(this.data_table_data[0]);
     },
     sample_size() {
-      return [30, 60, 90, 180, 360, 720];
-    },
+      return [10, 20, 30, 60, 90, 180, 360, 720];
+    }
   },
   methods: {
-    dev() {
-      console.log(this.uniqueCrossLow);
-
-      // let arr = this.createArrayFromTerm(this.volsLow, "1M");
-      // console.log(arr);
-      console.log(this.termArrLow);
+    toggle_high_low() {
+      this.high_low_toggle = true;
     },
-    createArrayFromTerm(inputArray, term) {
+    dev() {
+      let objs = this.vol_data;
+      objs.sort((a, b) => a.Terms.localeCompare(b.Terms));
+      console.log(objs);
+    },
+    createBarChartData(inputArray, term) {
       let arr = [];
-      let filteredArr = inputArray.filter((item) => item.Terms == term);
-      for (const item of this.uniqueCrossLow) {
-        const index = filteredArr.map((item) => item.Cross).indexOf(item);
+      let filteredArr = inputArray.filter(item => item.Terms == term);
+      for (const item of this.uniqueCrosses) {
+        const index = filteredArr.map(item => item.Cross).indexOf(item);
 
         if (index > -1) {
           arr.push(filteredArr[index].Realized);
@@ -151,6 +176,33 @@ export default {
         }
       }
       return arr;
+    },
+    createScatterChartData(inputArray) {
+      let outputArr = [];
+      let scatter_len = this.uniqueCrosses.length;
+
+      for (const row of inputArray) {
+        let scatter = new Array(scatter_len);
+        let cross = row["Cross"];
+        let index = this.uniqueCrosses.indexOf(cross);
+        scatter[index] = this.terms_keys[row["Terms"]];
+        let background_color = "";
+
+        if (this.high_low_toggle) {
+          background_color = index % 2 == 0 ? "#4169e1" : "#7EC8E3";
+        } else {
+          background_color = index % 2 == 0 ? "#ff0055" : "#ff99bb";
+        }
+
+        outputArr.push({
+          data: scatter,
+          borderColor: "#000C66",
+          backgroundColor: background_color,
+          borderWidth: 2
+        });
+      }
+
+      return outputArr;
     },
     async getApiData() {
       try {
@@ -170,9 +222,13 @@ export default {
       await this.getApiData();
       this.componentKey += 1;
       this.refreshingData = false;
-    },
+    }
   },
-  watch: {},
+  watch: {
+    high_low_toggle() {
+      this.componentKey += 1;
+    }
+  }
 };
 </script>
 

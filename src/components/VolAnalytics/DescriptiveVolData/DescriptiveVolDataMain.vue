@@ -79,10 +79,10 @@ export default {
   components: {
     DescriptiveChart,
     ZScoreChart,
-    DataTable,
+    DataTable
   },
   props: {
-    cross: { type: String },
+    cross: { type: String }
   },
   data() {
     return {
@@ -90,11 +90,11 @@ export default {
       loaded: false,
       chartDataPoints: 150,
       componentKey: 0,
-      averaging_period: 60,
+      averaging_period: 20,
       window: {
         width: 0,
-        height: 0,
-      },
+        height: 0
+      }
     };
   },
   async created() {
@@ -102,10 +102,10 @@ export default {
   },
   computed: {
     ...mapState({
-      terms: (state) => state.volEstimatorTerms,
-      volEstimators: (state) => state.volEstimators,
-      analyticsTerm: (state) => state.analyticsTerm,
-      analyticsVolType: (state) => state.analyticsVolType,
+      terms: state => state.volEstimatorTerms,
+      volEstimators: state => state.volEstimators,
+      analyticsTerm: state => state.analyticsTerm,
+      analyticsVolType: state => state.analyticsVolType
     }),
     term: {
       get() {
@@ -113,7 +113,7 @@ export default {
       },
       set(val) {
         this.$store.dispatch("setAnalyticsTerm", val);
-      },
+      }
     },
     volEstName: {
       get() {
@@ -121,7 +121,7 @@ export default {
       },
       set(val) {
         this.$store.dispatch("setAnalyticsVolType", val);
-      },
+      }
     },
     dataTableData() {
       return this.slicedApiData;
@@ -141,10 +141,10 @@ export default {
       return arr.reverse();
     },
     dates() {
-      return this.chartData.map((x) => {
+      return this.chartData.map(x => {
         return moment(x.Date).format("DD-MMM-YYYY");
       });
-    },
+    }
   },
   methods: {
     dev() {
@@ -168,12 +168,11 @@ export default {
     async refreshApiData() {
       await this.getApiData();
       this.componentKey += 1;
-    },
+    }
   },
-  watch: {},
+  watch: {}
 };
 </script>
-
 
 <style lang="scss">
 $mainHeight: var(--main-height);

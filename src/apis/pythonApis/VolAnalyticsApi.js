@@ -29,6 +29,9 @@ export default {
   get_vol_cone_scanner(estimator,sample_size) {
     return Api.get(`/vol_cone_scanner/${estimator}/${sample_size}`);
   },
+  get_realized_zscore_scanner(estimator,averaging_period) {
+    return Api.get(`/realized_zscore_scanner/${estimator}/${averaging_period}`);
+  },
   refresh_historical_spots() {
     return Api.get(`/refresh_historical_spots`);
   }

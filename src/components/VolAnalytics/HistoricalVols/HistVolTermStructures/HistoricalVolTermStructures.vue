@@ -31,6 +31,11 @@
         {{ loadingMessage }}
       </div>
     </v-card>
+    <v-card class="mx-2 mt-10" max-width="770" :loading="!loaded">
+      <div v-if="loaded">
+        <DataTable :inputHeaders="tableHeaders1" :inputData="dataTableData1" />
+      </div>
+    </v-card>
   </div>
 </template>
 
@@ -44,22 +49,22 @@ export default {
     await this.get_historical_vols();
   },
   components: {
-    DataTable,
+    DataTable
   },
   props: {
-    cross: { type: String },
+    cross: { type: String }
   },
   data() {
     return {
       apiData: [],
       loaded: false,
-      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`,
+      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`
     };
   },
   computed: {
     ...mapState({
-      volEstimators: (state) => state.volEstimators,
-      analyticsVolType: (state) => state.analyticsVolType,
+      volEstimators: state => state.volEstimators,
+      analyticsVolType: state => state.analyticsVolType
     }),
     volEstName: {
       get() {
@@ -67,14 +72,20 @@ export default {
       },
       set(val) {
         this.$store.dispatch("setAnalyticsVolType", val);
-      },
+      }
     },
     dataTableData() {
-      return this.apiData;
+      return JSON.parse(this.apiData.all);
     },
     tableHeaders() {
       return Object.keys(this.dataTableData[0]);
     },
+    dataTableData1() {
+      return JSON.parse(this.apiData.estimators);
+    },
+    tableHeaders1() {
+      return Object.keys(this.dataTableData1[0]);
+    }
   },
   methods: {
     dev() {
@@ -91,8 +102,8 @@ export default {
       } catch (error) {
         this.loadingMessage = `There is no historical vol data for ${this.$route.params.ccyPair}`;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

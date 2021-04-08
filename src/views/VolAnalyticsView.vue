@@ -112,6 +112,12 @@
             :key="componentKey"
             @alertLoaded="setLoaded"
           />
+          <RealizedZScoreScannerMain
+            v-if="settingSelection === 'ZScore Scanner'"
+            :cross="activecross"
+            :key="componentKey"
+            @alertLoaded="setLoaded"
+          />
         </transition>
       </div>
     </div>
@@ -124,7 +130,8 @@ import VolConesMain from "@/components/VolAnalytics/VolCones/VolConesMain.vue";
 import HistogramsMain from "@/components/VolAnalytics/Histograms/HistogramsMain.vue";
 import VolCompareMain from "@/components/VolAnalytics/VolCompare/VolCompareMain.vue";
 import HistoricalVolsMain from "@/components/VolAnalytics/HistoricalVols/HistoricalVolsMain.vue";
-import VolConeScannerMain from "@/components/VolAnalytics/Scanners/VolConeScanner//VolConeScannerMain.vue";
+import VolConeScannerMain from "@/components/VolAnalytics/Scanners/VolConeScanner/VolConeScannerMain.vue";
+import RealizedZScoreScannerMain from "@/components/VolAnalytics/Scanners/RealizedZScoreScanner/RealizedZScoreScannerMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import { mapState } from "vuex";
 
@@ -137,6 +144,7 @@ export default {
     VolCompareMain,
     HistoricalVolsMain,
     VolConeScannerMain,
+    RealizedZScoreScannerMain,
     PopUpModal
   },
   created() {
@@ -154,7 +162,7 @@ export default {
         "VolComparison",
         "Historical Vols"
       ],
-      scannerHeaders: ["Vol Cone Scanner"],
+      scannerHeaders: ["Vol Cone Scanner", "ZScore Scanner"],
       settingSelection: "Descriptive Data",
       dataLoaded: false,
       window: {

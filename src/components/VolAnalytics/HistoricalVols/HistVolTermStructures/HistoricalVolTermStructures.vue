@@ -49,22 +49,22 @@ export default {
     await this.get_historical_vols();
   },
   components: {
-    DataTable
+    DataTable,
   },
   props: {
-    cross: { type: String }
+    cross: { type: String },
   },
   data() {
     return {
       apiData: [],
       loaded: false,
-      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`
+      loadingMessage: `Calculating historical vols for ${this.$route.params.ccyPair}`,
     };
   },
   computed: {
     ...mapState({
-      volEstimators: state => state.volEstimators,
-      analyticsVolType: state => state.analyticsVolType
+      volEstimators: (state) => state.volEstimators,
+      analyticsVolType: (state) => state.analyticsVolType,
     }),
     volEstName: {
       get() {
@@ -72,7 +72,7 @@ export default {
       },
       set(val) {
         this.$store.dispatch("setAnalyticsVolType", val);
-      }
+      },
     },
     dataTableData() {
       return JSON.parse(this.apiData.all);
@@ -85,7 +85,7 @@ export default {
     },
     tableHeaders1() {
       return Object.keys(this.dataTableData1[0]);
-    }
+    },
   },
   methods: {
     dev() {
@@ -98,12 +98,13 @@ export default {
           this.volEstName
         );
         this.apiData = response.data;
+        this.$emit("alertLoaded", true);
         this.loaded = true;
       } catch (error) {
         this.loadingMessage = `There is no historical vol data for ${this.$route.params.ccyPair}`;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

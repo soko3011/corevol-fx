@@ -2,7 +2,7 @@
   <div class="ml-5">
     <!-- <v-btn @click="dev" /> -->
     <div
-      class="ml-7 mt-5 font-weight-bold text-center  grey--text text--lighten-3"
+      class="ml-7 mt-5 font-weight-bold text-center grey--text text--lighten-3"
     >
       <v-switch v-model="high_low_toggle" :label="`${chart_title}`"></v-switch>
     </div>
@@ -75,10 +75,10 @@ export default {
   components: {
     VolConeScannerChartBar,
     VolConeScannerChartScatter,
-    DataTable
+    DataTable,
   },
   props: {
-    cross: { type: String }
+    cross: { type: String },
   },
   data() {
     return {
@@ -87,7 +87,7 @@ export default {
       refreshingData: false,
       chartDataPoints: 360,
       componentKey: 0,
-      high_low_toggle: "High",
+      high_low_toggle: true,
       terms_keys: {
         "1D": 1,
         "1W": 2,
@@ -98,8 +98,8 @@ export default {
         "6M": 7,
         "9M": 8,
         "1Y": 9,
-        "2Y": 10
-      }
+        "2Y": 10,
+      },
     };
   },
   async created() {
@@ -107,9 +107,9 @@ export default {
   },
   computed: {
     ...mapState({
-      terms: state => state.volEstimatorTerms,
-      volEstimators: state => state.volEstimators,
-      analyticsVolType: state => state.analyticsVolType
+      terms: (state) => state.volEstimatorTerms,
+      volEstimators: (state) => state.volEstimators,
+      analyticsVolType: (state) => state.analyticsVolType,
     }),
     vol_data() {
       let data = this.high_low_toggle ? this.apiData.high : this.apiData.low;
@@ -118,7 +118,7 @@ export default {
       return parsed;
     },
     uniqueCrosses() {
-      return [...new Set(this.vol_data.map(item => item.Cross))].sort();
+      return [...new Set(this.vol_data.map((item) => item.Cross))].sort();
     },
     scatter_data() {
       return this.createScatterChartData(this.vol_data);
@@ -132,8 +132,8 @@ export default {
     },
     chart_title() {
       return this.high_low_toggle
-        ? "REALIZED VOL  >  75th PERCENTILE"
-        : "REALIZED VOL  <  25th PERCENTILE";
+        ? "REALIZED VOL > TOP QUARTILE"
+        : "REALIZED VOL < BOTTOM QUARTILE";
     },
 
     volEstName: {
@@ -142,7 +142,7 @@ export default {
       },
       set(val) {
         this.$store.dispatch("setAnalyticsVolType", val);
-      }
+      },
     },
     data_table_data() {
       return this.vol_data;
@@ -152,22 +152,20 @@ export default {
     },
     sample_size() {
       return [10, 20, 30, 60, 90, 180, 360, 720];
-    }
+    },
   },
   methods: {
     toggle_high_low() {
       this.high_low_toggle = true;
     },
     dev() {
-      let objs = this.vol_data;
-      objs.sort((a, b) => a.Terms.localeCompare(b.Terms));
-      console.log(objs);
+      console.log(this.high_low_toggle);
     },
     createBarChartData(inputArray, term) {
       let arr = [];
-      let filteredArr = inputArray.filter(item => item.Terms == term);
+      let filteredArr = inputArray.filter((item) => item.Terms == term);
       for (const item of this.uniqueCrosses) {
-        const index = filteredArr.map(item => item.Cross).indexOf(item);
+        const index = filteredArr.map((item) => item.Cross).indexOf(item);
 
         if (index > -1) {
           arr.push(filteredArr[index].Realized);
@@ -198,7 +196,7 @@ export default {
           data: scatter,
           borderColor: "#000C66",
           backgroundColor: background_color,
-          borderWidth: 2
+          borderWidth: 2,
         });
       }
 
@@ -222,13 +220,13 @@ export default {
       await this.getApiData();
       this.componentKey += 1;
       this.refreshingData = false;
-    }
+    },
   },
   watch: {
     high_low_toggle() {
       this.componentKey += 1;
-    }
-  }
+    },
+  },
 };
 </script>
 

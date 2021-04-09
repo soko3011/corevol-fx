@@ -4,6 +4,7 @@ import store from "@/store/index.js";
 
 //export const base = "https://apiservicepython-swfmuuo65q-nw.a.run.app/";
 export const base = "http://localhost:5001/";
+//export const base = "http://python-api:80/";
 
 const baseURL = `${base}api/`;
 

@@ -249,8 +249,8 @@ $mainWidth: var(--main-width);
 }
 
 .analyticContainer::-webkit-scrollbar {
-  width: 3px;
-  height: 3px;
+  width: 6px;
+  height: 10px;
   background-color: #eceff1;
 }
 

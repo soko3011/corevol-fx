@@ -1,0 +1,9 @@
+ <template
+        v-for="header in inputHeaders.filter(header => header !== 'Term')"
+        #[`item.${header}`]="{ item }"
+      >
+        {{ item[header].toFixed(2) }}
+      </template>
+
+
+ https://shekhargulati.com/2019/01/18/dockerizing-a-vue-js-application/

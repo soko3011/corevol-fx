@@ -4,6 +4,7 @@ import store from "@/store/index.js";
 
 //export const base = "https://corevolapi-swfmuuo65q-ez.a.run.app/";
 export const base = "http://localhost:5002/";
+//export const base = "http://web-api:80/";
 
 const baseURL = `${base}api/`;
 

@@ -10,9 +10,16 @@
       hide-default-footer
     >
       <!-- eslint-disable-next-line vue/valid-v-slot-->
-      <template #[`item.${currentTermStructure}`]="{ item }">
+
+      <template
+        v-for="header in inputHeaders.filter(header => header !== 'Term')"
+        #[`item.${header}`]="{ item }"
+      >
+        {{ item[header].toFixed(2) }}
+      </template>
+      <template v-if="applyFormat" #[`item.${formatHeaderColumns}`]="{ item }">
         <div class="blue--text text--darken-4 font-weight-bold">
-          {{ item[currentTermStructure] }}
+          {{ item[formatHeaderColumns].toFixed(2) }}
         </div>
       </template>
     </v-data-table>
@@ -25,17 +32,20 @@ export default {
     inputData: { type: Array },
     inputHeaders: { type: Array },
     rowsPerPage: { type: Number, default: 15 },
+    applyFormat: { type: Boolean, default: false },
+    formatHeaders: { type: String }
   },
 
   data: () => ({}),
   computed: {
     options() {
       return {
-        itemsPerPage: this.rowsPerPage,
+        itemsPerPage: this.rowsPerPage
       };
     },
-    currentTermStructure() {
-      return this.inputHeaders[1];
+    formatHeaderColumns() {
+      let index = this.inputHeaders.indexOf(this.formatHeaders);
+      return this.inputHeaders[index];
     },
     headers() {
       let headerArray = [];
@@ -48,6 +58,7 @@ export default {
           sortable: false,
           value: item,
           class: classText,
+          width: "1%"
         };
         headerArray.push(headerObj);
       }
@@ -56,12 +67,12 @@ export default {
     },
     tableData() {
       return this.inputData;
-    },
+    }
   },
   methods: {
     dev() {
-      console.log(this.currentTermStructure);
-    },
-  },
+      console.log(this.formatHeaderColumns);
+    }
+  }
 };
 </script>

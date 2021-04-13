@@ -22,7 +22,7 @@
 
             <v-btn icon x-small class="mb-4" elevation="21">
               <PopUpModal
-                :inputData="crosses"
+                :inputData="available_crosses"
                 :icon="'mdi-dots-hexagon'"
                 :color="'green lighten-3'"
                 :small="true"
@@ -95,13 +95,19 @@
             @alertLoaded="setLoaded"
           />
           <VolCompareMain
-            v-if="settingSelection === 'VolComparison'"
+            v-if="settingSelection === 'Vol Type Comparison'"
             :cross="activecross"
             :key="componentKey"
             @alertLoaded="setLoaded"
           />
           <HistoricalVolsMain
             v-if="settingSelection === 'Historical Vols'"
+            :cross="activecross"
+            :key="componentKey"
+            @alertLoaded="setLoaded"
+          />
+          <CorrConesMain
+            v-if="settingSelection === 'Correlation Cones'"
             :cross="activecross"
             :key="componentKey"
             @alertLoaded="setLoaded"
@@ -133,6 +139,7 @@
 <script>
 import DescriptiveVolData from "@/components/VolAnalytics/DescriptiveVolData/DescriptiveVolDataMain.vue";
 import VolConesMain from "@/components/VolAnalytics/VolCones/VolConesMain.vue";
+import CorrConesMain from "@/components/VolAnalytics/CorrCones/CorrConesMain.vue";
 import HistogramsMain from "@/components/VolAnalytics/Histograms/HistogramsMain.vue";
 import VolCompareMain from "@/components/VolAnalytics/VolCompare/VolCompareMain.vue";
 import HistoricalVolsMain from "@/components/VolAnalytics/HistoricalVols/HistoricalVolsMain.vue";
@@ -147,6 +154,7 @@ export default {
   components: {
     DescriptiveVolData,
     VolConesMain,
+    CorrConesMain,
     HistogramsMain,
     VolCompareMain,
     HistoricalVolsMain,
@@ -167,8 +175,9 @@ export default {
         "Descriptive Data",
         "Vol Cones",
         "Histograms",
-        "VolComparison",
+        "Vol Type Comparison",
         "Historical Vols",
+        "Correlation Cones",
       ],
       scannerHeaders: [
         "Vol Cone Scanner",
@@ -188,12 +197,26 @@ export default {
       crosses: (state) => state.crossList,
     }),
     activecross() {
-      return this.$store.getters.activeCrossGetter;
+      let cross = this.$store.getters.activeCrossGetter;
+      // if (this.available_crosses.indexOf(cross) === -1) {
+      //   return this.available_crosses[0];
+      // }
+      return cross;
+    },
+    non_usd_crosses() {
+      return this.crosses.filter((x) => {
+        return !x.includes("USD");
+      });
+    },
+    available_crosses() {
+      return this.settingSelection === "Correlation Cones"
+        ? this.non_usd_crosses
+        : this.crosses;
     },
   },
   methods: {
     dev() {
-      console.log(this.$store.getters.activeCrossGetter);
+      console.log(this.available_crosses);
       console.log(this.activecross);
     },
     setLoaded(val) {

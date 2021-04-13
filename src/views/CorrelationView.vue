@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
     <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#385F73" min-width="400" collapse>
         <v-spacer></v-spacer>
@@ -52,7 +51,7 @@ export default {
   components: {
     CorrelationMain,
     PopUpModal,
-    ModalNoButton
+    ModalNoButton,
   },
   created() {
     this.$store.dispatch("refreshCrossList");
@@ -64,8 +63,8 @@ export default {
       componentKey: 0,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   computed: {
@@ -73,10 +72,10 @@ export default {
       return this.$store.getters.corrCrossGetter;
     },
     crosses() {
-      return this.$store.state.crossList.filter(x => {
+      return this.$store.state.crossList.filter((x) => {
         return !x.includes("USD");
       });
-    }
+    },
   },
   methods: {
     dev() {
@@ -106,8 +105,8 @@ export default {
         "--dwCol-height",
         `${this.window.height - 70}px`
       );
-    }
-  }
+    },
+  },
 };
 </script>
 

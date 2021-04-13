@@ -17,6 +17,12 @@ export default {
   get_vol_cone_historical(cross, observations, estimator) {
     return Api.get(`/vol_cone/${cross}/${observations}/${estimator}`);
   },
+  get_corr_cone_historical(cross, base_ccy, sample_size) {
+    return Api.get(`/corr_cone/${cross}/${base_ccy}/${sample_size}`);
+  },
+  get_corr_moving_average(cross, base_ccy, term) {
+    return Api.get(`/corr_moving_average/${cross}/${base_ccy}/${term}`);
+  },
   get_historical_vol_term_structure_grid(cross, estimator) {
     return Api.get(`/historical_term_structures/${cross}/${estimator}`);
   },

@@ -11,7 +11,7 @@ export default {
   props: {
     chartTitle: { type: String },
     labels: { type: Array },
-    scatter_data: { type: Array }
+    scatter_data: { type: Array },
   },
   data() {
     return {
@@ -20,14 +20,14 @@ export default {
 
         data: {
           labels: this.labels,
-          datasets: this.scatter_data
+          datasets: this.scatter_data,
         },
         options: {
           scales: {
             yAxes: [
               {
                 ticks: {
-                  callback: function(label, index, labels) {
+                  callback: function (label, index, labels) {
                     if (label === 1) return "1D";
                     if (label === 2) return "1W";
                     if (label === 3) return "2W";
@@ -40,34 +40,33 @@ export default {
                     if (label === 10) return "2Y";
                   },
 
-                  beginAtZero: true
+                  beginAtZero: true,
                 },
                 scaleLabel: {
                   display: true,
-                  labelString: "TERMS"
-                }
-              }
-            ]
+                  labelString: "TERMS",
+                },
+              },
+            ],
           },
           elements: {
             point: {
-              radius: 5
-            }
+              radius: 5,
+            },
           },
           responsive: true,
           legend: {
-            display: false
+            display: false,
           },
           tooltips: {
             callbacks: {
-              label: function(tooltipItem) {
-                console.log(tooltipItem);
+              label: function (tooltipItem) {
                 return tooltipItem.yLabel;
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      },
     };
   },
   computed: {},
@@ -80,13 +79,13 @@ export default {
       const myChart = new Chart(ctx, {
         type: chartData.type,
         data: chartData.data,
-        options: chartData.options
+        options: chartData.options,
       });
-    }
+    },
   },
 
   mounted() {
     this.createChart("v_low", this.ChartData);
-  }
+  },
 };
 </script>

@@ -9,3 +9,6 @@
  https://shekhargulati.com/2019/01/18/dockerizing-a-vue-js-application/
 
  docker run -it -v ${PWD}:/usr/src/app -v /usr/src/app/node_modules -p 8080:80 jamiesokolsky/corevolfxfrontend
+
+ docker build -t jamiesokolsky/corevolfxfrontend .
+ docker push jamiesokolsky/corevolfxfrontend

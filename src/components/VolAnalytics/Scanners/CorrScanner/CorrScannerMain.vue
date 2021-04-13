@@ -6,6 +6,9 @@
     >
       <v-switch v-model="high_low_toggle" :label="`${chart_title}`"></v-switch>
     </div>
+    <div class="ml-7 blue--text text--darken-3">
+      (Thick Border => 10 Percentile)
+    </div>
 
     <div v-if="loaded">
       <div class="d-flex flex-column mr-1">

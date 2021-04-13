@@ -1,12 +1,13 @@
-FROM node:10.15.0 as ui-builder
-RUN mkdir /usr/src/app
-WORKDIR /usr/src/app
-ENV PATH /usr/src/app/node_modules/.bin:$PATH
-COPY package.json /usr/src/app/package.json
+# build stage
+FROM node:lts-alpine as build-stage
+WORKDIR /app
+COPY package*.json ./
 RUN npm install
-RUN npm install -g @vue/cli
-COPY . /usr/src/app
+COPY . .
 RUN npm run build
-COPY . /usr/src/app/docs
-# start app
-CMD ["npm", "run", "serve"]
+
+# production stage
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/docs /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

@@ -118,6 +118,12 @@
             :key="componentKey"
             @alertLoaded="setLoaded"
           />
+          <CorrScannerMain
+            v-if="settingSelection === 'Correlation Scanner'"
+            :cross="activecross"
+            :key="componentKey"
+            @alertLoaded="setLoaded"
+          />
         </transition>
       </div>
     </div>
@@ -132,6 +138,7 @@ import VolCompareMain from "@/components/VolAnalytics/VolCompare/VolCompareMain.
 import HistoricalVolsMain from "@/components/VolAnalytics/HistoricalVols/HistoricalVolsMain.vue";
 import VolConeScannerMain from "@/components/VolAnalytics/Scanners/VolConeScanner/VolConeScannerMain.vue";
 import RealizedZScoreScannerMain from "@/components/VolAnalytics/Scanners/RealizedZScoreScanner/RealizedZScoreScannerMain.vue";
+import CorrScannerMain from "@/components/VolAnalytics/Scanners/CorrScanner/CorrScannerMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import { mapState } from "vuex";
 
@@ -144,8 +151,9 @@ export default {
     VolCompareMain,
     HistoricalVolsMain,
     VolConeScannerMain,
+    CorrScannerMain,
     RealizedZScoreScannerMain,
-    PopUpModal
+    PopUpModal,
   },
   created() {
     this.$store.dispatch("refreshCrossList");
@@ -160,24 +168,28 @@ export default {
         "Vol Cones",
         "Histograms",
         "VolComparison",
-        "Historical Vols"
+        "Historical Vols",
       ],
-      scannerHeaders: ["Vol Cone Scanner", "ZScore Scanner"],
+      scannerHeaders: [
+        "Vol Cone Scanner",
+        "ZScore Scanner",
+        "Correlation Scanner",
+      ],
       settingSelection: "Descriptive Data",
       dataLoaded: false,
       window: {
         width: 0,
-        height: 0
-      }
+        height: 0,
+      },
     };
   },
   computed: {
     ...mapState({
-      crosses: state => state.crossList
+      crosses: (state) => state.crossList,
     }),
     activecross() {
       return this.$store.getters.activeCrossGetter;
-    }
+    },
   },
   methods: {
     dev() {
@@ -215,8 +227,8 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
-    }
-  }
+    },
+  },
 };
 </script>
 

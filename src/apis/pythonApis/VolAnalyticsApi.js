@@ -26,11 +26,14 @@ export default {
   get_historical_vol_series(cross, estimator) {
     return Api.get(`/historical_vol_series/${cross}/${estimator}`);
   },
-  get_vol_cone_scanner(estimator,sample_size) {
+  get_vol_cone_scanner(estimator, sample_size) {
     return Api.get(`/vol_cone_scanner/${estimator}/${sample_size}`);
   },
-  get_realized_zscore_scanner(estimator,averaging_period) {
+  get_realized_zscore_scanner(estimator, averaging_period) {
     return Api.get(`/realized_zscore_scanner/${estimator}/${averaging_period}`);
+  },
+  get_corr_scanner(sample_size, base_ccy) {
+    return Api.get(`/corr_scanner/${sample_size}/${base_ccy}`);
   },
   refresh_historical_spots() {
     return Api.get(`/refresh_historical_spots`);

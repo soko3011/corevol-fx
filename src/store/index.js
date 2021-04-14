@@ -49,16 +49,17 @@ const state = {
   pricerStrategy: [],
   activePricerList: [],
   dashBoardUpdate: [],
-  analyticsTerm:'3M',
-  analyticsVolType:"Raw",
-  volEstimators:[
-    'Raw',
-    'GarmanKlass',
-    'Parkinson',
-    'RogersSatchell',
-    'YangZhang'
-],
-volEstimatorTerms:["1W", "2W", "1M", "2M", "3M", "6M", "9M", "1Y", "2Y"]
+  analyticsTerm: "3M",
+  analyticsVolType: "Raw",
+  volEstimators: [
+    "Raw",
+    "GarmanKlass",
+    "Parkinson",
+    "RogersSatchell",
+    "YangZhang"
+  ],
+  volEstimatorTerms: ["1W", "2W", "1M", "2M", "3M", "6M", "9M", "1Y", "2Y"],
+  volAnalyticsSelection: "Descriptive Data"
 };
 
 const mutations = {
@@ -68,10 +69,13 @@ const mutations = {
     }, 2000);
   },
   SET_ANALYTICS_TERM(state, data) {
-    state.analyticsTerm = data
+    state.analyticsTerm = data;
   },
   SET_ANALYTICS_VOL_TYPE(state, data) {
-    state.analyticsVolType = data
+    state.analyticsVolType = data;
+  },
+  SET_VOL_ANALYTICS_SELECTION(state, data) {
+    state.volAnalyticsSelection = data;
   },
   SET_DASHBOARD_NOTIFIER(state, data) {
     state.dashBoardUpdate = JSON.parse(data);
@@ -165,7 +169,7 @@ const mutations = {
   },
 
   SET_IPV_DATA(state, data) {
-    console.log(data)
+    console.log(data);
     state.dvi.surf = JSON.parse(data.dviSurf);
     state.dvi.ipvSurf = JSON.parse(data.ipvSurf);
   },
@@ -220,11 +224,14 @@ const actions = {
   alertMainAppLoaded({ commit }) {
     commit("SET_APP_LOADED");
   },
-  setAnalyticsTerm({commit},data){
-    commit("SET_ANALYTICS_TERM",data)
+  setAnalyticsTerm({ commit }, data) {
+    commit("SET_ANALYTICS_TERM", data);
   },
-  setAnalyticsVolType({commit},data){
-    commit("SET_ANALYTICS_VOL_TYPE",data)
+  setAnalyticsVolType({ commit }, data) {
+    commit("SET_ANALYTICS_VOL_TYPE", data);
+  },
+  setVolAnalyticsSelection({ commit }, data) {
+    commit("SET_VOL_ANALYTICS_SELECTION", data);
   },
   dashBoardNotifier({ commit }, data) {
     commit("SET_DASHBOARD_NOTIFIER", data);
@@ -704,25 +711,28 @@ const getters = {
       return state.userPrefCross;
     } else return state.activecross;
   },
-  corrCrossGetter(state,getters){
-    let corrGetter = getters.activeCrossGetter
+  corrCrossGetter(state, getters) {
+    let corrGetter = getters.activeCrossGetter;
     let crosses = state.crossList.filter(x => {
       return !x.includes("USD");
     });
 
-    if(corrGetter.includes("USD")){
-    let filtered = crosses.filter(x=>{
-      return x.includes(corrGetter.substring(0,3)) || x.includes(corrGetter.substring(3,6))
-    })
+    if (corrGetter.includes("USD")) {
+      let filtered = crosses.filter(x => {
+        return (
+          x.includes(corrGetter.substring(0, 3)) ||
+          x.includes(corrGetter.substring(3, 6))
+        );
+      });
 
-    if(filtered.length>0){
-      return filtered[0]
-    }
-   
-    return "EURJPY"
+      if (filtered.length > 0) {
+        return filtered[0];
+      }
+
+      return "EURJPY";
     }
 
-    return corrGetter
+    return corrGetter;
   },
   lastPricerTabGetter(state) {
     if (

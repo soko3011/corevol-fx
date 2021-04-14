@@ -119,13 +119,19 @@
             @alertLoaded="setLoaded"
           />
           <RealizedZScoreScannerMain
-            v-if="settingSelection === 'ZScore Scanner'"
+            v-if="settingSelection === 'Z Score Scanner'"
             :cross="activecross"
             :key="componentKey"
             @alertLoaded="setLoaded"
           />
           <CorrScannerMain
             v-if="settingSelection === 'Correlation Scanner'"
+            :cross="activecross"
+            :key="componentKey"
+            @alertLoaded="setLoaded"
+          />
+          <PRatioScannerMain
+            v-if="settingSelection === 'P Ratio Scanner'"
             :cross="activecross"
             :key="componentKey"
             @alertLoaded="setLoaded"
@@ -146,6 +152,7 @@ import HistoricalVolsMain from "@/components/VolAnalytics/HistoricalVols/Histori
 import VolConeScannerMain from "@/components/VolAnalytics/Scanners/VolConeScanner/VolConeScannerMain.vue";
 import RealizedZScoreScannerMain from "@/components/VolAnalytics/Scanners/RealizedZScoreScanner/RealizedZScoreScannerMain.vue";
 import CorrScannerMain from "@/components/VolAnalytics/Scanners/CorrScanner/CorrScannerMain.vue";
+import PRatioScannerMain from "@/components/VolAnalytics/Scanners/PRatioScanner/PRatioScannerMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import { mapState } from "vuex";
 
@@ -160,6 +167,7 @@ export default {
     HistoricalVolsMain,
     VolConeScannerMain,
     CorrScannerMain,
+    PRatioScannerMain,
     RealizedZScoreScannerMain,
     PopUpModal,
   },
@@ -181,10 +189,11 @@ export default {
       ],
       scannerHeaders: [
         "Vol Cone Scanner",
-        "ZScore Scanner",
+        "Z Score Scanner",
         "Correlation Scanner",
+        "P Ratio Scanner",
       ],
-      settingSelection: "Descriptive Data",
+      //settingSelection: "Descriptive Data",
       dataLoaded: false,
       window: {
         width: 0,
@@ -195,7 +204,16 @@ export default {
   computed: {
     ...mapState({
       crosses: (state) => state.crossList,
+      volAnalyticsSelection: (state) => state.volAnalyticsSelection,
     }),
+    settingSelection: {
+      get() {
+        return this.volAnalyticsSelection;
+      },
+      set(val) {
+        this.$store.dispatch("setVolAnalyticsSelection", val);
+      },
+    },
     activecross() {
       let cross = this.$store.getters.activeCrossGetter;
       // if (this.available_crosses.indexOf(cross) === -1) {

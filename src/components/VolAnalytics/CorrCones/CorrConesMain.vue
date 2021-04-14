@@ -89,9 +89,45 @@ export default {
       terms: (state) => state.volEstimatorTerms,
       volEstimators: (state) => state.volEstimators,
       analyticsVolType: (state) => state.analyticsVolType,
+      crossList: (state) => state.crossList,
     }),
+    unique_ccy() {
+      let ccy = [];
+      for (const cross of this.crossList) {
+        let ccy1 = cross.substring(0, 3);
+        let ccy2 = cross.substring(3, 6);
+        ccy.push(ccy1, ccy2);
+      }
+      return [...new Set(ccy)].sort();
+    },
     base_ccys() {
-      return ["USD"];
+      let available_base_ccy = [];
+      let ccy1 = this.cross.substring(0, 3);
+      let ccy2 = this.cross.substring(3, 6);
+
+      for (const ccy of this.unique_ccy) {
+        var testCcy1a = `${ccy}${ccy1}`;
+        var testCcy1b = `${ccy1}${ccy}`;
+
+        var index1a = this.crossList.indexOf(testCcy1a);
+        var index1b = this.crossList.indexOf(testCcy1b);
+
+        var ccy1BaseExists = index1a > -1 || index1b > -1 ? true : false;
+
+        var testCcy2a = `${ccy}${ccy2}`;
+        var testCcy2b = `${ccy2}${ccy}`;
+
+        var index2a = this.crossList.indexOf(testCcy2a);
+        var index2b = this.crossList.indexOf(testCcy2b);
+
+        var ccy2BaseExists = index2a > -1 || index2b > -1 ? true : false;
+
+        if (ccy1BaseExists && ccy2BaseExists) {
+          available_base_ccy.push(ccy);
+        }
+      }
+
+      return available_base_ccy;
     },
     dataTableData() {
       return this.apiData;
@@ -105,7 +141,8 @@ export default {
   },
   methods: {
     dev() {
-      console.log(this.sample_size_selection);
+      let list = this.get_available_base_ccy("USDCAD");
+      console.log(list);
     },
     async getApiData() {
       try {
@@ -115,7 +152,7 @@ export default {
           this.sample_size_selection
         );
         let is_valid_data = Array.isArray(response.data);
-        console.log(is_valid_data);
+
         if (is_valid_data) {
           this.apiData = response.data;
           this.loaded = true;

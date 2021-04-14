@@ -6,41 +6,19 @@
     >
       <v-switch v-model="high_low_toggle" :label="`${chart_title}`"></v-switch>
     </div>
-    <div class="ml-7 blue--text text--darken-3">
-      (Thick Border => 10 Percentile)
-    </div>
 
     <div v-if="loaded">
       <div class="d-flex flex-column mr-1">
         <div class="d-flex flex-row">
           <div class="d-flex flex-column mr-1">
-            <div class="d-flex flex-row justify-end mr-6">
-              <div class="observations d-flex flex-row flex-nowrap">
-                <v-select
-                  v-model="sample_size_selection"
-                  :items="sample_size"
-                  label="Sample Size"
-                  @change="refreshApi"
-                  :loading="refreshingData"
-                  class="mr-3"
-                ></v-select>
-                <v-select
-                  v-model="base_ccy_selection"
-                  :items="base_ccys"
-                  label="BaseCcy"
-                  @change="refreshApi"
-                  :loading="refreshingData"
-                ></v-select>
-              </div>
-            </div>
             <div>
-              <CorrScannerChartScatter
+              <PRatioScannerChartScatter
                 :key="componentKey"
                 :labels="uniqueCrosses"
                 :scatter_data="scatter_data"
                 :chartTitle="`${chart_title}`"
               />
-              <CorrScannerChartBar
+              <PRatioScannerChartBar
                 class="mt-10"
                 :key="componentKey"
                 :labels="uniqueCrosses"
@@ -49,7 +27,7 @@
               />
             </div>
           </div>
-          <div class="dt_volCone">
+          <div class="dt_PRatio">
             <DataTable
               class="mt-10"
               :key="componentKey"
@@ -68,16 +46,16 @@
 
 <script>
 import VolAnalyticsApi from "@/apis/pythonApis/VolAnalyticsApi";
-import CorrScannerChartBar from "@/components/VolAnalytics/Scanners/CorrScanner/CorrScannerChartBar.vue";
-import CorrScannerChartScatter from "@/components/VolAnalytics/Scanners/CorrScanner/CorrScannerChartScatter.vue";
+import PRatioScannerChartBar from "@/components/VolAnalytics/Scanners/PRatioScanner/PRatioScannerChartBar.vue";
+import PRatioScannerChartScatter from "@/components/VolAnalytics/Scanners/PRatioScanner/PRatioScannerChartScatter.vue";
 import DataTable from "@/components/VolAnalytics/DataTables/MaterialDataTable.vue";
 import { mapState } from "vuex";
 
 export default {
-  name: "corrScanner",
+  name: "p_ratio_scanner",
   components: {
-    CorrScannerChartBar,
-    CorrScannerChartScatter,
+    PRatioScannerChartBar,
+    PRatioScannerChartScatter,
     DataTable,
   },
   props: {
@@ -88,10 +66,8 @@ export default {
       apiData: [],
       loaded: false,
       refreshingData: false,
-      sample_size_selection: 300,
       componentKey: 0,
       high_low_toggle: true,
-      base_ccy_selection: "USD",
       terms_keys: {
         "1D": 1,
         "1W": 2,
@@ -114,7 +90,6 @@ export default {
       terms: (state) => state.volEstimatorTerms,
       volEstimators: (state) => state.volEstimators,
       analyticsVolType: (state) => state.analyticsVolType,
-      crossList: (state) => state.crossList,
     }),
     vol_data() {
       let data = this.high_low_toggle ? this.apiData.high : this.apiData.low;
@@ -122,16 +97,6 @@ export default {
       parsed.sort((a, b) => a.Cross.localeCompare(b.Cross));
       return parsed;
     },
-    base_ccys() {
-      let ccy = [];
-      for (const cross of this.crossList) {
-        let ccy1 = cross.substring(0, 3);
-        let ccy2 = cross.substring(3, 6);
-        ccy.push(ccy1, ccy2);
-      }
-      return [...new Set(ccy.filter((x) => x != "SPY"))].sort();
-    },
-
     uniqueCrosses() {
       return [...new Set(this.vol_data.map((item) => item.Cross))].sort();
     },
@@ -147,8 +112,17 @@ export default {
     },
     chart_title() {
       return this.high_low_toggle
-        ? "REALIZED CORR > TOP QUARTILE"
-        : "REALIZED CORR < BOTTOM QUARTILE";
+        ? "PARKINSON RATIO >= 1.50 (RANGEBOUND)"
+        : "PARKINSON RATIO <= 1.00 (TRENDING)";
+    },
+
+    volEstName: {
+      get() {
+        return this.analyticsVolType;
+      },
+      set(val) {
+        this.$store.dispatch("setAnalyticsVolType", val);
+      },
     },
     data_table_data() {
       return this.vol_data;
@@ -157,7 +131,7 @@ export default {
       return Object.keys(this.data_table_data[0]);
     },
     sample_size() {
-      return [10, 20, 50, 100, 200, 300, 500];
+      return [10, 20, 30, 60, 90, 180, 360, 720];
     },
   },
   methods: {
@@ -165,16 +139,16 @@ export default {
       this.high_low_toggle = true;
     },
     dev() {
-      console.log(this.high_low_toggle);
+      console.log(this.scatter_data);
     },
     createBarChartData(inputArray, term) {
       let arr = [];
-      let filteredArr = inputArray.filter((item) => item.Terms == term);
+      let filteredArr = inputArray.filter((item) => item.Term == term);
       for (const item of this.uniqueCrosses) {
         const index = filteredArr.map((item) => item.Cross).indexOf(item);
 
         if (index > -1) {
-          arr.push(filteredArr[index].Current);
+          arr.push(filteredArr[index].P_Ratio);
         } else {
           arr.push(0);
         }
@@ -189,7 +163,7 @@ export default {
         let scatter = new Array(scatter_len);
         let cross = row["Cross"];
         let index = this.uniqueCrosses.indexOf(cross);
-        scatter[index] = this.terms_keys[row["Terms"]];
+        scatter[index] = this.terms_keys[row["Term"]];
         let background_color = "";
 
         if (this.high_low_toggle) {
@@ -198,20 +172,11 @@ export default {
           background_color = index % 2 == 0 ? "#ff0055" : "#ff99bb";
         }
 
-        let border_witdh = "";
-        if (
-          row["Percentile"] === "Top10Pcl" ||
-          row["Percentile"] === "Bot10Pcl"
-        ) {
-          border_witdh = 4;
-        } else {
-          border_witdh = 1;
-        }
         outputArr.push({
           data: scatter,
           borderColor: "#000C66",
           backgroundColor: background_color,
-          borderWidth: border_witdh,
+          borderWidth: 2,
         });
       }
 
@@ -219,10 +184,7 @@ export default {
     },
     async getApiData() {
       try {
-        let response = await VolAnalyticsApi.get_corr_scanner(
-          this.sample_size_selection,
-          this.base_ccy_selection
-        );
+        let response = await VolAnalyticsApi.get_p_ratio_scanner();
         this.apiData = response.data;
         this.loaded = true;
         this.$emit("alertLoaded", true);
@@ -249,7 +211,7 @@ export default {
 div.observations {
   width: 400px;
 }
-div.dt_volCone {
+div.dt_PRatio {
   margin-top: 10px;
   margin-left: 30px;
   margin-right: 30px;

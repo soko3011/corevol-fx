@@ -41,6 +41,9 @@ export default {
   get_corr_scanner(sample_size, base_ccy) {
     return Api.get(`/corr_scanner/${sample_size}/${base_ccy}`);
   },
+  get_p_ratio_scanner() {
+    return Api.get(`/p_ratio_scanner`);
+  },
   refresh_historical_spots() {
     return Api.get(`/refresh_historical_spots`);
   }

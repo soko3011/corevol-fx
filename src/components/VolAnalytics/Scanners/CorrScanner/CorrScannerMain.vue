@@ -1,13 +1,26 @@
 <template>
   <div class="ml-5">
-    <!-- <v-btn @click="dev" /> -->
-    <div
-      class="ml-7 mt-5 font-weight-bold text-center grey--text text--lighten-3"
-    >
-      <v-switch v-model="high_low_toggle" :label="`${chart_title}`"></v-switch>
+    <div v-if="has_valid_data">
+      <div
+        class="ml-7 mt-5 font-weight-bold text-center grey--text text--lighten-3"
+      >
+        <v-switch
+          v-model="high_low_toggle"
+          :label="`${chart_title}`"
+        ></v-switch>
+      </div>
+      <div class="ml-7 blue--text text--darken-3">
+        (Thick Border => 10 Percentile)
+      </div>
     </div>
-    <div class="ml-7 blue--text text--darken-3">
-      (Thick Border => 10 Percentile)
+    <div v-else>
+      <v-select
+        v-model="base_ccy_selection"
+        :items="base_ccys"
+        :label="`There are no results with base: ${base_ccy_selection}`"
+        @change="refreshApi"
+        :loading="refreshingData"
+      ></v-select>
     </div>
 
     <div v-if="loaded">
@@ -92,6 +105,7 @@ export default {
       componentKey: 0,
       high_low_toggle: true,
       base_ccy_selection: "USD",
+      has_valid_data: true,
       terms_keys: {
         "1D": 1,
         "1W": 2,
@@ -223,8 +237,16 @@ export default {
           this.sample_size_selection,
           this.base_ccy_selection
         );
-        this.apiData = response.data;
-        this.loaded = true;
+        let invalid_data = `${this.base_ccy_selection} could not be validated`;
+        if (response.data.data_status === invalid_data) {
+          this.has_valid_data = false;
+          this.loaded = false;
+        } else {
+          this.apiData = response.data;
+          this.has_valid_data = true;
+          this.loaded = true;
+        }
+
         this.$emit("alertLoaded", true);
       } catch (error) {
         console.log(error);

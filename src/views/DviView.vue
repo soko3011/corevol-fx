@@ -528,9 +528,7 @@ export default {
     },
   },
   methods: {
-    dev() {
-      alert("cunt");
-    },
+    dev() {},
     handleResize() {
       this.window.width = window.innerWidth;
       this.window.height = window.innerHeight;

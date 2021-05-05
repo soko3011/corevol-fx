@@ -1,7 +1,6 @@
 <template>
   <v-app class="blue-grey lighten-5">
     <TheSidebar :showsidebar="drawer" />
-
     <v-main>
       <v-container fluid>
         <router-view :key="$route.fullPath"></router-view>
@@ -18,11 +17,11 @@ import TheFooter from "@/container/TheFooter.vue";
 
 export default {
   data: () => ({
-    drawer: null
+    drawer: null,
   }),
   components: {
     TheSidebar,
-    TheFooter
-  }
+    TheFooter,
+  },
 };
 </script>

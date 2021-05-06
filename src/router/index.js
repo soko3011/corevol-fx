@@ -18,6 +18,7 @@ const UserRegistration = () => import("@/views/UserRegistration");
 const Admin = () => import("@/views/Admin");
 const SplashScreen = () => import("@/views/SplashScreen");
 const VolAnalytics = () => import("@/views/VolAnalyticsView");
+const NlpModel = () => import("@/views/NlpModelView");
 
 Vue.use(Router);
 
@@ -82,6 +83,11 @@ let router = new Router({
           path: "volAnalytics",
           name: "VolAnalytics",
           component: VolAnalytics
+        },
+        {
+          path: "nlpModel",
+          name: "NlpModel",
+          component: NlpModel
         },
 
         {

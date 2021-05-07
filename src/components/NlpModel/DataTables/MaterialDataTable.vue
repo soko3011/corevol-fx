@@ -38,7 +38,7 @@ export default {
       for (var item of this.inputHeaders) {
         let headerObj = {
           text: item,
-          align: "center",
+          align: "left",
           sortable: false,
           value: item,
           class: classText,

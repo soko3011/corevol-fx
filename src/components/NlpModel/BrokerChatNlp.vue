@@ -1,13 +1,11 @@
 <template>
   <div>
-    <v-btn color="red" @click="dev">DEV</v-btn>
+    <!-- <v-btn color="red" @click="dev">DEV</v-btn> -->
     <div v-if="loaded">
       <DataTable
-        class="mt-10"
-        :key="componentKey"
-        :inputHeaders="data_table_headers"
-        :inputData="data_table_data"
-        :rowsPerPage="25"
+        :apidata="data_table_data"
+        :screen_height="screen_height"
+        class="ma-0"
       />
     </div>
   </div>
@@ -15,7 +13,7 @@
 
 <script>
 import NlpApi from "@/apis/pythonApis/NlpApi";
-import DataTable from "@/components/NlpModel/DataTables/MaterialDataTable.vue";
+import DataTable from "@/components/NlpModel/DataTables/JExcelTable.vue";
 
 export default {
   name: "brokerChatNlp",
@@ -23,16 +21,17 @@ export default {
     DataTable,
   },
   props: {
-    // cross: { type: String },
+    cross: { type: String },
+    screen_height: { type: Number },
   },
+
   data() {
     return {
       apiData: [],
       loaded: false,
       refreshingData: false,
       componentKey: 0,
-      file_date: "02_mar_2021",
-      cross: "USDCAD",
+      file_date: "02_may_2021",
     };
   },
   async created() {
@@ -59,6 +58,7 @@ export default {
         this.apiData = response.data;
         console.log(response);
         this.loaded = true;
+        this.$emit("alertLoaded", true);
       } catch (error) {
         console.log(error);
       }

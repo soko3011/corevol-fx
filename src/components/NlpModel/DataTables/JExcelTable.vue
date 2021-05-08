@@ -5,6 +5,7 @@
 <script>
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import alphabetJson from "@/components/pricer/Alphabet.json";
+import cssHighLightRowHelper from "@/components/dviComponents/helpers/cssHighLiteRow.js";
 
 export default {
   name: "JExcelTable",
@@ -47,6 +48,7 @@ export default {
         allowInsertRow: false,
         columns: this.setReadOnly(),
         contextMenu: function (obj, x, y, e) {},
+        onselection: this.selectionActive,
         nestedHeaders: [
           [
             {
@@ -72,6 +74,10 @@ export default {
       columns.push({ readOnly: true, align: "left" });
       return columns;
     },
+    selectionActive(instance, x1, y1, x2, y2, origin) {
+      let cssUser = new cssHighLightRowHelper(this.jExcelObj, true, x1, y1);
+      cssUser.activateUserEditableClasses();
+    },
     FormatTable(data, table) {
       table.hideIndex();
       //reset font color to black after readonly class is added.
@@ -80,31 +86,6 @@ export default {
           table.setStyle(this.cellId(c, r), "color", "black");
         }
       }
-
-      // const atmCol = this.tableHeaders.indexOf("ATM");
-      // const termCol = this.tableHeaders.indexOf("Term");
-
-      // for (var row = 1; row <= data.length; row++) {
-      //   table.setStyle(this.cellId(atmCol, row), "background-color", "#D2DEE9");
-      //   table.setStyle(this.cellId(atmCol, row), "font-weight", "bold");
-      //   table.setStyle(this.cellId(termCol, row), "color", "#000080");
-      //   table.setStyle(this.cellId(termCol, row), "font-weight", "bold");
-
-      //   if (row > 9) {
-      //     table.setStyle(
-      //       this.cellId(atmCol, row),
-      //       "background-color",
-      //       "#EDFAFD"
-      //     );
-      //   }
-      // }
-      // for (var c = 0; c < table.headers.length; c++) {
-      //   table.setStyle(
-      //     this.cellId(c, table.rows.length),
-      //     "background-color",
-      //     this.warningColor
-      //   );
-      // }
     },
   },
   mounted() {

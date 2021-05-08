@@ -62,7 +62,7 @@
             <BrokerChatNlp
               :cross="activecross"
               :key="componentKey"
-              :screen_height="height"
+              :screen_height="window.height"
               @alertLoaded="setLoaded"
             />
           </div>
@@ -90,9 +90,15 @@ export default {
   data() {
     return {
       componentKey: 0,
-      settingHeaders: ["Short Dates", "Mid Dates", "Long Dates", "Smile"],
+      settingHeaders: [
+        "All",
+        "Short Dates",
+        "Mid Dates",
+        "Long Dates",
+        "Smile",
+      ],
 
-      //settingSelection: "Descriptive Data",
+      settingSelection: "All",
       dataLoaded: false,
       window: {
         width: 0,

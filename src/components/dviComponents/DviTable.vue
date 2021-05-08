@@ -7,9 +7,7 @@
 
 <script>
 import { mapState } from "vuex";
-import jexcelStyle from "jexcel/dist/jexcel.css"; // eslint-disable-line no-unused-vars
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
-import setData from "jexcel"; // eslint-disable-line no-unused-vars
 import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
 import alphabetJson from "@/components/pricer/Alphabet.json";
 import cssUserEditDvi from "./helpers/cssUserEditDvi.js";
@@ -19,12 +17,12 @@ export default {
   created() {},
   data() {
     return {
-      alphabet: alphabetJson.alphabet
+      alphabet: alphabetJson.alphabet,
     };
   },
   computed: {
     ...mapState({
-      apidata: state => state.dvi.main
+      apidata: (state) => state.dvi.main,
     }),
     config() {
       return {
@@ -37,7 +35,7 @@ export default {
         onselection: this.selectionActive,
         allowInsertRow: false,
         tableOverflow: false,
-        contextMenu: function(obj, x, y, e) {}
+        contextMenu: function (obj, x, y, e) {},
       };
     },
     tableHeaders() {
@@ -46,12 +44,12 @@ export default {
     tableData() {
       let tdata = [];
 
-      this.apidata.forEach(element => {
+      this.apidata.forEach((element) => {
         tdata.push(Object.values(element));
       });
 
       return tdata;
-    }
+    },
   },
   methods: {
     setReadOnly() {
@@ -103,7 +101,7 @@ export default {
         fwdV: fwdV.toFixed(2),
         fwdD: cal2 - cal1,
         dateArr: dateArr,
-        volArr: volArr
+        volArr: volArr,
       };
 
       this.$store.dispatch("fwdVolInputsFromDviTable", fwdVolObj);
@@ -123,7 +121,7 @@ export default {
         UserName: this.$store.state.currentUser,
         AutoSave: this.$store.state.dviPrefs.autoSaveSwitch,
         UserEventWgt: eventWgt,
-        UserEventDayCount: dayCount
+        UserEventDayCount: dayCount,
       };
       this.$store.dispatch("returnDviAfterUserWgtUpdate", iData);
     },
@@ -182,9 +180,9 @@ export default {
           table.setStyle(col7Name, "background-color", "#bfbfbf");
         }
       }
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj });
@@ -192,7 +190,7 @@ export default {
   watch: {
     apidata() {
       this.RefreshTable();
-    }
-  }
+    },
+  },
 };
 </script>

@@ -3,7 +3,6 @@
     <v-container class="center">
       <v-progress-linear v-if="!dataLoaded" indeterminate></v-progress-linear>
     </v-container>
-    <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
     <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#385F73" min-width="400" collapse>
         <v-spacer></v-spacer>
@@ -18,7 +17,7 @@
             align="center"
             justify="center"
           >
-            {{ activecross }}
+            {{ selectedCross }}
 
             <v-btn icon x-small class="mb-4" elevation="21">
               <PopUpModal
@@ -36,10 +35,12 @@
         <v-spacer></v-spacer>
       </v-toolbar>
     </div>
+
     <div class="d-flex flex-row">
       <v-card flat class="d-flex flex-column mr-3" min-width="225">
         <v-list dense>
           <v-subheader>Filters</v-subheader>
+
           <v-list-item
             @click="ChangeSettings(item)"
             v-for="item in this.settingHeaders"
@@ -54,19 +55,42 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
+        <v-list dense>
+          <v-subheader>Summary</v-subheader>
+          <v-list-item
+            @click="ChangeSummary(item)"
+            v-for="item in this.summaryHeaders"
+            :key="item"
+            ripple
+          >
+            <v-list-item-action>
+              <v-icon color="green darken-3">mdi-dots-square</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>{{ item }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
       </v-card>
 
       <div class="analyticContainer">
         <transition name="slide">
-          <div>
-            <BrokerChatNlp
-              :cross="activecross"
-              :key="componentKey"
-              :filter="settingSelection"
-              :screen_height="window.height"
-              @alertLoaded="setLoaded"
-            />
-          </div>
+          <BrokerChatNlp
+            v-if="view_mode === 'nlp_model'"
+            :cross="selectedCross"
+            :key="componentKey"
+            :filter="settingSelection"
+            :screen_height="window.height"
+            @alertLoaded="setLoaded"
+          />
+        </transition>
+        <transition name="slide">
+          <BrokerChatSummary
+            v-if="view_mode === 'overview'"
+            :screen_height="window.height"
+            @crossSelected="crossSelectedFromSummary"
+            @alertLoaded="setLoaded"
+          />
         </transition>
       </div>
     </div>
@@ -76,11 +100,13 @@
 
 <script>
 import BrokerChatNlp from "@/components/NlpModel/BrokerChatNlp.vue";
+import BrokerChatSummary from "@/components/NlpModel/BrokerChatSummary.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import { mapState } from "vuex";
 export default {
   components: {
     BrokerChatNlp,
+    BrokerChatSummary,
     PopUpModal,
   },
   created() {
@@ -98,9 +124,13 @@ export default {
         "LONG DATES",
         "SMILE",
       ],
-
+      summaryHeaders: ["OVERVIEW"],
       settingSelection: "ALL",
+      summarySelection: "OVERVIEW",
+      view_mode: "overview",
       dataLoaded: false,
+      selectedCross: this.$store.getters.activeCrossGetter,
+
       window: {
         width: 0,
         height: 0,
@@ -111,21 +141,27 @@ export default {
     ...mapState({
       crosses: (state) => state.crossList,
     }),
-
-    activecross() {
-      let cross = this.$store.getters.activeCrossGetter;
-      return cross;
-    },
   },
   methods: {
-    dev() {
-      console.log(this.available_crosses);
-      console.log(this.activecross);
-    },
+    dev() {},
     setLoaded(val) {
       this.dataLoaded = val;
     },
+
+    ChangeSummary(selection) {
+      if (selection == "OVERVIEW") {
+        this.view_mode = "overview";
+        return;
+      }
+      if (selection === this.summarySelection) {
+        return;
+      }
+      this.dataLoaded = false;
+      this.summarySelection = selection;
+      this.changeCross(selection);
+    },
     ChangeSettings(setting) {
+      this.view_mode = "nlp_model";
       if (setting === this.settingSelection) {
         return;
       }
@@ -134,9 +170,20 @@ export default {
     },
     changeCross(val) {
       this.dataLoaded = false;
-      this.$store.dispatch("setActivecross", val);
+      this.selectedCross = val;
+      if (this.crosses.indexOf(val) > -1) {
+        this.$store.dispatch("setActivecross", val);
+      }
       this.settingSelection = "ALL";
+      this.view_mode = "nlp_model";
       this.componentKey += 1;
+    },
+    crossSelectedFromSummary(val) {
+      this.changeCross(val);
+
+      if (this.summaryHeaders.indexOf(val) === -1) {
+        this.summaryHeaders.push(val);
+      }
     },
     handleResize() {
       this.window.width = window.innerWidth - 100;

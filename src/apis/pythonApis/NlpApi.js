@@ -8,5 +8,8 @@ export default {
   },
   filter_smile(cross, date_str) {
     return Api.get(`/nlp/smile/${cross}/${date_str}`);
+  },
+  get_summary(date_str) {
+    return Api.get(`/nlp/summary/${date_str}`);
   }
 };

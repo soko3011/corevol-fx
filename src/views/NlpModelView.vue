@@ -62,6 +62,7 @@
             <BrokerChatNlp
               :cross="activecross"
               :key="componentKey"
+              :filter="settingSelection"
               :screen_height="window.height"
               @alertLoaded="setLoaded"
             />
@@ -91,14 +92,14 @@ export default {
     return {
       componentKey: 0,
       settingHeaders: [
-        "All",
-        "Short Dates",
-        "Mid Dates",
-        "Long Dates",
-        "Smile",
+        "ALL",
+        "SHORT DATES",
+        "MID DATES",
+        "LONG DATES",
+        "SMILE",
       ],
 
-      settingSelection: "All",
+      settingSelection: "ALL",
       dataLoaded: false,
       window: {
         width: 0,
@@ -134,6 +135,7 @@ export default {
     changeCross(val) {
       this.dataLoaded = false;
       this.$store.dispatch("setActivecross", val);
+      this.settingSelection = "ALL";
       this.componentKey += 1;
     },
     handleResize() {

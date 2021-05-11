@@ -98,10 +98,10 @@ export default {
     );
   },
   watch: {
-    apidata() {
-      this.jExcelObj.setData(this.tableData);
-      this.FormatTable(this.tableData, this.jExcelObj);
-    },
+    // apidata() {
+    //   this.jExcelObj.setData(this.tableData);
+    //   this.FormatTable(this.tableData, this.jExcelObj);
+    // },
   },
 };
 </script>

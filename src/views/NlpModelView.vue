@@ -99,6 +99,7 @@
 
 
 <script>
+import NlpApi from "@/apis/pythonApis/NlpApi";
 import BrokerChatNlp from "@/components/NlpModel/BrokerChatNlp.vue";
 import BrokerChatSummary from "@/components/NlpModel/BrokerChatSummary.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
@@ -109,7 +110,8 @@ export default {
     BrokerChatSummary,
     PopUpModal,
   },
-  created() {
+  async created() {
+    await this.getApiData();
     this.$store.dispatch("refreshCrossList");
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
@@ -130,6 +132,7 @@ export default {
       view_mode: "overview",
       dataLoaded: false,
       selectedCross: this.$store.getters.activeCrossGetter,
+      chat_dates: [],
 
       window: {
         width: 0,
@@ -144,6 +147,14 @@ export default {
   },
   methods: {
     dev() {},
+    async getApiData() {
+      try {
+        let response = await NlpApi.get_chat_dates();
+        this.chat_dates = response.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
     setLoaded(val) {
       this.dataLoaded = val;
     },

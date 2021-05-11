@@ -11,5 +11,8 @@ export default {
   },
   get_summary(date_str) {
     return Api.get(`/nlp/summary/${date_str}`);
+  },
+  get_chat_dates() {
+    return Api.get(`/nlp/chat_dates`);
   }
 };

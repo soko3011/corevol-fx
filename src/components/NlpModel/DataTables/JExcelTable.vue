@@ -17,7 +17,7 @@ export default {
   },
   props: {
     apidata: { type: Array },
-    screen_height: { type: Number },
+    tableHeight: { type: Number },
     headerData: { type: String },
     footerData: { type: String },
     warningColor: { type: String },
@@ -42,7 +42,7 @@ export default {
         data: this.tableData,
         colHeaders: this.tableHeaders,
         tableOverflow: true,
-        tableHeight: `${this.screen_height}px`,
+        tableHeight: `${this.tableHeight}px`,
         columnSorting: false,
         colWidths: [90, 100, 150, 100, 90, 150, 100, 70, 600],
         allowInsertRow: false,

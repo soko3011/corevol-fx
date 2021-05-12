@@ -4,7 +4,7 @@
     <div v-if="loaded">
       <DataTable
         :apidata="data_table_data"
-        :screen_height="screen_height"
+        :tableHeight="tableHeight"
         :headerData="`${cross} - ${filter}`"
         :key="componentKey"
         class="ma-0"
@@ -29,7 +29,7 @@ export default {
   },
   props: {
     cross: { type: String },
-    screen_height: { type: Number },
+    tableHeight: { type: Number },
     filter: { type: String },
     date_str: { type: String },
   },

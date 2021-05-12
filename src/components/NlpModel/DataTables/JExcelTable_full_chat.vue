@@ -13,13 +13,13 @@ export default {
   data() {
     return {
       alphabet: alphabetJson.alphabet,
-      activeRow: 0,
     };
   },
   props: {
     apidata: { type: Array },
     tableHeight: { type: Number },
     headerData: { type: String },
+    selectedRow: { type: Number },
   },
   computed: {
     tableHeaders() {
@@ -36,12 +36,7 @@ export default {
 
       return tdata;
     },
-    currentRawText() {
-      return this.jExcelObj.getValueFromCoords(
-        this.tableHeaders.indexOf("RAW_TEXT"),
-        this.activeRow
-      );
-    },
+
     config() {
       return {
         data: this.tableData,
@@ -49,7 +44,7 @@ export default {
         tableOverflow: true,
         tableHeight: `${this.tableHeight}px`,
         columnSorting: false,
-        colWidths: [90, 100, 150, 100, 90, 150, 100, 70, 600],
+        colWidths: [900],
         allowInsertRow: false,
         columns: this.setReadOnly(),
         contextMenu: function (obj, x, y, e) {},
@@ -80,8 +75,6 @@ export default {
       return columns;
     },
     selectionActive(instance, x1, y1, x2, y2, origin) {
-      this.activeRow = y1;
-      this.$emit("currentRawText", this.currentRawText);
       let cssUser = new cssHighLightRowHelper(this.jExcelObj, true, x1, y1);
       cssUser.activateUserEditableClasses();
     },
@@ -94,13 +87,6 @@ export default {
         }
       }
 
-      const expCol = this.tableHeaders.indexOf("EXPIRY");
-
-      for (var row = 1; row <= data.length; row++) {
-        table.setStyle(this.cellId(expCol, row), "background-color", "#D2DEE9");
-        table.setStyle(this.cellId(expCol, row), "font-weight", "bold");
-        table.setStyle(this.cellId(expCol, row), "color", "#385F73");
-      }
       for (var c = 0; c < table.headers.length; c++) {
         table.setStyle(
           this.cellId(c, table.rows.length),
@@ -114,8 +100,13 @@ export default {
     const jExcelObj = jexcel(this.$refs.spreadsheet, this.config);
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj });
+    this.jExcelObj.updateSelectionFromCoords(
+      0,
+      this.selectedRow,
+      0,
+      this.selectedRow
+    );
   },
-  watch: {},
 };
 </script>
 

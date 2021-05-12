@@ -1,8 +1,11 @@
 <template>
-  <div class="overallContainer ml-1">
+  <div class="nlp_container ml-1">
     <div>
       <v-container class="center">
-        <v-progress-linear v-if="!dataLoaded" indeterminate></v-progress-linear>
+        <v-progress-linear
+          v-if="!incoming_data_loaded"
+          indeterminate
+        ></v-progress-linear>
       </v-container>
       <div class="d-flex flex-row mb-5 flex-nowrap">
         <v-toolbar color="#385F73" min-width="400" collapse>
@@ -46,10 +49,10 @@
         </v-toolbar>
       </div>
       <div class="d-flex flex-row">
-        <div class="d-flex flex-column dviCol mr-1">
+        <div class="d-flex flex-column nlp_sidebar mr-1">
           <v-card
             v-if="showSideControl"
-            min-width="275"
+            min-width="225"
             :height="window.height"
           >
             <v-list dense>
@@ -77,6 +80,14 @@
                 </v-list-item-action>
                 <v-list-item-content>
                   <v-list-item-title>OVERVIEW</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="toggleSearchText()" ripple>
+                <v-list-item-action>
+                  <v-icon color="blue darken-3">mdi-file-search-outline</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>SEARCH TEXT</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
@@ -116,7 +127,7 @@
           </v-card>
         </div>
 
-        <div class="dviCol">
+        <div v-if="pageInitialized">
           <transition name="slide">
             <BrokerChatNlp
               v-if="view_mode === 'nlp_model'"
@@ -125,7 +136,8 @@
               :filter="settingSelection"
               :tableHeight="sidebarHeight"
               :date_str="date_str"
-              @alertLoaded="setLoaded"
+              :searchTxtToggle="searchTxtToggle"
+              @alertLoaded="set_incoming_data_toggle"
             />
           </transition>
           <transition name="slide">
@@ -135,7 +147,7 @@
               :date_str="date_str"
               :key="componentKey"
               @crossSelected="crossSelectedFromSummary"
-              @alertLoaded="setLoaded"
+              @alertLoaded="set_incoming_data_toggle"
             />
           </transition>
         </div>
@@ -179,11 +191,13 @@ export default {
       recentlyUsedHeaders: [this.$store.getters.activeCrossGetter],
       settingSelection: "ALL",
       view_mode: "overview",
-      dataLoaded: false,
+      incoming_data_loaded: false,
+      pageInitialized: false,
       selectedCross: this.$store.getters.activeCrossGetter,
       chat_dates: [],
-      date_str: "02_may_2021",
+      date_str: "",
       date_str_toggle: false,
+      searchTxtToggle: false,
       window: {
         width: 0,
         height: 0,
@@ -200,23 +214,27 @@ export default {
   },
   methods: {
     dev() {},
+    toggleSearchText() {
+      this.searchTxtToggle = !this.searchTxtToggle;
+    },
     async getApiData() {
       try {
         let response = await NlpApi.get_chat_dates();
         this.chat_dates = response.data.map((a) => a.DATES);
+        this.date_str = this.chat_dates[0];
+        this.pageInitialized = true;
       } catch (error) {
         console.log(error);
       }
     },
     update_date_str(val) {
-      this.dataLoaded = false;
+      this.incoming_data_loaded = false;
       this.date_str = val;
       this.componentKey += 1;
     },
-    setLoaded(val) {
-      this.dataLoaded = val;
+    set_incoming_data_toggle(bool) {
+      this.incoming_data_loaded = bool;
     },
-
     changeSummary() {
       this.view_mode = "overview";
     },
@@ -225,11 +243,11 @@ export default {
       if (setting === this.settingSelection) {
         return;
       }
-      this.dataLoaded = false;
+      this.incoming_data_loaded = false;
       this.settingSelection = setting;
     },
     changeCross(val) {
-      this.dataLoaded = false;
+      this.incoming_data_loaded = false;
       this.selectedCross = val;
       if (this.crosses.indexOf(val) > -1) {
         this.$store.dispatch("setActivecross", val);
@@ -262,7 +280,7 @@ export default {
         `${this.window.height}px`
       );
       document.documentElement.style.setProperty(
-        "--dviCol-height",
+        "--nlp_sidebar-height",
         `${this.window.height - 150}px`
       );
     },
@@ -275,7 +293,7 @@ export default {
 <style lang="scss">
 $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
-$dviColHeight: var(--dviCol-height);
+$nlp_sidebarHeight: var(--nlp_sidebar-height);
 
 .center {
   margin: 0;
@@ -286,7 +304,7 @@ $dviColHeight: var(--dviCol-height);
   transform: translate(-50%, -50%);
 }
 
-.overallContainer {
+.nlp_container {
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
@@ -295,63 +313,36 @@ $dviColHeight: var(--dviCol-height);
   height: $mainHeight;
   width: $mainWidth;
 }
-.overallContainer .dviCol {
+.nlp_container .nlp_sidebar {
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
-  height: $dviColHeight;
+  height: $nlp_sidebarHeight;
 }
 
-// .dviCol::-webkit-scrollbar-track {
-//   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-//   background-color: #f5f5f5;
-//   border-radius: 10px;
-// }
+.nlp_sidebar::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #f5f5f5;
+  border-radius: 10px;
+}
 
-// .dviCol::-webkit-scrollbar {
-//   width: 6px;
-//   background-color: #f5f5f5;
-// }
+.nlp_sidebar::-webkit-scrollbar {
+  width: 6px;
+  background-color: #f5f5f5;
+}
 
-// .dviCol::-webkit-scrollbar-thumb {
-//   background-color: #3366ff;
-//   border-radius: 10px;
-//   background-image: -webkit-linear-gradient(
-//     0deg,
-//     rgba(255, 255, 255, 0.5) 25%,
-//     transparent 25%,
-//     transparent 50%,
-//     rgba(255, 255, 255, 0.5) 50%,
-//     rgba(255, 255, 255, 0.5) 75%,
-//     transparent 75%,
-//     transparent
-//   );
-// }
-
-// .overallContainer::-webkit-scrollbar-track {
-//   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-//   background-color: #eceff1;
-//   border-radius: 10px;
-// }
-
-// .overallContainer::-webkit-scrollbar {
-//   width: 10px;
-//   height: 10px;
-//   background-color: #f5f5f5;
-// }
-
-// .overallContainer::-webkit-scrollbar-thumb {
-//   background-color: #aaa;
-//   border-radius: 10px;
-
-//   background-image: -webkit-linear-gradient(
-//     90deg,
-//     rgba(0, 0, 0, 0.2) 25%,
-//     transparent 25%,
-//     transparent 50%,
-//     rgba(0, 0, 0, 0.2) 50%,
-//     rgba(0, 0, 0, 0.2) 75%,
-//     transparent 75%,
-//     transparent
-//   );
-// }
+.nlp_sidebar::-webkit-scrollbar-thumb {
+  background-color: #3366ff;
+  border-radius: 10px;
+  background-image: -webkit-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.5) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.5) 75%,
+    transparent 75%,
+    transparent
+  );
+}
 </style>

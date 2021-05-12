@@ -1,19 +1,30 @@
 <template>
   <div>
-    <!-- <v-btn color="red" @click="dev">DEV</v-btn> -->
+    <!-- <v-btn color="red" @click="showSearchChat">DEV</v-btn> -->
     <div v-if="loaded">
       <DataTable
         :apidata="data_table_data"
         :tableHeight="tableHeight"
         :headerData="`${cross} - ${filter}`"
         :key="componentKey"
-        class="ma-0"
+        class="ml-1"
+        @currentRawText="updateRawTextSearch"
       />
     </div>
     <div v-else>
-      <h4 class="font-weight-medium text-center blue--text text--darken-3">
+      <h4 class="font-weight-medium text-center blue--text text--darken-3 ml-1">
         {{ no_data_message }}
       </h4>
+    </div>
+    <div v-if="toggleSearchDataTable">
+      <DataTableFullChat
+        :apidata="searchChatRange"
+        :tableHeight="tableHeight"
+        :headerData="`${cross} - SEARCH`"
+        :selectedRow="this.searchChatRow"
+        :key="componentKey"
+        class="ml-1"
+      />
     </div>
   </div>
 </template>
@@ -21,26 +32,33 @@
 <script>
 import NlpApi from "@/apis/pythonApis/NlpApi";
 import DataTable from "@/components/NlpModel/DataTables/JExcelTable.vue";
+import DataTableFullChat from "@/components/NlpModel/DataTables/JExcelTable_full_chat.vue";
 
 export default {
   name: "brokerChatNlp",
   components: {
     DataTable,
+    DataTableFullChat,
   },
   props: {
     cross: { type: String },
     tableHeight: { type: Number },
     filter: { type: String },
     date_str: { type: String },
+    searchTxtToggle: { type: Boolean },
   },
 
   data() {
     return {
       apiData: [],
+      fullChatData: [],
       loaded: false,
+      toggleSearchDataTable: false,
       refreshingData: false,
       componentKey: 0,
       no_data_message: "",
+      rawTextSearch: "",
+      searchTextIndex: 0,
     };
   },
   async created() {
@@ -50,21 +68,32 @@ export default {
     data_table_data() {
       return this.apiData;
     },
-    data_table_headers() {
-      return Object.keys(this.data_table_data[0]);
+    searchChatRange() {
+      return this.fullChatData.slice(
+        this.searchTextIndex - 5,
+        this.searchTextIndex + 50
+      );
+    },
+    searchChatRow() {
+      return this.searchChatRange
+        .map((a) => a.sentences)
+        .indexOf(this.rawTextSearch);
     },
   },
   methods: {
-    dev() {
-      let words = this.filter.split(" ");
-      let mat_group = "";
-      if (words.length == 2) {
-        mat_group = `${words[0]}_${words[1]}`;
-      } else {
-        mat_group = this.filter;
+    async showSearchChat() {
+      if (this.rawTextSearch === "") {
+        return;
       }
-
-      console.log(mat_group);
+      await this.getFullChat();
+      this.searchTextIndex = this.fullChatData
+        .map((a) => a.sentences)
+        .indexOf(this.rawTextSearch);
+      this.toggleSearchDataTable = !this.toggleSearchDataTable;
+      this.loaded = !this.loaded;
+    },
+    updateRawTextSearch(val) {
+      this.rawTextSearch = val;
     },
     async getApiData() {
       try {
@@ -95,6 +124,15 @@ export default {
       try {
         let response = await NlpApi.filter_smile(this.cross, this.date_str);
         this.updateDataTable(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getFullChat() {
+      try {
+        let response = await NlpApi.get_full_chat(this.date_str);
+
+        this.fullChatData = response.data;
       } catch (error) {
         console.log(error);
       }
@@ -139,9 +177,11 @@ export default {
         this.filterMatGroup();
       }
     },
+    searchTxtToggle() {
+      this.showSearchChat();
+    },
   },
 };
 </script>
 
-<style>
-</style>
+

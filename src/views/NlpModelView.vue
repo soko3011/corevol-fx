@@ -5,6 +5,15 @@
     </v-container>
     <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#385F73" min-width="400" collapse>
+        <v-btn icon>
+          <v-icon
+            @click="showSideControl = !showSideControl"
+            color="blue lighten-3"
+            >{{
+              showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
+            }}</v-icon
+          >
+        </v-btn>
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
           <h4
@@ -37,41 +46,71 @@
     </div>
 
     <div class="d-flex flex-row">
-      <v-card flat class="d-flex flex-column mr-3" min-width="225">
-        <v-list dense>
-          <v-subheader>Filters</v-subheader>
+      <div class="d-flex flex-column dviCol mr-1">
+        <v-card v-if="showSideControl" min-width="225" :height="window.height">
+          <v-list dense>
+            <v-subheader>Model Date</v-subheader>
+            <v-list-item @click="date_str_toggle = !date_str_toggle">
+              <v-list-item-action>
+                <v-btn ripple small icon>
+                  <v-icon color="#385F73">mdi-calendar-sync</v-icon>
+                </v-btn>
+                <ModalNoButton
+                  :inputData="chat_dates"
+                  :title="'SELECT DATE'"
+                  :vmodel="date_str_toggle"
+                  v-on:setvmodel="(data) => (date_str_toggle = data)"
+                  v-on:selection="update_date_str"
+                />
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>{{ date_str }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item @click="changeSummary()" ripple>
+              <v-list-item-action>
+                <v-icon color="blue darken-3">mdi-dots-triangle</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>OVERVIEW</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-list dense>
+            <v-subheader>Filters</v-subheader>
 
-          <v-list-item
-            @click="ChangeSettings(item)"
-            v-for="item in this.settingHeaders"
-            :key="item"
-            ripple
-          >
-            <v-list-item-action>
-              <v-icon color="green darken-3">mdi-dots-hexagon</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>{{ item }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-        <v-list dense>
-          <v-subheader>Summary</v-subheader>
-          <v-list-item
-            @click="ChangeSummary(item)"
-            v-for="item in this.summaryHeaders"
-            :key="item"
-            ripple
-          >
-            <v-list-item-action>
-              <v-icon color="green darken-3">mdi-dots-square</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>{{ item }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-card>
+            <v-list-item
+              @click="changeSettings(item)"
+              v-for="item in this.settingHeaders"
+              :key="item"
+              ripple
+            >
+              <v-list-item-action>
+                <v-icon color="green darken-3">mdi-dots-hexagon</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>{{ item }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-list dense>
+            <v-subheader>Recently Used</v-subheader>
+            <v-list-item
+              @click="changeCross(item)"
+              v-for="item in this.recentlyUsedHeaders"
+              :key="item"
+              ripple
+            >
+              <v-list-item-action>
+                <v-icon color="green darken-3">mdi-dots-square</v-icon>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>{{ item }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </div>
 
       <div class="analyticContainer">
         <transition name="slide">
@@ -81,6 +120,7 @@
             :key="componentKey"
             :filter="settingSelection"
             :screen_height="window.height"
+            :date_str="date_str"
             @alertLoaded="setLoaded"
           />
         </transition>
@@ -88,6 +128,8 @@
           <BrokerChatSummary
             v-if="view_mode === 'overview'"
             :screen_height="window.height"
+            :date_str="date_str"
+            :key="componentKey"
             @crossSelected="crossSelectedFromSummary"
             @alertLoaded="setLoaded"
           />
@@ -103,12 +145,14 @@ import NlpApi from "@/apis/pythonApis/NlpApi";
 import BrokerChatNlp from "@/components/NlpModel/BrokerChatNlp.vue";
 import BrokerChatSummary from "@/components/NlpModel/BrokerChatSummary.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
+import ModalNoButton from "@/components/common/ModalNoButton.vue";
 import { mapState } from "vuex";
 export default {
   components: {
     BrokerChatNlp,
     BrokerChatSummary,
     PopUpModal,
+    ModalNoButton,
   },
   async created() {
     await this.getApiData();
@@ -118,6 +162,7 @@ export default {
   },
   data() {
     return {
+      showSideControl: true,
       componentKey: 0,
       settingHeaders: [
         "ALL",
@@ -126,14 +171,14 @@ export default {
         "LONG DATES",
         "SMILE",
       ],
-      summaryHeaders: ["OVERVIEW"],
+      recentlyUsedHeaders: [this.$store.getters.activeCrossGetter],
       settingSelection: "ALL",
-      summarySelection: "OVERVIEW",
       view_mode: "overview",
       dataLoaded: false,
       selectedCross: this.$store.getters.activeCrossGetter,
       chat_dates: [],
-
+      date_str: "02_may_2021",
+      date_str_toggle: false,
       window: {
         width: 0,
         height: 0,
@@ -150,28 +195,24 @@ export default {
     async getApiData() {
       try {
         let response = await NlpApi.get_chat_dates();
-        this.chat_dates = response.data;
+        this.chat_dates = response.data.map((a) => a.DATES);
       } catch (error) {
         console.log(error);
       }
+    },
+    update_date_str(val) {
+      this.dataLoaded = false;
+      this.date_str = val;
+      this.componentKey += 1;
     },
     setLoaded(val) {
       this.dataLoaded = val;
     },
 
-    ChangeSummary(selection) {
-      if (selection == "OVERVIEW") {
-        this.view_mode = "overview";
-        return;
-      }
-      if (selection === this.summarySelection) {
-        return;
-      }
-      this.dataLoaded = false;
-      this.summarySelection = selection;
-      this.changeCross(selection);
+    changeSummary() {
+      this.view_mode = "overview";
     },
-    ChangeSettings(setting) {
+    changeSettings(setting) {
       this.view_mode = "nlp_model";
       if (setting === this.settingSelection) {
         return;
@@ -192,8 +233,8 @@ export default {
     crossSelectedFromSummary(val) {
       this.changeCross(val);
 
-      if (this.summaryHeaders.indexOf(val) === -1) {
-        this.summaryHeaders.push(val);
+      if (this.recentlyUsedHeaders.indexOf(val) === -1) {
+        this.recentlyUsedHeaders.push(val);
       }
     },
     handleResize() {
@@ -212,6 +253,10 @@ export default {
         "--main-height",
         `${this.window.height}px`
       );
+      document.documentElement.style.setProperty(
+        "--dviCol-height",
+        `${this.window.height - 160}px`
+      );
     },
   },
 };
@@ -220,6 +265,7 @@ export default {
 <style lang="scss">
 $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
+$dviColHeight: var(--dviCol-height);
 
 .center {
   margin: 0;
@@ -260,6 +306,31 @@ $mainWidth: var(--main-width);
     color-stop(0.44, rgb(122, 153, 217)),
     color-stop(0.72, rgb(73, 125, 189)),
     color-stop(0.86, rgb(28, 58, 148))
+  );
+}
+.dviCol::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #f5f5f5;
+  border-radius: 10px;
+}
+
+.dviCol::-webkit-scrollbar {
+  width: 6px;
+  background-color: #f5f5f5;
+}
+
+.dviCol::-webkit-scrollbar-thumb {
+  background-color: #3366ff;
+  border-radius: 10px;
+  background-image: -webkit-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.5) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.5) 75%,
+    transparent 75%,
+    transparent
   );
 }
 </style>

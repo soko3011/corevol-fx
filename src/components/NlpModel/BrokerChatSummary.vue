@@ -42,13 +42,11 @@ import NlpApi from "@/apis/pythonApis/NlpApi";
 export default {
   name: "brokerChatSummary",
   components: {},
-  props: {},
-
+  props: { date_str: { type: String } },
   data() {
     return {
       apiData: [],
       loaded: false,
-      file_date: "02_may_2021",
     };
   },
   async created() {
@@ -61,7 +59,7 @@ export default {
     },
     async getApiData() {
       try {
-        let response = await NlpApi.get_summary(this.file_date);
+        let response = await NlpApi.get_summary(this.date_str);
         this.apiData = response.data;
         this.loaded = true;
         this.$emit("alertLoaded", true);

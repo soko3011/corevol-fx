@@ -31,6 +31,7 @@ export default {
     cross: { type: String },
     screen_height: { type: Number },
     filter: { type: String },
+    date_str: { type: String },
   },
 
   data() {
@@ -39,7 +40,6 @@ export default {
       loaded: false,
       refreshingData: false,
       componentKey: 0,
-      file_date: "02_may_2021",
       no_data_message: "",
     };
   },
@@ -70,7 +70,7 @@ export default {
       try {
         let response = await NlpApi.filter_cross_and_expiry(
           this.cross,
-          this.file_date
+          this.date_str
         );
         this.updateDataTable(response.data);
       } catch (error) {
@@ -81,7 +81,7 @@ export default {
       try {
         let response = await NlpApi.filter_mat_group(
           this.cross,
-          this.file_date,
+          this.date_str,
           this.formatFilter()
         );
 
@@ -93,7 +93,7 @@ export default {
     },
     async filterSmile() {
       try {
-        let response = await NlpApi.filter_smile(this.cross, this.file_date);
+        let response = await NlpApi.filter_smile(this.cross, this.date_str);
         this.updateDataTable(response.data);
       } catch (error) {
         console.log(error);

@@ -1,6 +1,12 @@
 <template>
   <div class="nlp_container ml-1">
     <div>
+      <v-container class="center">
+        <v-progress-linear
+          v-if="!child_data_loaded"
+          indeterminate
+        ></v-progress-linear>
+      </v-container>
       <div class="d-flex flex-row">
         <div class="d-flex flex-column nlp_sidebar mr-1">
           <v-card
@@ -78,7 +84,7 @@
             </v-list>
           </v-card>
         </div>
-        <div v-if="pageInitialized">
+        <div v-if="data_loaded">
           <transition name="slide">
             <BrokerChatNlp
               v-if="view_mode === 'nlp_model'"
@@ -122,6 +128,10 @@ export default {
     PopUpModal,
     ModalNoButton,
   },
+  props: {
+    parentCross: { type: String },
+    showSideControl: { type: Boolean },
+  },
   async created() {
     await this.getApiData();
     window.addEventListener("resize", this.handleResize);
@@ -134,8 +144,8 @@ export default {
       recentlyUsedHeaders: [this.$store.getters.activeCrossGetter],
       filterSelection: "ALL",
       view_mode: "summary",
-      incoming_data_loaded: false,
-      pageInitialized: false,
+      child_data_loaded: false,
+      data_loaded: false,
       selectedCross: this.$store.getters.activeCrossGetter,
       chat_dates: [],
       date_str: "",
@@ -165,18 +175,18 @@ export default {
         let response = await NlpApi.get_chat_dates();
         this.chat_dates = response.data.map((a) => a.DATES);
         this.date_str = this.chat_dates[0];
-        this.pageInitialized = true;
+        this.data_loaded = true;
       } catch (error) {
         console.log(error);
       }
     },
     update_date_str(val) {
-      this.incoming_data_loaded = false;
+      this.child_data_loaded = false;
       this.date_str = val;
       this.componentKey += 1;
     },
     set_incoming_data_toggle(bool) {
-      this.incoming_data_loaded = bool;
+      this.child_data_loaded = bool;
     },
     toggleViewMode() {
       this.view_mode = "summary";
@@ -186,11 +196,11 @@ export default {
       if (val === this.filterSelection) {
         return;
       }
-      this.incoming_data_loaded = false;
+      this.child_data_loaded = false;
       this.filterSelection = val;
     },
     changeCross(val) {
-      this.incoming_data_loaded = false;
+      this.child_data_loaded = false;
       this.selectedCross = val;
       if (this.crosses.indexOf(val) > -1) {
         this.$store.dispatch("setActivecross", val);
@@ -198,6 +208,7 @@ export default {
       this.filterSelection = "ALL";
       this.view_mode = "nlp_model";
       this.componentKey += 1;
+      this.$emit("crossChanged", { cross: val, view: "SINGLE VIEW" });
     },
     crossSelectedFromSummary(val) {
       this.changeCross(val);

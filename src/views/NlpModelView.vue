@@ -56,7 +56,17 @@
             :height="window.height"
           >
             <v-list dense>
-              <v-subheader>Model Date</v-subheader>
+              <v-subheader
+                >Model Date
+                <v-spacer />
+                <v-switch
+                  dense
+                  inset
+                  v-model="isBatch"
+                  color="#126496"
+                  @change="toggleBatch()"
+                ></v-switch>
+              </v-subheader>
               <v-list-item @click="date_str_toggle = !date_str_toggle">
                 <v-list-item-action>
                   <v-btn ripple small icon>
@@ -72,6 +82,30 @@
                 </v-list-item-action>
                 <v-list-item-content>
                   <v-list-item-title>{{ date_str }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item
+                v-if="isBatch"
+                @click="batch_end_date_str_toggle = !batch_end_date_str_toggle"
+              >
+                <v-list-item-action>
+                  <v-btn ripple small icon>
+                    <v-icon color="#385F73">mdi-calendar-sync</v-icon>
+                  </v-btn>
+                  <ModalNoButton
+                    :inputData="chat_dates"
+                    :title="'SELECT DATE'"
+                    :vmodel="batch_end_date_str_toggle"
+                    v-on:setvmodel="
+                      (data) => (batch_end_date_str_toggle = data)
+                    "
+                    v-on:selection="set_batch_end_date_str"
+                  />
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>{{
+                    batch_end_date_str
+                  }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="changeSummary()" ripple>
@@ -179,6 +213,7 @@ export default {
   },
   data() {
     return {
+      isBatch: false,
       showSideControl: true,
       componentKey: 0,
       settingHeaders: [
@@ -196,7 +231,9 @@ export default {
       selectedCross: this.$store.getters.activeCrossGetter,
       chat_dates: [],
       date_str: "",
+      batch_end_date_str: "",
       date_str_toggle: false,
+      batch_end_date_str_toggle: false,
       searchTxtToggle: false,
       window: {
         width: 0,
@@ -214,6 +251,9 @@ export default {
   },
   methods: {
     dev() {},
+    toggleBatch() {
+      this.batch_end_date_str = this.date_str;
+    },
     toggleSearchText() {
       this.searchTxtToggle = !this.searchTxtToggle;
     },
@@ -231,6 +271,9 @@ export default {
       this.incoming_data_loaded = false;
       this.date_str = val;
       this.componentKey += 1;
+    },
+    set_batch_end_date_str(val) {
+      this.batch_end_date_str = val;
     },
     set_incoming_data_toggle(bool) {
       this.incoming_data_loaded = bool;

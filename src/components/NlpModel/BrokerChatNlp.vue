@@ -115,7 +115,6 @@ export default {
         );
 
         this.updateDataTable(response.data);
-        console.log(response.data.length);
       } catch (error) {
         console.log(error);
       }
@@ -131,8 +130,18 @@ export default {
     async getFullChat() {
       try {
         let response = await NlpApi.get_full_chat(this.date_str);
-
         this.fullChatData = response.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getApiData_batch() {
+      try {
+        let response = await NlpApi.filter_cross_and_expiry(
+          this.cross,
+          this.date_str
+        );
+        this.updateDataTable(response.data);
       } catch (error) {
         console.log(error);
       }

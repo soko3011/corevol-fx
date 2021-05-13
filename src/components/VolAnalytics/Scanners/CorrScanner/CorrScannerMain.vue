@@ -1,5 +1,6 @@
 <template>
   <div class="ml-5">
+    <v-btn color="red" @click="dev">dev</v-btn>
     <div v-if="has_valid_data">
       <div
         class="ml-7 mt-5 font-weight-bold text-center grey--text text--lighten-3"
@@ -165,7 +166,10 @@ export default {
         : "REALIZED CORR < BOTTOM QUARTILE";
     },
     data_table_data() {
-      return this.vol_data;
+      return this.vol_data.map((x) => {
+        const { index, ...rest } = x;
+        return rest;
+      });
     },
     data_table_headers() {
       return Object.keys(this.data_table_data[0]);
@@ -179,7 +183,12 @@ export default {
       this.high_low_toggle = true;
     },
     dev() {
-      console.log(this.high_low_toggle);
+      let xx = this.vol_data.map((x) => {
+        const { index, ...rest } = x;
+        return rest;
+      });
+
+      console.log(xx);
     },
     createBarChartData(inputArray, term) {
       let arr = [];

@@ -144,7 +144,7 @@ export default {
   },
   methods: {
     dev() {
-      console.log(this.$store.state.activecross);
+      console.log(this.chartData);
     },
     async getApiData() {
       try {
@@ -154,6 +154,7 @@ export default {
           this.volEstName,
           this.averaging_period
         );
+        console.log(response.data);
         this.apiData = response.data;
         this.loaded = true;
         this.$emit("alertLoaded", true);

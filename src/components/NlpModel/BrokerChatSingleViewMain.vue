@@ -1,53 +1,6 @@
 <template>
   <div class="nlp_container ml-1">
     <div>
-      <v-container class="center">
-        <v-progress-linear
-          v-if="!incoming_data_loaded"
-          indeterminate
-        ></v-progress-linear>
-      </v-container>
-      <div class="d-flex flex-row mb-5 flex-nowrap">
-        <v-toolbar color="#385F73" min-width="400" collapse>
-          <v-btn icon>
-            <v-icon
-              @click="showSideControl = !showSideControl"
-              color="blue lighten-3"
-              >{{
-                showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
-              }}</v-icon
-            >
-          </v-btn>
-          <v-spacer></v-spacer>
-          <div class="d-flex flex-column">
-            <h4
-              class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
-            >
-              corevolFX Broker Prices NLP
-            </h4>
-            <h4
-              class="font-weight-light text-center text-uppercase green--text text--lighten-3"
-              align="center"
-              justify="center"
-            >
-              {{ selectedCross }}
-
-              <v-btn icon x-small class="mb-4" elevation="21">
-                <PopUpModal
-                  :inputData="this.$store.state.crossList"
-                  :icon="'mdi-dots-hexagon'"
-                  :color="'green lighten-3'"
-                  :small="true"
-                  :title="'Select Cross'"
-                  v-on:selection="changeCross"
-                />
-              </v-btn>
-            </h4>
-          </div>
-
-          <v-spacer></v-spacer>
-        </v-toolbar>
-      </div>
       <div class="d-flex flex-row">
         <div class="d-flex flex-column nlp_sidebar mr-1">
           <v-card
@@ -125,7 +78,6 @@
             </v-list>
           </v-card>
         </div>
-
         <div v-if="pageInitialized">
           <transition name="slide">
             <BrokerChatNlp
@@ -172,14 +124,11 @@ export default {
   },
   async created() {
     await this.getApiData();
-    this.$store.dispatch("refreshCrossList");
     window.addEventListener("resize", this.handleResize);
     this.handleResize();
   },
   data() {
     return {
-      isBatch: false,
-      showSideControl: true,
       componentKey: 0,
       filterHeaders: ["ALL", "SHORT DATES", "MID DATES", "LONG DATES", "SMILE"],
       recentlyUsedHeaders: [this.$store.getters.activeCrossGetter],

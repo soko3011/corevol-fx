@@ -90,7 +90,9 @@
               >
                 <v-list-item-action>
                   <v-btn ripple small icon>
-                    <v-icon color="#385F73">mdi-calendar-sync</v-icon>
+                    <v-icon color="#385F73"
+                      >mdi-subdirectory-arrow-right</v-icon
+                    >
                   </v-btn>
                   <ModalNoButton
                     :inputData="chat_dates"
@@ -106,6 +108,16 @@
                   <v-list-item-title>{{
                     batch_end_date_str
                   }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item v-if="isBatch" @click="runBatch()" ripple>
+                <v-list-item-action>
+                  <v-btn ripple small icon>
+                    <v-icon color="red">mdi-play</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>RUN BATCH</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="changeSummary()" ripple>
@@ -129,7 +141,7 @@
               <v-subheader>Filters</v-subheader>
 
               <v-list-item
-                @click="changeSettings(item)"
+                @click="changeFilter(item)"
                 v-for="item in this.settingHeaders"
                 :key="item"
                 ripple
@@ -167,9 +179,11 @@
               v-if="view_mode === 'nlp_model'"
               :cross="selectedCross"
               :key="componentKey"
-              :filter="settingSelection"
+              :filter="filterSelection"
               :tableHeight="sidebarHeight"
               :date_str="date_str"
+              :batch_end_date_str="batch_end_date_str"
+              :isBatch="isBatch"
               :searchTxtToggle="searchTxtToggle"
               @alertLoaded="set_incoming_data_toggle"
             />
@@ -179,6 +193,8 @@
               v-if="view_mode === 'overview'"
               :screen_height="sidebarHeight"
               :date_str="date_str"
+              :batch_end_date_str="batch_end_date_str"
+              :isBatch="isBatch"
               :key="componentKey"
               @crossSelected="crossSelectedFromSummary"
               @alertLoaded="set_incoming_data_toggle"
@@ -224,7 +240,7 @@ export default {
         "SMILE",
       ],
       recentlyUsedHeaders: [this.$store.getters.activeCrossGetter],
-      settingSelection: "ALL",
+      filterSelection: "ALL",
       view_mode: "overview",
       incoming_data_loaded: false,
       pageInitialized: false,
@@ -268,12 +284,21 @@ export default {
       }
     },
     update_date_str(val) {
-      this.incoming_data_loaded = false;
       this.date_str = val;
+
+      if (this.isBatch) {
+        return;
+      }
+      this.incoming_data_loaded = false;
       this.componentKey += 1;
     },
     set_batch_end_date_str(val) {
       this.batch_end_date_str = val;
+    },
+    runBatch() {
+      this.incoming_data_loaded = false;
+      this.componentKey += 1;
+      this.view_mode = "overview";
     },
     set_incoming_data_toggle(bool) {
       this.incoming_data_loaded = bool;
@@ -281,13 +306,13 @@ export default {
     changeSummary() {
       this.view_mode = "overview";
     },
-    changeSettings(setting) {
+    changeFilter(val) {
       this.view_mode = "nlp_model";
-      if (setting === this.settingSelection) {
+      if (val === this.filterSelection) {
         return;
       }
       this.incoming_data_loaded = false;
-      this.settingSelection = setting;
+      this.filterSelection = val;
     },
     changeCross(val) {
       this.incoming_data_loaded = false;
@@ -295,7 +320,7 @@ export default {
       if (this.crosses.indexOf(val) > -1) {
         this.$store.dispatch("setActivecross", val);
       }
-      this.settingSelection = "ALL";
+      this.filterSelection = "ALL";
       this.view_mode = "nlp_model";
       this.componentKey += 1;
     },

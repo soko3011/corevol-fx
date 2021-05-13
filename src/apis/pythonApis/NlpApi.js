@@ -17,5 +17,18 @@ export default {
   },
   get_chat_dates() {
     return Api.get(`/nlp/chat_dates`);
+  },
+  filter_cross_and_expiry_batch(cross, date_str, batch_end_date_str) {
+    return Api.get(
+      `/nlp/cross_and_expiry_batch/${cross}/${date_str}/${batch_end_date_str}`
+    );
+  },
+  filter_mat_group_batch(cross, date_str, batch_end_date_str, mat_group) {
+    return Api.get(
+      `/nlp/mat_group/${cross}/${date_str}/${batch_end_date_str}/${mat_group}`
+    );
+  },
+  get_summary_batch(date_str, batch_end_date_str) {
+    return Api.get(`/nlp/summary/${date_str}/${batch_end_date_str}`);
   }
 };

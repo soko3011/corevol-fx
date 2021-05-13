@@ -20,6 +20,7 @@ export default {
     apidata: { type: Array },
     tableHeight: { type: Number },
     headerData: { type: String },
+    isBatch: { type: Boolean },
   },
   computed: {
     tableHeaders() {
@@ -49,7 +50,9 @@ export default {
         tableOverflow: true,
         tableHeight: `${this.tableHeight}px`,
         columnSorting: false,
-        colWidths: [90, 100, 150, 100, 90, 150, 100, 70, 600],
+        colWidths: this.isBatch
+          ? [90, 100, 150, 100, 90, 150, 100, 70, 100, 600]
+          : [90, 100, 150, 100, 90, 150, 100, 70, 600],
         allowInsertRow: false,
         columns: this.setReadOnly(),
         contextMenu: function (obj, x, y, e) {},

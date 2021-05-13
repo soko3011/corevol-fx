@@ -42,7 +42,11 @@ import NlpApi from "@/apis/pythonApis/NlpApi";
 export default {
   name: "brokerChatSummary",
   components: {},
-  props: { date_str: { type: String } },
+  props: {
+    date_str: { type: String },
+    batch_end_date_str: { type: String },
+    isBatch: { type: Boolean },
+  },
   data() {
     return {
       apiData: [],
@@ -50,7 +54,11 @@ export default {
     };
   },
   async created() {
-    await this.getApiData();
+    if (this.isBatch) {
+      await this.getApiData_batch();
+    } else {
+      await this.getApiData();
+    }
   },
   computed: {},
   methods: {
@@ -60,6 +68,19 @@ export default {
     async getApiData() {
       try {
         let response = await NlpApi.get_summary(this.date_str);
+        this.apiData = response.data;
+        this.loaded = true;
+        this.$emit("alertLoaded", true);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getApiData_batch() {
+      try {
+        let response = await NlpApi.get_summary_batch(
+          this.date_str,
+          this.batch_end_date_str
+        );
         this.apiData = response.data;
         this.loaded = true;
         this.$emit("alertLoaded", true);

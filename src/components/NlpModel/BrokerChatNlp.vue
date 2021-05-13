@@ -6,6 +6,7 @@
         :apidata="data_table_data"
         :tableHeight="tableHeight"
         :headerData="`${cross} - ${filter}`"
+        :isBatch="isBatch"
         :key="componentKey"
         class="ml-1"
         @currentRawText="updateRawTextSearch"
@@ -45,6 +46,8 @@ export default {
     tableHeight: { type: Number },
     filter: { type: String },
     date_str: { type: String },
+    batch_end_date_str: { type: String },
+    isBatch: { type: Boolean },
     searchTxtToggle: { type: Boolean },
   },
 
@@ -62,7 +65,11 @@ export default {
     };
   },
   async created() {
-    await this.getApiData();
+    if (this.isBatch) {
+      await this.getApiData_batch();
+    } else {
+      await this.getApiData();
+    }
   },
   computed: {
     data_table_data() {
@@ -137,10 +144,25 @@ export default {
     },
     async getApiData_batch() {
       try {
-        let response = await NlpApi.filter_cross_and_expiry(
+        let response = await NlpApi.filter_cross_and_expiry_batch(
           this.cross,
-          this.date_str
+          this.date_str,
+          this.batch_end_date_str
         );
+        this.updateDataTable(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async filterMatGroup_batch() {
+      try {
+        let response = await NlpApi.filter_mat_group_batch(
+          this.cross,
+          this.date_str,
+          this.batch_end_date_str,
+          this.formatFilter()
+        );
+
         this.updateDataTable(response.data);
       } catch (error) {
         console.log(error);

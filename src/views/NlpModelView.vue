@@ -56,17 +56,7 @@
             :height="window.height"
           >
             <v-list dense>
-              <v-subheader
-                >Model Date
-                <v-spacer />
-                <v-switch
-                  dense
-                  inset
-                  v-model="isBatch"
-                  color="#126496"
-                  @change="toggleBatch()"
-                ></v-switch>
-              </v-subheader>
+              <v-subheader>Model Date </v-subheader>
               <v-list-item @click="date_str_toggle = !date_str_toggle">
                 <v-list-item-action>
                   <v-btn ripple small icon>
@@ -129,8 +119,8 @@
               <v-subheader>Filters</v-subheader>
 
               <v-list-item
-                @click="changeSettings(item)"
-                v-for="item in this.settingHeaders"
+                @click="changeFilter(item)"
+                v-for="item in this.filterHeaders"
                 :key="item"
                 ripple
               >
@@ -167,7 +157,7 @@
               v-if="view_mode === 'nlp_model'"
               :cross="selectedCross"
               :key="componentKey"
-              :filter="settingSelection"
+              :filter="filterSelection"
               :tableHeight="sidebarHeight"
               :date_str="date_str"
               :searchTxtToggle="searchTxtToggle"
@@ -216,24 +206,16 @@ export default {
       isBatch: false,
       showSideControl: true,
       componentKey: 0,
-      settingHeaders: [
-        "ALL",
-        "SHORT DATES",
-        "MID DATES",
-        "LONG DATES",
-        "SMILE",
-      ],
+      filterHeaders: ["ALL", "SHORT DATES", "MID DATES", "LONG DATES", "SMILE"],
       recentlyUsedHeaders: [this.$store.getters.activeCrossGetter],
-      settingSelection: "ALL",
+      filterSelection: "ALL",
       view_mode: "overview",
       incoming_data_loaded: false,
       pageInitialized: false,
       selectedCross: this.$store.getters.activeCrossGetter,
       chat_dates: [],
       date_str: "",
-      batch_end_date_str: "",
       date_str_toggle: false,
-      batch_end_date_str_toggle: false,
       searchTxtToggle: false,
       window: {
         width: 0,
@@ -251,9 +233,6 @@ export default {
   },
   methods: {
     dev() {},
-    toggleBatch() {
-      this.batch_end_date_str = this.date_str;
-    },
     toggleSearchText() {
       this.searchTxtToggle = !this.searchTxtToggle;
     },
@@ -272,22 +251,19 @@ export default {
       this.date_str = val;
       this.componentKey += 1;
     },
-    set_batch_end_date_str(val) {
-      this.batch_end_date_str = val;
-    },
     set_incoming_data_toggle(bool) {
       this.incoming_data_loaded = bool;
     },
     changeSummary() {
       this.view_mode = "overview";
     },
-    changeSettings(setting) {
+    changeFilter(val) {
       this.view_mode = "nlp_model";
-      if (setting === this.settingSelection) {
+      if (val === this.filterSelection) {
         return;
       }
       this.incoming_data_loaded = false;
-      this.settingSelection = setting;
+      this.filterSelection = val;
     },
     changeCross(val) {
       this.incoming_data_loaded = false;
@@ -295,7 +271,7 @@ export default {
       if (this.crosses.indexOf(val) > -1) {
         this.$store.dispatch("setActivecross", val);
       }
-      this.settingSelection = "ALL";
+      this.filterSelection = "ALL";
       this.view_mode = "nlp_model";
       this.componentKey += 1;
     },

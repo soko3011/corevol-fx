@@ -74,30 +74,7 @@
                   <v-list-item-title>{{ date_str }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item
-                v-if="isBatch"
-                @click="batch_end_date_str_toggle = !batch_end_date_str_toggle"
-              >
-                <v-list-item-action>
-                  <v-btn ripple small icon>
-                    <v-icon color="#385F73">mdi-calendar-sync</v-icon>
-                  </v-btn>
-                  <ModalNoButton
-                    :inputData="chat_dates"
-                    :title="'SELECT DATE'"
-                    :vmodel="batch_end_date_str_toggle"
-                    v-on:setvmodel="
-                      (data) => (batch_end_date_str_toggle = data)
-                    "
-                    v-on:selection="set_batch_end_date_str"
-                  />
-                </v-list-item-action>
-                <v-list-item-content>
-                  <v-list-item-title>{{
-                    batch_end_date_str
-                  }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
+
               <v-list-item @click="changeSummary()" ripple>
                 <v-list-item-action>
                   <v-icon color="blue darken-3">mdi-dots-triangle</v-icon>

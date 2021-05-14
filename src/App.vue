@@ -56,6 +56,9 @@ export default {
       .build();
 
     this.hubConnection.start();
+
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
   },
   computed: {
     ...mapState({
@@ -74,6 +77,12 @@ export default {
   methods: {
     dev() {
       this.hubConnection.stop();
+    },
+    handleResize() {
+      this.$store.dispatch("setWindowDimensions", {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
     },
   },
   mounted() {

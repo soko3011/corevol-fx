@@ -29,10 +29,11 @@
       </v-toolbar>
     </div>
     <div class="d-flex flex-row mb-5 flex-nowrap">
-      <BrokerChatSingleViewMain
+      <SingleBrokerNlpMain />
+      <!-- <BrokerChatSingleViewMain
         :showSideControl="showSideControl"
         @crossChanged="setCrossHeader"
-      />
+      /> -->
     </div>
   </div>
 </template>
@@ -40,13 +41,13 @@
 
 <script>
 import PopUpModal from "@/components/common/PopUpModal.vue";
-import BrokerChatSingleViewMain from "@/components/NlpModel/BrokerChatSingleViewMain.vue";
+import SingleBrokerNlpMain from "@/components/NlpModel/singleBrokerNlp/SingleBrokerNlpMain.vue";
 
 import { mapState } from "vuex";
 export default {
   components: {
     PopUpModal,
-    BrokerChatSingleViewMain,
+    SingleBrokerNlpMain,
   },
   async created() {
     this.$store.dispatch("refreshCrossList");

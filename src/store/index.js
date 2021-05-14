@@ -10,6 +10,10 @@ Vue.use(Vuex);
 //test
 const state = {
   appLoaded: false,
+  window: {
+    width: 0,
+    height: 0
+  },
   dvi: {
     main: [],
     surf: [],
@@ -67,6 +71,10 @@ const mutations = {
     setTimeout(() => {
       state.appLoaded = true;
     }, 2000);
+  },
+  SET_WINDOW_DIMENSIONS(state, data) {
+    state.window.width = data.width;
+    state.window.height = data.height;
   },
   SET_ANALYTICS_TERM(state, data) {
     state.analyticsTerm = data;
@@ -221,6 +229,9 @@ const mutations = {
 };
 
 const actions = {
+  setWindowDimensions({ commit }, data) {
+    commit("SET_WINDOW_DIMENSIONS", data);
+  },
   alertMainAppLoaded({ commit }) {
     commit("SET_APP_LOADED");
   },

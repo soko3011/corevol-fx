@@ -6,6 +6,7 @@
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import alphabetJson from "@/components/pricer/Alphabet.json";
 import cssHighLightRowHelper from "@/components/dviComponents/helpers/cssHighLiteRow.js";
+import { mapState } from "vuex";
 
 export default {
   name: "JExcelTable",
@@ -22,6 +23,9 @@ export default {
     headerData: { type: String },
   },
   computed: {
+    ...mapState({
+      tableHeight: (state) => state.window.height,
+    }),
     tableHeaders() {
       return Object.keys(this.apidata[0]);
     },

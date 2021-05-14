@@ -3,11 +3,9 @@
     <div v-if="loaded">
       <DataTable
         :apidata="data_table_data"
-        :tableHeight="tableHeight"
         :headerData="`${cross} - ${filter}`"
         :key="componentKey"
         class="ml-1"
-        @currentRawText="updateRawTextSearch"
       />
     </div>
     <div v-else>
@@ -20,10 +18,10 @@
 
 <script>
 import NlpApi from "@/apis/pythonApis/NlpApi";
-import DataTable from "@/components/NlpModel/DataTables/JExcelTable.vue";
+import DataTable from "@/components/NlpModel/singleBrokerNlp/SingleBrokerNlpDataTable.vue";
 
 export default {
-  name: "brokerChatNlp",
+  name: "singleBrokerNlp",
   components: {
     DataTable,
   },
@@ -37,7 +35,6 @@ export default {
     return {
       apiData: [],
       loaded: false,
-      refreshingData: false,
       componentKey: 0,
       no_data_message: "",
     };
@@ -87,7 +84,8 @@ export default {
     updateDataTable(api_response) {
       this.no_data_message = "";
       this.apiData = api_response;
-      this.$emit("alertLoaded", true);
+
+      this.$emit("alert_child_data_loaded", true);
       if (this.apiData.length > 0) {
         this.loaded = true;
         this.componentKey += 1;

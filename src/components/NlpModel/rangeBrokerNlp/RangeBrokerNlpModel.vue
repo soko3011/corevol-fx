@@ -6,6 +6,7 @@
         :headerData="`${cross} - ${filter}`"
         :key="componentKey"
         class="ml-1"
+        @emit_selected_raw_text="setSelectedRawText"
       />
     </div>
     <div v-else>
@@ -18,17 +19,17 @@
 
 <script>
 import NlpApi from "@/apis/pythonApis/NlpApi";
-import DataTable from "@/components/NlpModel/singleBrokerNlp/SingleBrokerNlpDataTable.vue";
+import DataTable from "@/components/NlpModel/rangeBrokerNlp/RangeBrokerNlpDataTable.vue";
 
 export default {
-  name: "singleBrokerNlp",
+  name: "rangeBrokerNlp",
   components: {
     DataTable,
   },
   props: {
     cross: { type: String },
     filter: { type: String },
-    date_str: { type: String },
+    date_str: { type: Array },
   },
 
   data() {
@@ -40,7 +41,7 @@ export default {
     };
   },
   async created() {
-    await this.getApiData();
+    await this.handleApiRequest();
   },
   computed: {
     data_table_data() {
@@ -48,7 +49,19 @@ export default {
     },
   },
   methods: {
-    async getApiData() {
+    setSelectedRawText(val) {
+      this.$emit("emit_selected_raw_text", val);
+    },
+    async handleApiRequest() {
+      if (this.filter == "ALL") {
+        await this.filterForAllData();
+      } else if (this.filter == "SMILE") {
+        await this.filterSmile();
+      } else {
+        await this.filterMatGroup();
+      }
+    },
+    async filterForAllData() {
       try {
         let response = await NlpApi.filter_cross_and_expiry(
           this.cross,
@@ -106,17 +119,7 @@ export default {
       return mat_group;
     },
   },
-  watch: {
-    filter() {
-      if (this.filter == "ALL") {
-        this.getApiData();
-      } else if (this.filter == "SMILE") {
-        this.filterSmile();
-      } else {
-        this.filterMatGroup();
-      }
-    },
-  },
+  watch: {},
 };
 </script>
 

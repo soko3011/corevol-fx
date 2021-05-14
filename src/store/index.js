@@ -74,7 +74,7 @@ const mutations = {
   },
   SET_WINDOW_DIMENSIONS(state, data) {
     state.window.width = data.width;
-    state.window.height = data.height;
+    state.window.height = data.height - 150;
   },
   SET_ANALYTICS_TERM(state, data) {
     state.analyticsTerm = data;

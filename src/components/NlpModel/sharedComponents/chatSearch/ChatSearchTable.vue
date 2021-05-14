@@ -6,9 +6,10 @@
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import alphabetJson from "@/components/pricer/Alphabet.json";
 import cssHighLightRowHelper from "@/components/dviComponents/helpers/cssHighLiteRow.js";
+import { mapState } from "vuex";
 
 export default {
-  name: "ChatSearchTable",
+  name: "JExcelTable",
   created() {},
   data() {
     return {
@@ -17,11 +18,13 @@ export default {
   },
   props: {
     apidata: { type: Array },
-    tableHeight: { type: Number },
     headerData: { type: String },
     selectedRow: { type: Number },
   },
   computed: {
+    ...mapState({
+      window: (state) => state.window,
+    }),
     tableHeaders() {
       return Object.keys(this.apidata[0]);
     },
@@ -42,7 +45,8 @@ export default {
         data: this.tableData,
         colHeaders: this.tableHeaders,
         tableOverflow: true,
-        tableHeight: `${this.tableHeight}px`,
+        tableHeight: `${this.window.height}px`,
+        tableWidth: `${this.window.width - 350}px`,
         columnSorting: false,
         colWidths: [900],
         allowInsertRow: false,

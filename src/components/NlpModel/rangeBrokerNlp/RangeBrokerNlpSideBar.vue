@@ -1,21 +1,16 @@
 <template>
-  <div class="nlp_container ml-1">
+  <div>
     <div>
-      <v-container class="center">
-        <v-progress-linear
-          v-if="!child_data_loaded"
-          indeterminate
-        ></v-progress-linear>
-      </v-container>
       <div class="d-flex flex-row">
         <div class="d-flex flex-column nlp_sidebar mr-1">
           <v-card
             v-if="showSideControl"
             min-width="225"
             :height="window.height"
+            color="blue lighten-3"
           >
-            <v-list dense>
-              <v-subheader>Model Date </v-subheader>
+            <v-list dense color="blue lighten-3">
+              <v-subheader>Model Dates </v-subheader>
               <v-list-item @click="date_str_toggle = !date_str_toggle">
                 <v-list-item-action>
                   <v-btn ripple small icon>
@@ -26,14 +21,47 @@
                     :title="'SELECT DATE'"
                     :vmodel="date_str_toggle"
                     v-on:setvmodel="(data) => (date_str_toggle = data)"
-                    v-on:selection="update_date_str"
+                    v-on:selection="setDateStr"
                   />
                 </v-list-item-action>
                 <v-list-item-content>
-                  <v-list-item-title>{{ date_str }}</v-list-item-title>
+                  <v-list-item-title>{{
+                    config.date_str.toUpperCase()
+                  }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item @click="toggleViewMode()" ripple>
+
+              <v-list-item @click="date_str_toggle_2 = !date_str_toggle_2">
+                <v-list-item-action>
+                  <v-btn ripple small icon>
+                    <v-icon color="#385F73"
+                      >mdi-subdirectory-arrow-right</v-icon
+                    >
+                  </v-btn>
+                  <ModalNoButton
+                    :inputData="chat_dates"
+                    :title="'SELECT DATE'"
+                    :vmodel="date_str_toggle_2"
+                    v-on:setvmodel="(data) => (date_str_toggle_2 = data)"
+                    v-on:selection="setDateStr2"
+                  />
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>{{
+                    config.date_str2.toUpperCase()
+                  }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="runRangeDates()" ripple>
+                <v-list-item-action>
+                  <v-icon color="red darken-3">mdi-play</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                  <v-list-item-title>RUN BATCH</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-subheader>Actions </v-subheader>
+              <v-list-item @click="selectSummaryView()" ripple>
                 <v-list-item-action>
                   <v-icon color="blue darken-3">mdi-dots-triangle</v-icon>
                 </v-list-item-action>
@@ -41,7 +69,7 @@
                   <v-list-item-title>SUMMARY</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-list-item @click="toggleSearchText()" ripple>
+              <v-list-item @click="selectSearchView()" ripple>
                 <v-list-item-action>
                   <v-icon color="blue darken-3">mdi-file-search-outline</v-icon>
                 </v-list-item-action>
@@ -49,11 +77,10 @@
                   <v-list-item-title>SEARCH TEXT</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-            </v-list>
-            <v-list dense>
+
               <v-subheader>Filters</v-subheader>
               <v-list-item
-                @click="changeFilter(item)"
+                @click="setFilter(item)"
                 v-for="item in this.filterHeaders"
                 :key="item"
                 ripple
@@ -65,12 +92,11 @@
                   <v-list-item-title>{{ item }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-            </v-list>
-            <v-list dense>
+
               <v-subheader>Recently Used</v-subheader>
               <v-list-item
-                @click="changeCross(item)"
-                v-for="item in this.recentlyUsedHeaders"
+                @click="setRecentlyUsedCross(item)"
+                v-for="item in this.recentCrosses"
                 :key="item"
                 ripple
               >
@@ -84,30 +110,6 @@
             </v-list>
           </v-card>
         </div>
-        <div v-if="data_loaded">
-          <transition name="slide">
-            <BrokerChatNlp
-              v-if="view_mode === 'nlp_model'"
-              :cross="selectedCross"
-              :key="componentKey"
-              :filter="filterSelection"
-              :tableHeight="sidebarHeight"
-              :date_str="date_str"
-              :searchTxtToggle="searchTxtToggle"
-              @alertLoaded="set_incoming_data_toggle"
-            />
-          </transition>
-          <transition name="slide">
-            <BrokerChatSummary
-              v-if="view_mode === 'summary'"
-              :screen_height="sidebarHeight"
-              :date_str="date_str"
-              :key="componentKey"
-              @crossSelected="crossSelectedFromSummary"
-              @alertLoaded="set_incoming_data_toggle"
-            />
-          </transition>
-        </div>
       </div>
     </div>
   </div>
@@ -116,39 +118,33 @@
 
 <script>
 import NlpApi from "@/apis/pythonApis/NlpApi";
-import BrokerChatNlp from "@/components/NlpModel/BrokerChatNlp.vue";
-import BrokerChatSummary from "@/components/NlpModel/BrokerChatSummary.vue";
-import PopUpModal from "@/components/common/PopUpModal.vue";
 import ModalNoButton from "@/components/common/ModalNoButton.vue";
 import { mapState } from "vuex";
 export default {
   components: {
-    BrokerChatNlp,
-    BrokerChatSummary,
-    PopUpModal,
     ModalNoButton,
   },
   props: {
-    parentCross: { type: String },
     showSideControl: { type: Boolean },
+    recentCrosses: { type: Array },
   },
   async created() {
     await this.getApiData();
+    this.alert_config();
   },
   data() {
     return {
-      componentKey: 0,
       filterHeaders: ["ALL", "SHORT DATES", "MID DATES", "LONG DATES", "SMILE"],
-      recentlyUsedHeaders: [this.$store.getters.activeCrossGetter],
-      filterSelection: "ALL",
-      view_mode: "summary",
-      child_data_loaded: false,
-      data_loaded: false,
-      selectedCross: this.$store.getters.activeCrossGetter,
+      loaded: false,
       chat_dates: [],
-      date_str: "",
       date_str_toggle: false,
-      searchTxtToggle: false,
+      date_str_toggle_2: false,
+      config: {
+        date_str: "",
+        date_str2: "",
+        view: "SUMMARY",
+        filter: "ALL",
+      },
     };
   },
   computed: {
@@ -162,69 +158,63 @@ export default {
   },
   methods: {
     dev() {},
-    toggleSearchText() {
-      this.searchTxtToggle = !this.searchTxtToggle;
-    },
     async getApiData() {
       try {
         let response = await NlpApi.get_chat_dates();
         this.chat_dates = response.data.map((a) => a.DATES);
-        this.date_str = this.chat_dates[0];
-        this.data_loaded = true;
+        this.config.date_str = this.chat_dates[0];
+        this.config.date_str2 = this.chat_dates[1];
+        this.loaded = true;
       } catch (error) {
         console.log(error);
       }
     },
-    update_date_str(val) {
-      this.child_data_loaded = false;
-      this.date_str = val;
-      this.componentKey += 1;
+    setDateStr(val) {
+      this.config.date_str = val;
+      this.config.view = "SUMMARY";
     },
-    set_incoming_data_toggle(bool) {
-      this.child_data_loaded = bool;
+    setDateStr2(val) {
+      this.config.date_str2 = val;
+      this.config.view = "SUMMARY";
     },
-    toggleViewMode() {
-      this.view_mode = "summary";
+    runRangeDates() {
+      this.alert_config();
     },
-    changeFilter(val) {
-      this.view_mode = "nlp_model";
-      if (val === this.filterSelection) {
-        return;
-      }
-      this.child_data_loaded = false;
-      this.filterSelection = val;
+    setFilter(val) {
+      this.config.filter = val;
+      this.config.view = "NLP";
+      this.alert_config();
     },
-    changeCross(val) {
-      this.child_data_loaded = false;
-      this.selectedCross = val;
-      if (this.crosses.indexOf(val) > -1) {
-        this.$store.dispatch("setActivecross", val);
-      }
-      this.filterSelection = "ALL";
-      this.view_mode = "nlp_model";
-      this.componentKey += 1;
-      this.$emit("crossChanged", { cross: val, view: "SINGLE VIEW" });
+    setRecentlyUsedCross(val) {
+      this.config.selectedCross = val;
+      this.config.view = "NLP";
+      this.config.filter = "ALL";
+      this.alert_config();
     },
-    crossSelectedFromSummary(val) {
-      this.changeCross(val);
+    selectSearchView() {
+      this.$emit("toggle_search_view");
+    },
+    selectSummaryView() {
+      this.config.view = "SUMMARY";
+      this.alert_config();
+    },
+    alert_config() {
+      this.$emit("alert_config", this.config);
+    },
 
-      if (this.recentlyUsedHeaders.indexOf(val) === -1) {
-        this.recentlyUsedHeaders.push(val);
-      }
-    },
     handleWindowResize() {
       document.documentElement.style.setProperty(
         "--main-width",
-        `${this.window.width - 100}px`
+        `${this.window.width}px`
       );
 
       document.documentElement.style.setProperty(
         "--main-height",
-        `${this.window.height - 60}px`
+        `${this.window.height}px`
       );
       document.documentElement.style.setProperty(
         "--nlp_sidebar-height",
-        `${this.window.height - 150}px`
+        `${this.window.height}px`
       );
     },
   },
@@ -243,25 +233,7 @@ $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
 $nlp_sidebarHeight: var(--nlp_sidebar-height);
 
-.center {
-  margin: 0;
-  width: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.nlp_container {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-left: 0px;
-  padding-right: 0px;
-  height: $mainHeight;
-  width: $mainWidth;
-}
-.nlp_container .nlp_sidebar {
+.nlp_sidebar {
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;

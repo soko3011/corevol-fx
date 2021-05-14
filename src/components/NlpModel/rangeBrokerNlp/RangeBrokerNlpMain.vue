@@ -13,7 +13,7 @@
         @alert_config="updateConfigFromSideBar"
         @toggle_search_view="toggleSearchView"
       />
-      <SingleBrokerNlpModel
+      <RangeBrokerNlpModel
         v-if="config.view === 'NLP'"
         :cross="config.selectedCross"
         :filter="config.filter"
@@ -29,27 +29,27 @@
         @cross_selected="updateConfigFromSummary"
         :key="componentKey"
       />
-      <ChatSearchController
+      <!-- <ChatSearchController
         v-if="config.view === 'SEARCH'"
         :date_str="config.date_str"
         :searchSentence="searchSentence"
         :selectedCross="config.selectedCross"
-      />
+      /> -->
     </div>
   </div>
 </template>
 
 <script>
-import SideBar from "@/components/NlpModel/singleBrokerNlp/SingleBrokerNlpSideBar.vue";
-import SingleBrokerNlpModel from "@/components/NlpModel/singleBrokerNlp/SingleBrokerNlpModel.vue";
+import SideBar from "@/components/NlpModel/rangeBrokerNlp/RangeBrokerNlpSideBar.vue";
+import RangeBrokerNlpModel from "@/components/NlpModel/rangeBrokerNlp/RangeBrokerNlpModel.vue";
 import BrokerChatSummary from "@/components/NlpModel/sharedComponents/BrokerChatSummary.vue";
 import ChatSearchController from "@/components/NlpModel/sharedComponents/chatSearch/ChatSearchController.vue";
 import { mapState } from "vuex";
 export default {
-  name: "SingleBrokerNlpMain",
+  name: "RangeBrokerNlpMain",
   components: {
     SideBar,
-    SingleBrokerNlpModel,
+    RangeBrokerNlpModel,
     BrokerChatSummary,
     ChatSearchController,
   },
@@ -57,13 +57,14 @@ export default {
     return {
       config: {
         date_str: "",
+        date_str2: "",
         view: "",
         filter: "",
         selectedCross: this.$store.getters.activeCrossGetter,
       },
       recentCrosses: [this.$store.getters.activeCrossGetter],
       componentKey: 0,
-      childDataLoaded: false,
+      childDataLoaded: true,
       searchSentence: "",
     };
   },
@@ -72,7 +73,7 @@ export default {
       crosses: (state) => state.crossList,
     }),
     date_str_arr() {
-      return [this.config.date_str];
+      return [this.config.date_str, this.config.date_str2];
     },
   },
   methods: {
@@ -118,7 +119,7 @@ export default {
   },
   watch: {
     "config.selectedCross"(val) {
-      this.$emit("cross_changed", { cross: val, view: "SINGLE VIEW" });
+      this.$emit("cross_changed", { cross: val, view: "RANGE VIEW" });
     },
   },
 };

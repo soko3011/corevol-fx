@@ -1,5 +1,5 @@
 <template>
-  <div class="nlp_container ml-1">
+  <div>
     <div>
       <div class="d-flex flex-row">
         <div class="d-flex flex-column nlp_sidebar mr-1">
@@ -24,9 +24,12 @@
                   />
                 </v-list-item-action>
                 <v-list-item-content>
-                  <v-list-item-title>{{ date_str }}</v-list-item-title>
+                  <v-list-item-title>{{
+                    config.date_str.toUpperCase()
+                  }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
+              <v-subheader>Actions </v-subheader>
               <v-list-item @click="selectSummaryView()" ripple>
                 <v-list-item-action>
                   <v-icon color="blue darken-3">mdi-dots-triangle</v-icon>
@@ -43,8 +46,7 @@
                   <v-list-item-title>SEARCH TEXT</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-            </v-list>
-            <v-list dense>
+
               <v-subheader>Filters</v-subheader>
               <v-list-item
                 @click="setFilter(item)"
@@ -59,12 +61,11 @@
                   <v-list-item-title>{{ item }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-            </v-list>
-            <v-list dense>
+
               <v-subheader>Recently Used</v-subheader>
               <v-list-item
                 @click="setRecentlyUsedCross(item)"
-                v-for="item in this.recentlyUsedHeaders"
+                v-for="item in this.recentCrosses"
                 :key="item"
                 ripple
               >
@@ -94,21 +95,23 @@ export default {
   },
   props: {
     showSideControl: { type: Boolean },
+    recentCrosses: { type: Array },
   },
   async created() {
     await this.getApiData();
+    this.alert_config();
   },
   data() {
     return {
       filterHeaders: ["ALL", "SHORT DATES", "MID DATES", "LONG DATES", "SMILE"],
-      recentlyUsedHeaders: [this.$store.getters.activeCrossGetter],
-      filter: "ALL",
       loaded: false,
       chat_dates: [],
-      date_str: "",
       date_str_toggle: false,
-      view: "",
-      recentlyUsedCross: "",
+      config: {
+        date_str: "",
+        view: "SUMMARY",
+        filter: "ALL",
+      },
     };
   },
   computed: {
@@ -119,14 +122,6 @@ export default {
     sidebarHeight() {
       return this.window.height - 150;
     },
-    config() {
-      return {
-        date_str: this.date_str,
-        view: this.view,
-        filter: this.filter,
-        recentlyUsedCross: this.recentlyUsedCross,
-      };
-    },
   },
   methods: {
     dev() {},
@@ -134,37 +129,33 @@ export default {
       try {
         let response = await NlpApi.get_chat_dates();
         this.chat_dates = response.data.map((a) => a.DATES);
-        this.date_str = this.chat_dates[0];
+        this.config.date_str = this.chat_dates[0];
         this.loaded = true;
       } catch (error) {
         console.log(error);
       }
     },
     setDateStr(val) {
-      this.date_str = val;
-      this.view = "SUMMARY";
+      this.config.date_str = val;
+      this.config.view = "SUMMARY";
       this.alert_config();
     },
     setFilter(val) {
-      if (val === this.filter) {
-        return;
-      }
-      this.filter = val;
-      this.view = "NLP";
+      this.config.filter = val;
+      this.config.view = "NLP";
       this.alert_config();
     },
     setRecentlyUsedCross(val) {
-      this.recentlyUsedCross = val;
-      this.view = "NLP";
-      this.filter = "ALL";
+      this.config.selectedCross = val;
+      this.config.view = "NLP";
+      this.config.filter = "ALL";
       this.alert_config();
     },
     selectSearchView() {
-      this.view = "SEARCH";
-      this.alert_config();
+      this.$emit("toggle_search_view");
     },
     selectSummaryView() {
-      this.view = "SUMMARY";
+      this.config.view = "SUMMARY";
       this.alert_config();
     },
     alert_config() {
@@ -174,16 +165,16 @@ export default {
     handleWindowResize() {
       document.documentElement.style.setProperty(
         "--main-width",
-        `${this.window.width - 100}px`
+        `${this.window.width}px`
       );
 
       document.documentElement.style.setProperty(
         "--main-height",
-        `${this.window.height - 60}px`
+        `${this.window.height}px`
       );
       document.documentElement.style.setProperty(
         "--nlp_sidebar-height",
-        `${this.window.height - 150}px`
+        `${this.window.height}px`
       );
     },
   },
@@ -202,25 +193,7 @@ $mainHeight: var(--main-height);
 $mainWidth: var(--main-width);
 $nlp_sidebarHeight: var(--nlp_sidebar-height);
 
-.center {
-  margin: 0;
-  width: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.nlp_container {
-  display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-left: 0px;
-  padding-right: 0px;
-  height: $mainHeight;
-  width: $mainWidth;
-}
-.nlp_container .nlp_sidebar {
+.nlp_sidebar {
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;

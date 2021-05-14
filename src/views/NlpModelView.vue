@@ -2,15 +2,14 @@
   <div>
     <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#385F73" min-width="400" collapse>
-        <v-btn icon>
-          <v-icon
-            @click="showSideControl = !showSideControl"
-            color="blue lighten-3"
-            >{{
-              showSideControl ? "mdi-chevron-down" : "mdi-chevron-up"
-            }}</v-icon
-          >
-        </v-btn>
+        <v-switch
+          class="mt-5"
+          dense
+          color="success"
+          inset
+          v-model="isRange"
+        ></v-switch>
+
         <v-spacer></v-spacer>
         <div class="d-flex flex-column mr-10">
           <h4
@@ -29,11 +28,8 @@
       </v-toolbar>
     </div>
     <div class="d-flex flex-row mb-5 flex-nowrap">
-      <SingleBrokerNlpMain />
-      <!-- <BrokerChatSingleViewMain
-        :showSideControl="showSideControl"
-        @crossChanged="setCrossHeader"
-      /> -->
+      <SingleBrokerNlpMain v-if="!isRange" @cross_changed="setCrossHeader" />
+      <RangeBrokerNlp v-else @cross_changed="setCrossHeader" />
     </div>
   </div>
 </template>
@@ -42,30 +38,32 @@
 <script>
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import SingleBrokerNlpMain from "@/components/NlpModel/singleBrokerNlp/SingleBrokerNlpMain.vue";
+import RangeBrokerNlp from "@/components/NlpModel/rangeBrokerNlp/RangeBrokerNlpMain.vue";
 
 import { mapState } from "vuex";
 export default {
   components: {
     PopUpModal,
     SingleBrokerNlpMain,
+    RangeBrokerNlp,
   },
   async created() {
     this.$store.dispatch("refreshCrossList");
   },
   data() {
     return {
-      isBatch: false,
-      showSideControl: true,
+      isRange: false,
       componentKey: 0,
-      pageInitialized: false,
       selectedCross: this.$store.getters.activeCrossGetter,
-      currentView: "",
     };
   },
   computed: {
     ...mapState({
       crosses: (state) => state.crossList,
     }),
+    currentView() {
+      return this.isRange ? "Range View" : "SINGLE VIEW";
+    },
     pageHeader() {
       return `${this.selectedCross} ${this.currentView}`;
     },

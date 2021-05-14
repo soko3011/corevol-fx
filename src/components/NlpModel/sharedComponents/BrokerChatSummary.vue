@@ -42,7 +42,7 @@ import NlpApi from "@/apis/pythonApis/NlpApi";
 export default {
   name: "brokerChatSummary",
   components: {},
-  props: { date_str: { type: String } },
+  props: { date_str: { type: Array } },
   data() {
     return {
       apiData: [],
@@ -55,14 +55,14 @@ export default {
   computed: {},
   methods: {
     select_cross(item) {
-      this.$emit("crossSelected", item.CROSS);
+      this.$emit("cross_selected", item.CROSS);
     },
     async getApiData() {
       try {
         let response = await NlpApi.get_summary(this.date_str);
         this.apiData = response.data;
         this.loaded = true;
-        this.$emit("alertLoaded", true);
+        this.$emit("alert_child_data_loaded", true);
       } catch (error) {
         console.log(error);
       }

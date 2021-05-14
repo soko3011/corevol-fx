@@ -23,7 +23,7 @@ export default {
   },
   computed: {
     ...mapState({
-      tableHeight: (state) => state.window.height,
+      window: (state) => state.window,
     }),
     tableHeaders() {
       return Object.keys(this.apidata[0]);
@@ -39,7 +39,7 @@ export default {
 
       return tdata;
     },
-    currentRawText() {
+    selectedRawText() {
       return this.jExcelObj.getValueFromCoords(
         this.tableHeaders.indexOf("RAW_TEXT"),
         this.activeRow
@@ -50,7 +50,8 @@ export default {
         data: this.tableData,
         colHeaders: this.tableHeaders,
         tableOverflow: true,
-        tableHeight: `${this.tableHeight}px`,
+        tableHeight: `${this.window.height}px`,
+        tableWidth: `${this.window.width - 350}px`,
         columnSorting: false,
         colWidths: [90, 100, 150, 100, 90, 150, 100, 70, 600],
         allowInsertRow: false,
@@ -84,7 +85,7 @@ export default {
     },
     selectionActive(instance, x1, y1, x2, y2, origin) {
       this.activeRow = y1;
-      this.$emit("currentRawText", this.currentRawText);
+      this.$emit("emit_selected_raw_text", this.selectedRawText);
       let cssUser = new cssHighLightRowHelper(this.jExcelObj, true, x1, y1);
       cssUser.activateUserEditableClasses();
     },
@@ -118,7 +119,6 @@ export default {
     this.FormatTable(this.apidata, jExcelObj);
     Object.assign(this, { jExcelObj });
   },
-  watch: {},
 };
 </script>
 

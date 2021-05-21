@@ -1450,6 +1450,7 @@ $baseUnits: var(--base-units);
   padding-left: 0.5em;
   font-size: 0.675rem;
 }
+
 .jexcel > tbody > tr > td.termsUnit::after {
   content: $termsUnits;
   padding-left: 0.5em;

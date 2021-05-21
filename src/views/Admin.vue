@@ -140,7 +140,7 @@
 </template>
 
 <script>
-import LoginApi from "@/apis/LoginApi.js";
+import LoginApi from "@/apis/authenticationApis/LoginApi.js";
 import SettingsApi from "@/apis/SettingsApi.js";
 import DayWgtSetupApi from "@/apis/DayWgtSetupApi";
 
@@ -152,7 +152,7 @@ export default {
     addNew: false,
     window: {
       width: 0,
-      height: 0
+      height: 0,
     },
     search: "",
     log: [],
@@ -161,32 +161,32 @@ export default {
         text: "MESSAGE",
         align: "start",
         sortable: false,
-        value: "Message"
+        value: "Message",
       },
-      { text: "LOG TIME", value: "LogTime" }
+      { text: "LOG TIME", value: "LogTime" },
     ],
     sortBy: "LogTime",
     sortDesc: true,
     settingHeaders: ["System Log", "Manage Users"],
     settingSelection: "System Log",
     backupProgress: false,
-    dayWgtProgress: false
+    dayWgtProgress: false,
   }),
   components: {},
   props: {
-    refreshComponent: { type: Boolean, default: false }
+    refreshComponent: { type: Boolean, default: false },
   },
 
   computed: {
     userList() {
-      return this.data.map(x => x.UserName);
-    }
+      return this.data.map((x) => x.UserName);
+    },
   },
 
   watch: {
     refreshComponent() {
       this.initialize();
-    }
+    },
   },
 
   created() {
@@ -223,7 +223,7 @@ export default {
         let headersNew = [];
         this.keys = Object.keys(this.data[0]);
 
-        this.keys.forEach(function(val) {
+        this.keys.forEach(function (val) {
           headersNew.push({ text: val, value: val, align: "center" });
         });
 
@@ -231,7 +231,7 @@ export default {
           text: "Actions",
           value: "actions",
           align: "center",
-          sortable: false
+          sortable: false,
         });
         this.headers = headersNew;
       } catch (err) {
@@ -241,7 +241,7 @@ export default {
 
         this.$store.dispatch("setSnackbar", {
           text: `  ${err}`,
-          centered: true
+          centered: true,
         });
       }
     },
@@ -252,7 +252,7 @@ export default {
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
           text: `  ${err}`,
-          centered: true
+          centered: true,
         });
       }
     },
@@ -262,18 +262,18 @@ export default {
         this.dayWgtProgress = true;
         this.$store.dispatch("setSnackbar", {
           text: `Refreshing DayWgts From API...`,
-          centered: true
+          centered: true,
         });
         await DayWgtSetupApi.refreshEventsFromApi();
         this.$store.dispatch("setSnackbar", {
           text: `DayWgts Updated From API...`,
-          centered: true
+          centered: true,
         });
         this.dayWgtProgress = false;
       } catch (err) {
         this.$store.dispatch("setSnackbar", {
           text: ` Update Unsuccessful. ${err}`,
-          centered: true
+          centered: true,
         });
       }
     },
@@ -281,46 +281,46 @@ export default {
     deleteItem(item) {
       confirm(`Are you sure you want to delete ${item.UserName}?`) &&
         LoginApi.DeleteUser(item)
-          .then(response => {
+          .then((response) => {
             this.$store.dispatch("setSnackbar", {
               text: `${item.UserName} deleted succesfully. `,
-              centered: true
+              centered: true,
             });
 
             this.initialize();
           })
-          .catch(err => {
+          .catch((err) => {
             if (err.toString().includes("403") === true) {
               err = "Admin Rights Required";
             }
             this.$store.dispatch("setSnackbar", {
               text: ` Delete Unsuccessful. ${err}`,
-              centered: true
+              centered: true,
             });
           });
     },
 
     save(item) {
       LoginApi.UpdateUser(item)
-        .then(response => {
+        .then((response) => {
           this.$store.dispatch("setSnackbar", {
             text: `${item.UserName} updated succesfully.`,
-            centered: true
+            centered: true,
           });
 
           this.initialize();
         })
-        .catch(err => {
+        .catch((err) => {
           if (err.toString().includes("403") === true) {
             err = "Admin Rights Required";
           }
           this.$store.dispatch("setSnackbar", {
             text: ` Update Unsuccessful. ${err}`,
-            centered: true
+            centered: true,
           });
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

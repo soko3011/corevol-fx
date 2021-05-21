@@ -43,15 +43,11 @@ export default {
   SavePricerSetup(body) {
     return Api.post("SavePricerSetup", body);
   },
-  SaveUserPricerLayoutPrefs(body) {
-    return Api.post("SaveUserPricerLayoutPrefs", body);
-  },
+
   GetDefaultPricerKeyGroups() {
     return Api.get("GetDefaultPricerKeyGroups");
   },
-  SetPricerLayoutTitle(body) {
-    return Api.post("SetPricerLayoutTitle", body);
-  },
+
   getStrategyVol(body) {
     return Api.post("GetStrategyVol", body);
   },

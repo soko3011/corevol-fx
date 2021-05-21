@@ -129,44 +129,44 @@ let router = new Router({
   ]
 });
 
-// router.beforeEach((to, from, next) => {
-//   store.dispatch("checkLoginStatus").then(() => {
-//     console.log(`Login status: ${store.state.isUserAuthed}`);
-//     // Check for requiresAuth guard
-//     if (to.matched.some(record => record.meta.requiresAuth)) {
-//       // Check if NO logged user
+router.beforeEach((to, from, next) => {
+  store.dispatch("checkLoginStatus").then(() => {
+    console.log(`Login status: ${store.state.isUserAuthed}`);
+    // Check for requiresAuth guard
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      // Check if NO logged user
 
-//       if (!store.state.isUserAuthed) {
-//         // Go to login
-//         next({
-//           path: "/userLogin",
-//           query: {
-//             redirect: to.fullPath
-//           }
-//         });
-//       } else {
-//         // Proceed to route
-//         next();
-//       }
-//     } else if (to.matched.some(record => record.meta.requiresGuest)) {
-//       // Check if logged user
-//       console.log(`router is guested: ${store.state.isUserAuthed}`);
-//       if (store.state.isUserAuthed) {
-//         next({
-//           path: "/splashScreen",
-//           query: {
-//             redirect: to.fullPath
-//           }
-//         });
-//       } else {
-//         // Proceed to route
-//         next();
-//       }
-//     } else {
-//       // Proceed to route
-//       next();
-//     }
-//   });
-// });
+      if (!store.state.isUserAuthed) {
+        // Go to login
+        next({
+          path: "/userLogin",
+          query: {
+            redirect: to.fullPath
+          }
+        });
+      } else {
+        // Proceed to route
+        next();
+      }
+    } else if (to.matched.some(record => record.meta.requiresGuest)) {
+      // Check if logged user
+      console.log(`router is guested: ${store.state.isUserAuthed}`);
+      if (store.state.isUserAuthed) {
+        next({
+          path: "/splashScreen",
+          query: {
+            redirect: to.fullPath
+          }
+        });
+      } else {
+        // Proceed to route
+        next();
+      }
+    } else {
+      // Proceed to route
+      next();
+    }
+  });
+});
 
 export default router;

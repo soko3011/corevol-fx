@@ -1,4 +1,4 @@
-import Api from "./Api";
+import Api from "@/apis/authenticationApis/AuthApi.js";
 
 export default {
   LoginUser(body) {
@@ -21,12 +21,5 @@ export default {
   },
   DeleteUser(body) {
     return Api.post("DeleteUser", body);
-  },
-  updateUserStartFxCross(body) {
-    return Api.post("UpdateUserStartFxCross", body);
-  },
-  updateUserTimeZone(body) {
-    return Api.post("UpdateUserTimeZone", body);
-  },
-
+  }
 };

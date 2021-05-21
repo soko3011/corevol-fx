@@ -64,12 +64,7 @@ export default {
   downloadGlobalDvi(body) {
     return Api.post("DownloadGlobalDvi", body);
   },
-  saveUserDashBoardPrefs(body) {
-    return Api.post("SaveUserDashBoardPrefs", body);
-  },
-  saveDviPrefs(body) {
-    return Api.post("SaveDviPrefs", body);
-  },
+
   getLongDateSpreads(body) {
     return Api.post("GetLongDateSpreads", body);
   },

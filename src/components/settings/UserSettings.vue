@@ -33,7 +33,7 @@
 import { mapState } from "vuex";
 import MarketDataApi from "@/apis/MarketDataApi.js";
 import SettingsApi from "@/apis/SettingsApi.js";
-import LoginApi from "@/apis/LoginApi.js";
+import UserPrefsApi from "@/apis/UserPrefsApi";
 
 export default {
   async created() {
@@ -95,7 +95,7 @@ export default {
     },
     async updateStarterFxCross() {
       try {
-        await LoginApi.updateUserStartFxCross({
+        await UserPrefsApi.updateUserStartFxCross({
           UserName: this.$store.state.currentUser,
           StarterFxCross: this.starterFxCross,
         });
@@ -110,7 +110,7 @@ export default {
     },
     async updateTimeZone() {
       try {
-        await LoginApi.updateUserTimeZone({
+        await UserPrefsApi.updateUserTimeZone({
           UserName: this.$store.state.currentUser,
           Timezone: this.timeZone,
         });

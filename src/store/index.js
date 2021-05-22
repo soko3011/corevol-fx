@@ -8,7 +8,7 @@ import SettingsApi from "../apis/SettingsApi";
 import Axios from "axios";
 
 Vue.use(Vuex);
-//test
+
 const state = {
   appLoaded: false,
   window: {
@@ -452,7 +452,7 @@ const actions = {
       commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
     } catch (err) {
       dispatch("setSnackbar", {
-        text: `Error: ${err} `
+        text: `${window.localStorage.currentUser} is not logged in `
       });
     }
   },
@@ -489,18 +489,19 @@ const actions = {
   // },
   async logOutUser({ dispatch, commit }) {
     try {
-      let response = await LoginApi.LogOutUser({
-        Email: JSON.parse(window.localStorage.currentUser)
+      let user = JSON.parse(window.localStorage.currentUser);
+      await LoginApi.LogOutUser({
+        UserName: user
       });
-      let user = JSON.parse(response.data.userProfile);
-      commit("SET_LOGIN_STATUS", user.IsAuthed);
-      dispatch("setSnackbar", {
-        text: `${user.Email} is signed out`
-      });
+      window.localStorage.clear();
 
-      return user;
-    } catch {
-      return { error: "There was an error.  Please try again." };
+      dispatch("setSnackbar", {
+        text: `${user} is signed out`
+      });
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `There was error logging out: ${err}`
+      });
     }
   },
   async login({ commit, dispatch }, loginInfo) {
@@ -508,7 +509,7 @@ const actions = {
       let response = await LoginApi.LoginUser(loginInfo);
       let user = JSON.parse(response.data.userStatus);
       commit("SET_LOGIN_STATUS", user);
-      dispatch("getUserPreferences", user.UserName);
+      await dispatch("getUserPreferences", user.UserName);
       commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
       return user;
     } catch (err) {

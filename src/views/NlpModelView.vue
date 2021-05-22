@@ -71,8 +71,7 @@ export default {
   methods: {
     dev() {},
     setCrossHeader(val) {
-      this.selectedCross = val.cross;
-      this.currentView = val.view;
+      this.selectedCross = val;
     },
   },
 };

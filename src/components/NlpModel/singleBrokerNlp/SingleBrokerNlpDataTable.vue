@@ -53,7 +53,7 @@ export default {
         tableHeight: `${this.window.height}px`,
         tableWidth: `${this.window.width - 350}px`,
         columnSorting: false,
-        colWidths: [90, 100, 150, 100, 90, 150, 100, 70, 600],
+        colWidths: [90, 100, 70, 150, 100, 90, 150, 100, 70, 600],
         allowInsertRow: false,
         columns: this.setReadOnly(),
         contextMenu: function (obj, x, y, e) {},

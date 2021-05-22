@@ -38,7 +38,6 @@ import UserPrefsApi from "@/apis/UserPrefsApi";
 export default {
   async created() {
     try {
-      const user = await this.$store.dispatch("checkLoginStatus");
       const tzinfo = await SettingsApi.GetTimeZoneInfos();
 
       const response = await MarketDataApi.CurrentInterfaces({
@@ -48,8 +47,8 @@ export default {
       this.spotIface = JSON.parse(response.data.spot);
       this.swapIface = JSON.parse(response.data.swap);
       this.timeZones = JSON.parse(tzinfo.data.tzInfo);
-      this.timeZone = user.Timezone;
-      this.starterFxCross = user.StarterFxCross;
+      this.timeZone = this.$store.state.userTimeZone;
+      this.starterFxCross = this.userPrefCross;
     } catch (error) {
       alert(error);
     }
@@ -69,6 +68,8 @@ export default {
     ...mapState({
       crossList: (state) => state.crossList,
       currentUser: (state) => state.currentUser,
+      userTimeZone: (state) => state.userTimeZone,
+      userPrefCross: (state) => state.userPrefCross,
     }),
   },
   methods: {

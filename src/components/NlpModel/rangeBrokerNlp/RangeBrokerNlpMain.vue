@@ -13,6 +13,13 @@
         @alert_config="updateConfigFromSideBar"
         @toggle_search_view="toggleSearchView"
       />
+      <div v-if="config.view === ''">
+        <h4
+          class="font-weight-medium text-center blue--text text--darken-3 ml-1"
+        >
+          SELECT DATES FOR RANGE AND HIT RUN BATCH
+        </h4>
+      </div>
       <RangeBrokerNlpModel
         v-if="config.view === 'NLP'"
         :cross="config.selectedCross"
@@ -29,12 +36,12 @@
         @cross_selected="updateConfigFromSummary"
         :key="componentKey"
       />
-      <!-- <ChatSearchController
+      <ChatSearchController
         v-if="config.view === 'SEARCH'"
-        :date_str="config.date_str"
+        :date_str="searchSentenceDate"
         :searchSentence="searchSentence"
         :selectedCross="config.selectedCross"
-      /> -->
+      />
     </div>
   </div>
 </template>
@@ -66,6 +73,7 @@ export default {
       componentKey: 0,
       childDataLoaded: true,
       searchSentence: "",
+      searchSentenceDate: "",
     };
   },
   computed: {
@@ -114,12 +122,17 @@ export default {
       this.childDataLoaded = true;
     },
     setSelectedRawText(val) {
-      this.searchSentence = val;
+      this.searchSentence = val.text;
+      this.searchSentenceDate = this.formatDateStr(val.date);
+    },
+    formatDateStr(str) {
+      let res = str.split("-");
+      return `${res[0]}_${res[1].toLowerCase()}_${res[2]}`;
     },
   },
   watch: {
     "config.selectedCross"(val) {
-      this.$emit("cross_changed", { cross: val, view: "RANGE VIEW" });
+      this.$emit("cross_changed", val);
     },
   },
 };

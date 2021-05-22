@@ -130,7 +130,7 @@ export default {
   },
   async created() {
     await this.getApiData();
-    this.alert_config();
+    // this.alert_config();
   },
   data() {
     return {

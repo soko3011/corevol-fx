@@ -1,6 +1,6 @@
 <template>
   <div class="ml-5">
-    <v-btn color="red" @click="dev">dev</v-btn>
+    <!-- <v-btn color="red" @click="dev">dev</v-btn> -->
     <div v-if="has_valid_data">
       <div
         class="ml-7 mt-5 font-weight-bold text-center grey--text text--lighten-3"

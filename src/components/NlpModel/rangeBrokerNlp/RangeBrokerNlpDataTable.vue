@@ -45,6 +45,13 @@ export default {
         this.activeRow
       );
     },
+    selectedTextDate() {
+      return this.jExcelObj.getValueFromCoords(
+        this.tableHeaders.indexOf("TEXT_DATE"),
+        this.activeRow
+      );
+    },
+
     config() {
       return {
         data: this.tableData,
@@ -53,7 +60,7 @@ export default {
         tableHeight: `${this.window.height}px`,
         tableWidth: `${this.window.width - 350}px`,
         columnSorting: false,
-        colWidths: [90, 100, 150, 100, 90, 150, 100, 70, 100, 600],
+        colWidths: [90, 100, 70, 150, 100, 90, 150, 100, 70, 100, 600],
         allowInsertRow: false,
         columns: this.setReadOnly(),
         contextMenu: function (obj, x, y, e) {},
@@ -85,7 +92,10 @@ export default {
     },
     selectionActive(instance, x1, y1, x2, y2, origin) {
       this.activeRow = y1;
-      this.$emit("emit_selected_raw_text", this.selectedRawText);
+      this.$emit("emit_selected_raw_text", {
+        text: this.selectedRawText,
+        date: this.selectedTextDate,
+      });
       let cssUser = new cssHighLightRowHelper(this.jExcelObj, true, x1, y1);
       cssUser.activateUserEditableClasses();
     },

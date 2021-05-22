@@ -64,7 +64,17 @@
           <v-icon color="blue lighten-3">mdi-google-analytics</v-icon>
         </v-list-item-action>
         <v-list-item-content>
-          <v-list-item-title>VolAnalytics</v-list-item-title>
+          <v-list-item-title>Vol Analytics</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
+        @click="() => $router.push({ name: 'NlpModel' }).catch(() => {})"
+      >
+        <v-list-item-action>
+          <v-icon color="blue lighten-3">mdi-message-text</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>Broker NLP</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item
@@ -85,6 +95,7 @@
           <v-list-item-title>Pricer</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+
       <v-list-item
         @click="() => $router.push({ name: 'Charts' }).catch(() => {})"
       >

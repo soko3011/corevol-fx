@@ -118,7 +118,7 @@ export default {
   },
   watch: {
     "config.selectedCross"(val) {
-      this.$emit("cross_changed", { cross: val, view: "SINGLE VIEW" });
+      this.$emit("cross_changed", val);
     },
   },
 };

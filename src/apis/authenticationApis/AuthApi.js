@@ -14,7 +14,11 @@ let Api = axios.create({
 const authentication = Api.interceptors.request.use(config => {
   // We are importing store before it is populated.
   // We intercept the request and use the current apiKey
-  config.headers = { Authorization: `Bearer ${store.state.token}` };
+  let token =
+    window.localStorage.token !== undefined
+      ? JSON.parse(window.localStorage.token)
+      : null;
+  config.headers = { Authorization: `Bearer ${token}` };
   return config;
 });
 

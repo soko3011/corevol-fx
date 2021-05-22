@@ -60,7 +60,7 @@ export default {
         });
       } else {
         this.$store.dispatch("setSnackbar", {
-          text: "Welcome back " + user.UserName,
+          text: `Welcome back ${user.UserName}`.toUpperCase(),
           top: true,
         });
 

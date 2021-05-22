@@ -10,6 +10,7 @@ import Axios from "axios";
 Vue.use(Vuex);
 
 const state = {
+  isRouterSecured: true,
   appLoaded: false,
   window: {
     width: 0,
@@ -40,7 +41,7 @@ const state = {
   snackbars: [],
   isUserAuthed: false,
   isAdmin: false,
-  token: "",
+  // token: "",
   userTimeZone: "",
   dashBoardPrefs: [],
   userPricerLayoutPrefs: [],
@@ -200,31 +201,10 @@ const mutations = {
     state.lastPricerCellCoords = data;
   },
 
-  SET_CURRENT_USER(state, user) {
-    state.currentUser = user.UserName;
-    state.isAdmin = user.IsAdmin;
-    window.localStorage.currentUser = JSON.stringify(user.UserName);
-    state.userPrefCross = user.StarterFxCross;
-    state.dashBoardPrefs = JSON.parse(user.DashBoardPrefs);
-    state.userTimeZone = user.Timezone;
-    console.log(`${state.userTimeZone} from set current state`);
-    if (user.PricerLayoutPrefs !== null) {
-      state.userPricerLayoutPrefs = JSON.parse(user.PricerLayoutPrefs);
-    }
-
-    if (user.activePricerLayoutTitle !== null) {
-      state.activePricerLayoutTitle = user.ActivePricerLayoutTitle;
-    }
-
-    if (user.DviPrefs !== null) {
-      state.dviPrefs = JSON.parse(user.DviPrefs);
-    }
-  },
   SET_CURRENT_USER_FROM_LOCAL_STORAGE(state) {
     state.currentUser = JSON.parse(window.localStorage.currentUser);
     state.isAdmin = JSON.parse(window.localStorage.isAdmin);
     state.isUserAuthed = JSON.parse(window.localStorage.isUserAuthed);
-    state.token = JSON.parse(window.localStorage.token);
 
     let userPrefs = JSON.parse(window.localStorage.userPrefences);
     state.userPrefCross = userPrefs.StarterFxCross;
@@ -246,11 +226,11 @@ const mutations = {
   SET_USER_PREFS(state, userPrefs) {
     window.localStorage.userPrefences = JSON.stringify(userPrefs);
   },
-  SET_TOKEN_STRING(state) {
-    state.token = JSON.parse(window.localStorage.token);
+  SET_IS_AUTHED_FALSE(state) {
+    state.IsAuthed = false;
   },
+
   SET_LOGIN_STATUS(state, user) {
-    state.token = user.TokenString;
     window.localStorage.currentUser = JSON.stringify(user.UserName);
     window.localStorage.token = JSON.stringify(user.TokenString);
     window.localStorage.isAdmin = JSON.stringify(user.IsAdmin);
@@ -443,17 +423,20 @@ const actions = {
       });
     }
   },
-  async checkLoginStatus({ commit, dispatch }) {
+  async checkLoginStatus({ commit }) {
+    let user =
+      window.localStorage.currentUser !== undefined
+        ? JSON.parse(window.localStorage.currentUser)
+        : "USER";
     try {
-      commit("SET_TOKEN_STRING");
+      // commit("SET_TOKEN_STRING");
       await LoginApi.CheckLoginStatus({
-        UserName: JSON.parse(window.localStorage.currentUser)
+        UserName: user
       });
       commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
     } catch (err) {
-      dispatch("setSnackbar", {
-        text: `${window.localStorage.currentUser} is not logged in `
-      });
+      commit("SET_IS_AUTHED_FALSE");
+      console.log(`ERROR: CHECK LOGIN STATUS: ${err}`);
     }
   },
   // async checkLoginStatus({ commit, dispatch }) {
@@ -494,6 +477,7 @@ const actions = {
         UserName: user
       });
       window.localStorage.clear();
+      commit("SET_IS_AUTHED_FALSE");
 
       dispatch("setSnackbar", {
         text: `${user} is signed out`

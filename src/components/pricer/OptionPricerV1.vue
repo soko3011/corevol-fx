@@ -276,8 +276,6 @@ export default {
           ? "volOld"
           : "volNoGo";
 
-      console.log(statusClass);
-
       return statusClass;
     },
     isSingleCrossInPricer() {
@@ -1359,12 +1357,13 @@ export default {
   },
   async mounted() {
     if (Object.keys(this.defaultPricerKeyGroups).length === 0) {
-      var response = await this.$store.dispatch("getDefaultPricerKeyGroups");
+      await this.$store.dispatch("getDefaultPricerKeyGroups");
     }
     this.storedData = await this.$store.dispatch(
       "setPricerNew",
       this.pricerName
     );
+
     this.pricerSettingsObj = this.combinedPricerLayouts.find(
       (x) => x.title === this.activePricerLayoutTitle
     ).layout;

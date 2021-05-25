@@ -298,9 +298,14 @@ export default {
           Show,
         }));
 
-        let response = await UserPrefsApi.saveUserDashBoardPrefs({
+        await UserPrefsApi.saveUserDashBoardPrefs({
           UserName: this.$store.state.currentUser,
           DashBoardUI: JSON.stringify(prefs),
+        });
+
+        this.$store.dispatch("updateSingleUserPrefLocalStorage", {
+          key: "DashBoardPrefs",
+          value: JSON.stringify(prefs),
         });
         this.$store.dispatch("setSnackbar", {
           text: `DashBoard Layout Saved`,

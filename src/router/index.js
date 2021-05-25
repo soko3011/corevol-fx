@@ -132,13 +132,12 @@ let router = new Router({
 if (store.state.isRouterSecured) {
   router.beforeEach((to, from, next) => {
     store.dispatch("checkLoginStatus").then(() => {
-      console.log(`Login status: ${store.state.isUserAuthed}`);
-      // Check for requiresAuth guard
+      console.log(`FIRST CHECK LOGIN STATUS: ${store.state.isUserAuthed}`);
       if (to.matched.some(record => record.meta.requiresAuth)) {
-        // Check if NO logged user
-
         if (!store.state.isUserAuthed) {
-          // Go to login
+          console.log(
+            `LOGIN STATUS ISAUTHED: ${store.state.isUserAuthed}...PROCEED TO LOGIN`
+          );
           next({
             path: "/userLogin",
             query: {
@@ -146,25 +145,9 @@ if (store.state.isRouterSecured) {
             }
           });
         } else {
-          // Proceed to route
-          next();
-        }
-      } else if (to.matched.some(record => record.meta.requiresGuest)) {
-        // Check if logged user
-        console.log(`router is guested: ${store.state.isUserAuthed}`);
-        if (store.state.isUserAuthed) {
-          next({
-            path: "/splashScreen",
-            query: {
-              redirect: to.fullPath
-            }
-          });
-        } else {
-          // Proceed to route
           next();
         }
       } else {
-        // Proceed to route
         next();
       }
     });

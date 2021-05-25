@@ -21,5 +21,11 @@ export default {
   },
   SetPricerLayoutTitle(body) {
     return Api.post("SetPricerLayoutTitle", body);
+  },
+  updateSpotApi(body) {
+    return Api.post("UpdateSpotApi", body);
+  },
+  updateSwapApi(body) {
+    return Api.post("UpdateSwapApi", body);
   }
 };

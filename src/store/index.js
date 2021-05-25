@@ -41,7 +41,6 @@ const state = {
   snackbars: [],
   isUserAuthed: false,
   isAdmin: false,
-  // token: "",
   userTimeZone: "",
   dashBoardPrefs: [],
   userPricerLayoutPrefs: [],
@@ -96,7 +95,6 @@ const mutations = {
   SET_PRICER_STRATEGY(state, data) {
     state.pricerStrategy = [];
     state.pricerStrategy = [...data];
-    console.log(data);
   },
   SET_PRICER_SETUP_TOGGLE(state, data) {
     state.pricerSetupToggle = !state.pricerSetupToggle;
@@ -107,9 +105,7 @@ const mutations = {
   SET_PRICER_SHOW_TOTALS(state, data) {
     state.pricerShowTotalsToggle = data;
   },
-  SET_ACTIVE_PRICERLAYOUT_TITLE(state, data) {
-    state.activePricerLayoutTitle = data;
-  },
+
   SET_DEFAULT_PRICERKEYGROUPS(state, data) {
     state.defaultPricerKeyGroups = data;
   },
@@ -179,7 +175,6 @@ const mutations = {
   },
 
   SET_IPV_DATA(state, data) {
-    console.log(data);
     state.dvi.surf = JSON.parse(data.dviSurf);
     state.dvi.ipvSurf = JSON.parse(data.ipvSurf);
   },
@@ -214,16 +209,19 @@ const mutations = {
     if (userPrefs.PricerLayoutPrefs !== null) {
       state.userPricerLayoutPrefs = JSON.parse(userPrefs.PricerLayoutPrefs);
     }
-
     if (userPrefs.activePricerLayoutTitle !== null) {
-      state.activePricerLayoutTitle = userPrefs.ActivePricerLayoutTitle;
+      state.activePricerLayoutTitle = userPrefs.ActivePricerLayout;
     }
-
     if (userPrefs.DviPrefs !== null) {
       state.dviPrefs = JSON.parse(userPrefs.DviPrefs);
     }
   },
   SET_USER_PREFS(state, userPrefs) {
+    window.localStorage.userPrefences = JSON.stringify(userPrefs);
+  },
+  SET_SINGLE_USER_PREF(state, userPref) {
+    let userPrefs = JSON.parse(window.localStorage.userPrefences);
+    userPrefs[userPref.key] = userPref.value;
     window.localStorage.userPrefences = JSON.stringify(userPrefs);
   },
   SET_IS_AUTHED_FALSE(state) {
@@ -242,6 +240,156 @@ const mutations = {
 };
 
 const actions = {
+  async checkLoginStatus({ commit }) {
+    if (window.localStorage.currentUser === undefined) {
+      commit("SET_IS_AUTHED_FALSE");
+      return;
+    }
+    try {
+      await LoginApi.CheckLoginStatus({
+        UserName: JSON.parse(window.localStorage.currentUser)
+      });
+      commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
+    } catch (err) {
+      commit("SET_IS_AUTHED_FALSE");
+      alert(err);
+    }
+  },
+  async login({ commit, dispatch }, loginInfo) {
+    try {
+      let response = await LoginApi.LoginUser(loginInfo);
+      let user = JSON.parse(response.data.userStatus);
+      commit("SET_LOGIN_STATUS", user);
+      await dispatch("getUserPreferences", user.UserName);
+      commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
+      return user;
+    } catch (err) {
+      return { error: `LOGIN ERROR: ${err.response.data}` };
+    }
+  },
+  async logOutUser({ dispatch, commit }) {
+    try {
+      commit("SET_IS_AUTHED_FALSE");
+
+      await LoginApi.LogOutUser({
+        UserName: JSON.parse(window.localStorage.currentUser)
+      });
+
+      dispatch("setSnackbar", {
+        text: `${JSON.parse(
+          window.localStorage.currentUser
+        ).toUpperCase()} SUCCESSFULLY SIGNED OUT`
+      });
+
+      window.localStorage.clear();
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `There was error logging out: ${err}`
+      });
+    }
+  },
+  async register({ commit }, registrationInfo) {
+    try {
+      let response = await LoginApi.RegisterUser(registrationInfo);
+      let serverData = JSON.parse(response.data.serverData);
+
+      if (serverData.ModelError !== null) {
+        return { error: serverData.ModelError };
+      }
+      if (serverData.BadRequest !== null) {
+        return { error: serverData.BadRequest };
+      } else {
+        let user = serverData.UserProfile;
+
+        commit("SET_LOGIN_STATUS", user);
+
+        if (user.IsAuthed === true) {
+          commit("SET_CURRENT_USER", user);
+        }
+        return user;
+      }
+    } catch (err) {
+      return { error: `There was an error. ${err}.` };
+    }
+  },
+  async getUserPreferences({ commit }, userName) {
+    try {
+      let response = await UserPrefsApi.getUserPreferences({
+        UserName: userName
+      });
+      let userPrefs = JSON.parse(response.data.userPrefs);
+
+      commit("SET_USER_PREFS", userPrefs);
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `${err} `
+      });
+    }
+  },
+  async updateSpotApi({ dispatch }, data) {
+    try {
+      await UserPrefsApi.updateSpotApi(data);
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "SpotApi",
+        value: data.SpotApi
+      });
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${err}  -method: updateSpotApi`,
+        top: true
+      });
+    }
+  },
+  async updateSwapApi({ dispatch }, data) {
+    try {
+      await UserPrefsApi.updateSwapApi(data);
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "SwapApi",
+        value: data.SwapApi
+      });
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${err}  -method: updateSwapApi`,
+        top: true
+      });
+    }
+  },
+  updateSingleUserPrefLocalStorage({ commit }, userPref) {
+    commit("SET_SINGLE_USER_PREF", userPref);
+    commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
+  },
+  // async checkLoginStatus({ commit, dispatch }) {
+  //   let timezone = state.userTimeZone;
+
+  //   console.log(`${timezone} from checklogin`);
+
+  //   if (state.userTimeZone === "") {
+  //     //timezone = await dispatch("getBrowserTimezone");
+  //     timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  //     console.log(`${timezone} from checklogin if empty`);
+  //   }
+
+  //   try {
+  //     let response = await LoginApi.CheckLoginStatus({
+  //       Email: JSON.parse(window.localStorage.currentUser),
+  //       Timezone: timezone
+  //     });
+
+  //     let user = JSON.parse(response.data.userProfile);
+
+  //     commit("SET_LOGIN_STATUS", user);
+
+  //     if (user.IsAuthed === true) {
+  //       commit("SET_CURRENT_USER", user);
+  //       commit("SET_USER_PREF_CROSS", user);
+  //     }
+
+  //     return user;
+  //   } catch (e) {
+  //     return { error: "There was an error.  Please try again." };
+  //   }
+  // },
+
   setWindowDimensions({ commit }, data) {
     commit("SET_WINDOW_DIMENSIONS", data);
   },
@@ -327,13 +475,16 @@ const actions = {
   togglePricerSetupPage({ commit }, data) {
     commit("SET_PRICER_SETUP_TOGGLE", data);
   },
-  async setPricerLayoutTitle({ commit }, data) {
-    commit("SET_ACTIVE_PRICERLAYOUT_TITLE", data);
-
+  async setPricerLayoutTitle({ dispatch }, data) {
     try {
-      let response = await UserPrefsApi.SetPricerLayoutTitle({
+      await UserPrefsApi.SetPricerLayoutTitle({
         UserName: state.currentUser,
         ActivePricerLayoutTitle: data
+      });
+
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "ActivePricerLayout",
+        value: data
       });
     } catch (error) {
       dispatch("setSnackbar", {
@@ -344,11 +495,8 @@ const actions = {
   async getDefaultPricerKeyGroups({ dispatch, commit }) {
     try {
       let response = await PricerApi.GetDefaultPricerKeyGroups();
-
-      var keyGroups = JSON.parse(response.data.result);
-
+      let keyGroups = JSON.parse(response.data.result);
       commit("SET_DEFAULT_PRICERKEYGROUPS", keyGroups);
-      return true;
     } catch (error) {
       dispatch("setSnackbar", {
         text: `${error}`
@@ -357,9 +505,14 @@ const actions = {
   },
   async saveDviPrefs({ dispatch }, data) {
     try {
-      let response = await UserPrefsApi.saveDviPrefs({
+      await UserPrefsApi.saveDviPrefs({
         UserName: state.currentUser,
         DviPrefs: JSON.stringify(data)
+      });
+
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "DviPrefs",
+        value: JSON.stringify(data)
       });
     } catch (error) {
       dispatch("setSnackbar", {
@@ -369,9 +522,13 @@ const actions = {
   },
   async saveUserPricerLayoutPrefs({ dispatch }, data) {
     try {
-      let response = await UserPrefsApi.SaveUserPricerLayoutPrefs({
+      await UserPrefsApi.SaveUserPricerLayoutPrefs({
         UserName: state.currentUser,
         PricerLayoutPrefs: JSON.stringify(data)
+      });
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "PricerLayoutPrefs",
+        value: JSON.stringify(data)
       });
       dispatch("setSnackbar", {
         text: `PricerSetup saved.`
@@ -384,7 +541,7 @@ const actions = {
   },
   async saveDefaultTraderLayout({ dispatch }, data) {
     try {
-      let response = await PricerApi.SavePricerSetup(data);
+      await PricerApi.SavePricerSetup(data);
       dispatch("setSnackbar", {
         text: `PricerSetup saved.`
       });
@@ -423,121 +580,7 @@ const actions = {
       });
     }
   },
-  async checkLoginStatus({ commit }) {
-    let user =
-      window.localStorage.currentUser !== undefined
-        ? JSON.parse(window.localStorage.currentUser)
-        : "USER";
-    try {
-      // commit("SET_TOKEN_STRING");
-      await LoginApi.CheckLoginStatus({
-        UserName: user
-      });
-      commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
-    } catch (err) {
-      commit("SET_IS_AUTHED_FALSE");
-      console.log(`ERROR: CHECK LOGIN STATUS: ${err}`);
-    }
-  },
-  // async checkLoginStatus({ commit, dispatch }) {
-  //   let timezone = state.userTimeZone;
 
-  //   console.log(`${timezone} from checklogin`);
-
-  //   if (state.userTimeZone === "") {
-  //     //timezone = await dispatch("getBrowserTimezone");
-  //     timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  //     console.log(`${timezone} from checklogin if empty`);
-  //   }
-
-  //   try {
-  //     let response = await LoginApi.CheckLoginStatus({
-  //       Email: JSON.parse(window.localStorage.currentUser),
-  //       Timezone: timezone
-  //     });
-
-  //     let user = JSON.parse(response.data.userProfile);
-
-  //     commit("SET_LOGIN_STATUS", user);
-
-  //     if (user.IsAuthed === true) {
-  //       commit("SET_CURRENT_USER", user);
-  //       commit("SET_USER_PREF_CROSS", user);
-  //     }
-
-  //     return user;
-  //   } catch (e) {
-  //     return { error: "There was an error.  Please try again." };
-  //   }
-  // },
-  async logOutUser({ dispatch, commit }) {
-    try {
-      let user = JSON.parse(window.localStorage.currentUser);
-      await LoginApi.LogOutUser({
-        UserName: user
-      });
-      window.localStorage.clear();
-      commit("SET_IS_AUTHED_FALSE");
-
-      dispatch("setSnackbar", {
-        text: `${user} is signed out`
-      });
-    } catch (err) {
-      dispatch("setSnackbar", {
-        text: `There was error logging out: ${err}`
-      });
-    }
-  },
-  async login({ commit, dispatch }, loginInfo) {
-    try {
-      let response = await LoginApi.LoginUser(loginInfo);
-      let user = JSON.parse(response.data.userStatus);
-      commit("SET_LOGIN_STATUS", user);
-      await dispatch("getUserPreferences", user.UserName);
-      commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
-      return user;
-    } catch (err) {
-      return { error: `LOGIN ERROR: ${err.response.data}` };
-    }
-  },
-  async getUserPreferences({ commit }, userName) {
-    try {
-      let response = await UserPrefsApi.getUserPreferences({
-        UserName: userName
-      });
-      let userPrefs = JSON.parse(response.data.userPrefs);
-
-      commit("SET_USER_PREFS", userPrefs);
-    } catch (err) {
-      dispatch("setSnackbar", {
-        text: `${err} `
-      });
-    }
-  },
-  async register({ commit }, registrationInfo) {
-    try {
-      let response = await LoginApi.RegisterUser(registrationInfo);
-      let serverData = JSON.parse(response.data.serverData);
-
-      if (serverData.ModelError !== null) {
-        return { error: serverData.ModelError };
-      }
-      if (serverData.BadRequest !== null) {
-        return { error: serverData.BadRequest };
-      } else {
-        let user = serverData.UserProfile;
-
-        commit("SET_LOGIN_STATUS", user);
-
-        if (user.IsAuthed === true) {
-          commit("SET_CURRENT_USER", user);
-        }
-        return user;
-      }
-    } catch (err) {
-      return { error: `There was an error. ${err}.` };
-    }
-  },
   setSidebarMinified({ commit }) {
     commit("SET_SIDEBARMINIFIED");
   },

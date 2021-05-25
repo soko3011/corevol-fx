@@ -5,13 +5,13 @@
         v-model="spotIface"
         :items="spotIfaces"
         label="Spot Interface"
-        @change="changeIface()"
+        @change="updateSpotApi()"
       ></v-select>
       <v-select
         v-model="swapIface"
         :items="swapIfaces"
         label="Swaps Interface"
-        @change="changeIface()"
+        @change="updateSwapApi()"
       ></v-select>
       <v-select
         v-model="timeZone"
@@ -39,15 +39,13 @@ export default {
   async created() {
     try {
       const tzinfo = await SettingsApi.GetTimeZoneInfos();
-
       const response = await MarketDataApi.CurrentInterfaces({
         UserName: this.currentUser,
       });
-
       this.spotIface = JSON.parse(response.data.spot);
       this.swapIface = JSON.parse(response.data.swap);
       this.timeZones = JSON.parse(tzinfo.data.tzInfo);
-      this.timeZone = this.$store.state.userTimeZone;
+      this.timeZone = this.userTimeZone;
       this.starterFxCross = this.userPrefCross;
     } catch (error) {
       alert(error);
@@ -62,6 +60,7 @@ export default {
       timeZones: [],
       timeZone: "",
       starterFxCross: "",
+      loaded: false,
     };
   },
   computed: {
@@ -73,32 +72,35 @@ export default {
     }),
   },
   methods: {
-    changeIface() {
-      MarketDataApi.ChangeInterface({
+    async updateSpotApi() {
+      await this.$store.dispatch("updateSpotApi", {
         UserName: this.$store.state.currentUser,
         SpotApi: this.spotIface,
+      });
+      this.$store.dispatch("setSnackbar", {
+        text: "Spot Api Updated",
+        top: true,
+      });
+    },
+    async updateSwapApi() {
+      await this.$store.dispatch("updateSwapApi", {
+        UserName: this.$store.state.currentUser,
         SwapApi: this.swapIface,
-      })
-        .then((response) => {
-          this.spotIface = JSON.parse(response.data.spot);
-          this.swapIface = JSON.parse(response.data.swap);
-          this.$store.dispatch("setSnackbar", {
-            text: "User Settings Updated",
-            top: true,
-          });
-        })
-        .catch((err) => {
-          this.$store.dispatch("setSnackbar", {
-            text: `${err}  -method: UserSettings(changeIface)`,
-            top: true,
-          });
-        });
+      });
+      this.$store.dispatch("setSnackbar", {
+        text: "Swap Api Updated",
+        top: true,
+      });
     },
     async updateStarterFxCross() {
       try {
         await UserPrefsApi.updateUserStartFxCross({
           UserName: this.$store.state.currentUser,
           StarterFxCross: this.starterFxCross,
+        });
+        this.$store.dispatch("updateSingleUserPrefLocalStorage", {
+          key: "StarterFxCross",
+          value: this.starterFxCross,
         });
 
         this.$store.dispatch("setSnackbar", {
@@ -114,6 +116,11 @@ export default {
         await UserPrefsApi.updateUserTimeZone({
           UserName: this.$store.state.currentUser,
           Timezone: this.timeZone,
+        });
+
+        this.$store.dispatch("updateSingleUserPrefLocalStorage", {
+          key: "Timezone",
+          value: this.timeZone,
         });
         this.$store.dispatch("setSnackbar", {
           text: `User TimeZone Changed To ${this.timeZone}`,

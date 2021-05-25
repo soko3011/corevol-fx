@@ -1,6 +1,7 @@
 <template>
   <div v-if="apiDataReturned">
     <v-data-table
+      :key="componentKey"
       :headers="headers"
       :items="data"
       sort-by="Cross"
@@ -48,26 +49,21 @@
         />
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="interfaceToggle" max-width="600px">
+    <v-dialog v-model="interfaceToggle" max-width="600px">
       <v-card>
         <v-container fluid>
           <v-select
             v-model="spotIface"
             :items="spotIfaces"
             label="Spot Interface"
-            @change="changeIface($event, 'spot')"
+            @change="updateSpotApi()"
           ></v-select>
           <v-select
             v-model="swapIface"
             :items="swapIfaces"
             label="Swaps Interface"
-            @change="changeIface($event, 'swap')"
+            @change="updateSwapApi"
           ></v-select>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="close()">Cancel</v-btn>
-            <v-btn color="blue darken-1" text @click="save()">Save</v-btn>
-          </v-card-actions>
         </v-container>
       </v-card>
     </v-dialog>
@@ -97,6 +93,7 @@ export default {
     spotIface: "",
     swapIface: "",
     apiDataReturned: false,
+    componentKey: 0,
   }),
   components: {
     MarketDataTable,
@@ -232,35 +229,27 @@ export default {
       this.interfaceToggle = false;
       this.$nextTick(() => {});
     },
-    changeIface(event, iface) {
-      if (iface === "spot") {
-        this.spotIface = event;
-      }
-      if (iface === "swap") {
-        this.swapIface = event;
-      }
-    },
-
-    save() {
-      MarketDataApi.ChangeInterface({
+    async updateSpotApi() {
+      await this.$store.dispatch("updateSpotApi", {
         UserName: this.$store.state.currentUser,
         SpotApi: this.spotIface,
+      });
+      this.$store.dispatch("setSnackbar", {
+        text: "Spot Api Updated",
+        top: true,
+      });
+      this.componentKey += 1;
+    },
+    async updateSwapApi() {
+      await this.$store.dispatch("updateSwapApi", {
+        UserName: this.$store.state.currentUser,
         SwapApi: this.swapIface,
-      })
-        .then((response) => {
-          this.spotIface = JSON.parse(response.data.spot);
-          this.swapIface = JSON.parse(response.data.swap);
-          this.$store.dispatch("setSnackbar", {
-            text: `Interfaces Updated`,
-            centered: true,
-          });
-          this.initialize();
-        })
-        .catch((err) => {
-          alert(err);
-        });
-
-      this.close();
+      });
+      this.$store.dispatch("setSnackbar", {
+        text: "Swap Api Updated",
+        top: true,
+      });
+      this.componentKey += 1;
     },
   },
 };

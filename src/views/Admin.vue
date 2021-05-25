@@ -22,7 +22,6 @@
                 <v-list-item-title>{{ item }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-
             <v-list-item @click="refreshEventsFromApi()" ripple>
               <v-list-item-action>
                 <v-progress-circular
@@ -36,10 +35,10 @@
                 <v-list-item-title>Refresh Api Day Wgts</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item @click="refreshEventsFromApi()" ripple>
+            <v-list-item @click="updateHistoricalSpots()" ripple>
               <v-list-item-action>
                 <v-progress-circular
-                  v-if="dayWgtProgress"
+                  v-if="histSpotProgress"
                   indeterminate
                   color="primary"
                 ></v-progress-circular>
@@ -53,46 +52,10 @@
         </v-card>
       </div>
 
-      <div class="divCol">
+      <div>
         <transition name="slide">
           <v-card
-            width="1000"
-            :height="window.height"
-            v-if="settingSelection === 'System Log'"
-          >
-            <v-btn ripple small icon class="ma-2" @click="updateLog()">
-              <v-icon color="blue">mdi-refresh-circle</v-icon>
-            </v-btn>
-            <v-card-title>
-              System Log
-              <v-spacer></v-spacer>
-              <v-text-field
-                v-model="search"
-                append-icon="mdi-magnify"
-                label="Search"
-                single-line
-                hide-details
-              ></v-text-field>
-            </v-card-title>
-            <v-data-table
-              dense
-              :items-per-page="15"
-              :sort-by.sync="sortBy"
-              :sort-desc.sync="sortDesc"
-              :headers="logHeaders"
-              :items="log"
-              :search="search"
-            >
-              <!-- eslint-disable-next-line vue/valid-v-slot-->
-              <template v-slot:item.LogTime="{ item }">
-                <span>{{ new Date(item.LogTime).toLocaleString() }}</span>
-              </template></v-data-table
-            >
-          </v-card>
-        </transition>
-        <transition name="slide">
-          <v-card
-            width="1000"
+            :width="window.width - 500"
             :height="window.height"
             v-if="settingSelection === 'Manage Users'"
           >
@@ -141,8 +104,9 @@
 
 <script>
 import LoginApi from "@/apis/authenticationApis/LoginApi.js";
-import SettingsApi from "@/apis/SettingsApi.js";
 import DayWgtSetupApi from "@/apis/DayWgtSetupApi";
+import VolAnalyticsApi from "@/apis/pythonApis/VolAnalyticsApi";
+import { mapState } from "vuex";
 
 export default {
   data: () => ({
@@ -150,10 +114,6 @@ export default {
     headers: [],
     data: [],
     addNew: false,
-    window: {
-      width: 0,
-      height: 0,
-    },
     search: "",
     log: [],
     logHeaders: [
@@ -163,100 +123,32 @@ export default {
         sortable: false,
         value: "Message",
       },
-      { text: "LOG TIME", value: "LogTime" },
     ],
     sortBy: "LogTime",
     sortDesc: true,
-    settingHeaders: ["System Log", "Manage Users"],
-    settingSelection: "System Log",
+    settingHeaders: ["Manage Users"],
+    settingSelection: "Manage Users",
     backupProgress: false,
     dayWgtProgress: false,
+    histSpotProgress: false,
   }),
   components: {},
-  props: {
-    refreshComponent: { type: Boolean, default: false },
-  },
 
   computed: {
+    ...mapState({
+      window: (state) => state.window,
+    }),
     userList() {
       return this.data.map((x) => x.UserName);
     },
   },
 
-  watch: {
-    refreshComponent() {
-      this.initialize();
-    },
-  },
-
-  created() {
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
-    this.initialize();
-  },
+  created() {},
 
   methods: {
-    handleResize() {
-      this.window.width = window.innerWidth - 50;
-      this.window.height = window.innerHeight - 65;
-      this.setContainerDimensions();
-    },
-    setContainerDimensions() {
-      document.documentElement.style.setProperty(
-        "--main-width",
-        `${this.window.width}px`
-      );
-
-      document.documentElement.style.setProperty(
-        "--main-height",
-        `${this.window.height}px`
-      );
-    },
     ChangeSettings(setting) {
       this.settingSelection = setting;
     },
-    async initialize() {
-      try {
-        await this.updateLog();
-        let response = await LoginApi.GetAllUsers();
-        this.data = JSON.parse(response.data.userProfiles);
-        let headersNew = [];
-        this.keys = Object.keys(this.data[0]);
-
-        this.keys.forEach(function (val) {
-          headersNew.push({ text: val, value: val, align: "center" });
-        });
-
-        headersNew.push({
-          text: "Actions",
-          value: "actions",
-          align: "center",
-          sortable: false,
-        });
-        this.headers = headersNew;
-      } catch (err) {
-        if (err.toString().includes("403") === true) {
-          err = "Admin Rights Required";
-        }
-
-        this.$store.dispatch("setSnackbar", {
-          text: `  ${err}`,
-          centered: true,
-        });
-      }
-    },
-    async updateLog() {
-      try {
-        let response = await SettingsApi.GetLog();
-        this.log = JSON.parse(response.data.log);
-      } catch (err) {
-        this.$store.dispatch("setSnackbar", {
-          text: `  ${err}`,
-          centered: true,
-        });
-      }
-    },
-
     async refreshEventsFromApi() {
       try {
         this.dayWgtProgress = true;
@@ -275,6 +167,28 @@ export default {
           text: ` Update Unsuccessful. ${err}`,
           centered: true,
         });
+        this.dayWgtProgress = false;
+      }
+    },
+    async updateHistoricalSpots() {
+      try {
+        this.histSpotProgress = true;
+        this.$store.dispatch("setSnackbar", {
+          text: `Refreshing Historical Spots From Python API...`,
+          centered: true,
+        });
+        let response = await VolAnalyticsApi.refresh_historical_spots();
+        this.$store.dispatch("setSnackbar", {
+          text: `${JSON.parse(response)}`,
+          centered: true,
+        });
+        this.histSpotProgress = false;
+      } catch (err) {
+        this.$store.dispatch("setSnackbar", {
+          text: ` Update Unsuccessful. ${err}`,
+          centered: true,
+        });
+        this.histSpotProgress = false;
       }
     },
 
@@ -299,7 +213,6 @@ export default {
             });
           });
     },
-
     save(item) {
       LoginApi.UpdateUser(item)
         .then((response) => {
@@ -324,21 +237,4 @@ export default {
 };
 </script>
 
-<style lang="scss">
-$mainHeight: var(--main-height);
-$mainWidth: var(--main-width);
 
-.overallContainer {
-  display: flex;
-  overflow: scroll;
-  padding-left: 0px;
-  padding-right: 0px;
-  height: $mainHeight;
-  width: $mainWidth;
-}
-
-.overallContainer .dviCol {
-  display: flex;
-  overflow-y: scroll;
-}
-</style>

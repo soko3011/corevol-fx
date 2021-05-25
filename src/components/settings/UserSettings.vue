@@ -5,13 +5,11 @@
         v-model="spotIface"
         :items="spotIfaces"
         label="Spot Interface"
-        @change="updateSpotApi()"
       ></v-select>
       <v-select
         v-model="swapIface"
         :items="swapIfaces"
         label="Swaps Interface"
-        @change="updateSwapApi()"
       ></v-select>
       <v-select
         v-model="timeZone"
@@ -39,11 +37,6 @@ export default {
   async created() {
     try {
       const tzinfo = await SettingsApi.GetTimeZoneInfos();
-      const response = await MarketDataApi.CurrentInterfaces({
-        UserName: this.currentUser,
-      });
-      this.spotIface = JSON.parse(response.data.spot);
-      this.swapIface = JSON.parse(response.data.swap);
       this.timeZones = JSON.parse(tzinfo.data.tzInfo);
       this.timeZone = this.userTimeZone;
       this.starterFxCross = this.userPrefCross;
@@ -55,8 +48,6 @@ export default {
     return {
       spotIfaces: ["InvestingDotCom", "MongoDB"],
       swapIfaces: ["EmpireFXPY", "MongoDB"],
-      spotIface: "",
-      swapIface: "",
       timeZones: [],
       timeZone: "",
       starterFxCross: "",
@@ -69,27 +60,37 @@ export default {
       currentUser: (state) => state.currentUser,
       userTimeZone: (state) => state.userTimeZone,
       userPrefCross: (state) => state.userPrefCross,
+      spotApi: (state) => state.spotApi,
+      swapApi: (state) => state.swapApi,
     }),
+    spotIface: {
+      get() {
+        return this.spotApi;
+      },
+      set(val) {
+        this.updateSpotApi(val);
+      },
+    },
+    swapIface: {
+      get() {
+        return this.swapApi;
+      },
+      set(val) {
+        this.updateSwapApi(val);
+      },
+    },
   },
   methods: {
-    async updateSpotApi() {
+    async updateSpotApi(val) {
       await this.$store.dispatch("updateSpotApi", {
         UserName: this.$store.state.currentUser,
-        SpotApi: this.spotIface,
-      });
-      this.$store.dispatch("setSnackbar", {
-        text: "Spot Api Updated",
-        top: true,
+        SpotApi: val,
       });
     },
-    async updateSwapApi() {
+    async updateSwapApi(val) {
       await this.$store.dispatch("updateSwapApi", {
         UserName: this.$store.state.currentUser,
-        SwapApi: this.swapIface,
-      });
-      this.$store.dispatch("setSnackbar", {
-        text: "Swap Api Updated",
-        top: true,
+        SwapApi: val,
       });
     },
     async updateStarterFxCross() {

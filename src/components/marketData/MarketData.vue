@@ -1,7 +1,6 @@
 <template>
   <div v-if="apiDataReturned">
     <v-data-table
-      :key="componentKey"
       :headers="headers"
       :items="data"
       sort-by="Cross"
@@ -10,7 +9,7 @@
       disable-pagination
       hide-default-footer
       fixed-header
-      :height="tableHeight - 60"
+      :height="window.height - 60"
     >
       <template v-slot:top>
         <v-toolbar dense class="mb-3" dark color="#385F73">
@@ -56,14 +55,15 @@
             v-model="spotIface"
             :items="spotIfaces"
             label="Spot Interface"
-            @change="updateSpotApi()"
           ></v-select>
           <v-select
             v-model="swapIface"
             :items="swapIfaces"
             label="Swaps Interface"
-            @change="updateSwapApi"
           ></v-select>
+          <v-card-actions class="justify-end">
+            <v-btn text @click="interfaceToggle = false">Close</v-btn>
+          </v-card-actions>
         </v-container>
       </v-card>
     </v-dialog>
@@ -73,14 +73,51 @@
 <script>
 import MarketDataApi from "@/apis/MarketDataApi.js";
 import MarketDataTable from "@/components/marketData/MarketDataTable.vue";
+import { mapState } from "vuex";
 
 export default {
   name: "marketData",
   data: () => ({
-    dialog: false,
     interfaceToggle: false,
     keys: [],
-    headers: [],
+    headers: [
+      {
+        text: "Cross",
+        value: "Cross",
+        sortable: false,
+        align: "center",
+      },
+      {
+        text: "Spot",
+        value: "Spot",
+        sortable: false,
+        align: "center",
+      },
+      {
+        text: "Swaps",
+        value: "swaps",
+        sortable: false,
+        align: "center",
+      },
+      {
+        text: "Swaps",
+        value: "swaps",
+        sortable: false,
+        align: "center",
+      },
+      {
+        text: "BaseRates",
+        value: "baserates",
+        align: "center",
+        sortable: false,
+      },
+      {
+        text: "RateTiles",
+        value: "ratetiles",
+        align: "center",
+        sortable: false,
+      },
+    ],
     data: [],
     editedItem: {},
     showMarketTable: false,
@@ -90,90 +127,59 @@ export default {
     selectedCross: "",
     spotIfaces: ["InvestingDotCom", "MongoDB"],
     swapIfaces: ["EmpireFXPY", "MongoDB"],
-    spotIface: "",
-    swapIface: "",
     apiDataReturned: false,
     componentKey: 0,
   }),
   components: {
     MarketDataTable,
   },
-  props: {
-    refreshComponent: { type: Boolean, default: false },
-    tableHeight: { type: Number },
-  },
 
   computed: {
     formTitle() {
       return `EDIT ${this.editedItem.Cross}`;
     },
+    ...mapState({
+      window: (state) => state.window,
+      spotApi: (state) => state.spotApi,
+      swapApi: (state) => state.swapApi,
+    }),
+    spotIface: {
+      get() {
+        return this.spotApi;
+      },
+      set(val) {
+        this.updateSpotApi(val);
+      },
+    },
+    swapIface: {
+      get() {
+        return this.swapApi;
+      },
+      set(val) {
+        this.updateSwapApi(val);
+      },
+    },
   },
 
-  watch: {
-    dialog(val) {
-      val || this.close();
-    },
-    refreshComponent() {
-      this.initialize();
-    },
-  },
-
-  created() {
-    this.initialize();
+  async created() {
+    await this.initialize();
   },
 
   methods: {
-    initialize() {
-      MarketDataApi.GetSpotRates({ userName: this.$store.state.currentUser })
-        .then((response) => {
-          this.data = JSON.parse(response.data.spotRates);
-
-          this.data.sort((a, b) => (a.cross > b.cross ? 1 : -1));
-
-          let headersNew = [];
-          this.keys = Object.keys(this.data[0]);
-          this.keys.forEach(function (val) {
-            headersNew.push({ text: val, value: val, align: "center" });
-          });
-
-          headersNew.push({
-            text: "Swaps",
-            value: "swaps",
-            sortable: false,
-            align: "center",
-          });
-          headersNew.push({
-            text: "BaseRates",
-            value: "baserates",
-            align: "center",
-            sortable: false,
-          });
-          headersNew.push({
-            text: "RateTiles",
-            value: "ratetiles",
-            align: "center",
-            sortable: false,
-          });
-
-          this.headers = headersNew;
-          this.apiDataReturned = true;
-          this.$emit("hasData", true);
-        })
-        .catch((err) => {
-          alert(err);
-        });
-
-      MarketDataApi.CurrentInterfaces({
-        UserName: this.$store.state.currentUser,
-      })
-        .then((response) => {
-          this.spotIface = JSON.parse(response.data.spot);
-          this.swapIface = JSON.parse(response.data.swap);
-        })
-        .catch((err) => {
-          alert(err);
-        });
+    dev() {
+      console.log(this.swapApi);
     },
+    async initialize() {
+      try {
+        let response = await MarketDataApi.GetSpotRates({
+          userName: this.$store.state.currentUser,
+        });
+        this.data = JSON.parse(response.data.spotRates);
+        this.data.sort((a, b) => (a.cross > b.cross ? 1 : -1));
+        this.apiDataReturned = true;
+      } catch (error) {}
+    },
+
     viewSwaps(item) {
       MarketDataApi.GetSwaps({
         UserName: this.$store.state.currentUser,
@@ -229,27 +235,22 @@ export default {
       this.interfaceToggle = false;
       this.$nextTick(() => {});
     },
-    async updateSpotApi() {
+    async updateSpotApi(val) {
       await this.$store.dispatch("updateSpotApi", {
         UserName: this.$store.state.currentUser,
-        SpotApi: this.spotIface,
+        SpotApi: val,
       });
-      this.$store.dispatch("setSnackbar", {
-        text: "Spot Api Updated",
-        top: true,
-      });
-      this.componentKey += 1;
     },
-    async updateSwapApi() {
+    async updateSwapApi(val) {
       await this.$store.dispatch("updateSwapApi", {
         UserName: this.$store.state.currentUser,
-        SwapApi: this.swapIface,
+        SwapApi: val,
       });
-      this.$store.dispatch("setSnackbar", {
-        text: "Swap Api Updated",
-        top: true,
-      });
-      this.componentKey += 1;
+    },
+  },
+  watch: {
+    spotIface() {
+      this.initialize();
     },
   },
 };

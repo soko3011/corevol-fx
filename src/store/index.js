@@ -12,6 +12,19 @@ Vue.use(Vuex);
 const state = {
   isRouterSecured: true,
   appLoaded: false,
+  currentUser: "",
+  userPrefCross: "",
+  isUserAuthed: false,
+  isAdmin: false,
+  userTimeZone: "",
+  spotApi: "",
+  swapApi: "",
+  activePricerLayoutTitle: "Trader",
+  dashBoardPrefs: [],
+  userPricerLayoutPrefs: [],
+  dviPrefs: {
+    autoSaveSwitch: false
+  },
   window: {
     width: 0,
     height: 0
@@ -32,22 +45,11 @@ const state = {
   dvisInUse: [],
   sidebarMinified: true,
   activecross: "",
-  userPrefCross: "",
   crossList: [],
   defaultPricerKeyGroups: {},
   lastPricerTab: "",
   lastPricerCellCoords: [],
-  currentUser: "",
   snackbars: [],
-  isUserAuthed: false,
-  isAdmin: false,
-  userTimeZone: "",
-  dashBoardPrefs: [],
-  userPricerLayoutPrefs: [],
-  dviPrefs: {
-    autoSaveSwitch: false
-  },
-  activePricerLayoutTitle: "Trader",
   pricerSetupToggle: false,
   pricerSetupClosed: false,
   pricerShowTotalsToggle: false,
@@ -105,7 +107,6 @@ const mutations = {
   SET_PRICER_SHOW_TOTALS(state, data) {
     state.pricerShowTotalsToggle = data;
   },
-
   SET_DEFAULT_PRICERKEYGROUPS(state, data) {
     state.defaultPricerKeyGroups = data;
   },
@@ -121,7 +122,6 @@ const mutations = {
   SET_SNACKBAR(state, snackbar) {
     state.snackbars = state.snackbars.concat(snackbar);
   },
-
   SET_DVI_INIT(state, data) {
     state.dvi.main = JSON.parse(data.main);
     state.dvi.surf = JSON.parse(data.surf);
@@ -173,7 +173,6 @@ const mutations = {
     state.dvi.smileInput = JSON.parse(data.smileInput);
     state.dvi.userWgtRanges = JSON.parse(data.userWgtRanges);
   },
-
   SET_IPV_DATA(state, data) {
     state.dvi.surf = JSON.parse(data.dviSurf);
     state.dvi.ipvSurf = JSON.parse(data.ipvSurf);
@@ -181,21 +180,18 @@ const mutations = {
   SET_SURF(state, data) {
     state.dvi.surf = JSON.parse(data.surf);
   },
-
   SET_ACTIVE_CROSS(state, activecross) {
     state.activecross = activecross;
   },
   SET_USER_PREF_CROSS(state, user) {
     state.userPrefCross = user.StarterFxCross;
   },
-
   SET_LAST_PRICER_TAB(state, data) {
     state.lastPricerTab = data;
   },
   SET_LAST_PRICER_CELL_POS(state, data) {
     state.lastPricerCellCoords = data;
   },
-
   SET_CURRENT_USER_FROM_LOCAL_STORAGE(state) {
     state.currentUser = JSON.parse(window.localStorage.currentUser);
     state.isAdmin = JSON.parse(window.localStorage.isAdmin);
@@ -203,18 +199,31 @@ const mutations = {
 
     let userPrefs = JSON.parse(window.localStorage.userPrefences);
     state.userPrefCross = userPrefs.StarterFxCross;
-    state.dashBoardPrefs = JSON.parse(userPrefs.DashBoardPrefs);
     state.userTimeZone = userPrefs.Timezone;
+    state.activePricerLayoutTitle = userPrefs.ActivePricerLayout;
+    state.spotApi = userPrefs.SpotApi;
+    state.swapApi = userPrefs.SwapApi;
 
+    if (userPrefs.DashBoardPrefs !== null) {
+      state.dashBoardPrefs = JSON.parse(userPrefs.DashBoardPrefs);
+    }
     if (userPrefs.PricerLayoutPrefs !== null) {
       state.userPricerLayoutPrefs = JSON.parse(userPrefs.PricerLayoutPrefs);
-    }
-    if (userPrefs.activePricerLayoutTitle !== null) {
-      state.activePricerLayoutTitle = userPrefs.ActivePricerLayout;
     }
     if (userPrefs.DviPrefs !== null) {
       state.dviPrefs = JSON.parse(userPrefs.DviPrefs);
     }
+  },
+  RESET_USER(state) {
+    state.currentUser = "";
+    state.isAdmin = false;
+    state.isUserAuthed = false;
+    state.userPrefCross = "";
+    state.dashBoardPrefs = [];
+    state.userTimeZone = "";
+    state.userPricerLayoutPrefs = [];
+    state.activePricerLayoutTitle = [];
+    state.dviPrefs = [];
   },
   SET_USER_PREFS(state, userPrefs) {
     window.localStorage.userPrefences = JSON.stringify(userPrefs);
@@ -227,7 +236,6 @@ const mutations = {
   SET_IS_AUTHED_FALSE(state) {
     state.IsAuthed = false;
   },
-
   SET_LOGIN_STATUS(state, user) {
     window.localStorage.currentUser = JSON.stringify(user.UserName);
     window.localStorage.token = JSON.stringify(user.TokenString);
@@ -251,7 +259,7 @@ const actions = {
       });
       commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
     } catch (err) {
-      commit("SET_IS_AUTHED_FALSE");
+      commit("RESET_USER");
       alert(err);
     }
   },
@@ -262,67 +270,86 @@ const actions = {
       commit("SET_LOGIN_STATUS", user);
       await dispatch("getUserPreferences", user.UserName);
       commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
-      return user;
+      dispatch("setSnackbar", {
+        text: `Welcome back ${user.UserName}`.toUpperCase(),
+        top: true
+      });
     } catch (err) {
-      return { error: `LOGIN ERROR: ${err.response.data}` };
+      dispatch("setSnackbar", {
+        text: err.response.data,
+        top: true
+      });
     }
   },
   async logOutUser({ dispatch, commit }) {
     try {
-      commit("SET_IS_AUTHED_FALSE");
-
       await LoginApi.LogOutUser({
         UserName: JSON.parse(window.localStorage.currentUser)
       });
-
       dispatch("setSnackbar", {
         text: `${JSON.parse(
           window.localStorage.currentUser
         ).toUpperCase()} SUCCESSFULLY SIGNED OUT`
       });
-
       window.localStorage.clear();
     } catch (err) {
       dispatch("setSnackbar", {
         text: `There was error logging out: ${err}`
       });
+    } finally {
+      commit("RESET_USER");
     }
   },
-  async register({ commit }, registrationInfo) {
+  async register({ commit, dispatch }, registrationInfo) {
     try {
       let response = await LoginApi.RegisterUser(registrationInfo);
-      let serverData = JSON.parse(response.data.serverData);
-
-      if (serverData.ModelError !== null) {
-        return { error: serverData.ModelError };
-      }
-      if (serverData.BadRequest !== null) {
-        return { error: serverData.BadRequest };
-      } else {
-        let user = serverData.UserProfile;
-
-        commit("SET_LOGIN_STATUS", user);
-
-        if (user.IsAuthed === true) {
-          commit("SET_CURRENT_USER", user);
-        }
-        return user;
-      }
+      let user = JSON.parse(response.data.userStatus);
+      commit("SET_LOGIN_STATUS", user);
+      await dispatch("getUserPreferences", user.UserName);
+      commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
+      dispatch("setSnackbar", {
+        text: `WELCOME ${user.UserName}`,
+        top: true
+      });
     } catch (err) {
-      return { error: `There was an error. ${err}.` };
+      dispatch("setSnackbar", {
+        text: `${err.response.data}`,
+        top: true
+      });
     }
   },
-  async getUserPreferences({ commit }, userName) {
+  async getUserPreferences({ commit, dispatch }, userName) {
     try {
       let response = await UserPrefsApi.getUserPreferences({
         UserName: userName
       });
       let userPrefs = JSON.parse(response.data.userPrefs);
-
       commit("SET_USER_PREFS", userPrefs);
+      await dispatch("validateUserTimeZone", userPrefs.Timezone);
     } catch (err) {
       dispatch("setSnackbar", {
         text: `${err} `
+      });
+    }
+  },
+  async validateUserTimeZone({ dispatch }, userTimezone) {
+    let browserTZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (browserTZ === userTimezone) {
+      return;
+    }
+    try {
+      await UserPrefsApi.updateUserTimeZone({
+        UserName: state.currentUser,
+        Timezone: browserTZ
+      });
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "Timezone",
+        value: browserTZ
+      });
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}  -method: updateTimeZoneIfDifferentFromPrefs`,
+        top: true
       });
     }
   },
@@ -332,6 +359,10 @@ const actions = {
       dispatch("updateSingleUserPrefLocalStorage", {
         key: "SpotApi",
         value: data.SpotApi
+      });
+      dispatch("setSnackbar", {
+        text: "Spot Api Updated",
+        centered: true
       });
     } catch (error) {
       dispatch("setSnackbar", {
@@ -347,6 +378,10 @@ const actions = {
         key: "SwapApi",
         value: data.SwapApi
       });
+      dispatch("setSnackbar", {
+        text: "Swap Api Updated",
+        centered: true
+      });
     } catch (error) {
       dispatch("setSnackbar", {
         text: `${err}  -method: updateSwapApi`,
@@ -358,38 +393,6 @@ const actions = {
     commit("SET_SINGLE_USER_PREF", userPref);
     commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
   },
-  // async checkLoginStatus({ commit, dispatch }) {
-  //   let timezone = state.userTimeZone;
-
-  //   console.log(`${timezone} from checklogin`);
-
-  //   if (state.userTimeZone === "") {
-  //     //timezone = await dispatch("getBrowserTimezone");
-  //     timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  //     console.log(`${timezone} from checklogin if empty`);
-  //   }
-
-  //   try {
-  //     let response = await LoginApi.CheckLoginStatus({
-  //       Email: JSON.parse(window.localStorage.currentUser),
-  //       Timezone: timezone
-  //     });
-
-  //     let user = JSON.parse(response.data.userProfile);
-
-  //     commit("SET_LOGIN_STATUS", user);
-
-  //     if (user.IsAuthed === true) {
-  //       commit("SET_CURRENT_USER", user);
-  //       commit("SET_USER_PREF_CROSS", user);
-  //     }
-
-  //     return user;
-  //   } catch (e) {
-  //     return { error: "There was an error.  Please try again." };
-  //   }
-  // },
-
   setWindowDimensions({ commit }, data) {
     commit("SET_WINDOW_DIMENSIONS", data);
   },
@@ -506,8 +509,7 @@ const actions = {
   async saveDviPrefs({ dispatch }, data) {
     try {
       await UserPrefsApi.saveDviPrefs({
-        UserName: state.currentUser,
-        DviPrefs: JSON.stringify(data)
+        UserName: state.currentUser
       });
 
       dispatch("updateSingleUserPrefLocalStorage", {

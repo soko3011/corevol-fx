@@ -1,22 +1,19 @@
 <template>
-  <div class="d-flex flex-nowrap" :style="marketDataStyle">
+  <div class="d-flex flex-nowrap">
     <div class="ma-5">
       <transition name="fade">
         <v-card flat>
-          <MarketData
-            v-on:hasData="toggleMarketData = !toggleMarketData"
-            :tableHeight="mainWindowHeight"
-          />
+          <MarketData />
         </v-card>
       </transition>
     </div>
     <transition name="slide">
-      <div v-if="toggleMarketData" class="ma-5">
+      <div class="ma-5">
         <iframe
           src="https://www.widgets.investing.com/live-currency-cross-rates?theme=darkTheme&roundedCorners=true&cols=last,change,changePerc&pairs=1,3,2,4,7,5,8"
           frameborder="0"
           allowtransparency="true"
-          :height="`${mainWindowHeight}px`"
+          :height="`${window.height}px`"
           width="425px"
           marginwidth="0"
           marginheight="0"
@@ -24,12 +21,12 @@
       </div>
     </transition>
     <transition name="slide">
-      <div v-if="toggleMarketData" class="ma-5">
+      <div class="ma-5">
         <iframe
           src="https://www.widgets.investing.com/live-currency-cross-rates?theme=darkTheme&roundedCorners=true&cols=last,change,changePerc&pairs=6,9,10,49,11,13,16,47,51,58,50,53,15,12,52,48,55,54"
           frameborder="0"
           allowtransparency="true"
-          :height="`${mainWindowHeight}px`"
+          :height="`${window.height}px`"
           width="425px"
           marginwidth="0"
           marginheight="0"
@@ -37,12 +34,12 @@
       </div>
     </transition>
     <transition name="slide">
-      <div v-if="toggleMarketData" class="ma-5">
+      <div class="ma-5">
         <iframe
           src="https://www.widgets.investing.com/live-currency-cross-rates?theme=darkTheme&roundedCorners=true&cols=last,change,changePerc&pairs=42,155,117,1691,2103,961728,2138,63,650,39,962711,18,17,69,68,160,100"
           frameborder="0"
           allowtransparency="true"
-          :height="`${mainWindowHeight}px`"
+          :height="`${window.height}px`"
           width="425px"
           marginwidth="0"
           marginheight="0"
@@ -54,31 +51,21 @@
 
 <script>
 import MarketData from "@/components/marketData/MarketData.vue";
+import { mapState } from "vuex";
+
 export default {
   name: "FxRates",
   components: {
-    MarketData
+    MarketData,
   },
   data() {
-    return {
-      toggleMarketData: false
-    };
+    return {};
   },
   computed: {
-    mainWindowHeight() {
-      var heightAdjustment = window.innerWidth > 1700 ? -125 : 230;
-      var height = window.innerHeight + heightAdjustment;
-      return height;
-    },
-    marketDataStyle() {
-      var level = window.innerWidth > 1700 ? "100%" : "70%";
-      return `
-              overflow-x: scroll;
-              zoom: ${level};`;
-    }
+    ...mapState({
+      window: (state) => state.window,
+    }),
   },
-
-  mounted() {}
 };
 </script>
 

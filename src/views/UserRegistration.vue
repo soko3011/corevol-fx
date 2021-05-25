@@ -29,20 +29,10 @@ export default {
 
   methods: {
     async registerUser(registrationInfo) {
-      let user = await this.$store.dispatch("register", registrationInfo);
-      if (user.error) {
-        this.$store.dispatch("setSnackbar", {
-          text: user.error,
-          centered: true,
-        });
-      } else {
-        this.$store.dispatch("setSnackbar", {
-          text: "Welcome " + user.UserName,
-          top: true,
-        });
-
+      try {
+        await this.$store.dispatch("register", registrationInfo);
         this.$router.push("/dashboard");
-      }
+      } catch (error) {}
     },
   },
 };

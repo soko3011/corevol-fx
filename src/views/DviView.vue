@@ -209,6 +209,7 @@
                     inset
                     v-model="autoSaveSwitch"
                     :label="`AUTOSAVE ${autoSaveStatus}`"
+                    @change="updateAutoSave()"
                   ></v-switch>
                 </v-list-item>
               </v-list>
@@ -810,17 +811,16 @@ export default {
         alert(error);
       }
     },
+    updateAutoSave() {
+      this.$store.dispatch("saveDviPrefs", {
+        autoSaveSwitch: this.autoSaveSwitch,
+      });
+    },
   },
   mounted() {
     this.handleResize();
   },
   watch: {
-    autoSaveSwitch() {
-      this.$store.dispatch("saveDviPrefs", {
-        autoSaveSwitch: this.autoSaveSwitch,
-      });
-    },
-
     loading(val) {
       if (!val) return;
       setTimeout(() => (this.loading = false), 5000);

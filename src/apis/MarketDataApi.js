@@ -4,10 +4,6 @@ export default {
   GetSpotRates(body) {
     return Api.post("SpotRates", body);
   },
-  
-  CurrentInterfaces(body) {
-    return Api.post("CurrentInterfaces", body);
-  },
   GetSwaps(body) {
     return Api.post("GetSwaps", body);
   },
@@ -16,8 +12,5 @@ export default {
   },
   GetRateTiles(body) {
     return Api.post("GetRateTiles", body);
-  },
-  ChangeInterface(body) {
-    return Api.post("ChangeInterface", body);
   }
 };

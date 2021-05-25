@@ -52,21 +52,10 @@ export default {
   },
   methods: {
     async loginUser(loginInfo) {
-      let user = await this.$store.dispatch("login", loginInfo);
-
-      if (user.error) {
-        this.$store.dispatch("setSnackbar", {
-          text: user.error,
-          top: true,
-        });
-      } else {
-        this.$store.dispatch("setSnackbar", {
-          text: `Welcome back ${user.UserName}`.toUpperCase(),
-          top: true,
-        });
-
+      try {
+        await this.$store.dispatch("login", loginInfo);
         this.$router.push("/splashScreen");
-      }
+      } catch (error) {}
     },
   },
 };

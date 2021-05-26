@@ -66,33 +66,32 @@
               dense
               disable-pagination
               hide-default-footer
-            >
-              <!-- eslint-disable-next-line vue/valid-v-slot-->
-              <template v-slot:item.IsAdmin="{ item }">
-                <v-simple-checkbox
-                  v-ripple
-                  v-model="item.IsAdmin"
-                ></v-simple-checkbox>
-              </template>
-              <!-- eslint-disable-next-line vue/valid-v-slot-->
-              <template v-slot:item.IsAuthed="{ item }">
-                <v-simple-checkbox
-                  v-ripple
-                  v-model="item.IsAuthed"
-                ></v-simple-checkbox>
-              </template>
-              <template v-slot:top>
+              ><template v-slot:top>
                 <v-toolbar dense class="mb-3" dark color="blue-grey darken-2">
                   <v-toolbar-title>Manage Users</v-toolbar-title>
                   <v-spacer></v-spacer>
                 </v-toolbar>
               </template>
               <!-- eslint-disable-next-line vue/valid-v-slot-->
+              <template v-slot:item.IsAdmin="{ item }">
+                <v-simple-checkbox
+                  color="primary"
+                  v-model="item.IsAdmin"
+                  @input="updateUserProfile(item)"
+                ></v-simple-checkbox>
+              </template>
+              <!-- eslint-disable-next-line vue/valid-v-slot-->
+              <template v-slot:item.IsAuthed="{ item }">
+                <v-simple-checkbox
+                  color="primary"
+                  v-model="item.IsAuthed"
+                  @input="updateUserProfile(item)"
+                ></v-simple-checkbox>
+              </template>
+
+              <!-- eslint-disable-next-line vue/valid-v-slot-->
               <template v-slot:item.actions="{ item }">
-                <v-icon small class="mr-2" @click="save(item)"
-                  >mdi-content-save</v-icon
-                >
-                <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
+                <v-icon small @click="deleteUser(item)">mdi-delete</v-icon>
               </template>
             </v-data-table>
           </v-card>
@@ -110,7 +109,6 @@ import { mapState } from "vuex";
 
 export default {
   data: () => ({
-    keys: [],
     headers: [
       {
         text: "UserName",
@@ -131,29 +129,15 @@ export default {
         align: "center",
       },
       {
-        text: "Actions",
+        text: "Delete User",
         value: "actions",
         sortable: false,
         align: "center",
       },
     ],
     userProfiles: [],
-    addNew: false,
-    search: "",
-    log: [],
-    logHeaders: [
-      {
-        text: "MESSAGE",
-        align: "start",
-        sortable: false,
-        value: "Message",
-      },
-    ],
-    sortBy: "LogTime",
-    sortDesc: true,
     settingHeaders: ["Manage Users"],
     settingSelection: "Manage Users",
-    backupProgress: false,
     dayWgtProgress: false,
     histSpotProgress: false,
   }),
@@ -213,7 +197,7 @@ export default {
         });
         let response = await VolAnalyticsApi.refresh_historical_spots();
         this.$store.dispatch("setSnackbar", {
-          text: `${JSON.parse(response)}`,
+          text: `${JSON.parse(response.data)}`,
           centered: true,
         });
         this.histSpotProgress = false;
@@ -225,47 +209,38 @@ export default {
         this.histSpotProgress = false;
       }
     },
-
-    deleteItem(item) {
-      confirm(`Are you sure you want to delete ${item.UserName}?`) &&
-        LoginApi.DeleteUser(item)
-          .then((response) => {
-            this.$store.dispatch("setSnackbar", {
-              text: `${item.UserName} deleted succesfully. `,
-              centered: true,
-            });
-
-            this.getUserProfiles();
-          })
-          .catch((err) => {
-            if (err.toString().includes("403") === true) {
-              err = "Admin Rights Required";
-            }
-            this.$store.dispatch("setSnackbar", {
-              text: ` Delete Unsuccessful. ${err}`,
-              centered: true,
-            });
-          });
-    },
-    save(item) {
-      LoginApi.UpdateUser(item)
-        .then((response) => {
-          this.$store.dispatch("setSnackbar", {
-            text: `${item.UserName} updated succesfully.`,
-            centered: true,
-          });
-
-          this.getUserProfiles();
-        })
-        .catch((err) => {
-          if (err.toString().includes("403") === true) {
-            err = "Admin Rights Required";
-          }
-          this.$store.dispatch("setSnackbar", {
-            text: ` Update Unsuccessful. ${err}`,
-            centered: true,
-          });
+    async updateUserProfile(item) {
+      try {
+        await LoginApi.UpdateUser(item);
+        this.$store.dispatch("setSnackbar", {
+          text: `${item.UserName} profile has been updated succesfully.`,
+          centered: true,
         });
+        this.getUserProfiles();
+      } catch (err) {
+        this.$store.dispatch("setSnackbar", {
+          text: ` Update Unsuccessful. ${err}`,
+          centered: true,
+        });
+      }
+    },
+
+    async deleteUser(item) {
+      try {
+        confirm(`Are you sure you want to delete ${item.UserName}?`) &&
+          (await LoginApi.DeleteUser(item));
+        this.$store.dispatch("setSnackbar", {
+          text: `${item.UserName} deleted succesfully. `,
+          centered: true,
+        });
+
+        this.getUserProfiles();
+      } catch (error) {
+        this.$store.dispatch("setSnackbar", {
+          text: ` Delete Unsuccessful. ${error}`,
+          centered: true,
+        });
+      }
     },
   },
 };

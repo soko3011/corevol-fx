@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-nowrap">
+  <div class="d-flex flex-nowrap rateContainer">
     <div class="ma-5">
       <transition name="fade">
         <v-card flat>
@@ -70,6 +70,13 @@ export default {
 </script>
 
 <style>
+.rateContainer {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: auto;
+  padding-left: 0px;
+  padding-right: 0px;
+}
 .scroll {
   overflow-y: auto;
 }

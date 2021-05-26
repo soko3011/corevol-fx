@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="cssVars">
     <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#385F73" min-width="400" collapse>
         <v-spacer></v-spacer>
@@ -47,6 +47,8 @@
 import CorrelationMain from "@/components/Correlation/CorrelationMain.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import ModalNoButton from "@/components/common/ModalNoButton.vue";
+import { mapState } from "vuex";
+
 export default {
   components: {
     CorrelationMain,
@@ -55,19 +57,23 @@ export default {
   },
   created() {
     this.$store.dispatch("refreshCrossList");
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
   },
   data() {
     return {
       componentKey: 0,
-      window: {
-        width: 0,
-        height: 0,
-      },
     };
   },
   computed: {
+    ...mapState({
+      window: (state) => state.window,
+    }),
+    cssVars() {
+      return {
+        "--main-width": `${this.window.width - 100}px`,
+        "--main-height": `${this.window.height + 90}px`,
+        "--dwCol-height": `${this.window.height - 20}px`,
+      };
+    },
     cross() {
       return this.$store.getters.corrCrossGetter;
     },
@@ -84,27 +90,6 @@ export default {
     changeCross(val) {
       this.$store.dispatch("setActivecross", val);
       this.componentKey += 1;
-    },
-    handleResize() {
-      this.window.width = window.innerWidth - 100;
-      this.window.height = window.innerHeight - 95;
-
-      this.setContainerDimensions();
-    },
-    setContainerDimensions() {
-      document.documentElement.style.setProperty(
-        "--main-width",
-        `${this.window.width}px`
-      );
-
-      document.documentElement.style.setProperty(
-        "--main-height",
-        `${this.window.height}px`
-      );
-      document.documentElement.style.setProperty(
-        "--dwCol-height",
-        `${this.window.height - 70}px`
-      );
     },
   },
 };

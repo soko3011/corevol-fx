@@ -1,5 +1,5 @@
 <template>
-  <div class="overallContainer ml-1">
+  <div :style="cssVars" class="overallContainer ml-1">
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
         <v-toolbar color="#385F73" min-width="300" collapse>
@@ -448,9 +448,6 @@ export default {
       this.dataReturned = true;
       this.autoSaveSwitch = this.dviPrefs.autoSaveSwitch;
 
-      window.addEventListener("resize", this.handleResize);
-      this.handleResize();
-
       if (this.$store.state.isAdmin === false) {
         this.autoSaveSwitch = false;
       }
@@ -462,7 +459,6 @@ export default {
   },
   destroyed() {
     document.removeEventListener("keydown", this.KeyPressToPricer);
-    window.removeEventListener("resize", this.handleResize);
   },
   data() {
     return {
@@ -484,16 +480,19 @@ export default {
       addNewDviModal: false,
       deleteDviModal: false,
       optionCuts: [],
-      window: {
-        width: 0,
-        height: 0,
-      },
     };
   },
   computed: {
     progressDelay() {
       setTimeout(() => {}, 500);
       return !dataReturned;
+    },
+    cssVars() {
+      return {
+        "--main-width": `${this.window.width - 100}px`,
+        "--main-height": `${this.window.height + 90}px`,
+        "--dviCol-height": `${this.window.height - 20}px`,
+      };
     },
     autoSaveStatus() {
       return this.autoSaveSwitch === true ? "ON" : "OFF";
@@ -514,6 +513,7 @@ export default {
       ipvSurf: (state) => state.dvi.ipvSurf,
       lastUpdate: (state) => state.dvi.lastUpdate,
       dviPrefs: (state) => state.dviPrefs,
+      window: (state) => state.window,
     }),
     ipvHasData() {
       return this.ipvSurf.length > 0 ? true : false;
@@ -530,26 +530,7 @@ export default {
   },
   methods: {
     dev() {},
-    handleResize() {
-      this.window.width = window.innerWidth;
-      this.window.height = window.innerHeight;
-      this.setContainerDimensions();
-    },
-    setContainerDimensions() {
-      document.documentElement.style.setProperty(
-        "--main-width",
-        `${this.window.width - 100}px`
-      );
 
-      document.documentElement.style.setProperty(
-        "--main-height",
-        `${this.window.height - 60}px`
-      );
-      document.documentElement.style.setProperty(
-        "--dviCol-height",
-        `${this.window.height - 160}px`
-      );
-    },
     toggleRightNav() {
       this.$store.dispatch("toggleRightNav");
     },
@@ -817,9 +798,7 @@ export default {
       });
     },
   },
-  mounted() {
-    this.handleResize();
-  },
+  mounted() {},
   watch: {
     loading(val) {
       if (!val) return;

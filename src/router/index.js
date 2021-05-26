@@ -132,7 +132,7 @@ let router = new Router({
 if (store.state.isRouterSecured) {
   router.beforeEach((to, from, next) => {
     store.dispatch("checkLoginStatus").then(() => {
-      console.log(`FIRST CHECK LOGIN STATUS: ${store.state.isUserAuthed}`);
+      console.log(`USER AUTHENTICATION STATUS: ${store.state.isUserAuthed}`);
       if (to.matched.some(record => record.meta.requiresAuth)) {
         if (!store.state.isUserAuthed) {
           console.log(

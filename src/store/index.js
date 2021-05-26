@@ -19,6 +19,8 @@ const state = {
   userTimeZone: "",
   spotApi: "",
   swapApi: "",
+  baseRateApi: "",
+  ipvVolApi: "",
   activePricerLayoutTitle: "Trader",
   dashBoardPrefs: [],
   userPricerLayoutPrefs: [],
@@ -203,6 +205,8 @@ const mutations = {
     state.activePricerLayoutTitle = userPrefs.ActivePricerLayout;
     state.spotApi = userPrefs.SpotApi;
     state.swapApi = userPrefs.SwapApi;
+    state.baseRateApi = userPrefs.BaseRateApi;
+    state.ipvVolApi = userPrefs.IpvVolApi;
 
     if (userPrefs.DashBoardPrefs !== null) {
       state.dashBoardPrefs = JSON.parse(userPrefs.DashBoardPrefs);
@@ -237,6 +241,7 @@ const mutations = {
     state.IsAuthed = false;
   },
   SET_LOGIN_STATUS(state, user) {
+    state.currentUser = user.UserName;
     window.localStorage.currentUser = JSON.stringify(user.UserName);
     window.localStorage.token = JSON.stringify(user.TokenString);
     window.localStorage.isAdmin = JSON.stringify(user.IsAdmin);
@@ -250,7 +255,8 @@ const mutations = {
 const actions = {
   async checkLoginStatus({ commit }) {
     if (window.localStorage.currentUser === undefined) {
-      commit("SET_IS_AUTHED_FALSE");
+      window.localStorage.clear();
+      commit("RESET_USER");
       return;
     }
     try {
@@ -259,8 +265,9 @@ const actions = {
       });
       commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
     } catch (err) {
+      window.localStorage.clear();
       commit("RESET_USER");
-      alert(err);
+      alert(`Error source: CheckLoginStatus. ${err}`);
     }
   },
   async login({ commit, dispatch }, loginInfo) {
@@ -305,7 +312,11 @@ const actions = {
       let response = await LoginApi.RegisterUser(registrationInfo);
       let user = JSON.parse(response.data.userStatus);
       commit("SET_LOGIN_STATUS", user);
-      await dispatch("getUserPreferences", user.UserName);
+      let userResponse = await UserPrefsApi.registerUserPrefsToDB({
+        UserName: user.UserName,
+        Timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      });
+      commit("SET_USER_PREFS", JSON.parse(userResponse.data.userPrefs));
       commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
       dispatch("setSnackbar", {
         text: `WELCOME ${user.UserName}`,
@@ -353,6 +364,10 @@ const actions = {
       });
     }
   },
+  updateSingleUserPrefLocalStorage({ commit }, userPref) {
+    commit("SET_SINGLE_USER_PREF", userPref);
+    commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
+  },
   async updateSpotApi({ dispatch }, data) {
     try {
       await UserPrefsApi.updateSpotApi(data);
@@ -389,9 +404,88 @@ const actions = {
       });
     }
   },
-  updateSingleUserPrefLocalStorage({ commit }, userPref) {
-    commit("SET_SINGLE_USER_PREF", userPref);
-    commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
+  async updateBaseRateApi({ dispatch }, data) {
+    try {
+      await UserPrefsApi.updateBaseRateApi(data);
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "BaseRateApi",
+        value: data.BaseRateApi
+      });
+      dispatch("setSnackbar", {
+        text: "BaseRate Api Updated",
+        centered: true
+      });
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${err}  -method: updateBaseRateApi`,
+        top: true
+      });
+    }
+  },
+  async updateIpvVolApi({ dispatch }, data) {
+    try {
+      await UserPrefsApi.updateIpvVolApi(data);
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "IpvVolApi",
+        value: data.IpvVolApi
+      });
+      dispatch("setSnackbar", {
+        text: "IpvVol Api Updated",
+        centered: true
+      });
+    } catch (err) {
+      dispatch("setSnackbar", {
+        text: `${err}  -method: updateIpvVolApi`,
+        top: true
+      });
+    }
+  },
+  async saveDviPrefs({ dispatch }, data) {
+    try {
+      await UserPrefsApi.saveDviPrefs({
+        UserName: state.currentUser
+      });
+
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "DviPrefs",
+        value: JSON.stringify(data)
+      });
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}`
+      });
+    }
+  },
+  async saveUserPricerLayoutPrefs({ dispatch }, data) {
+    try {
+      await UserPrefsApi.SaveUserPricerLayoutPrefs({
+        UserName: state.currentUser,
+        PricerLayoutPrefs: JSON.stringify(data)
+      });
+      dispatch("updateSingleUserPrefLocalStorage", {
+        key: "PricerLayoutPrefs",
+        value: JSON.stringify(data)
+      });
+      dispatch("setSnackbar", {
+        text: `PricerSetup saved.`
+      });
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}`
+      });
+    }
+  },
+  async saveDefaultTraderLayout({ dispatch }, data) {
+    try {
+      await PricerApi.SavePricerSetup(data);
+      dispatch("setSnackbar", {
+        text: `PricerSetup saved.`
+      });
+    } catch (error) {
+      dispatch("setSnackbar", {
+        text: `${error}`
+      });
+    }
   },
   setWindowDimensions({ commit }, data) {
     commit("SET_WINDOW_DIMENSIONS", data);
@@ -441,7 +535,6 @@ const actions = {
       });
     }
   },
-
   async addNewActivePricer({ commit, dispatch }, data) {
     try {
       let response = await PricerApi.addNewActivePricer({
@@ -506,53 +599,6 @@ const actions = {
       });
     }
   },
-  async saveDviPrefs({ dispatch }, data) {
-    try {
-      await UserPrefsApi.saveDviPrefs({
-        UserName: state.currentUser
-      });
-
-      dispatch("updateSingleUserPrefLocalStorage", {
-        key: "DviPrefs",
-        value: JSON.stringify(data)
-      });
-    } catch (error) {
-      dispatch("setSnackbar", {
-        text: `${error}`
-      });
-    }
-  },
-  async saveUserPricerLayoutPrefs({ dispatch }, data) {
-    try {
-      await UserPrefsApi.SaveUserPricerLayoutPrefs({
-        UserName: state.currentUser,
-        PricerLayoutPrefs: JSON.stringify(data)
-      });
-      dispatch("updateSingleUserPrefLocalStorage", {
-        key: "PricerLayoutPrefs",
-        value: JSON.stringify(data)
-      });
-      dispatch("setSnackbar", {
-        text: `PricerSetup saved.`
-      });
-    } catch (error) {
-      dispatch("setSnackbar", {
-        text: `${error}`
-      });
-    }
-  },
-  async saveDefaultTraderLayout({ dispatch }, data) {
-    try {
-      await PricerApi.SavePricerSetup(data);
-      dispatch("setSnackbar", {
-        text: `PricerSetup saved.`
-      });
-    } catch (error) {
-      dispatch("setSnackbar", {
-        text: `${error}`
-      });
-    }
-  },
   toggleRightNav({ commit }) {
     commit("TOGGLE_RIGHT_NAV");
   },
@@ -582,11 +628,9 @@ const actions = {
       });
     }
   },
-
   setSidebarMinified({ commit }) {
     commit("SET_SIDEBARMINIFIED");
   },
-
   setSnackbar({ commit }, snackbar) {
     snackbar.showing = true;
     snackbar.color = snackbar.color || "dark";

@@ -35,11 +35,11 @@ export default {
   components: {
     CcyPairTiers,
     SpreadsByDeltaComponent,
-    TierMultipliersComponent
+    TierMultipliersComponent,
   },
   data: () => ({
     model: [],
-    isDataLoaded: false
+    isDataLoaded: false,
   }),
 
   async created() {
@@ -61,7 +61,7 @@ export default {
 
     tierMultipliers() {
       return this.model.TierMultipliers;
-    }
+    },
   },
 
   methods: {
@@ -69,34 +69,40 @@ export default {
       try {
         let response = await SettingsApi.updateCurrencyPairTiers({
           Cross: item.Cross,
-          Tier: parseFloat(item.Tier)
+          Tier: parseFloat(item.Tier),
         });
 
         this.model = JSON.parse(response.data.model);
-      } catch (error) {}
+      } catch (error) {
+        alert(error);
+      }
     },
     async saveTierMultiplier(item) {
       try {
         let response = await SettingsApi.updateTierMultipliers({
           Tier: parseFloat(item.Tier),
-          Multiplier: parseFloat(item.Multiplier)
+          Multiplier: parseFloat(item.Multiplier),
         });
 
         this.model = JSON.parse(response.data.model);
-      } catch (error) {}
+      } catch (error) {
+        alert(error);
+      }
     },
     async saveSpreadsByDelta(item) {
       try {
         let response = await SettingsApi.updateSpreadsByDelta({
           Term: item.Term,
-          Atm: parseFloat(item.Atm)
+          Atm: parseFloat(item.Atm),
         });
 
         this.model = JSON.parse(response.data.model);
-      } catch (error) {}
-    }
+      } catch (error) {
+        alert(error);
+      }
+    },
   },
-  watch: {}
+  watch: {},
 };
 </script>
 

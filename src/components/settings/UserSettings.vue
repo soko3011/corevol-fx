@@ -12,6 +12,16 @@
         label="Swaps Interface"
       ></v-select>
       <v-select
+        v-model="baseRateIface"
+        :items="baseRateIfaces"
+        label="BaseRate Interface"
+      ></v-select>
+      <v-select
+        v-model="ipvVolIface"
+        :items="ipvVolIfaces"
+        label="IpvVol Interface"
+      ></v-select>
+      <v-select
         v-model="timeZone"
         :items="timeZones"
         label="TimeZone"
@@ -48,6 +58,8 @@ export default {
     return {
       spotIfaces: ["InvestingDotCom", "MongoDB"],
       swapIfaces: ["EmpireFXPY", "MongoDB"],
+      baseRateIfaces: ["DefaultBaseRateApi"],
+      ipvVolIfaces: ["Sentry"],
       timeZones: [],
       timeZone: "",
       starterFxCross: "",
@@ -62,6 +74,8 @@ export default {
       userPrefCross: (state) => state.userPrefCross,
       spotApi: (state) => state.spotApi,
       swapApi: (state) => state.swapApi,
+      baseRateApi: (state) => state.baseRateApi,
+      ipvVolApi: (state) => state.ipvVolApi,
     }),
     spotIface: {
       get() {
@@ -79,6 +93,22 @@ export default {
         this.updateSwapApi(val);
       },
     },
+    baseRateIface: {
+      get() {
+        return this.baseRateApi;
+      },
+      set(val) {
+        this.updateBaseRateApi(val);
+      },
+    },
+    ipvVolIface: {
+      get() {
+        return this.ipvVolApi;
+      },
+      set(val) {
+        this.updateIpvVolApi(val);
+      },
+    },
   },
   methods: {
     async updateSpotApi(val) {
@@ -91,6 +121,18 @@ export default {
       await this.$store.dispatch("updateSwapApi", {
         UserName: this.$store.state.currentUser,
         SwapApi: val,
+      });
+    },
+    async updateBaseRateApi(val) {
+      await this.$store.dispatch("updateBaseRateApi", {
+        UserName: this.$store.state.currentUser,
+        BaseRateApi: val,
+      });
+    },
+    async updateIpvVolApi(val) {
+      await this.$store.dispatch("updateIpvVolApi", {
+        UserName: this.$store.state.currentUser,
+        IpvVolApi: val,
       });
     },
     async updateStarterFxCross() {

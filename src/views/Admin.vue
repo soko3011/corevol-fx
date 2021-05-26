@@ -13,7 +13,6 @@
               @click="ChangeSettings(item)"
               v-for="item in this.settingHeaders"
               :key="item"
-              ripple
             >
               <v-list-item-action>
                 <v-icon color="green darken-3">mdi-dots-hexagon</v-icon>
@@ -22,7 +21,7 @@
                 <v-list-item-title>{{ item }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item @click="refreshEventsFromApi()" ripple>
+            <v-list-item @click="refreshEventsFromApi()">
               <v-list-item-action>
                 <v-progress-circular
                   v-if="dayWgtProgress"
@@ -35,7 +34,7 @@
                 <v-list-item-title>Refresh Api Day Wgts</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item @click="updateHistoricalSpots()" ripple>
+            <v-list-item @click="updateHistoricalSpots()">
               <v-list-item-action>
                 <v-progress-circular
                   v-if="histSpotProgress"
@@ -103,6 +102,7 @@
 
 <script>
 import LoginApi from "@/apis/authenticationApis/LoginApi.js";
+import UserPrefsApi from "@/apis/UserPrefsApi";
 import DayWgtSetupApi from "@/apis/DayWgtSetupApi";
 import VolAnalyticsApi from "@/apis/pythonApis/VolAnalyticsApi";
 import { mapState } from "vuex";
@@ -235,6 +235,7 @@ export default {
         });
 
         this.getUserProfiles();
+        await UserPrefsApi.deleteUserPrefsFromDB({ UserName: item.UserName });
       } catch (error) {
         this.$store.dispatch("setSnackbar", {
           text: ` Delete Unsuccessful. ${error}`,

@@ -233,12 +233,12 @@ export default {
       try {
         this.loading = true;
         this.snackbar = true;
-        this.updateMessage = `Auto surface updates have started...`;
+        this.updateMessage = `AUTO SURFACE UPDATES INITIATED`;
         const response = await DviApi.updateAllDviWithIpv({
           UserName: this.$store.state.currentUser,
         });
         this.snackbar = true;
-        this.updateMessage = `Auto surface updates have finished with status:${response.status}`;
+        this.updateMessage = `AUTO SURFACE UPDATES COMPLETE`;
         this.loading = false;
       } catch (error) {
         this.updateMessage = "";

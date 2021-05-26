@@ -27,5 +27,17 @@ export default {
   },
   updateSwapApi(body) {
     return Api.post("UpdateSwapApi", body);
+  },
+  updateBaseRateApi(body) {
+    return Api.post("UpdateBaseRateApi", body);
+  },
+  updateIpvVolApi(body) {
+    return Api.post("UpdateIpvVpolApi", body);
+  },
+  deleteUserPrefsFromDB(body) {
+    return Api.post("DeleteUserPrefsFromDB", body);
+  },
+  registerUserPrefsToDB(body) {
+    return Api.post("RegisterUserPrefsToDB", body);
   }
 };

@@ -61,7 +61,7 @@
           >
             <v-data-table
               :headers="headers"
-              :items="data"
+              :items="userProfiles"
               sort-by="UserName"
               dense
               disable-pagination
@@ -111,8 +111,33 @@ import { mapState } from "vuex";
 export default {
   data: () => ({
     keys: [],
-    headers: [],
-    data: [],
+    headers: [
+      {
+        text: "UserName",
+        value: "UserName",
+        sortable: false,
+        align: "center",
+      },
+      {
+        text: "IsAdmin",
+        value: "IsAdmin",
+        sortable: false,
+        align: "center",
+      },
+      {
+        text: "IsAuthed",
+        value: "IsAuthed",
+        sortable: false,
+        align: "center",
+      },
+      {
+        text: "Actions",
+        value: "actions",
+        sortable: false,
+        align: "center",
+      },
+    ],
+    userProfiles: [],
     addNew: false,
     search: "",
     log: [],
@@ -139,13 +164,22 @@ export default {
       window: (state) => state.window,
     }),
     userList() {
-      return this.data.map((x) => x.UserName);
+      return this.userProfiles.map((x) => x.UserName);
     },
   },
 
-  created() {},
+  async created() {
+    await this.getUserProfiles();
+  },
 
   methods: {
+    async getUserProfiles() {
+      try {
+        let response = await LoginApi.GetAllUsers();
+        this.userProfiles = JSON.parse(response.data.userProfiles);
+        console.log(this.userProfiles);
+      } catch (error) {}
+    },
     ChangeSettings(setting) {
       this.settingSelection = setting;
     },
@@ -201,7 +235,7 @@ export default {
               centered: true,
             });
 
-            this.initialize();
+            this.getUserProfiles();
           })
           .catch((err) => {
             if (err.toString().includes("403") === true) {
@@ -221,7 +255,7 @@ export default {
             centered: true,
           });
 
-          this.initialize();
+          this.getUserProfiles();
         })
         .catch((err) => {
           if (err.toString().includes("403") === true) {

@@ -51,16 +51,7 @@
     <v-dialog v-model="interfaceToggle" max-width="600px">
       <v-card>
         <v-container fluid>
-          <v-select
-            v-model="spotIface"
-            :items="spotIfaces"
-            label="Spot Interface"
-          ></v-select>
-          <v-select
-            v-model="swapIface"
-            :items="swapIfaces"
-            label="Swaps Interface"
-          ></v-select>
+          <UserSettings />
           <v-card-actions class="justify-end">
             <v-btn text @click="interfaceToggle = false">Close</v-btn>
           </v-card-actions>
@@ -72,6 +63,7 @@
 
 <script>
 import MarketDataApi from "@/apis/MarketDataApi.js";
+import UserSettings from "@/components/settings/UserSettings.vue";
 import MarketDataTable from "@/components/marketData/MarketDataTable.vue";
 import { mapState } from "vuex";
 
@@ -125,13 +117,12 @@ export default {
     marketTableTitle: "",
     marketTableWidth: "",
     selectedCross: "",
-    spotIfaces: ["InvestingDotCom", "MongoDB"],
-    swapIfaces: ["EmpireFXPY", "MongoDB"],
     apiDataReturned: false,
     componentKey: 0,
   }),
   components: {
     MarketDataTable,
+    UserSettings,
   },
 
   computed: {
@@ -246,11 +237,6 @@ export default {
         UserName: this.$store.state.currentUser,
         SwapApi: val,
       });
-    },
-  },
-  watch: {
-    spotIface() {
-      this.initialize();
     },
   },
 };

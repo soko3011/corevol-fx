@@ -46,6 +46,7 @@ import UserPrefsApi from "@/apis/UserPrefsApi";
 export default {
   async created() {
     try {
+      await this.setAvailableServices();
       const tzinfo = await SettingsApi.GetTimeZoneInfos();
       this.timeZones = JSON.parse(tzinfo.data.tzInfo);
       this.timeZone = this.userTimeZone;
@@ -56,10 +57,10 @@ export default {
   },
   data() {
     return {
-      spotIfaces: ["InvestingDotCom", "MongoDB"],
-      swapIfaces: ["EmpireFXPY", "MongoDB"],
-      baseRateIfaces: ["DefaultBaseRateApi"],
-      ipvVolIfaces: ["Sentry"],
+      spotIfaces: [],
+      swapIfaces: [],
+      baseRateIfaces: [],
+      ipvVolIfaces: [],
       timeZones: [],
       timeZone: "",
       starterFxCross: "",
@@ -111,6 +112,19 @@ export default {
     },
   },
   methods: {
+    async setAvailableServices() {
+      try {
+        let response = await UserPrefsApi.getAvailableServices();
+        let services = JSON.parse(response.data.services);
+
+        this.spotIfaces = services.Spot;
+        this.swapIfaces = services.Swaps;
+        this.baseRateIfaces = services.BaseRates;
+        this.ipvVolIfaces = services.IpvVols;
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async updateSpotApi(val) {
       await this.$store.dispatch("updateSpotApi", {
         UserName: this.$store.state.currentUser,

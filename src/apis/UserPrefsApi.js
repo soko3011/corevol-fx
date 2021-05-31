@@ -1,6 +1,9 @@
 import Api from "./Api";
 
 export default {
+  getAvailableServices() {
+    return Api.get("GetAvailableServices");
+  },
   getUserPreferences(body) {
     return Api.post("GetUserPreferences", body);
   },

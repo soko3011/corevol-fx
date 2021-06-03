@@ -1,10 +1,9 @@
 /* eslint-disable  no-unused-vars */
 import axios from "axios";
 
-export const base = "https://authentication-swfmuuo65q-nw.a.run.app/";
-//export const base = "http://localhost:5003/";
+export const base = process.env.VUE_APP_AUTH_API;
 
-const baseURL = `${base}api/`;
+const baseURL = `${base}/api/`;
 
 let Api = axios.create({
   baseURL

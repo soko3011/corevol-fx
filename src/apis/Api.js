@@ -1,8 +1,7 @@
 /* eslint-disable  no-unused-vars */
 import axios from "axios";
 
-export const base = "https://corevolapi-swfmuuo65q-ez.a.run.app/";
-//export const base = "http://localhost:5002/";
+export const base = process.env.VUE_APP_VOLENGINE_API;
 
 const baseURL = `${base}api/`;
 

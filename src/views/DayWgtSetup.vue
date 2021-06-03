@@ -108,7 +108,8 @@
 <script>
 import jexcel from "jexcel"; // eslint-disable-line no-unused-vars
 import * as customFunctions from "@/externaljs/customfunctions.js"; // eslint-disable-line no-unused-vars
-import DayWgtSetupApi from "@/apis/DayWgtSetupApi";
+import DayWeightServiceApi from "@/apis/dayWeightServiceApis/DayWeightServiceApi.js";
+import EventsUpdatedApi from "@/apis/EventsUpdatedApi.js";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import ModalNoButton from "@/components/common/ModalNoButton.vue";
 import moment from "moment";
@@ -117,7 +118,7 @@ export default {
   name: "DayWgtSetup",
   components: { PopUpModal, ModalNoButton },
   created() {
-    DayWgtSetupApi.GetAvailableCurr().then((response) => {
+    DayWeightServiceApi.getAvailableCurr().then((response) => {
       this.availableCurrencies = JSON.parse(response.data.availableCurrencies);
     });
 
@@ -269,7 +270,7 @@ export default {
     },
     async getEvents(ccy) {
       try {
-        let response = await DayWgtSetupApi.GetEvents({ Ccy: ccy });
+        let response = await DayWeightServiceApi.getEvents({ Ccy: ccy });
 
         this.eventsByCcy = JSON.parse(response.data.eventsByCcy);
         this.selectedEventsByCcy = JSON.parse(response.data.selectedEvents);
@@ -301,7 +302,7 @@ export default {
         return;
       }
       try {
-        let response = await DayWgtSetupApi.BuildProductionList({
+        let response = await DayWeightServiceApi.buildProductionList({
           Ccy: this.currentCcy,
           EventNames: this.selectedEventsByCcy.map((x) => x.EventName),
         });
@@ -398,30 +399,28 @@ export default {
       }
     },
 
-    saveEventsToDB() {
-      var dbObj = {
-        ccy: this.currentCcy,
-        selectedEvents: JSON.stringify(this.selectedEventsByCcy),
-        productionList: JSON.stringify(this.productionList),
-      };
+    async saveEventsToDB() {
+      try {
+        var dbObj = {
+          ccy: this.currentCcy,
+          selectedEvents: JSON.stringify(this.selectedEventsByCcy),
+          productionList: JSON.stringify(this.productionList),
+        };
 
-      DayWgtSetupApi.SaveDataToDB(dbObj)
-        .then((response) => {
-          this.$store.dispatch("setSnackbar", {
-            text: `Database Upadated With ${this.currentCcy} Events List `,
-            centered: true,
-          });
-        })
-        .catch((error) => {
-          if (error.toString().includes("403") === true) {
-            error = "Admin Rights Required";
-          }
-          this.$store.dispatch("setSnackbar", {
-            text: `${this.currentCcy} events: ${error} `,
-            centered: true,
-          });
+        await DayWeightServiceApi.saveDataToDB(dbObj);
+        await EventsUpdatedApi.eventWeightsUpdated(dbObj);
+        this.$store.dispatch("setSnackbar", {
+          text: `Database Upadated With ${this.currentCcy} Events List `,
+          centered: true,
         });
+      } catch (error) {
+        this.$store.dispatch("setSnackbar", {
+          text: `${this.currentCcy} events: ${error} `,
+          centered: true,
+        });
+      }
     },
+
     updateEventsByCcyWithSelectedEvents() {
       this.eventsByCcy.forEach((element) => {
         var checkList = this.selectedEventsByCcy.some(

@@ -103,7 +103,7 @@
 <script>
 import LoginApi from "@/apis/authenticationApis/LoginApi.js";
 import UserPrefsApi from "@/apis/UserPrefsApi";
-import DayWgtSetupApi from "@/apis/DayWgtSetupApi";
+import DayWeightServiceApi from "@/apis/dayWeightServiceApis/DayWeightServiceApi.js";
 import VolAnalyticsApi from "@/apis/pythonApis/VolAnalyticsApi";
 import { mapState } from "vuex";
 
@@ -174,7 +174,7 @@ export default {
           text: `Refreshing DayWgts From API...`,
           centered: true,
         });
-        await DayWgtSetupApi.refreshEventsFromApi();
+        await DayWeightServiceApi.refreshEventsFromApi();
         this.$store.dispatch("setSnackbar", {
           text: `DayWgts Updated From API...`,
           centered: true,

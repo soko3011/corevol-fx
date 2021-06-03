@@ -1,8 +1,8 @@
 /* eslint-disable  no-unused-vars */
 import axios from "axios";
 
-//export const base = "https://corevolapi-swfmuuo65q-ez.a.run.app/";
-export const base = "http://localhost:5002/";
+export const base = "https://corevolapi-swfmuuo65q-ez.a.run.app/";
+//export const base = "http://localhost:5002/";
 
 const baseURL = `${base}api/`;
 

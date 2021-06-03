@@ -1,8 +1,8 @@
 /* eslint-disable  no-unused-vars */
 import axios from "axios";
 
-//export const base = "https://authentication-swfmuuo65q-nw.a.run.app/";
-export const base = "http://localhost:5003/";
+export const base = "https://authentication-swfmuuo65q-nw.a.run.app/";
+//export const base = "http://localhost:5003/";
 
 const baseURL = `${base}api/`;
 

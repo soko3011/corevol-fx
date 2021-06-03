@@ -368,6 +368,7 @@ const actions = {
     commit("SET_SINGLE_USER_PREF", userPref);
     commit("SET_CURRENT_USER_FROM_LOCAL_STORAGE");
   },
+
   async updateSpotApi({ dispatch }, data) {
     try {
       await UserPrefsApi.updateSpotApi(data);

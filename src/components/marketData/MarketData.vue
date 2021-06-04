@@ -92,12 +92,6 @@ export default {
         align: "center",
       },
       {
-        text: "Swaps",
-        value: "swaps",
-        sortable: false,
-        align: "center",
-      },
-      {
         text: "BaseRates",
         value: "baserates",
         align: "center",

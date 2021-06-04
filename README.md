@@ -1,4 +1,4 @@
-# ui-vuetify
+# front-end-corevolfx
 
 ## Project setup
 ```

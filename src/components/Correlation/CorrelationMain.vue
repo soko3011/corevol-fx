@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="cssVars">
     <v-container class="center">
       <v-progress-linear v-if="!hasData" indeterminate></v-progress-linear>
     </v-container>
@@ -100,16 +100,18 @@ import TableAtmModel from "@/components/Correlation/TableAtmModel.vue";
 import CorrChart from "@/components/Correlation/CorrChart.vue";
 import CorrWidget from "@/components/Correlation/CorrWidget.vue";
 import moment from "moment";
+import { mapState } from "vuex";
+
 export default {
   props: {
     cross: { type: String },
-    crossList: { type: Array }
+    crossList: { type: Array },
   },
   components: {
     TableStaticCorrs,
     TableAtmModel,
     CorrChart,
-    CorrWidget
+    CorrWidget,
   },
   data() {
     return {
@@ -130,30 +132,35 @@ export default {
       baseCcy: "USD",
       activeCross: this.cross,
       loading: false,
-      window: {
-        width: 0,
-        height: 0
-      }
     };
   },
   async created() {
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
     await this.getCorrelationModelFromServer();
   },
   computed: {
+    ...mapState({
+      window: (state) => state.window,
+    }),
+    cssVars() {
+      return {
+        "--main-width": `${this.window.width - 100}px`,
+        "--main-height": `${this.window.height + 90}px`,
+        "--chart-width": `${920}px`,
+        "--dropdown-width": `${900}px`,
+      };
+    },
     hasData() {
       return this.staticCorrs.length > 0 ? true : false;
     },
     staticCorrTerms() {
-      return this.staticCorrs.map(x => {
+      return this.staticCorrs.map((x) => {
         return x.Term;
       });
     },
     chart1Data() {
       const index = this.staticCorrTerms.indexOf(this.chart1Term);
       const cloneSelection = [
-        ...this.corrModel.RollingCorrs[index][this.chart1Selection]
+        ...this.corrModel.RollingCorrs[index][this.chart1Selection],
       ];
       const arr = cloneSelection.reverse();
       return arr.slice(Math.max(arr.length - this.chart1DataPoints, 0));
@@ -164,13 +171,13 @@ export default {
 
       return arr
         .slice(Math.max(arr.length - this.chart1DataPoints, 0))
-        .map(function(x) {
+        .map(function (x) {
           return moment(x).format("DD-MMM-YYYY");
         });
     },
     dataPointDays() {
       return Array.from(Array(501).keys());
-    }
+    },
   },
   methods: {
     changeCross() {
@@ -181,7 +188,7 @@ export default {
         let response = await CorrelationApi.getCorrelationModel({
           Cross: this.cross,
           UserName: this.$store.state.currentUser,
-          Ccy: this.baseCcy
+          Ccy: this.baseCcy,
         });
 
         this.baseCcyList = JSON.parse(response.data.baseCurrencyList);
@@ -193,7 +200,7 @@ export default {
         this.timeSeriesDates = this.corrModel.TimeSeriesDates;
         this.chart1AvailableSelection = Object.keys(
           this.corrModel.RollingCorrs[0]
-        ).filter(x => x !== "Term");
+        ).filter((x) => x !== "Term");
       } catch (error) {
         console.log(error);
       }
@@ -206,32 +213,9 @@ export default {
       this.componentKeyStaticCorrTable += 1;
       this.loading = false;
     },
-    handleResize() {
-      this.window.width = window.innerWidth;
-      this.window.height = window.innerHeight;
-      this.setContainerDimensions();
-    },
-    setContainerDimensions() {
-      document.documentElement.style.setProperty(
-        "--main-width",
-        `${this.window.width - 100}px`
-      );
-
-      document.documentElement.style.setProperty(
-        "--main-height",
-        `${this.window.height - 60}px`
-      );
-      document.documentElement.style.setProperty("--chart-width", `${920}px`);
-
-      document.documentElement.style.setProperty(
-        "--dropdown-width",
-        `${900}px`
-      );
-    },
-
     dev() {
       console.log(this.componentKey);
-    }
+    },
   },
   watch: {
     chart1Term() {
@@ -245,8 +229,8 @@ export default {
     },
     corrWidget1Term() {
       this.componentKeyScracthPad += 1;
-    }
-  }
+    },
+  },
 };
 </script>
 

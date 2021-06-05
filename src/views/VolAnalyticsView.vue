@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="cssVars">
     <v-container class="center">
       <v-progress-linear v-if="!dataLoaded" indeterminate></v-progress-linear>
     </v-container>
@@ -9,12 +9,22 @@
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
           <h4
-            class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+            class="
+              font-weight-medium
+              text-center text-uppercase
+              grey--text
+              text--lighten-3
+            "
           >
             corevolFX VolAnalytics
           </h4>
           <h4
-            class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+            class="
+              font-weight-light
+              text-center text-uppercase
+              green--text
+              text--lighten-3
+            "
             align="center"
             justify="center"
           >
@@ -173,8 +183,6 @@ export default {
   },
   created() {
     this.$store.dispatch("refreshCrossList");
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
   },
   data() {
     return {
@@ -195,17 +203,20 @@ export default {
       ],
       //settingSelection: "Descriptive Data",
       dataLoaded: false,
-      window: {
-        width: 0,
-        height: 0,
-      },
     };
   },
   computed: {
     ...mapState({
       crosses: (state) => state.crossList,
       volAnalyticsSelection: (state) => state.volAnalyticsSelection,
+      window: (state) => state.window,
     }),
+    cssVars() {
+      return {
+        "--main-width": `${this.window.width - 100}px`,
+        "--main-height": `${this.window.height - 5}px`,
+      };
+    },
     settingSelection: {
       get() {
         return this.volAnalyticsSelection;
@@ -251,23 +262,6 @@ export default {
       this.dataLoaded = false;
       this.$store.dispatch("setActivecross", val);
       this.componentKey += 1;
-    },
-    handleResize() {
-      this.window.width = window.innerWidth - 100;
-      this.window.height = window.innerHeight - 165;
-
-      this.setContainerDimensions();
-    },
-    setContainerDimensions() {
-      document.documentElement.style.setProperty(
-        "--main-width",
-        `${this.window.width}px`
-      );
-
-      document.documentElement.style.setProperty(
-        "--main-height",
-        `${this.window.height}px`
-      );
     },
   },
 };

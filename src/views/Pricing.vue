@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-5">
+  <div :style="cssVars" class="ml-5">
     <div>
       <div class="d-flex flex-row mb-5 flex-nowrap">
         <v-toolbar color="#385F73" min-width="300" collapse>
@@ -16,7 +16,12 @@
           <v-spacer></v-spacer>
           <div class="d-flex flex-column">
             <h4
-              class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+              class="
+                font-weight-medium
+                text-center text-uppercase
+                grey--text
+                text--lighten-3
+              "
             >
               corevolFX Pricer
               <v-btn icon x-small class="mb-4">
@@ -31,7 +36,12 @@
               </v-btn>
             </h4>
             <h6
-              class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+              class="
+                font-weight-light
+                text-center text-uppercase
+                green--text
+                text--lighten-3
+              "
               align="center"
               justify="center"
             >
@@ -57,7 +67,7 @@
             <v-card
               v-if="showSideControl"
               min-width="250"
-              :min-height="minSideBarHeight"
+              :min-height="window.height"
             >
               <v-subheader class="mt-3"
                 >ACTIVE PRICERS <v-spacer></v-spacer>
@@ -162,7 +172,7 @@
               :pricerName="viewName"
               :simulationButton="toggleSimulation"
               :tableWidth="this.pricerTableWidth"
-              :tableHeight="minSideBarHeight"
+              :tableHeight="window.height"
               @createStrategy="addStrategyView"
               :key="componentKey"
               v-on:layoutChanged="changeLayout()"
@@ -206,15 +216,9 @@ export default {
       removeModal: false,
       addSheetModal: false,
       stratModal: false,
-      window: {
-        width: 0,
-        height: 0,
-      },
     };
   },
   async created() {
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
     this.loading = true;
     this.$store.dispatch("refreshCrossList");
     await this.$store.dispatch("getActivePricerListFromServer");
@@ -227,7 +231,6 @@ export default {
 
   destroyed() {
     this.$store.dispatch("setPricerTab", this.viewName);
-    window.removeEventListener("resize", this.handleResize);
   },
   computed: {
     ...mapState({
@@ -238,7 +241,14 @@ export default {
       activePricers: (state) => state.activePricerList,
       activecross: (state) => state.activecross,
       sidebarMinified: (state) => state.sidebarMinified,
+      window: (state) => state.window,
     }),
+    cssVars() {
+      return {
+        "--main-width": `${this.window.width - 100}px`,
+        "--main-height": `${this.window.height - 5}px`,
+      };
+    },
     totalsToggle: {
       get() {
         return this.$store.state.pricerShowTotalsToggle;
@@ -256,42 +266,32 @@ export default {
     strategyList() {
       return new stratHelper().strats().map((x) => x.name);
     },
-    minSideBarHeight() {
-      return this.window.height - 160;
-    },
     pricerTableWidth() {
-      return this.sidebarMinified === true
-        ? this.window.width - 375
-        : this.window.width - 520;
+      if (this.sidebarMinified) {
+        return this.showSideControl === true
+          ? this.window.width - 375
+          : this.window.width - 125;
+      } else {
+        return this.showSideControl === true
+          ? this.window.width - 375 - 150
+          : this.window.width - 125 - 150;
+      }
     },
   },
   methods: {
     dev() {
-      alert(this.pricerTableWidth);
+      alert(`${this.pricerTableWidth},${this.sidebarMinified}`);
     },
     toggleTotalsSwitch() {
       this.$store.dispatch("togglePriceShowTotals", !this.totalsToggle);
-    },
-    handleResize() {
-      this.window.width = window.innerWidth;
-      this.window.height = window.innerHeight;
-
-      document.documentElement.style.setProperty(
-        "--main-width",
-        `${this.window.width}px`
-      );
-
-      document.documentElement.style.setProperty(
-        "--main-height",
-        `${this.window.height - 150}px`
-      );
     },
     async addStrategyView(strat) {
       let stratName = `${strat.optData.cross}.${strat.strategy}`.toUpperCase();
       let checkindex = this.activePricers.indexOf(stratName);
       let i = 1;
       while (checkindex > -1) {
-        stratName = `${strat.optData.cross}.${strat.strategy}.${i}`.toUpperCase();
+        stratName =
+          `${strat.optData.cross}.${strat.strategy}.${i}`.toUpperCase();
         checkindex = this.activePricers.indexOf(stratName);
         i++;
       }
@@ -398,6 +398,9 @@ export default {
       }
     },
     sidebarMinified() {
+      this.componentKey += 1;
+    },
+    pricerTableWidth() {
       this.componentKey += 1;
     },
   },

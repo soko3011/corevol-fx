@@ -1,11 +1,16 @@
 <template>
-  <div>
+  <div :style="cssVars">
     <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#385F73" min-width="400" collapse>
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
           <h4
-            class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+            class="
+              font-weight-medium
+              text-center text-uppercase
+              grey--text
+              text--lighten-3
+            "
           >
             corevolFX DAY WEIGHT SETTINGS
             <v-btn icon x-small class="mb-4">
@@ -20,7 +25,12 @@
             </v-btn>
           </h4>
           <h4
-            class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+            class="
+              font-weight-light
+              text-center text-uppercase
+              green--text
+              text--lighten-3
+            "
             align="center"
             justify="center"
           >
@@ -113,6 +123,7 @@ import EventsUpdatedApi from "@/apis/EventsUpdatedApi.js";
 import PopUpModal from "@/components/common/PopUpModal.vue";
 import ModalNoButton from "@/components/common/ModalNoButton.vue";
 import moment from "moment";
+import { mapState } from "vuex";
 
 export default {
   name: "DayWgtSetup",
@@ -121,9 +132,6 @@ export default {
     DayWeightServiceApi.getAvailableCurr().then((response) => {
       this.availableCurrencies = JSON.parse(response.data.availableCurrencies);
     });
-
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
   },
 
   data() {
@@ -135,13 +143,19 @@ export default {
       productionList: [],
       eventsByCcy: [],
       dialog: false,
-      window: {
-        width: 0,
-        height: 0,
-      },
     };
   },
   computed: {
+    ...mapState({
+      window: (state) => state.window,
+    }),
+    cssVars() {
+      return {
+        "--main-width": `${this.window.width - 100}px`,
+        "--main-height": `${this.window.height + 90}px`,
+        "--dwCol-height": `${this.window.height - 20}px`,
+      };
+    },
     configEventsByCcy() {
       return {
         data: this.eventsByCcy,
@@ -247,27 +261,7 @@ export default {
   },
   methods: {
     dev() {},
-    handleResize() {
-      this.window.width = window.innerWidth - 100;
-      this.window.height = window.innerHeight - 95;
 
-      this.setContainerDimensions();
-    },
-    setContainerDimensions() {
-      document.documentElement.style.setProperty(
-        "--main-width",
-        `${this.window.width}px`
-      );
-
-      document.documentElement.style.setProperty(
-        "--main-height",
-        `${this.window.height}px`
-      );
-      document.documentElement.style.setProperty(
-        "--dwCol-height",
-        `${this.window.height - 70}px`
-      );
-    },
     async getEvents(ccy) {
       try {
         let response = await DayWeightServiceApi.getEvents({ Ccy: ccy });

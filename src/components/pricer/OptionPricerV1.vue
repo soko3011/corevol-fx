@@ -46,8 +46,6 @@ export default {
     Simulation,
   },
   created() {
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
     document.addEventListener("keydown", this.eventListeners);
     document.addEventListener("keydown", this.restoreEventToggleInCaseOfEscKey);
     this.cellPosContainer = this.$store.state.lastPricerCellCoords;
@@ -55,7 +53,6 @@ export default {
   destroyed() {
     document.removeEventListener("keydown", this.eventListeners);
     this.$store.dispatch("setLastCellPosition", this.cellPosContainer);
-    window.removeEventListener("resize", this.handleResize);
   },
   props: {
     pricerName: { type: String, default: "" },
@@ -82,10 +79,6 @@ export default {
       storedData: [],
       showSimulation: false,
       simData: [],
-      window: {
-        width: 0,
-        height: 0,
-      },
     };
   },
   computed: {
@@ -97,6 +90,7 @@ export default {
       crossListData: (state) => state.crossList,
       pricerStrategy: (state) => state.pricerStrategy,
       currentUser: (state) => state.currentUser,
+      window: (state) => state.window,
     }),
     combinedPricerLayouts() {
       const userLayouts = [];
@@ -128,8 +122,6 @@ export default {
         freezeColumns: 2,
         tableWidth: `${this.tableWidth}px`,
         tableHeight: `${this.tableHeight}px`,
-        // tableWidth: `${this.window.width - 375}px`,
-        // tableHeight: `${this.window.height - 155}px`,
         contextMenu: function (obj, x, y, e) {
           let items = [];
           items.push({
@@ -1086,10 +1078,7 @@ export default {
     },
     //#endregion FORMAT
     //#region UTILITIES
-    handleResize() {
-      this.window.width = window.innerWidth;
-      this.window.height = window.innerHeight;
-    },
+
     getCell(col, row) {
       var id = jexcel.getColumnNameFromId([col, row]);
       var cell = this.jExcelObj.getCell([id]);

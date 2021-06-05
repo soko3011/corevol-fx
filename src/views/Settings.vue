@@ -1,11 +1,16 @@
 <template>
-  <div>
+  <div :style="cssVars">
     <div class="d-flex flex-row mb-5 flex-nowrap">
       <v-toolbar color="#126496" min-width="300" collapse>
         <v-spacer></v-spacer>
         <div class="d-flex flex-column">
           <h4
-            class="font-weight-medium text-center text-uppercase grey--text text--lighten-3"
+            class="
+              font-weight-medium
+              text-center text-uppercase
+              grey--text
+              text--lighten-3
+            "
           >
             Corevolfx
             <v-icon small color="green lighten-3" class="mb-4"
@@ -13,7 +18,12 @@
             >
           </h4>
           <h6
-            class="font-weight-light text-center text-uppercase green--text text--lighten-3"
+            class="
+              font-weight-light
+              text-center text-uppercase
+              green--text
+              text--lighten-3
+            "
             align="center"
             justify="center"
           >
@@ -84,16 +94,10 @@ import ExpiryCutSettings from "@/components/settings/ExpiryCutSettings.vue";
 import UserSettings from "@/components/settings/UserSettings.vue";
 import BidOfferSpreads from "@/components/settings/bidOfferSpreadSettings/BidOfferSpreads.vue";
 import PopUpModal from "@/components/common/PopUpModal.vue";
+import { mapState } from "vuex";
 
 export default {
   name: "Setup",
-  created() {
-    window.addEventListener("resize", this.handleResize);
-    this.handleResize();
-  },
-  destroyed() {
-    window.removeEventListener("resize", this.handleResize);
-  },
   data: () => ({
     settingHeaders: [
       "Dvi Settings",
@@ -101,13 +105,9 @@ export default {
       "Ccy Settings",
       "Expiry Cut Settings",
       "User Settings",
-      "Bid-Offer Settings"
+      "Bid-Offer Settings",
     ],
     settingSelection: "Dvi Settings",
-    window: {
-      width: 0,
-      height: 0
-    }
   }),
 
   components: {
@@ -117,37 +117,32 @@ export default {
     PopUpModal,
     UserSettings,
     BidOfferSpreads,
-    ExpiryCutSettings
+    ExpiryCutSettings,
   },
 
   computed: {
     zoomLevel() {
       var level = window.innerWidth > 1700 ? "100%" : "90%";
       return {
-        zoom: level
+        zoom: level,
       };
-    }
+    },
+    ...mapState({
+      window: (state) => state.window,
+    }),
+    cssVars() {
+      return {
+        "--main-width": `${this.window.width - 100}px`,
+        "--main-height": `${this.window.height - 5}px`,
+      };
+    },
   },
 
   methods: {
     ChangeSettings(setting) {
       this.settingSelection = setting;
     },
-    handleResize() {
-      this.window.width = window.innerWidth;
-      this.window.height = window.innerHeight - 150;
-
-      document.documentElement.style.setProperty(
-        "--main-width",
-        `${this.window.width}px`
-      );
-
-      document.documentElement.style.setProperty(
-        "--main-height",
-        `${this.window.height}px`
-      );
-    }
-  }
+  },
 };
 </script>
 
